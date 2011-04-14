@@ -1,6 +1,5 @@
 #include "lisp.h"
 
-
 void next_token(Token *token){
 	char *in = token->input;
 	while(*in == ' ') in++;
@@ -15,7 +14,7 @@ void next_token(Token *token){
 			in++;
 		}
 		token->type = TOKEN_INT;
-		token->n = n;
+		token->num = n;
 	}else if(*in == '-' && in[1] >= '0' && in[1] <= '9'){
 		in++;
 		token->input = in;
@@ -26,7 +25,9 @@ void next_token(Token *token){
 		token->type = TOKEN_STR;
 		char *s = token->str;
 		while(*in != ' ' && *in != '\0'){
-			*s++ = 
+			*s++ = *in++;
+		}
+		*s = '\0';
 	}else{
 		token->type = *in++;
 	}
@@ -68,7 +69,7 @@ Cons *create_list(Token *token){
 			break;
 
 		case TYPE_INT:
-			data.i = token->n;
+			data.i = token->num;
 			list = add_list(list, TYPE_INT, data);
 			break;
 			
