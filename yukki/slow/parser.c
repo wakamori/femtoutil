@@ -1,11 +1,13 @@
 #include "lisp.h"
+#include <string.h>
 
-void next_token(Token *token){
+int next_token(Token *token){
 	char *in = token->input;
 	while(*in == ' ') in++;
 
 	if(*in == '\0'){
 		token->type = TOKEN_NULL;
+		return 0;
 	}else if(*in >= '0' && *in <= '9'){
 		int n=0;
 		while(*in >= '0' && *in <= '9'){
@@ -32,61 +34,61 @@ void next_token(Token *token){
 		token->type = *in++;
 	}
 	token->input = in;
+	return 1;
 }
 
-// add last
-Cons *add_list(Cons *l, int type, Data data){
-	Cons *top;
+// add
+cons_t *add_list(cons_t *l, int type, consvalue_t v){
+	cons_t *top;
 	if(l == NULL){
-		l = (Cons *)malloc(sizeof(Cons));
+		l = (cons_t *)malloc(sizeof(cons_t));
 		top = l;
 	}else{
 		top = l;
 		while(l->cdr != NULL) l = l->cdr;
-		l->cdr = (Cons *)malloc(sizeof(Cons));
+		l->cdr = (cons_t *)malloc(sizeof(cons_t));
 		l = l->cdr;
 	}
 	l->type = type;
-	l->data = data;
+	l->v = v;
 	l->cdr = NULL;
 	return top;
 }
 
-Cons *create_list(Token *token){
-	Cons *list = NULL;
-	Data data;
-
-	while(1){
-		next_token(token);
+cons_t *create_list(Token *token){
+	cons_t *list = NULL;
+	consvalue_t value;
+	while(next_token(token)){
 		switch(token->type){
 		case '(':
-			data.car = create_list(token);
-			list = add_list(list, TYPE_LIST, data);
+			value.car = create_list(token);
+			list = add_list(list, TYPE_CAR, value);
 			break;
 
-		case TYPE_NULL:
-			printf("PARSER ERROR NULL!!\n");
+		case TOKEN_INT:
+			value.i = token->num;
+			list = add_list(list, TYPE_INT, value);
+			break;
+		case TOKEN_STR:
+			if(strcmp(token->str, "if") == 0){
+				list = add_list(list, TYPE_IF, value);
+			}else{
+				printf("token error!! %s\n", token->str);
+			}
 			break;
 
-		case TYPE_INT:
-			data.i = token->num;
-			list = add_list(list, TYPE_INT, data);
-			break;
-			
 		case ')':
 			goto end;
 
 		case '+':
-			list = add_list(list, TYPE_PLUS, data);
-			break;
 		case '-':
-			list = add_list(list, TYPE_MINUS, data);
-			break;
 		case '*':
-			list = add_list(list, TYPE_MULTI, data);
-			break;
 		case '/':
-			list = add_list(list, TYPE_DIV, data);
+		case '=':
+		case '<':
+		case '>':
+			value.i = token->type;
+			list = add_list(list, TYPE_OPERATE, value);
 			break;
 
 		default:
@@ -98,10 +100,9 @@ end:
 	return list;
 }
 
-Cons *compile(char *input){
+cons_t *compile(char *input){
 	Token token;
 	token.input = input;
-
 	next_token(&token);
 	return create_list(&token);
 }
