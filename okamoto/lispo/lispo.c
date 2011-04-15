@@ -10,6 +10,9 @@
 #define LF '\n'
 #define number 1
 #define add '+'
+#define sub '-'
+#define mult '*'
+#define dev '/'
 
 typedef struct cons_t{
 	int type;
@@ -38,6 +41,7 @@ void make_cons(cons_t* p)
 	int i = 0;
 	int x = 0;
 	int b_counter = -1;
+	int minus_flag = 0;
 	char* line = readline(">>> ");
 
 	if(strncmp(line, "quit", 4) == 0)
@@ -47,6 +51,15 @@ void make_cons(cons_t* p)
 		if(b_counter == -1)
 			b_counter++;
 		if(line[i] == space || line[i] == LF){
+			if(minus_flag == 1){
+				p->type = sub;
+				cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+				p->cdr = temp;
+				p = temp;
+				i++;
+				minus_flag = 0;
+				continue;
+			}
 			i++;
 			continue;
 		}
@@ -87,9 +100,33 @@ void make_cons(cons_t* p)
 			i++;
 			continue;
 		}
+		else if(line[i] == sub){
+			minus_flag = 1;
+			i++;
+			}
+		else if(line[i] == mult){
+			p->type = mult;
+			
+			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			p->cdr = temp;
+			p = temp;
+			i++;
+			continue;
+		}
+		else if(line[i] == dev){
+			p->type = dev;
+			
+			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			p->cdr = temp;
+			p = temp;
+			i++;
+			continue;
+		}
 		else if('0' <= line[i] && line[i] <= '9'){
 			while('0' <= line[i] && line[i] <= '9'){
 				x = x * 10 + decode(line[i]);
+				if(minus_flag == 1)
+					x = x * (-1);
 				i++;
 			}
 			
@@ -126,15 +163,59 @@ int eval(cons_t* p)
 			x = 0;
 			head = head->next;
 		}
+
+		if(p->type == sub){
+			p = p->cdr;
+			x = p->ivalue;
+			p = p->cdr;
+			while(p->type != e_bracket){
+				x = x - p->ivalue;
+				p = p->cdr;
+			}	
+			p = head->ps;
+			p->ivalue = x;
+			x = 0;
+			head = head->next;
+		}
+		if(p->type == mult){
+			p = p->cdr;
+			x = p->ivalue;
+			p = p->cdr;
+			while(p->type != e_bracket){
+				x = x * p->ivalue;
+				p = p->cdr;
+			}	
+			p = head->ps;
+			p->ivalue = x;
+			x = 0;
+			head = head->next;
+		}
+		if(p->type == dev){
+			p = p->cdr;
+			x = p->ivalue;
+			p = p->cdr;
+			while(p->type != e_bracket){
+				x = x / p->ivalue;
+				p = p->cdr;
+			}	
+			p = head->ps;
+			p->ivalue = x;
+			x = 0;
+			head = head->next;
+		}
 	}
 	return p->ivalue;
 }
 			
 int main(void)
 {
-	cons_t* p = malloc(sizeof(cons_t));
-	head = NULL;
-	make_cons(p);
-	printf("%d\n",eval(p));
+	while(1){
+		cons_t* p = malloc(sizeof(cons_t));
+		head = NULL;
+		make_cons(p);
+		printf("%d\n\n",eval(p));
+		free(p);
+		free(head);
+	}
 	return;
 }
