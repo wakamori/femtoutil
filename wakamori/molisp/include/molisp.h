@@ -11,3 +11,5 @@
 void molisp_readfile(const char *);
 void molisp_interactive();
 int countBracket(char *line);
+cons_t *ml_read(char *line);
+void ml_error(char *message);

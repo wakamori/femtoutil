@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../include/molisp.h"
+#include "molisp.h"
 
 int main(int argc, const char *argv[])
 {
