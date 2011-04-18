@@ -2,10 +2,10 @@
 
 void exe_lisp(char *input){
 	cons_t *l = compile(input);
-	l = eval(l);
-	switch(l->type){
+	cons_t p = eval(l, NULL);
+	switch(p.type){
 	case TYPE_INT: 
-		printf("(int)%d\n", l->v.i);
+		printf("(int)%d\n", p.v.i);
 		break;
 	case TYPE_T:
 		printf("T\n");
@@ -14,15 +14,18 @@ void exe_lisp(char *input){
 		printf("NIL\n");
 		break;
 	default:
-		printf("(?)%d\n", l->v.i);
+		printf("(?)%d\n", p.v.i);
 	}
 }
 
 int main(void){
 	char input[256];
+
+	puts("WELCOME TO LOW(Lisp Of Wakamatsu)!");
+
 	while(1){
 		printf(">>>");
-		gets(input);
+		fgets(input, 256, stdin);
 		exe_lisp(input);
 	}
 	return 0;
