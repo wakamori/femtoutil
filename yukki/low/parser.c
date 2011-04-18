@@ -7,7 +7,7 @@ int next_token(Token *token){
 	while(isspace(*in)) in++;
 
 	if(*in == '\0'){
-			token->input = in;
+		token->input = in;
 		return 0;
 	}else if(isdigit(*in)){
 		int n=0;
@@ -42,12 +42,12 @@ int next_token(Token *token){
 cons_t *add_list(cons_t *l, int type, consvalue_t v){
 	cons_t *top;
 	if(l == NULL){
-		l = (cons_t *)malloc(sizeof(cons_t));
+		l = (cons_t *)low_malloc(sizeof(cons_t));
 		top = l;
 	}else{
 		top = l;
 		while(l->cdr != NULL) l = l->cdr;
-		l->cdr = (cons_t *)malloc(sizeof(cons_t));
+		l->cdr = (cons_t *)low_malloc(sizeof(cons_t));
 		l = l->cdr;
 	}
 	l->type = type;
@@ -56,9 +56,14 @@ cons_t *add_list(cons_t *l, int type, consvalue_t v){
 	return top;
 }
 
+int depth = 0;
+
 cons_t *create_list(Token *token){
 	cons_t *list = NULL;
 	consvalue_t value;
+
+	depth++;
+
 	while(next_token(token)){
 		switch(token->type){
 		case '(':
@@ -85,7 +90,7 @@ cons_t *create_list(Token *token){
 			}else{
 				// variable or function ?
 				int length = strlen(token->str);
-				value.str = (char *)malloc(length+1);
+				value.str = (char *)low_malloc(length+1);
 				strcpy(value.str, token->str);
 				list = add_list(list, TYPE_STR, value);
 			}
@@ -99,8 +104,13 @@ cons_t *create_list(Token *token){
 		case '*':
 		case '/':
 		case '=':
+			value.i = token->type;
+			list = add_list(list, TYPE_OPERATE, value);
+			break;
+
 		case '<':
 		case '>':
+			// cannot parse <=, >= !!!!
 			value.i = token->type;
 			list = add_list(list, TYPE_OPERATE, value);
 			break;
@@ -109,15 +119,10 @@ cons_t *create_list(Token *token){
 			printf("PARSER ERROR!!\n");
 			//exit(0);
 		}
+		if(depth == 1) break;
 	}
 end:
+	depth--;
 	return list;
-}
-
-cons_t *compile(char *input){
-	Token token;
-	token.input = input;
-	next_token(&token);
-	return create_list(&token);
 }
 
