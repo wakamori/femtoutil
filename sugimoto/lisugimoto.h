@@ -4,6 +4,9 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#define TYPE_INT  0
+#define TYPE_CHAR 1
+
 typedef struct cons_t {
 	int type;
 	union {

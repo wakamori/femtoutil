@@ -4,16 +4,10 @@
 #include <string.h>
 #include <ctype.h>
 
-void parsing(char *);
+cons_t *parsing(char *);
 void error();
 
 cons_t *sgmt_read(char *line)
-{
-	parsing(line);
-	return NULL;
-}
-
-void parsing(char *line)
 {
 	cons_t *cell = NULL;
 	char *ps;
@@ -21,17 +15,20 @@ void parsing(char *line)
 	ps=line;
 	int blcount=0,brcount=0,opcount=0,errcount=0,digicount=0;
 	cell =(cons_t *)malloc(sizeof(cons_t));
+	struct cons_t *root=cell;
 	while (*ps != '\0') {
 		if (*ps == '(') { //check'('
-			cell->value=*ps;
-			printf("token =%c\n", cell->value);
+			cell = cell->car;
+			cell =(cons_t *)malloc(sizeof(cons_t));
+			// cell->value=*ps;
+			printf("token =(\n");
 			blcount++;
 		} else if (*ps == ')') {//check')'
 			cell->cdr=NULL;
 			printf("token =)\n");
 			brcount++;
 		} else if(blcount !=0 && (*ps=='+'||*ps=='-'||*ps=='*'||*ps=='/'||*ps=='<'||*ps=='>')) {//check'operator'
-			cell = cell->cdr;
+			// cell = cell->cdr;
 			cell =(cons_t *)malloc(sizeof(cons_t));
 			cell->value=*ps;
 			printf("token =%c\n", cell->value);
@@ -59,7 +56,7 @@ void parsing(char *line)
 			else error();
 		}
 		else if(*ps ==' '){//check'space'
-			ps++;
+			//
 		}
 		else{//check error
 			if(errcount==0)	{
@@ -71,9 +68,8 @@ void parsing(char *line)
 	}
 	if(blcount != brcount && errcount==0){
 		error();
-
 	}
-	return;
+	return root;
 }
 
 void error(){
