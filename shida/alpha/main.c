@@ -55,6 +55,8 @@ void print_cons(cons_t* cons){
 	printf("T\n");
     }else if(cons->type==nil){
 	printf("nil\n");
+    } else if (cons->type == DEFUN){
+        printf( "define function\n" );
     }else if(cons->type==STR){
 	printf("STR%s",cons->u.c);
     }else{

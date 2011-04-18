@@ -180,12 +180,12 @@ cons_t* read_Expression(int mode,int argument){
 	    //return cons_return;
 	}else if(cons[depth]->type==ARG){
 	    //cons[depth]->type=NUM;
-	    cons[depth]->u.i=argument;
-	    if(depth == 0){
+      cons[depth]->u.i=argument;
+        if(depth == 0){
 		return cons[depth];
 	    }
 	}else if(cons[depth]->type==DEFUN){
-	    setf();
+        setf();
 	}else if(cons[depth]->type == STR && cons[0]->type != SETQ ){
 	    cons_copy=getf(cons[depth]->u.c,argument);
 	    if(cons_copy==NULL){
