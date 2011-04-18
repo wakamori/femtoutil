@@ -8,6 +8,7 @@
 #include"stack_data.h"
 
 int obj;
+struct function_Data_t* ptr;
 
 int read_Token(char* s){
     int level=0,count=0;
@@ -83,18 +84,6 @@ void analize_Expression(char* str){
             cons->type=OPEN;
             //printf("kakko\n");
             enq(cons);
-            //analize_Expression(&str[index+1]);
-            //for(j = index+1; str[j] != '\0'; j++){
-            //	if(str[j]=='('){
-            //	    count++;
-            //	}else if(str[j]==')'){
-            //	    count--;
-            //	    if(count<0){
-            //		index=j+1;
-            //		break;
-            //	    }
-            //	}
-            //    }
         }else if(c==')'){
             cons=(cons_t*)malloc_original(sizeof(cons_t));
             //	    printf("close\n");
@@ -165,87 +154,68 @@ void analize_Expression(char* str){
 
 int read_Expression(int mode,int argument){
     cons_t* cons[3];
-    cons_t* cons_copy;
     int depth=0;
     while(first!=NULL){
         cons[depth]=deq();
         //printf("deq\n");
-        if(cons[depth]->type==OPEN){
-            if(mode==ONCE){
-                return read_Expression(CONTINUE,argument);
-            }else{
-                push ( read_Expression(CONTINUE,argument) );
-            }
-        } else if (cons[depth]->type == NUM ) {
-            if ( depth == 0 ) {
-                return cons[depth]->u.i;
-            } else {
-                push( cons[depth]->u.i );
-            }
-        }else if(cons[depth]->type==CLOSE){
-            return pop();
-            //return cons_return;
-        }else if(cons[depth]->type==ARG){
-            //cons[depth]->type=NUM;
-            if(depth == 0){
-                return argument;
-            } else {
-                push( argument );
-            }
-        }else if(cons[depth]->type==DEFUN){
-            setf();
-        }else if(cons[depth]->type == STR && cons[0]->type != SETQ ){
-            if ( searchf( cons[depth]->u.c) ==NULL){
-                if ( depth == 0 ){
-                    return getq( cons[depth]->u.c);
-                } else {
-                    push( getq( cons[depth]->u.c ) );
+        switch( cons[depth]->type ){
+            case OPEN:
+                if(mode==ONCE){
+                    return read_Expression(CONTINUE,argument);
+                }else{
+                    push ( read_Expression(CONTINUE,argument) );
                 }
-            } else {
-                push( getf( cons[depth]->u.c , argument , searchf( cons[depth]->u.c ) ) );
-            }
-        }else if(cons[depth]->type==IF){
-            /*printf("if\n");
-              if(deq()->type==OPEN){
-              if(read_Expression(CONTINUE,argument)->boolean==nil){
-              printf("false\n");
-              if(deq()->type==OPEN){
-              skip_Expression();
-              return read_Expression(CONTINUE,argument);
-              }else{
-              return read_Expression(CONTINUE,argument);
-              }
-              }else{
-              printf("true\n");
-              cons[depth]=deq();
-              if(cons[depth]->type==OPEN){
-            //cons[depth]=read_Expression(CONTINUE,argument);
-            return read_Expression(CONTINUE,argument);
-            if(deq()->type==OPEN){
-            skip_Expression();
-            }
-            return cons[depth];
-            }else{
-            if(deq()->type==OPEN){
-            skip_Expression();
-            }
-            return cons[depth];
-            }
-            }
-            }else{
-            first=NULL;
-            last=NULL;
-            }*/
-            if(read_Expression(ONCE,argument) == 0){
-                //printf("false\n");
-                skip_Expression();
-                return read_Expression(ONCE,argument);
-            }else{
-                //printf("true\n");
-                depth = read_Expression(ONCE,argument);
-                skip_Expression();
-                return depth;
-            }
+                break;
+
+            case CLOSE:
+                return pop();
+                break;
+
+            case NUM:
+                if ( depth == 0 ) {
+                    return cons[depth]->u.i;
+                } else {
+                    push( cons[depth]->u.i );
+                }
+                break;
+
+            case STR:
+                ptr = searchf( cons[depth]->u.c );
+                if ( ptr == NULL ){
+                    if ( depth == 0 ){
+                        return getq( cons[depth]->u.c);
+                    } else {
+                        push( getq( cons[depth]->u.c ) );
+                    }
+                } else {
+                    push( getf( cons[depth]->u.c , argument , ptr ) );
+                }
+                break;
+
+            case ARG:
+                if(depth == 0){
+                    return argument;
+                } else {
+                    push( argument );
+                }
+                break;
+
+            case DEFUN:
+                setf();
+                break;
+
+            case IF:
+                if(read_Expression(ONCE,argument) == 0){
+                    //printf("false\n");
+                    skip_Expression();
+                    return read_Expression(ONCE,argument);
+                }else{
+                    //printf("true\n");
+                    depth = read_Expression(ONCE,argument);
+                    skip_Expression();
+                    return depth;
+                }
+                break;
         }
 
         depth++;
@@ -321,45 +291,7 @@ int read_Expression(int mode,int argument){
     return pop();
 }
 
-/*void setq(cons_t* cons1, cons_t* cons2){
-  int hashNum;
-  struct variable_Data_t* p;
-  struct variable_Data_t* next_p;
-  hashNum=((int)(cons1->u.c[0]) * (int)(cons1->u.c[1])) % (sizeof(variable_Data)/sizeof(variable_Data[0]));
-  p=&variable_Data[hashNum];
-  while(1){
-  if(p->name[0] == '\0'){
-  strcpy(p->name,cons1->u.c);
-  p->value = cons2->u.i;
-  break;
-  }else if(p->name == cons1->u.c){
-  break;
-  }else if(p->next == NULL){
-  printf("null");
-  next_p = (struct variable_Data_t*)malloc(sizeof(struct variable_Data_t));
-  memset( next_p, 0, sizeof(variable_Data_t));
-  p->next = next_p;
-  p=next_p;
-  }else{
-  p=p->next;
-  }
-  }
-  }
-  int getValue(char* str){
-  int hashNum;
-  struct variable_Data_t* p;
-  hashNum = ((int)str[0] * (int)str[1]) % (sizeof(variable_Data)/sizeof(variable_Data[0]));
-  p = &variable_Data[hashNum];
-  while(1){
-  if(strcmp(p->name,str) == 0){
-  return p->value;
-  }else if(p->next != NULL){
-  p=p->next;
-  }else{
-  return -1;
-  }
-  }
-  }*/
+
 void skip_Expression(){
     int skipCount=-1;
     cons_t* cons;
@@ -375,4 +307,3 @@ void skip_Expression(){
         }
     }
 }
-

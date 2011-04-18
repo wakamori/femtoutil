@@ -14,7 +14,6 @@ enum eTYPE{ NUM, PLUS, MINUS, MUL, DIV, OPEN, CLOSE, GT, GTE, LT, LTE, EQ, T, ni
 
 typedef struct cons_t{
     enum eTYPE type;   
-    enum eTYPE boolean;
     union_t u;
     struct cons_t* next;
     struct cons_t* prev;

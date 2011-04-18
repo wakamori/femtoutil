@@ -41,33 +41,6 @@ void enq(cons_t* cons){
         cons->prev=NULL;
     }
 }
-cons_t* deq_func(void){
-    cons_t* ptr;
-    if(first!=NULL){
-        ptr=first;
-        if(first->prev!=NULL){
-            first=first->prev;
-        }else{
-            first=NULL;
-            last=NULL;
-        }
-        return ptr;
-    }else{
-        return ptr;
-    }
-}
-void enq_func(cons_t* cons,cons_t** f,cons_t** l){
-    if(*l==NULL){
-        *f=cons;
-        *l=cons;
-        cons->prev=NULL;
-    }else{
-        cons->next=*l;
-        (*l)->prev=NULL;
-        *l=cons;
-        cons->prev=NULL;
-    }
-}
 void setq(cons_t* cons1, cons_t* cons2){
     struct variable_Data_t* p;
     struct variable_Data_t* next_p;
@@ -175,8 +148,6 @@ void setf(void){
 struct function_Data_t* searchf(char* str){
     int arg;
     int back;
-    cons_t* first_copy=first;
-    cons_t* last_copy=last;
     struct function_Data_t* p;
     hashNum = ((int)str[0] * (int)str[1]) % (sizeof(function_Data)/sizeof(function_Data[0]));
     p = &function_Data[hashNum];
@@ -193,54 +164,19 @@ struct function_Data_t* searchf(char* str){
 int getf(char* str,int argument, struct function_Data_t* p){
     int arg;
     int back;
-    cons_t* first_copy=first;
-    cons_t* last_copy=last;
+    cons_t* first_copy;
+    cons_t* last_copy;
     hashNum = ((int)str[0] * (int)str[1]) % (sizeof(function_Data)/sizeof(function_Data[0]));
     p = &function_Data[hashNum];
     arg=read_Expression(ONCE,argument);
-    //data=escape_Data(p);
+    first_copy=first;
+    last_copy=last;
     first=p->first;
     last=p->last;
     back=read_Expression(CONTINUE,arg);
-    //back=read_Expression(CONTINUE,arg);
-    //recover_Data(p,data);
     first=first_copy;
     last=last_copy;
-    skip_Expression();
-    //printf("back\n");
     return back;
-}
-union_t* escape_Data(function_Data_t* p){
-    union_t* u;
-    int count=0;
-    cons_t* cons=p->first;
-    u=(union_t*)malloc(sizeof(union_t)*p->expression_Count);
-    cons=p->first;
-    count=0;
-    while(1){
-        *(u+count)=cons->u;
-        count++;
-        if(cons==p->last){
-            break;
-        }else{
-            cons=cons->prev;
-        }
-    }	
-}
-void recover_Data(function_Data_t* p,union_t* u){
-    cons_t* cons=p->first;
-    int count=0;
-    while(1){
-        if(cons->type==NUM&&cons->type==STR){
-            cons->u=*(u+count);
-            count++;
-        }
-        if (cons==p->last){
-            break;
-        } else{
-            cons=cons->prev;
-        }
-    }
 }
 
 void* malloc_original(int size)
