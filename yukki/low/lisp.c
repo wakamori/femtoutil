@@ -18,11 +18,18 @@ void exe_lisp(char *input){
 	}
 }
 
+void fib_test(){
+	exe_lisp("(defun fib (n) (if (< n 3) 1 (+ (fib (- n 1)) (fib (- n 2)))))");
+	exe_lisp("(fib 36)");
+}
+
 int main(void){
 	char input[256];
 
 	puts("WELCOME TO LOW(Lisp Of Wakamatsu)!");
 
+	//fib_test();
+	
 	while(1){
 		printf(">>>");
 		fgets(input, 256, stdin);
