@@ -12,7 +12,7 @@ LDLIBS = -lreadline
 
 .PHONY: all
 $(TARGET): $(OBJS)
-	$(CC) $(LDLIBS) -o $(TARGET) $^
+	$(CC) $(CFLAGS) $(LDLIBS) -o $(TARGET) $^
 
 lisugimoto.o: lisugimoto.c
 	$(CC) $(CFLAGS) -c $<
