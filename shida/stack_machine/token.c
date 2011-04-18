@@ -15,7 +15,7 @@ int read_Token(char* s){
 
     count=0;
     strcat(str,s);
-    for (i = 0; i < strlen(str); i++) {	
+    for (i = 0; i < strlen(str); i++) {
         if(str[i]=='('){
             count++;
         }else if(str[i]==')'){
@@ -85,7 +85,7 @@ void analize_Expression(char* str){
             enq(cons);
         }else if(c==')'){
             cons=(cons_t*)malloc_original(sizeof(cons_t));
-            //	    printf("close\n");
+            // printf("close\n");
             cons->type=CLOSE;
             enq(cons);
         }else if(c=='>'){
@@ -205,11 +205,9 @@ int read_Expression(int mode,int argument){
 
             case IF:
                 if(read_Expression(ONCE,argument) == 0){
-                    //printf("false\n");
                     skip_Expression();
                     return read_Expression(ONCE,argument);
                 }else{
-                    //printf("true\n");
                     depth = read_Expression(ONCE,argument);
                     skip_Expression();
                     return depth;
