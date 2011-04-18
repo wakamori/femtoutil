@@ -1,4 +1,4 @@
-#include "../include/lispy.h"
+#include "../include/clispy.h"
 
 int getParenth(char* line)
 {

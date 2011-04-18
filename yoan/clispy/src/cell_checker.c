@@ -1,4 +1,4 @@
-#include"../include/lispy.h"
+#include"../include/clispy.h"
 
 void check_opr(Opt_t opr)
 {

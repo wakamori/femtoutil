@@ -1,4 +1,4 @@
-#include"../include/lispy.h"
+#include"../include/clispy.h"
 
 #define matchToken(t, c) (!strncmp(t, c, strlen(t)))
 #define P(p) printf("line: %s, %p, %d\n", p, p, __LINE__)
