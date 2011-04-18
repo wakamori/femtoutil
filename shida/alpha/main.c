@@ -20,47 +20,47 @@ int main(int argc,char* argv[]){
         file = fopen(argv[1],"r");
     }
     for (i = 0; i < 100; i++){
-       variable_Data[i].name[0]='\0';
-       function_Data[i].name[0]='\0';
+        variable_Data[i].name[0]='\0';
+        function_Data[i].name[0]='\0';
     }       
     while(1){
-    if(flag==0){
-	printf(">>>");
-    }
-    if(argc == 2 && file_flag==1){
-	if(fgets(str,sizeof(str),file)==NULL){
-	    file_flag=0;
-	    fclose(file);
-	    flag=1;
-	} else {
-	    flag=read_Token(str);
-	}
-    }else{
-        fgets(str,sizeof(str),stdin);
-        flag=read_Token(str);
-    }
-    firstChar=0;
-    if(flag == 0 ){
-	print_cons(read_Expression(CONTINUE,0));
-    }
+        if(flag==0){
+            printf(">>>");
+        }
+        if(argc == 2 && file_flag==1){
+            if(fgets(str,sizeof(str),file)==NULL){
+                file_flag=0;
+                fclose(file);
+                flag=1;
+            } else {
+                flag=read_Token(str);
+            }
+        }else{
+            fgets(str,sizeof(str),stdin);
+            flag=read_Token(str);
+        }
+        firstChar=0;
+        if(flag == 0 ){
+            print_cons(read_Expression(CONTINUE,0));
+        }
     }
 
 }
 
 void print_cons(cons_t* cons){
     if(cons->type==NUM){
-	printf("%d\n",cons->u.i);
-	exit(0);
+        printf("%d\n",cons->u.i);
+        exit(0);
     }else if(cons->type==T){
-	printf("T\n");
+        printf("T\n");
     }else if(cons->type==nil){
-	printf("nil\n");
+        printf("nil\n");
     } else if (cons->type == DEFUN){
         printf( "define function\n" );
     }else if(cons->type==STR){
-	printf("STR%s",cons->u.c);
+        printf("STR%s",cons->u.c);
     }else{
-	printf("\n");
+        printf("\n");
     }
     first=NULL;
     last=NULL;
