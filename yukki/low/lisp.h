@@ -10,7 +10,9 @@
 #define TYPE_NIL 4
 #define TYPE_T 5
 #define TYPE_IF 6
-#define TYPE_DEFUN 7
+#define TYPE_SETQ 7
+#define TYPE_DEFUN 8
+#define TYPE_STR 9
 
 typedef union consvalue_t{
 	struct cons_t *car;
@@ -37,8 +39,10 @@ typedef struct Token{
 	char *input;
 }Token;
 
+struct var_t;
+
 cons_t *compile(char *input);
-cons_t *eval(cons_t *list);
+cons_t eval(cons_t *list, struct var_t *local_vars);
 
 #endif
 
