@@ -3,17 +3,18 @@
 #include <string.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#define NIL             ((cell)0)
-#define CAR(v)          ((cons_t *)v)->car_v
-#define CDR(v)          ((cons_t *)v)->cdr_v
+
+#define TYPE_INT  0
+#define TYPE_CHAR 1
 
 typedef struct cons_t {
 	int type;
 	union {
 		struct cons_t *car;
-		char *value;
+		char value;
 		int ivalue;
-	}v;
+		char *func;
+	};
 	struct cons_t *cdr;
 } cons_t;
 
