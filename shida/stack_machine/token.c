@@ -4,8 +4,7 @@
 #include<math.h>
 #include"main.h"
 #include"token.h"
-#include"tree.h"
-#include"stack_data.h"
+#include"data_structure.h"
 
 int obj;
 struct function_Data_t* ptr;
@@ -157,8 +156,8 @@ int read_Expression(int mode,int argument){
     int depth=0;
     while(first!=NULL){
         cons[depth]=deq();
-        //printf("deq\n");
         switch( cons[depth]->type ){
+
             case OPEN:
                 if(mode==ONCE){
                     return read_Expression(CONTINUE,argument);
