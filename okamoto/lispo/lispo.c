@@ -8,11 +8,16 @@
 #define e_bracket ')'
 #define space ' '
 #define LF '\n'
-#define number 1
+#define number 'n'
+#define string 's'
 #define add '+'
 #define sub '-'
 #define mult '*'
 #define dev '/'
+#define l_than '<'
+#define m_than '>'
+#define variable 'v'
+#define func 'f'
 
 typedef struct cons_t{
 	int type;
@@ -24,12 +29,27 @@ typedef struct cons_t{
 	struct cons_t* cdr;
 }cons_t;	
 
-typedef struct list{
+typedef struct s_b_stack{
 	cons_t* ps;
-	struct list* next;
-}list;
+	struct s_b_stack* next;
+}s_b_stack;
 
-list* head;
+typedef struct name_stack{
+	int type;
+	char* name;
+	union{
+		int ivalue;
+		cons_t* func_head;
+	};
+	struct name_stack* next;
+}name_stack;
+
+s_b_stack* s_b_s_head;
+name_stack* n_s_head;
+name_stack* n_s_h_hold;
+char* v_name_temp;
+int setq_flag = 0;
+int char_flag = 0;
 
 int decode(int n)
 {
@@ -42,11 +62,13 @@ void make_cons(cons_t* p)
 	int x = 0;
 	int b_counter = -1;
 	int minus_flag = 0;
+	int e_b_flag = 0;
 	char* line = readline(">>> ");
-
-	if(strncmp(line, "quit", 4) == 0)
+	char* line_temp;
+	if(strncmp(line, "quit", 4) == 0){
+		printf("\n");
 		exit(0);
-
+	}
 	while(b_counter != 0){ 
 		if(b_counter == -1)
 			b_counter++;
@@ -67,10 +89,10 @@ void make_cons(cons_t* p)
 			p->type = s_bracket;
 			b_counter++;
 			
-			list* l_temp = (list*)malloc(sizeof(list));
-			l_temp->ps = p;
-			l_temp->next = head;
-			head = l_temp;
+			s_b_stack* s_b_s_temp = (s_b_stack*)malloc(sizeof(s_b_stack));
+			s_b_s_temp->ps = p;
+			s_b_s_temp->next = s_b_s_head;
+			s_b_s_head = s_b_s_temp;
 
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->car = temp;
@@ -79,6 +101,17 @@ void make_cons(cons_t* p)
 			continue;
 		}
 		else if(line[i] == e_bracket){
+			if(e_b_flag == 1){
+				line_temp = &line[i + 1];
+				line[i] = '\0';
+				i = 0;
+				p->type = string;
+				p->value = line;
+				line = line_temp;
+				cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+				p->cdr = temp;
+				p = temp;
+			}
 			p->type = e_bracket;
 			b_counter--;
 			
@@ -86,9 +119,11 @@ void make_cons(cons_t* p)
 				break;
 
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
-			head->ps->cdr = temp;
+			s_b_s_head->ps->cdr = temp;
 			p = temp;
-			i++;
+			if(e_b_flag != 1)
+				i++;
+			e_b_flag = 0;
 			continue;
 		}
 		else if(line[i] == add){
@@ -122,6 +157,24 @@ void make_cons(cons_t* p)
 			i++;
 			continue;
 		}
+		else if(line[i] == l_than){
+			p->type = l_than;
+			
+			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			p->cdr = temp;
+			p = temp;
+			i++;
+			continue;
+		}
+		else if(line[i] == m_than){
+			p->type = m_than;
+			
+			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			p->cdr = temp;
+			p = temp;
+			i++;
+			continue;
+		}
 		else if('0' <= line[i] && line[i] <= '9'){
 			while('0' <= line[i] && line[i] <= '9'){
 				x = x * 10 + decode(line[i]);
@@ -139,7 +192,48 @@ void make_cons(cons_t* p)
 			p = temp;
 			continue;
 		}
-		else break;
+		else{
+			line = &line[i];
+			i = 0;
+			while(line[i] != space && line[i] != e_bracket)
+				i++;
+			if(line[i] == space){
+				line_temp = &line[i + 1];
+				line[i] = '\0';
+				p->type = string;
+				p->value = line;
+				line = line_temp;
+				i = 0;
+			}
+			else if(line[i] == e_bracket){
+				e_b_flag = 1;
+				continue;
+			}
+			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			p->cdr = temp;
+			p = temp;
+			continue;
+		}
+	}
+	return;
+}
+
+void search_name(cons_t* p)
+{
+	if(p->type == string){
+		if(strncmp(p->value, "if", 2) != 0 && strncmp(p->value, "setq", 4) != 0 && strncmp(p->value, "defun", 5) != 0){
+			while(n_s_head != NULL){
+				if(strcmp(p->value, n_s_head->name) == 0){
+					if(n_s_head->type == variable){
+						p->type = number;
+						p->ivalue = n_s_head->ivalue;
+					}
+					n_s_head = n_s_h_hold;
+					break;
+				}
+				n_s_head = n_s_head->next;
+			}	
+		}
 	}
 	return;
 }
@@ -147,75 +241,180 @@ void make_cons(cons_t* p)
 int eval(cons_t* p)
 {
 	int x;
-	while(head != NULL){
-		p = head->ps;
+
+	while(s_b_s_head != NULL){
+		p = s_b_s_head->ps;
 		p = p->car;
 		if(p->type == add){
 			p = p->cdr;
+			search_name(p);
 			x = p->ivalue;
 			p = p->cdr;
 			while(p->type != e_bracket){
+				search_name(p);
 				x = x + p->ivalue;
 				p = p->cdr;
 			}	
-			p = head->ps;
+			p = s_b_s_head->ps;
 			p->ivalue = x;
 			x = 0;
-			head = head->next;
+			s_b_s_head = s_b_s_head->next;
 		}
-
-		if(p->type == sub){
+		else if(p->type == sub){
 			p = p->cdr;
+			search_name(p);
 			x = p->ivalue;
 			p = p->cdr;
 			while(p->type != e_bracket){
+				search_name(p);
 				x = x - p->ivalue;
 				p = p->cdr;
 			}	
-			p = head->ps;
+			p = s_b_s_head->ps;
 			p->ivalue = x;
 			x = 0;
-			head = head->next;
+			s_b_s_head = s_b_s_head->next;
 		}
-		if(p->type == mult){
+		else if(p->type == mult){
 			p = p->cdr;
+			search_name(p);
 			x = p->ivalue;
 			p = p->cdr;
 			while(p->type != e_bracket){
+				search_name(p);
 				x = x * p->ivalue;
 				p = p->cdr;
 			}	
-			p = head->ps;
+			p = s_b_s_head->ps;
 			p->ivalue = x;
 			x = 0;
-			head = head->next;
+			s_b_s_head = s_b_s_head->next;
 		}
-		if(p->type == dev){
+		else if(p->type == dev){
 			p = p->cdr;
+			search_name(p);
 			x = p->ivalue;
 			p = p->cdr;
 			while(p->type != e_bracket){
+				search_name(p);
 				x = x / p->ivalue;
 				p = p->cdr;
 			}	
-			p = head->ps;
+			p = s_b_s_head->ps;
 			p->ivalue = x;
 			x = 0;
-			head = head->next;
+			s_b_s_head = s_b_s_head->next;
+		}
+		else if(p->type == l_than){
+			char_flag = 1;
+			p = p->cdr;
+			search_name(p);
+			x = p->ivalue;
+			p = p->cdr;
+			search_name(p);
+			if(x < (p->ivalue))
+				x = 'T';
+			else
+				x = 'F';	
+			p = s_b_s_head->ps;
+			p->ivalue = x;
+			x = 0;
+			s_b_s_head = s_b_s_head->next;
+		}
+		else if(p->type == m_than){
+			char_flag = 1;
+			p = p->cdr;
+			search_name(p);
+			x = p->ivalue;
+			p = p->cdr;
+			if(x > (p->ivalue))
+				x = 'T';
+			else
+				x = 'F';	
+			p = s_b_s_head->ps;
+			search_name(p);
+			p->ivalue = x;
+			x = 0;
+			s_b_s_head = s_b_s_head->next;
+		}
+		else if(p->type == string){
+			if(strncmp(p->value, "if", 2) == 0){
+				char_flag = 0;
+				p = p->cdr;
+				if(p->ivalue == 'T'){
+					p = p->cdr;
+					search_name(p);
+					x = p->ivalue;
+					p = s_b_s_head->ps;
+					p->ivalue = x;
+					x = 0;
+					s_b_s_head = s_b_s_head->next;
+				}
+				else{
+					p = p->cdr;
+					p = p->cdr;
+					search_name(p);
+					x = p->ivalue;
+					p = s_b_s_head->ps;
+					p->ivalue = x;
+					x = 0;
+					s_b_s_head = s_b_s_head->next;
+				}
+			}
+			else if(strncmp(p->value, "setq", 4) == 0){
+				p = p->cdr;
+				name_stack* n_s_temp = (name_stack*)malloc(sizeof(name_stack));
+				n_s_temp->type = variable;
+				n_s_temp->name = p->value;
+				p = p->cdr;
+				n_s_temp->ivalue = p->ivalue;
+				n_s_temp->next = n_s_head;
+				n_s_head = n_s_temp;
+				v_name_temp = n_s_head->name;
+				setq_flag = 1;
+				n_s_h_hold = n_s_head;
+				s_b_s_head = s_b_s_head->next;
+			}
+			else if(strncmp(p->value, "defun", 5) == 0){
+				p = p->cdr;
+				name_stack* n_s_temp = (name_stack*)malloc(sizeof(name_stack));
+
+			}				
 		}
 	}
 	return p->ivalue;
 }
-			
-int main(void)
+
+void print(int x)
 {
+	if(char_flag == 1){
+		if(x == 'F')
+			printf("NIL\n");
+		else
+			printf("%c\n",x);
+		char_flag = 0;
+	}
+	if(setq_flag == 1){
+		printf("%s: %d\n", v_name_temp, x);
+		setq_flag = 0;
+	}
+	else
+		printf("%d\n", x); 
+	return;
+}
+
+int main(void)
+{	
+	char_flag = 0;
+	n_s_head = NULL;
+
 	while(1){
 		cons_t* p = malloc(sizeof(cons_t));
-		head = NULL;
+		s_b_s_head = NULL;
 		make_cons(p);
-		printf("%d\n\n",eval(p));
+		print(eval(p));
 		free(p);
-		free(head);
+		free(s_b_s_head);
 	}
 	return;
 }
