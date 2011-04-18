@@ -1,6 +1,6 @@
 CFLAGS=-g -O2
-a : main.o token.o tree.o stack_data.o
-	gcc $(CFLAGS) -o  a main.o token.o tree.o stack_data.o -lm -O2
+a : main.o token.o data_structure.o 
+	gcc $(CFLAGS) -o  a main.o token.o data_structure.o -lm -O2
 
 main.o : main.c main.h
 	gcc $(CFLAGS) -c main.c
@@ -8,11 +8,8 @@ main.o : main.c main.h
 token.o : token.c token.h 
 	gcc $(CFLAGS) -c token.c
 
-tree.o : tree.c tree.h
-	gcc $(CFLAGS) -c tree.c
-
-stack_data.o : stack_data.c stack_data.h
-	gcc $(CFLAGS) -c stack_data.c
+data_structure.o : data_structure.c data_structure.h 
+	gcc $(CFLAGS) -c data_structure.c
 
 .PHONY:clean
 clean:
