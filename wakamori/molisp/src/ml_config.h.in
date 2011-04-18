@@ -1,0 +1,10 @@
+#define ML_VERSION_MAJOR	@ML_VERSION_MAJOR@
+#define ML_VERSION_MINOR	@ML_VERSION_MINOR@
+
+#define MAX_HISTORY_NUM		10
+#define PROMPT				"> "
+#define PROMPT_CONT			". "
+#define EXIT_STRING			"(quit)"
+
+void molisp_readfile(const char *);
+void molisp_interactive();

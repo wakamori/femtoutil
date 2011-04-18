@@ -1,0 +1,55 @@
+# 回線が途中で切れたときには自動的にdetachする
+autodetach on
+
+# ベル文字がバックグラウンドに送られたときの挙動
+# ^Gは通常は音声ベル
+# メッセージを表示しない場合には""を指定する
+bell_msg "^G"
+
+# 可視ベルをoff
+vbell off
+
+# エンコード関係
+# ここではLinux環境を想定しているのでUTF-8で統一
+defkanji utf-8
+defencoding utf-8
+encoding utf-8 utf-8
+
+# 表示の履歴保持行数
+defscrollback 10000
+
+# コマンド文字にJを設定しリテラルコマンドにjを設定する
+# ディフォルトは^Aa
+# emacs使う場合にC-aはキーが被るので変更
+escape ^Jj
+
+# screenコマンド開始時の著作権表示などの
+# メッセージを表示しない
+startup_message off
+
+# ウィンドウの下部に表示されるキャプションを指定
+# 第一引数がalwaysならウィンドウが一つしかない場合でも表示
+caption always "%{= wb}%-w%{=bu dr}%n %t%{-}%+w %= %{=b wk}[%l]%{=b wb}%y/%m/%d %{=b wm}%c"
+
+defbce "on"
+
+# bind key [command]でコマンドをキーに割り当てる
+# screen, prev, next, windowlistはscreenのコマンド
+#bind n screen
+bind h prev
+bind j next
+bind l windowlist
+#bind p focus up
+#bind n focus down
+
+bind p focus next
+bind n focus prev
+
+
+#bind -c REGION 2 split
+#bind -c REGION 1 only
+#bind -c REGION 0 remove
+#bind -c REGION o focus
+#bind -c REGION ^ resize
+#bind x command -c REGION
+
