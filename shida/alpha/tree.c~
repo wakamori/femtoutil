@@ -80,7 +80,7 @@ void setq(cons_t* cons1, cons_t* cons2){
        }else if(p->name == cons1->u.c){
 	   break;
        }else if(p->next == NULL){
-	   //printf("null");
+	   printf("null");
 	   next_p = (struct variable_Data_t*)malloc(sizeof(struct variable_Data_t));
 	   memset( next_p, 0, sizeof(variable_Data_t));
 	   p->next = next_p;
@@ -109,7 +109,7 @@ void setf(void){
    int nestLevel=0;
    cons_t* func_end;
    cons_t* name=deq();
-   //printf("name %s\n",name->u.c);
+   printf("name %s\n",name->u.c);
    struct function_Data_t* p;
    struct function_Data_t* next_p;
    hashNum=((int)(name->u.c[0]) * (int)(name->u.c[1])) % (sizeof(function_Data)/sizeof(function_Data[0]));
@@ -126,7 +126,7 @@ void setf(void){
 	   func_end=first;
 	   while(1){
 	       count++;
-	       //printf("%d\n",func_end->type);
+	       printf("%d\n",func_end->type);
 	       if(func_end->type==OPEN){
 		   nestLevel++;
 	       }else if(func_end->type==CLOSE){
@@ -135,7 +135,7 @@ void setf(void){
 		   
 	       }else if(func_end->type == STR && strcmp(func_end->u.c,p->arg) == 0){
 		   func_end->type = ARG;
-		   //printf("argument\n");
+		   printf("argument\n");
 	       }
 	       if(nestLevel<0){
 		   break;
