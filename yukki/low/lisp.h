@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #define TYPE_INT 1
 #define TYPE_CAR 2
@@ -24,7 +25,7 @@ typedef struct cons_t{
 	int type;
 	consvalue_t v;
 	struct cons_t *cdr;
-}cons_t;	
+}cons_t;
 
 #define TOKEN_NULL 0
 #define TOKEN_INT 1
@@ -41,8 +42,16 @@ typedef struct Token{
 
 struct var_t;
 
-cons_t *compile(char *input);
+cons_t *create_list(Token *token);
 cons_t eval(cons_t *list, struct var_t *local_vars);
+void free_cons(cons_t *);
+
+// allocater
+struct var_t *low_newVar();
+void low_freeVar(struct var_t *);
+
+void *low_malloc(size_t size);
+
 
 #endif
 

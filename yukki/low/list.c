@@ -16,7 +16,8 @@ var_t *set_var_value(var_t *top, const char *name, int value){
 	}
 
 	// add new var_t
-	v = (var_t *)malloc(sizeof(var_t));
+	//v = (var_t *)malloc(sizeof(var_t));
+	v = low_newVar();
 	v->name = name;
 	v->value = value;
 	v->next = top;
@@ -38,6 +39,15 @@ var_t *get_var_value(var_t *top, const char *name){
 	return NULL;
 }
 
+void free_vars(var_t *top){
+	while(top != NULL){
+		var_t *v = top->next;
+		low_freeVar(top);
+		top = v;
+	}
+}
+
+
 // set value
 func_t *set_func(func_t *top, const char *name, cons_t *args, cons_t *car){
 	func_t *v;
@@ -54,7 +64,8 @@ func_t *set_func(func_t *top, const char *name, cons_t *args, cons_t *car){
 	}
 
 	// add new var_t
-	v = (func_t *)malloc(sizeof(func_t));
+	v = (func_t *)low_malloc(sizeof(func_t));
+	
 	v->name = name;
 	v->args = args;
 	v->car = car;
