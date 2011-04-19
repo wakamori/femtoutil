@@ -11,8 +11,8 @@ cons_t* ptr;
 
 
 
-extern variable_Data_t variable_Data[100];
-extern function_Data_t function_Data[100];
+variable_Data_t variable_Data[100];
+function_Data_t function_Data[100];
 
 int data[STACK_MAX];
 int* sp=data;
@@ -20,18 +20,17 @@ int function_size = ( sizeof( function_Data ) / sizeof( function_Data[0] ) );
 int variable_size = ( sizeof( variable_Data ) / sizeof( variable_Data[0] ) );
 
 
-
-
-void push ( int e ) {
+inline void push ( int e ) {
     *(sp++) = e;
 }
 
 
 
 
-int pop ( void ){
+inline int pop ( void ){
     return *(--sp);
 }
+
 
 
 
@@ -147,10 +146,7 @@ void setf(void){
     }
 }
 struct function_Data_t* searchf(char* str){
-    int arg;
-    int back;
-    struct function_Data_t* p;
-    p = &function_Data[ (str[0] * str[1] ) % function_size ];
+    struct function_Data_t* p = &function_Data[ (str[0] * str[1] ) % function_size ];
     while(1){
         if(strcmp(p->name,str) == 0){
             return p;
@@ -166,15 +162,19 @@ int getf(char* str,int argument, struct function_Data_t* p){
     int back;
     cons_t* first_copy;
     cons_t* last_copy;
-    p = &function_Data[ ( str[0] * str[1] ) % function_size ];
     arg=read_Expression(ONCE,argument);
+
     first_copy=first;
     last_copy=last;
+
     first=p->first;
     last=p->last;
+
     back=read_Expression(CONTINUE,arg);
+
     first=first_copy;
     last=last_copy;
+
     return back;
 }
 

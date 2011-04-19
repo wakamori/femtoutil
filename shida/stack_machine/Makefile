@@ -4,10 +4,8 @@ a : main.o token.o data_structure.o
 
 main.o : main.c main.h
 	gcc $(CFLAGS) -c main.c
-
 token.o : token.c token.h 
 	gcc $(CFLAGS) -c token.c
-
 data_structure.o : data_structure.c data_structure.h 
 	gcc $(CFLAGS) -c data_structure.c
 

@@ -5,17 +5,17 @@
 #define CONTINUE 0
 #define MAXSIZE 2000000
 #define STACK_MAX 100000
-int pop( void );
-void push( int );
+inline  int pop( void );
+inline void push( int );
 typedef union{
     int i;
     char* c;
 }union_t;
 
-enum eTYPE{ NUM, PLUS, MINUS, MUL, DIV, OPEN, CLOSE, GT, GTE, LT, LTE, EQ, T, nil, IF, SETQ, DEFUN, STR, ARG, STATIC};
+enum eTYPE{ PLUS, MINUS, MUL, DIV, GT, GTE, LT, LTE, EQ, SETQ, NUM,  T, nil, IF, OPEN, CLOSE, DEFUN, STR, ARG, STATIC};
 
 typedef struct cons_t{
-    enum eTYPE type;   
+    enum eTYPE type;
     union_t u;
     struct cons_t* next;
     struct cons_t* prev;
@@ -43,6 +43,8 @@ cons_t* deq_func();
 struct cons_t* deq(void);
 void setq(cons_t*,cons_t*);
 int getq(char*);
+
+
 struct function_Data_t* searchf(char*);
 int getf(char*,int,struct function_Data_t*);
 void* malloc_original(int size);

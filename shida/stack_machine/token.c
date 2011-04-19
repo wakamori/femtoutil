@@ -6,7 +6,19 @@
 #include"token.h"
 #include"data_structure.h"
 
-int obj;
+void (*operation[])( void ) = {
+    plus,
+    minus,
+    mul,
+    d_iv,
+    gt,
+    gte,
+    lt,
+    lte,
+    eq,
+};
+
+//int obj,a,b;
 struct function_Data_t* ptr;
 
 int read_Token(char* s){
@@ -211,75 +223,17 @@ int read_Expression(int mode,int argument){
                     return read_Expression(ONCE,argument);
                 }
                 break;
+
+            case SETQ:
+                if ( depth == 3){
+                    setq( cons[1] , cons[2] );
+                }
+                break;
         }
 
         depth++;
         if(depth==3){
-            switch(cons[0]->type){
-
-                case PLUS:
-                    push ( pop() + pop() );
-                    break;
-
-                case MINUS:
-                    obj= -1 * pop();
-                    push( obj + pop() );
-                    break;
-
-                case MUL:
-                    push ( pop() * pop() );
-                    break;
-
-                case DIV:
-                    push( (int)( ( 1.0 / (float)pop() ) * (float)pop() ) );
-                    break;
-
-                case GT:
-                    if( pop() > pop() ){
-                        push( 1 );
-                    }else{
-                        push( 0 );
-                    }
-                    break;
-
-                case GTE:
-                    if( pop() >= pop() ){
-                        push( 1 );
-                    }else{
-                        push( 0 );
-                    }
-                    break;
-
-                case LT:
-                    if( pop() < pop() ){
-                        push( 1 );
-                    }else{
-                        push( 0 );
-                    }
-                    break;
-
-                case LTE:
-                    if( pop() <= pop() ){
-                        push( 1 );
-                    }else{
-                        push( 0 );
-                    }
-                    break;
-
-                case EQ:
-                    if( pop() == pop() ){
-                        push( 1 );
-                    }else{
-                        push( 0 );
-                    }
-                    break;
-
-                case SETQ:
-                    setq(cons[1],cons[2]);
-                    break;
-
-
-            }
+            operation[ cons[ 0 ]->type ]();
             depth=2;
         }
     }
@@ -300,5 +254,64 @@ void skip_Expression(){
         if(skipCount<0){
             break;
         }
+    }
+}
+
+void plus( void )
+{
+    push( pop() + pop() );
+}
+
+void minus( void )
+{
+    int a = pop();
+    int b = pop();
+    push( b-a );
+}
+
+void mul( void )
+{
+    push( pop() * pop() );
+}
+
+void d_iv( void )
+{
+    push( (int)( ( 1.0 / (float)pop() ) * (float)pop() ) );
+}
+
+void gt( void )
+{
+
+    int obj = (pop() > pop()) ? 1 : 0;
+    push(obj);
+}
+
+void gte( void )
+{
+    int obj = (pop() >= pop()) ? 1 : 0;
+    push(obj);
+}
+
+void lt( void )
+{
+    int ret = (pop() < pop()) ? 1 : 0;
+    push(ret);
+}
+
+void lte( void )
+{
+    if( pop() <= pop() ){
+        push( 1 );
+    }else{
+        push( 0 );
+    }
+}
+
+void eq( void )
+{
+    if( pop() == pop() ){
+        push( 1 );
+    }else{
+        push( 0 );
     }
 }
