@@ -125,6 +125,9 @@ void setf(void){
                 }else if(func_end->type == STR && strcmp(func_end->u.c,p->arg) == 0){
                     func_end->type = ARG;
                     //printf("argument\n");
+                }else if( func_end->type == STR && strcmp(func_end->u.c,p->name) == 0){
+                    func_end->f = p;
+                    func_end->type = FUNC;
                 }
                 if(nestLevel<0){
                     break;
@@ -157,12 +160,13 @@ struct function_Data_t* searchf(char* str){
         }
     }
 }
-int getf(char* str,int argument, struct function_Data_t* p){
+void getf(char* str,int argument, struct function_Data_t* p){
     int arg;
     int back;
     cons_t* first_copy;
     cons_t* last_copy;
-    arg=read_Expression(ONCE,argument);
+    read_Expression(ONCE,argument);
+    arg=pop();
 
     first_copy=first;
     last_copy=last;
@@ -170,12 +174,12 @@ int getf(char* str,int argument, struct function_Data_t* p){
     first=p->first;
     last=p->last;
 
-    back=read_Expression(CONTINUE,arg);
+    read_Expression(CONTINUE,arg);
 
     first=first_copy;
     last=last_copy;
 
-    return back;
+    return;
 }
 
 void* malloc_original(int size)

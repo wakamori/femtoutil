@@ -5,7 +5,7 @@
 #include"token.h"
 #include"data_structure.h"
 
-void print_cons ( int );
+void print_cons ( void );
 
 int main ( int argc,char* argv[] ){
     int i;
@@ -43,13 +43,14 @@ int main ( int argc,char* argv[] ){
         }
         firstChar = 0;
         if(flag == 0 ){
-            print_cons( read_Expression(CONTINUE,0) );
+            read_Expression(CONTINUE,0);
+            print_cons();
         }
     }
 }
 
-void print_cons( int i ){
-    printf( "%d\n" , i );
+void print_cons( void ){
+    printf( "%d\n" , pop() );
     first=NULL;
     last=NULL;
 }

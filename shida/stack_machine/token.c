@@ -45,7 +45,7 @@ int read_Token(char* s){
 }
 
 
-void analize_Expression(char* str){
+int analize_Expression(char* str){
 
     int count=0;
     int i,j;
@@ -155,15 +155,21 @@ void analize_Expression(char* str){
             cons=(cons_t*)malloc_original(sizeof(cons_t));
             cons->u.c=(char*)malloc_original(sizeof(char)*(count+2));
             strcpy(cons->u.c,token);
-            cons->type=STR;
-           enq(cons);
+            ptr = searchf( cons->u.c );
+            if( ptr != NULL ){
+                cons->type = FUNC;
+                cons->f = ptr;
+            } else {
+                cons->type=STR;
+            }
+            enq(cons);
         }
     }
 
 
 }
 
-int read_Expression(int mode,int argument){
+void read_Expression(int mode,int argument){
     cons_t* cons[3];
     int depth=0;
     while(first!=NULL){
@@ -172,43 +178,36 @@ int read_Expression(int mode,int argument){
 
             case OPEN:
                 if ( mode == ONCE ){
-                    return read_Expression( CONTINUE, argument );
+                    read_Expression( CONTINUE, argument );
+                    return;
                 }else{
-                    push ( read_Expression( CONTINUE, argument ) );
+                    read_Expression( CONTINUE, argument ) ;
                 }
                 break;
 
             case CLOSE:
-                return pop();
+                return ;
+
+            case FUNC:
+                getf( cons[depth]->u.c, argument, (function_Data_t*)cons[depth]->f );
                 break;
 
             case NUM:
-                if ( depth == 0 ) {
-                    return cons[depth]->u.i;
-                } else {
-                    push( cons[depth]->u.i );
+                push( cons[depth]->u.i );
+                if(depth == 0){
+                    return;
                 }
                 break;
 
             case STR:
-                ptr = searchf( cons[depth]->u.c );
-                if ( ptr == NULL ){
-                    if ( depth == 0 ){
-                        return getq( cons[depth]->u.c );
-                    } else {
-                        push( getq( cons[depth]->u.c ) );
-                    }
-                } else {
-                    push( getf( cons[depth]->u.c , argument , ptr ) );
+                push( getq( cons[depth]->u.c ) );
+                if(depth == 0){
+                    return;
                 }
                 break;
 
             case ARG:
-                if(depth == 0){
-                    return argument;
-                } else {
-                    push( argument );
-                }
+                push( argument );
                 break;
 
             case DEFUN:
@@ -216,11 +215,14 @@ int read_Expression(int mode,int argument){
                 break;
 
             case IF:
-                if(read_Expression(ONCE,argument) == 0){
+                read_Expression(ONCE,argument);
+                if(pop() == 0){
                     skip_Expression();
-                    return read_Expression(ONCE,argument);
+                    read_Expression(ONCE,argument);
+                    return;
                 }else{
-                    return read_Expression(ONCE,argument);
+                    read_Expression(ONCE,argument);
+                    return;
                 }
                 break;
 
@@ -235,7 +237,6 @@ int read_Expression(int mode,int argument){
             continue;
         }
     }
-    return pop();
 }
 
 
@@ -313,3 +314,4 @@ void eq( void )
         push( 0 );
     }
 }
+
