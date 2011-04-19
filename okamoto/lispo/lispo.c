@@ -4,7 +4,6 @@
 #include<readline/history.h>
 #include<string.h>
 
-
 #define s_bracket '('
 #define e_bracket ')'
 #define space ' '
@@ -45,6 +44,7 @@ typedef struct name_stack{
 	struct name_stack* next;
 }name_stack;
 
+s_b_stack* s_b_pointer;
 s_b_stack* s_b_s_head;
 name_stack* n_s_head;
 name_stack* n_s_h_hold;
@@ -219,6 +219,22 @@ void make_cons(cons_t* p)
 	return;
 }
 
+int	 search_s_bracket(cons_t* p)
+{
+	if(p->type == s_bracket){
+			s_b_stack* s_b_p_temp = (s_b_stack*)malloc(sizeof(s_b_stack));
+			s_b_p_temp->ps = p;
+			s_b_p_temp->next = s_b_pointer;
+			s_b_pointer = s_b_p_temp;
+			p = p->car;
+			s_b_pointer->ps->ivalue = eval(p);
+			p = s_b_pointer->ps;
+			s_b_pointer = s_b_pointer->next;
+			return p->ivalue;
+	}
+	return 0;
+}
+
 void search_name(cons_t* p)
 {
 	if(p->type == string){
@@ -242,146 +258,137 @@ void search_name(cons_t* p)
 int eval(cons_t* p)
 {
 	int x;
+	char_flag = 0;
+	setq_flag = 0;
 
-	while(s_b_s_head != NULL){
-		p = s_b_s_head->ps;
-		p = p->car;
-		if(p->type == add){
-			p = p->cdr;
+	search_s_bracket(p);
+	if(p->type == add){
+		p = p->cdr;
+		search_s_bracket(p);
+		search_name(p);
+		x = p->ivalue;
+		p = p->cdr;
+		while(p->type != e_bracket){
+			search_s_bracket(p);
 			search_name(p);
-			x = p->ivalue;
+			x = x + p->ivalue;
 			p = p->cdr;
-			while(p->type != e_bracket){
+		}	
+		return x;
+	}
+	else if(p->type == sub){
+		p = p->cdr;
+		search_s_bracket(p);
+		search_name(p);
+		x = p->ivalue;
+		p = p->cdr;
+		while(p->type != e_bracket){
+			search_s_bracket(p);
+			search_name(p);
+			x = x - p->ivalue;
+			p = p->cdr;
+		}
+		return x;	
+	}
+	else if(p->type == mult){
+		p = p->cdr;
+		search_s_bracket(p);
+		search_name(p);
+		x = p->ivalue;
+		p = p->cdr;
+		while(p->type != e_bracket){
+			search_s_bracket(p);
+			search_name(p);
+			x = x * p->ivalue;
+			p = p->cdr;
+		}	
+		return x;
+	}
+	else if(p->type == dev){
+		p = p->cdr;
+		search_s_bracket(p);
+		search_name(p);
+		x = p->ivalue;
+		p = p->cdr;
+		while(p->type != e_bracket){
+			search_s_bracket(p);
+			search_name(p);
+			x = x / p->ivalue;
+			p = p->cdr;
+		}
+		return x;	
+	}
+	else if(p->type == l_than){
+		char_flag = 1;
+		p = p->cdr;
+		search_s_bracket(p);
+		search_name(p);
+		x = p->ivalue;
+		p = p->cdr;
+		search_s_bracket(p);
+		search_name(p);
+		if(x < (p->ivalue))
+			x = 'T';
+		else
+			x = 'F';	
+		return x;
+	}
+	else if(p->type == m_than){
+		char_flag = 1;
+		p = p->cdr;
+		search_s_bracket(p);
+		search_name(p);
+		x = p->ivalue;
+		p = p->cdr;
+		search_s_bracket(p);
+		search_name(p);
+		if(x > (p->ivalue))
+			x = 'T';
+		else
+			x = 'F';	
+		return x;
+	}
+	else if(p->type == string){
+		if(strncmp(p->value, "if", 2) == 0){
+			p = p->cdr;
+			search_s_bracket(p);
+			char_flag = 0;
+		   	if(p->ivalue == 'T'){
+				p = p->cdr;
+				search_s_bracket(p);
 				search_name(p);
-				x = x + p->ivalue;
-				p = p->cdr;
-			}	
-			p = s_b_s_head->ps;
-			p->ivalue = x;
-			x = 0;
-			s_b_s_head = s_b_s_head->next;
-		}
-		else if(p->type == sub){
-			p = p->cdr;
-			search_name(p);
-			x = p->ivalue;
-			p = p->cdr;
-			while(p->type != e_bracket){
-				search_name(p);
-				x = x - p->ivalue;
-				p = p->cdr;
-			}	
-			p = s_b_s_head->ps;
-			p->ivalue = x;
-			x = 0;
-			s_b_s_head = s_b_s_head->next;
-		}
-		else if(p->type == mult){
-			p = p->cdr;
-			search_name(p);
-			x = p->ivalue;
-			p = p->cdr;
-			while(p->type != e_bracket){
-				search_name(p);
-				x = x * p->ivalue;
-				p = p->cdr;
-			}	
-			p = s_b_s_head->ps;
-			p->ivalue = x;
-			x = 0;
-			s_b_s_head = s_b_s_head->next;
-		}
-		else if(p->type == dev){
-			p = p->cdr;
-			search_name(p);
-			x = p->ivalue;
-			p = p->cdr;
-			while(p->type != e_bracket){
-				search_name(p);
-				x = x / p->ivalue;
-				p = p->cdr;
-			}	
-			p = s_b_s_head->ps;
-			p->ivalue = x;
-			x = 0;
-			s_b_s_head = s_b_s_head->next;
-		}
-		else if(p->type == l_than){
-			char_flag = 1;
-			p = p->cdr;
-			search_name(p);
-			x = p->ivalue;
-			p = p->cdr;
-			search_name(p);
-			if(x < (p->ivalue))
-				x = 'T';
-			else
-				x = 'F';	
-			p = s_b_s_head->ps;
-			p->ivalue = x;
-			x = 0;
-			s_b_s_head = s_b_s_head->next;
-		}
-		else if(p->type == m_than){
-			char_flag = 1;
-			p = p->cdr;
-			search_name(p);
-			x = p->ivalue;
-			p = p->cdr;
-			if(x > (p->ivalue))
-				x = 'T';
-			else
-				x = 'F';	
-			p = s_b_s_head->ps;
-			search_name(p);
-			p->ivalue = x;
-			x = 0;
-			s_b_s_head = s_b_s_head->next;
-		}
-		else if(p->type == string){
-			if(strncmp(p->value, "if", 2) == 0){
-				char_flag = 0;
-				p = p->cdr;
-				if(p->ivalue == 'T'){
-					p = p->cdr;
-					search_name(p);
-					x = p->ivalue;
-					p = s_b_s_head->ps;
-					p->ivalue = x;
-					x = 0;
-					s_b_s_head = s_b_s_head->next;
-				}
-				else{
-					p = p->cdr;
-					p = p->cdr;
-					search_name(p);
-					x = p->ivalue;
-					p = s_b_s_head->ps;
-					p->ivalue = x;
-					x = 0;
-					s_b_s_head = s_b_s_head->next;
-				}
+				x = p->ivalue;
+				return x;
 			}
-			else if(strncmp(p->value, "setq", 4) == 0){
+			else{
 				p = p->cdr;
-				name_stack* n_s_temp = (name_stack*)malloc(sizeof(name_stack));
-				n_s_temp->type = variable;
-				n_s_temp->name = p->value;
 				p = p->cdr;
-				n_s_temp->ivalue = p->ivalue;
-				n_s_temp->next = n_s_head;
-				n_s_head = n_s_temp;
-				v_name_temp = n_s_head->name;
-				setq_flag = 1;
-				n_s_h_hold = n_s_head;
-				s_b_s_head = s_b_s_head->next;
+				search_s_bracket(p);
+				search_name(p);
+				x = p->ivalue;
+				return x;
 			}
-			else if(strncmp(p->value, "defun", 5) == 0){
-				p = p->cdr;
-				name_stack* n_s_temp = (name_stack*)malloc(sizeof(name_stack));
-
-			}				
 		}
+		else if(strncmp(p->value, "setq", 4) == 0){
+			p = p->cdr;
+			name_stack* n_s_temp = (name_stack*)malloc(sizeof(name_stack));
+			n_s_temp->type = variable;
+			n_s_temp->name = p->value;
+			p = p->cdr;
+			search_s_bracket(p);
+			search_name(p);
+			n_s_temp->ivalue = p->ivalue;
+			x = p->ivalue;
+			n_s_temp->next = n_s_head;
+			n_s_head = n_s_temp;
+			v_name_temp = n_s_head->name;
+			setq_flag = 1;
+			n_s_h_hold = n_s_head;
+			return x;
+		}
+//			else if(strncmp(p->value, "defun", 5) == 0){
+//
+//			}				
 	}
 	return p->ivalue;
 }
@@ -395,7 +402,7 @@ void print(int x)
 			printf("%c\n",x);
 		char_flag = 0;
 	}
-	if(setq_flag == 1){
+	else if(setq_flag == 1){
 		printf("%s: %d\n", v_name_temp, x);
 		setq_flag = 0;
 	}
@@ -412,10 +419,12 @@ int main(void)
 	while(1){
 		cons_t* p = malloc(sizeof(cons_t));
 		s_b_s_head = NULL;
+		s_b_pointer = NULL;
 		make_cons(p);
+		while(s_b_s_head->next != NULL)
+			s_b_s_head = s_b_s_head->next;
+		p = s_b_s_head->ps;
 		print(eval(p));
-		free(p);
-		free(s_b_s_head);
 	}
 	return;
 }
