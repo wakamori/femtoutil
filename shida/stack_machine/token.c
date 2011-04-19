@@ -159,10 +159,10 @@ int read_Expression(int mode,int argument){
         switch( cons[depth]->type ){
 
             case OPEN:
-                if(mode==ONCE){
-                    return read_Expression(CONTINUE,argument);
+                if ( mode == ONCE ){
+                    return read_Expression( CONTINUE, argument );
                 }else{
-                    push ( read_Expression(CONTINUE,argument) );
+                    push ( read_Expression( CONTINUE, argument ) );
                 }
                 break;
 
@@ -182,7 +182,7 @@ int read_Expression(int mode,int argument){
                 ptr = searchf( cons[depth]->u.c );
                 if ( ptr == NULL ){
                     if ( depth == 0 ){
-                        return getq( cons[depth]->u.c);
+                        return getq( cons[depth]->u.c );
                     } else {
                         push( getq( cons[depth]->u.c ) );
                     }
@@ -209,8 +209,6 @@ int read_Expression(int mode,int argument){
                     return read_Expression(ONCE,argument);
                 }else{
                     return read_Expression(ONCE,argument);
-                    //skip_Expression();
-                    //return depth;
                 }
                 break;
         }

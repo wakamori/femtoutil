@@ -50,11 +50,10 @@ void* malloc_original(int size);
 union_t* escape_Data(function_Data_t*);
 void recover_Data(function_Data_t*,union_t*);
 
-variable_Data_t variable_Data[100];
-function_Data_t function_Data[100];
+extern variable_Data_t variable_Data[100];
+extern function_Data_t function_Data[100];
 
 
-extern int hashNum;
 extern char* malloc_ptr;
 extern cons_t* last;
 extern cons_t* first;

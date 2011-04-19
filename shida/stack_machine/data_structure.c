@@ -4,14 +4,20 @@
 #include"token.h"
 
 int malloc_size;
-int hashNum;
 char* malloc_ptr;
 cons_t* last;
 cons_t* first;
 cons_t* ptr;
 
+
+
+extern variable_Data_t variable_Data[100];
+extern function_Data_t function_Data[100];
+
 int data[STACK_MAX];
 int* sp=data;
+int function_size = ( sizeof( function_Data ) / sizeof( function_Data[0] ) );
+int variable_size = ( sizeof( variable_Data ) / sizeof( variable_Data[0] ) );
 
 
 
@@ -57,8 +63,7 @@ void enq(cons_t* cons){
 void setq(cons_t* cons1, cons_t* cons2){
     struct variable_Data_t* p;
     struct variable_Data_t* next_p;
-    hashNum=((int)(cons1->u.c[0]) * (int)(cons1->u.c[1])) % (sizeof(variable_Data)/sizeof(variable_Data[0]));
-    p=&variable_Data[hashNum];
+    p=&variable_Data[ ((cons1->u.c[0]) * (cons1->u.c[1])) % ( variable_size ) ];
     while(1){
         if(p->name[0] == '\0'){
             strcpy(p->name,cons1->u.c);
@@ -79,8 +84,7 @@ void setq(cons_t* cons1, cons_t* cons2){
 }
 int getq(char* str){
     struct variable_Data_t* p;
-    hashNum = ((int)str[0] * (int)str[1]) % (sizeof(variable_Data)/sizeof(variable_Data[0]));
-    p = &variable_Data[hashNum];
+    p = &variable_Data[ (str[0] * str[1]) % ( variable_size ) ];
     while(1){
         if(strcmp(p->name,str) == 0){
             return p->value;
@@ -99,9 +103,8 @@ void setf(void){
     //printf("name %s\n",name->u.c);
     struct function_Data_t* p;
     struct function_Data_t* next_p;
-    hashNum=((int)(name->u.c[0]) * (int)(name->u.c[1])) % (sizeof(function_Data)/sizeof(function_Data[0]));
     //hashNum=((int)('f')*(int)('i'))%(sizeof(function_Data)/sizeof(function_Data[0]));
-    p=&function_Data[hashNum];
+    p=&function_Data[ ( name->u.c[0] * name->u.c[1] ) % function_size ];
     while(1){
         if(p->name[0] == '\0'){
             strcpy(p->name,name->u.c);
@@ -147,8 +150,7 @@ struct function_Data_t* searchf(char* str){
     int arg;
     int back;
     struct function_Data_t* p;
-    hashNum = ((int)str[0] * (int)str[1]) % (sizeof(function_Data)/sizeof(function_Data[0]));
-    p = &function_Data[hashNum];
+    p = &function_Data[ (str[0] * str[1] ) % function_size ];
     while(1){
         if(strcmp(p->name,str) == 0){
             return p;
@@ -164,8 +166,7 @@ int getf(char* str,int argument, struct function_Data_t* p){
     int back;
     cons_t* first_copy;
     cons_t* last_copy;
-    hashNum = ((int)str[0] * (int)str[1]) % (sizeof(function_Data)/sizeof(function_Data[0]));
-    p = &function_Data[hashNum];
+    p = &function_Data[ ( str[0] * str[1] ) % function_size ];
     arg=read_Expression(ONCE,argument);
     first_copy=first;
     last_copy=last;
