@@ -43,7 +43,7 @@ int main ( int argc,char* argv[] ){
         }
         firstChar = 0;
         if(flag == 0 ){
-            read_Expression(CONTINUE,0);
+            read_Expression(CONTINUE);
             print_cons();
         }
     }

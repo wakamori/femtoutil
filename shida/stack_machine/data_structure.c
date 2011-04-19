@@ -165,22 +165,23 @@ struct function_Data_t* searchf(char* str){
         }
     }
 }
-void getf(char* str,int argument, struct function_Data_t* p){
+void getf( struct function_Data_t* p){
     int arg;
     int back;
     cons_t* first_copy;
     cons_t* last_copy;
-    read_Expression(ONCE,argument);
-    arg=pop();
 
+    read_Expression( ONCE );
+    push_arg ( pop() );
     first_copy=first;
     last_copy=last;
 
     first=p->first;
     last=p->last;
 
-    read_Expression(CONTINUE,arg);
+    read_Expression(CONTINUE);
 
+    pop_arg();
     first=first_copy;
     last=last_copy;
 

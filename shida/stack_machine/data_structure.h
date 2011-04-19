@@ -44,7 +44,7 @@ int* getq(char*);
 
 
 struct function_Data_t* searchf(char*);
-void getf(char*,int,struct function_Data_t*);
+void getf(struct function_Data_t*);
 void* malloc_original(int size);
 
 union_t* escape_Data(function_Data_t*);

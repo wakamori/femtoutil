@@ -172,7 +172,7 @@ int analize_Expression(char* str){
 
 }
 
-void read_Expression(int mode,int argument){
+void read_Expression(int mode){
     cons_t* cons[3];
     int depth=0;
     while(first!=NULL){
@@ -181,10 +181,10 @@ void read_Expression(int mode,int argument){
 
             case OPEN:
                 if ( mode == ONCE ){
-                    read_Expression( CONTINUE, argument );
+                    read_Expression( CONTINUE );
                     return;
                 }else{
-                    read_Expression( CONTINUE, argument ) ;
+                    read_Expression( CONTINUE ) ;
                 }
                 break;
 
@@ -192,7 +192,7 @@ void read_Expression(int mode,int argument){
                 return ;
 
             case FUNC:
-                getf( cons[depth]->u.c, argument, (function_Data_t*)cons[depth]->f );
+                getf( cons[depth]->f );
                 break;
 
             case NUM:
@@ -210,7 +210,7 @@ void read_Expression(int mode,int argument){
                 break;
 
             case ARG:
-                push( argument );
+                push( get_arg() );
                 break;
 
             case DEFUN:
@@ -218,13 +218,13 @@ void read_Expression(int mode,int argument){
                 break;
 
             case IF:
-                read_Expression(ONCE,argument);
+                read_Expression( ONCE );
                 if(pop() == 0){
                     skip_Expression();
-                    read_Expression(ONCE,argument);
+                    read_Expression( ONCE );
                     return;
                 }else{
-                    read_Expression(ONCE,argument);
+                    read_Expression( ONCE );
                     return;
                 }
                 break;
@@ -278,7 +278,10 @@ void mul( void )
 
 void d_iv( void )
 {
-    push( (int)( ( 1.0 / (float)pop() ) * (float)pop() ) );
+    int a = pop();
+    int b = pop();
+    push( b / a );
+    //push( (int)( ( 1.0 / (float)pop() ) * (float)pop() ) );
 }
 
 void gt( void )
