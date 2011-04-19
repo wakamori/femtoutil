@@ -1,8 +1,8 @@
 #include "lisugimoto.h"
+	cons_t result = {0, {NULL}, NULL};
 
 cons_t sgmt_eval(cons_t *cell)
 {
-	cons_t result = {0, {NULL}, NULL};
 	switch (cell->type) {
 	case TYPE_START:
 		result.ivalue = sgmt_eval(cell->car).ivalue;
