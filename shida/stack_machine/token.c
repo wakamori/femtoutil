@@ -208,9 +208,9 @@ int read_Expression(int mode,int argument){
                     skip_Expression();
                     return read_Expression(ONCE,argument);
                 }else{
-                    depth = read_Expression(ONCE,argument);
-                    skip_Expression();
-                    return depth;
+                    return read_Expression(ONCE,argument);
+                    //skip_Expression();
+                    //return depth;
                 }
                 break;
         }
