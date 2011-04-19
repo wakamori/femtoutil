@@ -1,0 +1,248 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 83.97      6.40     6.40        2     3.20     3.77  eval
+  4.07      6.71     0.31 89582108     0.00     0.00  get_func
+  2.50      6.90     0.19 29860703     0.00     0.00  set_var_value
+  2.37      7.08     0.18 29860703     0.00     0.00  free_vars
+  2.37      7.26     0.18 29860703     0.00     0.00  low_freeVar
+  1.05      7.34     0.08 59721405     0.00     0.00  get_var_value
+  0.85      7.40     0.07 29860703     0.00     0.00  cmp_lt
+  0.79      7.46     0.06                             free_cons
+  0.72      7.52     0.06 29860703     0.00     0.00  low_newVar
+  0.53      7.56     0.04 14930351     0.00     0.00  op_plus
+  0.33      7.58     0.03        1     0.03     0.03  low_allocator
+  0.26      7.60     0.02 29860702     0.00     0.00  op_minus
+  0.26      7.62     0.02        1     0.02     0.02  set_func
+  0.07      7.63     0.01                             cmp_ge
+  0.00      7.63     0.00       40     0.00     0.00  next_token
+  0.00      7.63     0.00       39     0.00     0.00  low_malloc
+  0.00      7.63     0.00       29     0.00     0.00  add_list
+  0.00      7.63     0.00        3     0.00     0.00  create_list
+  0.00      7.63     0.00        2     0.00     0.00  print_cons
+  0.00      7.63     0.00        1     0.00     7.54  exe_lisp
+  0.00      7.63     0.00        1     0.00     7.54  open_file
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.13% of 7.63 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     99.1    0.00    7.56                 main [1]
+                0.00    7.54       1/1           open_file [4]
+                0.03    0.00       1/1           low_allocator [14]
+-----------------------------------------------
+                             373258784             eval [2]
+                6.40    1.14       2/2           exe_lisp [3]
+[2]     98.8    6.40    1.14       2+373258784 eval [2]
+                0.18    0.18 29860703/29860703     free_vars [5]
+                0.31    0.00 89582108/89582108     get_func [6]
+                0.19    0.06 29860703/29860703     set_var_value [7]
+                0.08    0.00 59721405/59721405     get_var_value [9]
+                0.07    0.00 29860703/29860703     cmp_lt [10]
+                0.04    0.00 14930351/14930351     op_plus [13]
+                0.02    0.00 29860702/29860702     op_minus [15]
+                0.02    0.00       1/1           set_func [16]
+                             373258784             eval [2]
+-----------------------------------------------
+                0.00    7.54       1/1           open_file [4]
+[3]     98.8    0.00    7.54       1         exe_lisp [3]
+                6.40    1.14       2/2           eval [2]
+                0.00    0.00       3/3           create_list [21]
+                0.00    0.00       2/2           print_cons [22]
+-----------------------------------------------
+                0.00    7.54       1/1           main [1]
+[4]     98.8    0.00    7.54       1         open_file [4]
+                0.00    7.54       1/1           exe_lisp [3]
+-----------------------------------------------
+                0.18    0.18 29860703/29860703     eval [2]
+[5]      4.7    0.18    0.18 29860703         free_vars [5]
+                0.18    0.00 29860703/29860703     low_freeVar [8]
+-----------------------------------------------
+                0.31    0.00 89582108/89582108     eval [2]
+[6]      4.1    0.31    0.00 89582108         get_func [6]
+-----------------------------------------------
+                0.19    0.06 29860703/29860703     eval [2]
+[7]      3.2    0.19    0.06 29860703         set_var_value [7]
+                0.06    0.00 29860703/29860703     low_newVar [12]
+-----------------------------------------------
+                0.18    0.00 29860703/29860703     free_vars [5]
+[8]      2.4    0.18    0.00 29860703         low_freeVar [8]
+-----------------------------------------------
+                0.08    0.00 59721405/59721405     eval [2]
+[9]      1.0    0.08    0.00 59721405         get_var_value [9]
+-----------------------------------------------
+                0.07    0.00 29860703/29860703     eval [2]
+[10]     0.9    0.07    0.00 29860703         cmp_lt [10]
+-----------------------------------------------
+                                                 <spontaneous>
+[11]     0.8    0.06    0.00                 free_cons [11]
+-----------------------------------------------
+                0.06    0.00 29860703/29860703     set_var_value [7]
+[12]     0.7    0.06    0.00 29860703         low_newVar [12]
+-----------------------------------------------
+                0.04    0.00 14930351/14930351     eval [2]
+[13]     0.5    0.04    0.00 14930351         op_plus [13]
+-----------------------------------------------
+                0.03    0.00       1/1           main [1]
+[14]     0.3    0.03    0.00       1         low_allocator [14]
+                0.00    0.00       1/39          low_malloc [19]
+-----------------------------------------------
+                0.02    0.00 29860702/29860702     eval [2]
+[15]     0.3    0.02    0.00 29860702         op_minus [15]
+-----------------------------------------------
+                0.02    0.00       1/1           eval [2]
+[16]     0.3    0.02    0.00       1         set_func [16]
+                0.00    0.00       1/39          low_malloc [19]
+-----------------------------------------------
+                                                 <spontaneous>
+[17]     0.1    0.01    0.00                 cmp_ge [17]
+-----------------------------------------------
+                0.00    0.00      40/40          create_list [21]
+[18]     0.0    0.00    0.00      40         next_token [18]
+-----------------------------------------------
+                0.00    0.00       1/39          set_func [16]
+                0.00    0.00       1/39          low_allocator [14]
+                0.00    0.00       8/39          create_list [21]
+                0.00    0.00      29/39          add_list [20]
+[19]     0.0    0.00    0.00      39         low_malloc [19]
+-----------------------------------------------
+                0.00    0.00      29/29          create_list [21]
+[20]     0.0    0.00    0.00      29         add_list [20]
+                0.00    0.00      29/39          low_malloc [19]
+-----------------------------------------------
+                                  10             create_list [21]
+                0.00    0.00       3/3           exe_lisp [3]
+[21]     0.0    0.00    0.00       3+10      create_list [21]
+                0.00    0.00      40/40          next_token [18]
+                0.00    0.00      29/29          add_list [20]
+                0.00    0.00       8/39          low_malloc [19]
+                                  10             create_list [21]
+-----------------------------------------------
+                0.00    0.00       2/2           exe_lisp [3]
+[22]     0.0    0.00    0.00       2         print_cons [22]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+
+Index by function name
+
+  [20] add_list                [5] free_vars              [18] next_token
+  [17] cmp_ge                  [6] get_func               [15] op_minus
+  [10] cmp_lt                  [9] get_var_value          [13] op_plus
+  [21] create_list            [14] low_allocator           [4] open_file
+   [2] eval                    [8] low_freeVar            [22] print_cons
+   [3] exe_lisp               [19] low_malloc             [16] set_func
+  [11] free_cons              [12] low_newVar              [7] set_var_value

@@ -5,7 +5,7 @@ CFLAGS ?= -O2
 #CFLAGS ?= -g3 -O0 -pg
 
 $(TARGET) : $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) -O2
+	$(CC) -o $(TARGET) $(OBJS) $(CFLAGS)
 
 .SUFFIXES: .c.o
 
