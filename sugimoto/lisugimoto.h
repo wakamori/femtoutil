@@ -10,12 +10,16 @@
 #define TYPE_MINUS 22
 #define TYPE_MULTI 23
 #define TYPE_DIVID 24
-#define TYPE_CRE   25
-#define TYPE_DECRE 26
+#define TYPE_GT   25
+#define TYPE_LT 26
+#define TYPE_GEQ   27
+#define TYPE_LEQ 28
 #define TYPE_FUNC 31 //defun func
 #define TYPE_DEFUN 32
 #define TYPE_START 4 // (
 #define TYPE_END 5  // )
+#define TYPE_T 6
+#define TYPE_NIL 7
 typedef struct cons_t {
 	int type;
 	union {
@@ -40,3 +44,4 @@ cons_t *sgmt_read(char *line, int *pos);
 cons_t sgmt_eval(cons_t *cell);
 void sgmt_print(cons_t *root);
 void dump(cons_t *root,int depth);
+void error();
