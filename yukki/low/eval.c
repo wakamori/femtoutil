@@ -9,7 +9,12 @@ cons_t eval(cons_t *c, var_t *local_vars){
 	switch(c->type){
 	case TYPE_OPERATE:{
 		int (*func)(int x, int y) = c->v.func;
-		int n  = eval(c->cdr, local_vars).v.i;
+		int n;
+		if(c->cdr == NULL){
+			printf("operate error\n");
+			return p;
+		}
+		n  = eval(c->cdr, local_vars).v.i;
 		c = c->cdr->cdr;
 		while(c != NULL){
 			p = eval(c, local_vars);
@@ -23,9 +28,12 @@ cons_t eval(cons_t *c, var_t *local_vars){
 
 	case TYPE_COMPARE:{
 		int (*func)(int x, int y) = c->v.func;
+		if(c->cdr == NULL || c->cdr->cdr == NULL){
+			printf("compare error\n");
+			return p;
+		}
 		int n1 = eval(c->cdr, local_vars).v.i;
 		int n2 = eval(c->cdr->cdr, local_vars).v.i;
-
 		p.type = func(n1, n2);
 		return p;
 	}
@@ -51,14 +59,13 @@ cons_t eval(cons_t *c, var_t *local_vars){
 				printf("setq error 1");
 			}
 		}else{
-			printf("setq error 2");
+				printf("setq error 2");
 		}
 		break;
 
 	case TYPE_DEFUN:
 		c = c->cdr;
 		funcs = set_func(funcs, c->v.str, c->cdr->v.car, c->cdr->cdr->v.car);
-	//	printf("defun %s\n", funcs->name);
 		p.type = TYPE_DEFUN;
 		return p;
 
@@ -70,6 +77,10 @@ cons_t eval(cons_t *c, var_t *local_vars){
 			var_t *locals = NULL;
 			c = c->cdr;
 			while(args != NULL){
+				if(c == NULL){
+					printf("func argument error\n");
+					return p;
+				}
 				cons_t p = eval(c, local_vars);
 				locals = set_var_value(locals, args->v.str, p.v.i);
 

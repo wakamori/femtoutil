@@ -3,20 +3,17 @@
 
 // set value
 var_t *set_var_value(var_t *top, const char *name, int value){
-	var_t *v;
-	if(top != NULL){
-		v = top;
-		while(v != NULL){
-			if(strcmp(name, v->name) == 0){
-				v->value = value;
-				return top;
-			}
-			v = v->next;
+	var_t *v = top;
+
+	while(v != NULL){
+		if(strcmp(name, v->name) == 0){
+			v->value = value;
+			return top;
 		}
+		v = v->next;
 	}
 
 	// add new var_t
-	//v = (var_t *)malloc(sizeof(var_t));
 	v = low_newVar();
 	v->name = name;
 	v->value = value;
@@ -26,16 +23,12 @@ var_t *set_var_value(var_t *top, const char *name, int value){
 
 // get value
 var_t *get_var_value(var_t *top, const char *name){
-	if(top != NULL){
-		var_t *v = top;
-		while(v != NULL){
-			if(strcmp(name, v->name) == 0){
-				return v;
-			}
-			v = v->next;
+	while(top != NULL){
+		if(strcmp(name, top->name) == 0){
+			return top;
 		}
+		top = top->next;
 	}
-	//printf("get_value error %s\n", name);
 	return NULL;
 }
 
@@ -75,14 +68,11 @@ func_t *set_func(func_t *top, const char *name, cons_t *args, cons_t *car){
 
 
 func_t *get_func(func_t *top, const char *name){
-	if(top != NULL){
-		func_t *v = top;
-		while(v != NULL){
-			if(strcmp(name, v->name) == 0){
-				return v;
-			}
-			v = v->next;
+	while(top != NULL){
+		if(strcmp(name, top->name) == 0){
+			return top;
 		}
+		top = top->next;
 	}
 	return NULL;
 }
