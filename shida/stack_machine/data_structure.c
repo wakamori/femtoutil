@@ -15,7 +15,9 @@ variable_Data_t variable_Data[100];
 function_Data_t function_Data[100];
 
 int data[STACK_MAX];
+int arg_data[STACK_MAX];
 int* sp=data;
+int* sp_arg = arg_data;
 int function_size = ( sizeof( function_Data ) / sizeof( function_Data[0] ) );
 int variable_size = ( sizeof( variable_Data ) / sizeof( variable_Data[0] ) );
 
@@ -23,15 +25,18 @@ int variable_size = ( sizeof( variable_Data ) / sizeof( variable_Data[0] ) );
 inline void push ( int e ) {
     *(sp++) = e;
 }
-
-
-
-
 inline int pop ( void ){
     return *(--sp);
 }
-
-
+inline void push_arg( int e ){
+    *(sp_arg++) = e;
+}
+inline int get_arg( void ){
+    return *(sp_arg-1);
+}
+inline int pop_arg ( void ){
+    return *(--sp_arg);
+}
 
 
 
@@ -81,16 +86,16 @@ void setq(cons_t* cons1, cons_t* cons2){
         }
     }
 }
-int getq(char* str){
+int* getq(char* str){
     struct variable_Data_t* p;
     p = &variable_Data[ (str[0] * str[1]) % ( variable_size ) ];
     while(1){
         if(strcmp(p->name,str) == 0){
-            return p->value;
+            return &p->value;
         }else if(p->next != NULL){
             p=p->next;
         }else{
-            return -1;
+            return NULL;
         }
     }
 }   

@@ -40,7 +40,7 @@ void enq_func(cons_t*,cons_t**,cons_t**);
 cons_t* deq_func();
 struct cons_t* deq(void);
 void setq(cons_t*,cons_t*);
-int getq(char*);
+int* getq(char*);
 
 
 struct function_Data_t* searchf(char*);

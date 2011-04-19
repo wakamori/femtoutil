@@ -159,8 +159,11 @@ int analize_Expression(char* str){
             if( ptr != NULL ){
                 cons->type = FUNC;
                 cons->f = ptr;
+            } else if ( getq( cons->u.c ) != NULL ){
+                cons->type = NUM;
+                cons->u.i = *getq( cons->u.c );
             } else {
-                cons->type=STR;
+                cons->type = STR;
             }
             enq(cons);
         }
@@ -200,7 +203,7 @@ void read_Expression(int mode,int argument){
                 break;
 
             case STR:
-                push( getq( cons[depth]->u.c ) );
+                printf("variable or function undefined\n");
                 if(depth == 0){
                     return;
                 }
