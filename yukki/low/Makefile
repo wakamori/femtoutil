@@ -1,11 +1,11 @@
 CC = cc
 TARGET = lisp
 OBJS = lisp.o parser.o eval.o list.o memory.o
-#CFLAGS ?= -O2
-CFLAGS ?= -g3 -O0 -pg
+CFLAGS ?= -O2
+#CFLAGS ?= -g3 -O0 -pg
 
 $(TARGET) : $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) -pg
+	$(CC) -o $(TARGET) $(OBJS) -O2
 
 .SUFFIXES: .c.o
 

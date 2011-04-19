@@ -2,6 +2,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<readline/readline.h>
+#include<readline/history.h>
 #include<math.h>
 
 typedef struct cons_t{
@@ -12,6 +13,7 @@ typedef struct cons_t{
     char *cvalue;
   };
   struct cons_t *cdr;
+  int result;
 } cons_t;
 
 #define MAX_DEPTH 32
@@ -30,27 +32,67 @@ char **tokenizer(char *line);
 cons_t *maketree(char **token);
 int typechange(char *chartoken);
 void dump_tree(cons_t *root);
+int eval(cons_t *root);
 
 
-int main()
+int main(int 
+argc,char *argv[])
 {
-  char *input;
-  char **token;
-  
-  input = readline(">>>");
+  if(argc==2){
+	char input[64];
+	char **token={NULL};
+	FILE *fp=NULL;
 
-  printf("readline\n%s\n",input);
+	fp = fopen(argv[1],"r");
 
-  token = tokenizer(input);
-  dump_token(token);
+	if(fp==NULL){
+	  return 0;
+	}
+	fgets(input,64,fp);
 
-  cons_t *root;
-  root = maketree(token);
-  printf("tree\n");
-  dump_tree(root);
+	printf("input\n%s\n",input);
+	
+	token = tokenizer(input);
+	dump_token(token);
 
-  return 0;  
+	cons_t *root=NULL;
+	root = maketree(token);
+	printf("tree\n");
+	dump_tree(root);
+	fclose(fp);
+
+	return 0;
+
+  }else{
+	char *input=NULL;
+	char **token={NULL};
+
+	while(1){  
+	  input = readline(">>>");
+	  add_history(input);
+	  
+	  printf("readline\n%s\n",input);
+	  
+	  if(strcmp(input,"quit")==0 || strcmp(input,"exit")==0){
+		break;
+	  }
+	  
+	  token = tokenizer(input);
+	  dump_token(token);
+	  
+	  cons_t *root=NULL;
+	  root = maketree(token);
+	  printf("tree\n");
+	  dump_tree(root);
+
+	  int answer;
+	  answer = eval(root);
+	  printf("answer=%d\n",answer);	  
+	}
+	return 0;
+  }
 }
+
 
 void dump_token(char **token)
 {
@@ -85,25 +127,25 @@ char **tokenizer(char *line)
 	  m++;
 	  next = &linec[l+1];
 	}else if(linec[l]==' '){
-	  if(strcmp(t[m-1],")")==0){
+	  if(strcmp(t[m-1],")")==0 && (*next<=47 || 58<=*next)){
 		next = &linec[l+1];
 	  }else{
 		linec[l] = '\0';
-		t[m] = (char*)malloc(sizeof(char)*(strlen(next)));
+		t[m] = (char*)malloc(sizeof(char)*(strlen(next)+1));
 		strcpy(t[m],next);
 		m++;
 		next = &linec[l+1];
 	  }
 	}else if(linec[l]==')'){
-	  if(strcmp(t[m-1],")")==0){
+	  if(strcmp(t[m-1],")")==0 && *next==')'){
 		linec[l] = '\0';
-		t[m] = (char*)malloc(sizeof(char)*2);
+		t[m] = (char*)malloc(sizeof(char));
 		t[m] = ")";
 		m++;
 		next = &linec[l+1];
 	  }else{	 
 		linec[l] = '\0';
-		t[m] = (char*)malloc(sizeof(char)*(strlen(next)));
+		t[m] = (char*)malloc(sizeof(char)*(strlen(next)+1));
 		strcpy(t[m],next);
 		m++;
 		t[m] = (char*)malloc(sizeof(char));
@@ -121,12 +163,16 @@ char **tokenizer(char *line)
 
 int typechange(char *chartoken)
 {
-  int size,intoken=0,i=0;  
+  int size,intoken=0,i=0,digit;  
   size = strlen(chartoken);
   size--;
+  for(digit=1;size>0;size--){
+	digit = digit*10;
+  }
   while(chartoken[i]!='\0'){
-	intoken = intoken + ((int)chartoken[i]-48);
+	intoken = intoken + digit*((int)chartoken[i]-48);
 	i++;
+	digit = digit/10;
   }
   return intoken;
 }
@@ -140,8 +186,6 @@ cons_t *maketree(char **token)
   root = (cons_t*)malloc(sizeof(cons_t));
   root->type = ROOT;
   root->car = NULL;
-  root->ivalue = 0;
-  root->cvalue = 0;
   root->cdr = NULL;
   next = root;
 
@@ -161,18 +205,22 @@ cons_t *maketree(char **token)
 	  next->car = (cons_t*)malloc(sizeof(cons_t));
 	  next = next->car;
 	  next->type = ADD;
+	  next->result = 0;
 	}else if(strcmp(token[i],"-")==0){
 	  next->car = (cons_t*)malloc(sizeof(cons_t));
 	  next = next->car;
 	  next->type = SUB;
+	  next->result = 0;
 	}else if(strcmp(token[i],"*")==0){
 	  next->car = (cons_t*)malloc(sizeof(cons_t));
 	  next = next->car;
 	  next->type = MUL;
+	  next->result = 0;
 	}else if(strcmp(token[i],"/")==0){
 	  next->car = (cons_t*)malloc(sizeof(cons_t));
 	  next =  next->car;
 	  next->type = DEV;
+	  next->result = 0;
 	}else  if(('a'<token[i][0] && token[i][0]<'z') \
 			  || ('A'<token[i][0] && token[i][0]<'Z')){
 	  next->cdr = (cons_t*)malloc(sizeof(cons_t));
@@ -223,4 +271,90 @@ void dump_tree(cons_t *root)
 	printf("/\n");
 	dump_tree(root->cdr);
   }
+}
+
+int eval(cons_t *root)
+{
+  cons_t *next;
+  next = root;
+
+  if(next->type==ROOT){
+	next = root->cdr;
+  }
+  
+  if(next->type==L_K){
+	return	eval(next->car);
+  }
+  if(next->type==ADD){
+	cons_t *now;
+	now = next;
+	do{
+	  next = next->cdr;
+	  if(next->type==INT){
+		now->result += next->ivalue;
+	  }else if(next->type==L_K){
+		next->result = eval(next->car);
+		now->result += next->result;
+	  }
+	}while(next->cdr!=NULL);	
+	return now->result;
+	
+  }else if(next->type==MUL){
+	cons_t *now;
+	now = next;
+	now->result = 1;
+	do{
+	  next = next->cdr;
+	  if(next->type==INT){
+		now->result *= next->ivalue;
+	  }else if(next->type==L_K){
+		next->result = eval(next->car);
+		now->result *= next->result;
+	  }
+	}while(next->cdr!=NULL);	
+	return now->result;
+
+  }else if(next->type==SUB){
+	cons_t *now;
+	now = next;
+	next = next->cdr;
+	if(next->type==INT){
+	  now->result = next->ivalue;
+	}else if(next->type==L_K){
+	  now->result = eval(next->car);
+	}
+	do{
+	  next = next->cdr;
+	  if(next->type==INT){
+		now->result -= next->ivalue;
+	  }else if(next->type==L_K){
+		next->result = eval(next->car);
+		now->result -= next->result;
+	  }
+	}while(next->cdr!=NULL);	
+	return now->result;
+ 
+  }else if(next->type==DEV){
+	cons_t *now;
+	now = next;
+	next = next->cdr;
+	if(next->type==INT){
+	  now->result = next->ivalue;
+	}else if(next->type==L_K){
+	  now->result = eval(next->car);
+	}
+	do{
+	  next = next->cdr;
+	  if(next->type==INT){
+		now->result /= next->ivalue;
+	  }else if(next->type==L_K){
+		next->result = eval(next->car);
+		now->result /= next->result;
+	  }
+	}while(next->cdr!=NULL);	
+
+	return now->result;
+  }
+
+  return 0;
 }

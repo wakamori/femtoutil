@@ -1,5 +1,7 @@
 #include "lisp.h"
 
+#define FILE_MAX (256 * 1024)
+
 void print_cons(cons_t *c){
 	switch(c->type){
 	case TYPE_INT: 
@@ -32,13 +34,6 @@ void exe_lisp(char *input){
 	}
 }
 
-void fib_test(){
-	exe_lisp("(defun fib (n) (if (< n 3) 1 (+ (fib (- n 1)) (fib (- n 2)))))");
-	exe_lisp("(fib 36)");
-}
-
-#define FILE_MAX (256 * 1024)
-
 void open_file(char *name){
 	FILE *fp;
 	int size;
@@ -68,13 +63,8 @@ int main(int argc, char *argv[]){
 	low_allocator();
 
 	for(i=1; i<argc; i++){
-		if(strcmp(argv[i], "-fib") == 0){
-			fib_test();
-			return 0;
-		}else{
-			open_file(argv[i]);
-			return 0;
-		}
+		open_file(argv[i]);
+		return 0;
 	}
 
 	while(1){
