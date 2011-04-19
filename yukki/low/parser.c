@@ -1,33 +1,34 @@
 #include "lisp.h"
 #include <string.h>
+#include <ctype.h>
 
 int next_token(Token *token){
 	char *in = token->input;
-	while(*in == ' ') in++;
+	while(isspace(*in)) in++;
 
 	if(*in == '\0'){
-		token->type = TOKEN_NULL;
+		token->input = in;
 		return 0;
-	}else if(*in >= '0' && *in <= '9'){
+	}else if(isdigit(*in)){
 		int n=0;
-		while(*in >= '0' && *in <= '9'){
+		do{
 			n *= 10;
 			n += *in - '0';
 			in++;
-		}
+		}while(isdigit(*in));
 		token->type = TOKEN_INT;
 		token->num = n;
-	}else if(*in == '-' && in[1] >= '0' && in[1] <= '9'){
+	}else if(*in == '-' && isdigit(*(in+1))){
 		in++;
 		token->input = in;
 		next_token(token);
 		token->num = -token->num;
-		return;
-	}else if((*in >= 'a' && *in <= 'z') || (*in >= 'A' && *in <= 'Z')){
+		return 1;
+	}else if(isalpha(*in)){
 		token->type = TOKEN_STR;
 		char *s = token->str;
-		while(*in != ' ' && *in != '\0'){
-			*s++ = *in++;
+		while(isalpha(*in) || isdigit(*in)){
+			*s++ = tolower(*in++);
 		}
 		*s = '\0';
 	}else{
@@ -37,16 +38,16 @@ int next_token(Token *token){
 	return 1;
 }
 
-// add
+// add last
 cons_t *add_list(cons_t *l, int type, consvalue_t v){
 	cons_t *top;
 	if(l == NULL){
-		l = (cons_t *)malloc(sizeof(cons_t));
+		l = (cons_t *)low_malloc(sizeof(cons_t));
 		top = l;
 	}else{
 		top = l;
 		while(l->cdr != NULL) l = l->cdr;
-		l->cdr = (cons_t *)malloc(sizeof(cons_t));
+		l->cdr = (cons_t *)low_malloc(sizeof(cons_t));
 		l = l->cdr;
 	}
 	l->type = type;
@@ -55,9 +56,14 @@ cons_t *add_list(cons_t *l, int type, consvalue_t v){
 	return top;
 }
 
+int depth = 0;
+
 cons_t *create_list(Token *token){
 	cons_t *list = NULL;
 	consvalue_t value;
+
+	depth++;
+
 	while(next_token(token)){
 		switch(token->type){
 		case '(':
@@ -69,11 +75,24 @@ cons_t *create_list(Token *token){
 			value.i = token->num;
 			list = add_list(list, TYPE_INT, value);
 			break;
+
 		case TOKEN_STR:
 			if(strcmp(token->str, "if") == 0){
 				list = add_list(list, TYPE_IF, value);
+			}else if(strcmp(token->str, "t") == 0){
+				list = add_list(list, TYPE_T, value);
+			}else if(strcmp(token->str, "nil") == 0){
+				list = add_list(list, TYPE_NIL, value);
+			}else if(strcmp(token->str, "setq") == 0){
+				list = add_list(list, TYPE_SETQ, value);
+			}else if(strcmp(token->str, "defun") == 0){
+				list = add_list(list, TYPE_DEFUN, value);		
 			}else{
-				printf("token error!! %s\n", token->str);
+				// variable or function ?
+				int length = strlen(token->str);
+				value.str = (char *)low_malloc(length+1);
+				strcpy(value.str, token->str);
+				list = add_list(list, TYPE_STR, value);
 			}
 			break;
 
@@ -85,8 +104,13 @@ cons_t *create_list(Token *token){
 		case '*':
 		case '/':
 		case '=':
+			value.i = token->type;
+			list = add_list(list, TYPE_OPERATE, value);
+			break;
+
 		case '<':
 		case '>':
+			// cannot parse <=, >= !!!!
 			value.i = token->type;
 			list = add_list(list, TYPE_OPERATE, value);
 			break;
@@ -95,16 +119,10 @@ cons_t *create_list(Token *token){
 			printf("PARSER ERROR!!\n");
 			//exit(0);
 		}
+		if(depth == 1) break;
 	}
 end:
+	depth--;
 	return list;
 }
-
-cons_t *compile(char *input){
-	Token token;
-	token.input = input;
-	next_token(&token);
-	return create_list(&token);
-}
-
 
