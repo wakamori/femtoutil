@@ -156,7 +156,7 @@ void analize_Expression(char* str){
             cons->u.c=(char*)malloc_original(sizeof(char)*(count+2));
             strcpy(cons->u.c,token);
             cons->type=STR;
-            enq(cons);
+           enq(cons);
         }
     }
 
@@ -225,16 +225,14 @@ int read_Expression(int mode,int argument){
                 break;
 
             case SETQ:
-                if ( depth == 3){
-                    setq( cons[1] , cons[2] );
-                }
+                setq( deq(), deq() );
                 break;
         }
-
         depth++;
         if(depth==3){
             operation[ cons[ 0 ]->type ]();
             depth=2;
+            continue;
         }
     }
     return pop();

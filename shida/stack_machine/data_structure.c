@@ -62,13 +62,13 @@ void enq(cons_t* cons){
 void setq(cons_t* cons1, cons_t* cons2){
     struct variable_Data_t* p;
     struct variable_Data_t* next_p;
-    p=&variable_Data[ ((cons1->u.c[0]) * (cons1->u.c[1])) % ( variable_size ) ];
+    p=&variable_Data[ ((int)(cons2->u.c[0]) * (int)(cons2->u.c[1])) % ( variable_size ) ];
     while(1){
         if(p->name[0] == '\0'){
-            strcpy(p->name,cons1->u.c);
-            p->value = cons2->u.i;
+            strcpy(p->name,cons2->u.c);
+            p->value = cons1->u.i;
             break;
-        }else if(p->name == cons1->u.c){
+        }else if(p->name == cons2->u.c){
             break;
         }else if(p->next == NULL){
             //printf("null");
