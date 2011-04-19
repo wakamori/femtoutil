@@ -5,20 +5,24 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define TYPE_INT 1
-#define TYPE_CAR 2
-#define TYPE_OPERATE 3
-#define TYPE_NIL 4
-#define TYPE_T 5
-#define TYPE_IF 6
-#define TYPE_SETQ 7
-#define TYPE_DEFUN 8
-#define TYPE_STR 9
+enum Types{
+	TYPE_NIL,
+	TYPE_T,
+	TYPE_INT,
+	TYPE_CAR,
+	TYPE_OPERATE,
+	TYPE_COMPARE,
+	TYPE_IF,
+	TYPE_SETQ,
+	TYPE_DEFUN,
+	TYPE_STR
+};
 
 typedef union consvalue_t{
 	struct cons_t *car;
 	char *str;
 	int i;
+	int (*func)(int x, int y);
 }consvalue_t;
 
 typedef struct cons_t{
@@ -27,15 +31,35 @@ typedef struct cons_t{
 	struct cons_t *cdr;
 }cons_t;
 
-#define TOKEN_NULL 0
-#define TOKEN_INT 1
-#define TOKEN_STR 2
+enum Tokens{
+	TOKEN_INT,
+	TOKEN_STR,
+	TOKEN_OPERATE,
+	TOKEN_COMPARE,
+	TOKEN_BRACE_OPEN,
+	TOKEN_BRACE_CLOSE
+};
+
+enum Operaters{
+	OP_PLUS,
+	OP_MINUS,
+	OP_MULTI,
+	OP_DIV,
+	OP_MOD,
+
+	OP_GT,
+	OP_GE,
+	OP_LT,
+	OP_LE,
+	OP_EQ
+};
 
 typedef struct Token{
 	int type;
 	union{
 		int num;
 		char str[64];
+		int (*ope)(int x, int y);
 	};
 	char *input;
 }Token;
@@ -51,7 +75,6 @@ struct var_t *low_newVar();
 void low_freeVar(struct var_t *);
 
 void *low_malloc(size_t size);
-
 
 #endif
 
