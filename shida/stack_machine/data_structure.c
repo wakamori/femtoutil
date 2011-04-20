@@ -7,8 +7,8 @@ int malloc_size;
 char* malloc_ptr;
 cons_t* last;
 cons_t* first;
-cons_t* ptr;
 
+cons_t* ptr;
 
 
 variable_Data_t variable_Data[100];
@@ -131,7 +131,7 @@ void setf(void){
                     func_end->type = ARG;
                     //printf("argument\n");
                 }else if( func_end->type == STR && strcmp(func_end->u.c,p->name) == 0){
-                    func_end->f = p;
+                    func_end->f = p->first;
                     func_end->type = FUNC;
                 }
                 if(nestLevel<0){
@@ -153,11 +153,11 @@ void setf(void){
         }
     }
 }
-struct function_Data_t* searchf(char* str){
+struct cons_t* searchf(char* str){
     struct function_Data_t* p = &function_Data[ (str[0] * str[1] ) % function_size ];
     while(1){
         if(strcmp(p->name,str) == 0){
-            return p;
+            return p->first;
         }else if(p->next != NULL){
             p=p->next;
         }else{
@@ -165,25 +165,19 @@ struct function_Data_t* searchf(char* str){
         }
     }
 }
-void getf( struct function_Data_t* p){
-    int arg;
-    int back;
+inline void getf( cons_t* p ){
     cons_t* first_copy;
-    cons_t* last_copy;
 
     read_Expression( ONCE );
     push_arg ( pop() );
     first_copy=first;
-    last_copy=last;
 
-    first=p->first;
-    last=p->last;
+    first=p;
 
     read_Expression(CONTINUE);
 
     pop_arg();
     first=first_copy;
-    last=last_copy;
 
     return;
 }

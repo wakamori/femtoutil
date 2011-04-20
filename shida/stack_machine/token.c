@@ -1,4 +1,3 @@
-#include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
 #include<math.h>
@@ -19,7 +18,7 @@ void (*operation[])( void ) = {
 };
 
 //int obj,a,b;
-struct function_Data_t* ptr;
+cons_t* ptr;
 
 int read_Token(char* s){
     int level=0,count=0;
@@ -129,6 +128,7 @@ int analize_Expression(char* str){
         }else if(str[index] == 'i' && str[index+1] == 'f' && str[index+2] == ' '){
             cons=(cons_t*)malloc_original(sizeof(cons_t));
             cons->type=IF;
+            cons->f = NULL;
             enq(cons);
             index++;
         }else if(str[index] == 's' && str[index+1] == 'e' && str[index+2] == 't' && str[index+3] == 'q' &&str[index+4] == ' '){
@@ -211,6 +211,9 @@ void read_Expression(int mode){
 
             case ARG:
                 push( get_arg() );
+                if( depth == 0){
+                    return;
+                }
                 break;
 
             case DEFUN:
@@ -259,24 +262,24 @@ void skip_Expression(){
     }
 }
 
-void plus( void )
+inline void plus( void )
 {
     push( pop() + pop() );
 }
 
-void minus( void )
+inline void minus( void )
 {
     int a = pop();
     int b = pop();
     push( b-a );
 }
 
-void mul( void )
+inline void mul( void )
 {
     push( pop() * pop() );
 }
 
-void d_iv( void )
+inline void d_iv( void )
 {
     int a = pop();
     int b = pop();
@@ -284,40 +287,34 @@ void d_iv( void )
     //push( (int)( ( 1.0 / (float)pop() ) * (float)pop() ) );
 }
 
-void gt( void )
+inline void gt( void )
 {
 
     int obj = (pop() > pop()) ? 1 : 0;
     push(obj);
 }
 
-void gte( void )
+inline void gte( void )
 {
     int obj = (pop() >= pop()) ? 1 : 0;
     push(obj);
 }
 
-void lt( void )
+inline void lt( void )
 {
     int ret = (pop() < pop()) ? 1 : 0;
     push(ret);
 }
 
-void lte( void )
+inline void lte( void )
 {
-    if( pop() <= pop() ){
-        push( 1 );
-    }else{
-        push( 0 );
-    }
+    int ret = (pop() <= pop()) ? 1 : 0;
+    push(ret);
 }
 
-void eq( void )
+inline void eq( void )
 {
-    if( pop() == pop() ){
-        push( 1 );
-    }else{
-        push( 0 );
-    }
+    int ret = (pop() == pop()) ? 1 : 0;
+    push(ret);
 }
 

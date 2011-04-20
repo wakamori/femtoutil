@@ -5,15 +5,15 @@ int analize_Expression(char* );
 void read_Expression(int);
 void skip_Expression(void);
 
-void plus( void );
-void minus( void );
-void mul( void );
-void d_iv( void );
-void gt( void );
-void gte( void );
-void lt( void );
-void lte( void );
-void eq( void );
+inline void plus( void );
+inline void minus( void );
+inline void mul( void );
+inline void d_iv( void );
+inline void gt( void );
+inline void gte( void );
+inline void lt( void );
+inline void lte( void );
+inline void eq( void );
 
 
 

@@ -7,7 +7,7 @@
 #define STACK_MAX 100000
 inline  int pop( void );
 inline void push( int );
-enum eTYPE{ PLUS, MINUS, MUL, DIV, GT, GTE, LT, LTE, EQ, SETQ, NUM,  T, nil, IF, OPEN, CLOSE, DEFUN, STR, ARG, STATIC, FUNC};
+enum eTYPE{ PLUS, MINUS, MUL, DIV, GT, GTE, LT, LTE, EQ, SETQ, NUM, T, nil, IF, OPEN, CLOSE, DEFUN, STR, ARG, STATIC, FUNC};
 typedef union{
     int i;
     char* c;
@@ -17,7 +17,7 @@ typedef struct cons_t{
     union_t u;
     struct cons_t* next;
     struct cons_t* prev;
-    void* f;
+    struct cons_t* f;
 }cons_t;
 typedef struct function_Data_t{
     struct function_Data_t* next;
@@ -43,8 +43,8 @@ void setq(cons_t*,cons_t*);
 int* getq(char*);
 
 
-struct function_Data_t* searchf(char*);
-void getf(struct function_Data_t*);
+struct cons_t* searchf(char*);
+inline void getf(cons_t*);
 void* malloc_original(int size);
 
 union_t* escape_Data(function_Data_t*);
