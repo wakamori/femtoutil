@@ -14,6 +14,8 @@
 #define TYPE_LT 26
 #define TYPE_GEQ   27
 #define TYPE_LEQ 28
+#define TYPE_EQ 29
+#define TYPE_IF 30
 #define TYPE_FUNC 31 //defun func
 #define TYPE_DEFUN 32
 #define TYPE_START 4 // (

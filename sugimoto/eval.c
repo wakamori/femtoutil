@@ -10,6 +10,10 @@ cons_t sgmt_eval(cons_t *cell)
 		case TYPE_INT:
 			result.ivalue = cell->ivalue;
 			break;
+		case TYPE_T:
+			result.type=TYPE_T;
+		case TYPE_NIL:
+			result.type=TYPE_NIL;
 		case TYPE_CHAR:
 			break;
 		case TYPE_PLUS:
@@ -101,6 +105,26 @@ cons_t sgmt_eval(cons_t *cell)
 			}
 			if(result.type != TYPE_NIL)
 				result.type = TYPE_T;
+			break;
+		case TYPE_EQ:
+			cell=cell->cdr;
+			while (cell->cdr != NULL) {
+				if(sgmt_eval(cell).ivalue != sgmt_eval(cell->cdr).ivalue) {
+					result.type = TYPE_NIL;
+					break;
+				}
+				cell = cell->cdr;
+			}
+			if(result.type != TYPE_NIL)
+				result.type = TYPE_T;
+			break;
+		case TYPE_IF:
+			cell=cell->cdr;
+			if(sgmt_eval(cell).type == TYPE_T){
+				result=sgmt_eval(cell->cdr);
+			} else if(sgmt_eval(cell).type == TYPE_NIL) {
+				result=sgmt_eval(cell->cdr->cdr);
+			}
 			break;
 		case TYPE_FUNC:
 			break;
