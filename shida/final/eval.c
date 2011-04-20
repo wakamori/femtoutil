@@ -15,32 +15,16 @@ void (*inst [])() = {
     gte,
     lt,
     lte,
-    eq
+    eq,
+    jmp
 };
 
 void eval( void )
 {
-    value_t* ret;
     while( pc->instruction != END ){
-        inst[ pc->instruction ]();
+        inst[ (pc)->instruction ]();
         pc++;
     }
-    ret = pop();
-    switch( ret->type ){
-        case NUM:
-            printf( "%d\n", ret->u.i );
-            break;
-
-        case T:
-            printf( "T\n" );
-            break;
-
-        case nil:
-            printf( "nil\n" );
-            break;
-
-    }
-    pc++;
 }
 
 
@@ -57,7 +41,7 @@ void push_i( int i)
 void push_pc( void )
 {
     (sp_value)->type = NUM;
-    (sp_value++)->u.i = pc->op1.i;
+    (sp_value++)->u.i = pc->op[0].i;
 }
 
 void push_bool( enum eTYPE t )
@@ -132,4 +116,10 @@ void eq( void )
     value_t* ret = pop();
     ret->type = ( ret->u.i == pop()->u.i ) ? T : nil;
     push_value_t( ret );
+}
+
+void jmp( void )
+{
+    cons_t* ptr = pc->op[ pop()->type ].adr;
+    pc = ptr-1;
 }

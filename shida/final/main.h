@@ -4,15 +4,15 @@
 #define MALLOC_SIZE 100000
 
 
-enum eINSTRUCTION { PUSH, PUSH_PC, BOOL, PLUS, MINUS, MUL, DIV, END, GT, GTE, LT, LTE, EQ, POP };
-enum eTYPE { NUM, ARG, VAL, T, nil };
+enum eINSTRUCTION { PUSH, PUSH_PC, BOOL, PLUS, MINUS, MUL, DIV, END, GT, GTE, LT, LTE, EQ, JMP, POP };
+enum eTYPE { T = 0, nil = 1, NUM, ARG, VAL };
 typedef struct cons_t{
     enum eINSTRUCTION instruction;
     union{
         int i;
         char* c;
         struct cons_t* adr;
-    }op1,op2;
+    }op[2];
 }cons_t;
 
 cons_t* pc;

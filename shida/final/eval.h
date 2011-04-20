@@ -15,6 +15,7 @@ void gte( void );
 void lt( void );
 void lte( void );
 void eq( void );
+void jmp( void );
 
 
 #endif /*EVAL*/
