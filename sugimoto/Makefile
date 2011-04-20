@@ -7,7 +7,7 @@ OBJS = \
 	eval.o\
 	print.o
 CC = gcc
-CFLAGS = -g -Wall -O0
+CFLAGS = -g3 -Wall -O0
 LDLIBS = -lreadline
 
 .PHONY: all
