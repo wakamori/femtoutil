@@ -22,7 +22,6 @@ typedef union consvalue_t{
 	struct cons_t *car;
 	char *str;
 	int i;
-	int (*func)(int x, int y);
 }consvalue_t;
 
 typedef struct cons_t{
@@ -40,41 +39,19 @@ enum Tokens{
 	TOKEN_BRACE_CLOSE
 };
 
-enum Operaters{
-	OP_PLUS,
-	OP_MINUS,
-	OP_MULTI,
-	OP_DIV,
-	OP_MOD,
-
-	OP_GT,
-	OP_GE,
-	OP_LT,
-	OP_LE,
-	OP_EQ
-};
-
 typedef struct Token{
 	int type;
 	union{
 		int num;
 		char str[64];
-		int (*ope)(int x, int y);
 	};
 	char *input;
 }Token;
 
-struct var_t;
 
 cons_t *create_list(Token *token);
-cons_t eval(cons_t *list, struct var_t *local_vars);
-void free_cons(cons_t *);
-
-// allocater
-struct var_t *low_newVar();
-void low_freeVar(struct var_t *);
-
-void *low_malloc(size_t size);
+void eval(cons_t *);
+void add_code(int inst, int v1, int v2);
 
 #endif
 

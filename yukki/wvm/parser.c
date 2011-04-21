@@ -1,40 +1,10 @@
-#include "lisp.h"
 #include <string.h>
 #include <ctype.h>
+#include "lisp.h"
+#include "memory.h"
+#include "inst.h"
 
 static int depth = 0;
-
-int op_plus(int x, int y){
-	return x+y;
-}
-int op_minus(int x, int y){
-	return x-y;
-}
-int op_multi(int x, int y){
-	return x*y;
-}
-int op_div(int x, int y){
-	return x/y;
-}
-int op_mod(int x, int y){
-	return x%y;
-}
-int cmp_eq(int x, int y){
-	return x==y ? TYPE_T : TYPE_NIL;
-}
-int cmp_gt(int x, int y){
-	return x>y ? TYPE_T : TYPE_NIL;
-}
-int cmp_ge(int x, int y){
-	return x>=y ? TYPE_T : TYPE_NIL;
-}
-int cmp_lt(int x, int y){
-	return x<y ? TYPE_T : TYPE_NIL;
-}
-int cmp_le(int x, int y){
-	return x<=y ? TYPE_T : TYPE_NIL;
-}
-
 
 int next_token(Token *token){
 	char *in = token->input;
@@ -69,31 +39,31 @@ int next_token(Token *token){
 		token->type = TOKEN_OPERATE;
 		int v = *in++;
 		switch(v){
-		case '+': token->ope = op_plus; break;
-		case '-': token->ope = op_minus; break;
-		case '*': token->ope = op_multi; break;
-		case '/': token->ope = op_div; break;
-		case '%': token->ope = op_mod; break;
+		case '+': token->num = ADD; break;
+		case '-': token->num = SUB; break;
+		case '*': token->num = MUL; break;
+		case '/': token->num = DIV; break;
+		case '%': token->num = MOD; break;
 		case '=':
 			token->type = TOKEN_COMPARE;
-			token->ope = cmp_eq;
+			token->num = EQ;
 			break;
 		case '<':
 			token->type = TOKEN_COMPARE;
 			if(*in == '='){
 				in++;
-				token->ope = cmp_le;
+				token->num = LE;
 			}else{
-				token->ope = cmp_lt;
+				token->num = LT;
 			}
 			break;
 		case '>':
 			token->type = TOKEN_COMPARE;
 			if(*in == '='){
 				in++;
-				token->ope = cmp_ge;
+				token->num = GE;
 			}else{
-				token->ope = cmp_gt;
+				token->num = GT;
 			}
 			break;
 		case '(':
@@ -171,12 +141,12 @@ cons_t *create_list(Token *token){
 			break;
 
 		case TOKEN_OPERATE:
-			value.func = token->ope;
+			value.i = token->num;
 			list = add_list(list, TYPE_OPERATE, value);
 			break;
 
 		case TOKEN_COMPARE:
-			value.func = token->ope;
+			value.i = token->num;
 			list = add_list(list, TYPE_COMPARE, value);
 			break;
 
@@ -192,21 +162,5 @@ cons_t *create_list(Token *token){
 end:
 	depth--;
 	return list;
-}
-
-void free_cons(cons_t *c){
-	cons_t *p;
-	while(c != NULL){
-		if(c->type == TYPE_DEFUN){
-			break;
-		}else if(c->type == TYPE_CAR){
-			free_cons(c->v.car);
-		}else if(c->type == TYPE_STR){
-			free(c->v.str);
-		}
-		p = c->cdr;
-		free(c);
-		c = p;
-	}
 }
 

@@ -1,100 +1,226 @@
 #include "lisugimoto.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
-cons_t *parsing(char *);
-void error();
-
-cons_t *sgmt_read(char *line)
+void p_indent(char *ope,int depth);
+cons_t *sgmt_read(char *line, int *pos)
 {
 	cons_t *cell = NULL;
-	char *ps;
-	char *def="defun";
-	ps=line;
-	int blcount=0,brcount=0,opcount=0,errcount=0;
-	struct cons_t *root = NULL;
-	struct cons_t *next = NULL;
-	struct cons_t *tmp = NULL;
-	while (*ps != '\0') {
-		if(*ps==' '){
-			ps++;
-		}
-		else if (*ps == '(') { //check'('
-			cell =(cons_t *)malloc(sizeof(cons_t));
-			if(root==NULL)root=cell;
-			cell->type=TYPE_START;
-			if(blcount >= 1)tmp = cell;
-			next = cell->cdr;
-			printf("token =(\n");
-			ps++;
-			blcount++;
-		} else if (*ps == ')') {//check')'
-			cell->cdr = NULL;
-			printf("%dのとなりにNULL\n",cell->ivalue);
-			if(tmp != NULL){
-				tmp->cdr=(cons_t *)malloc(sizeof(cons_t));
-				cell = tmp->cdr;
-				tmp=NULL;
+	//-----------check space------------
+	while(line[*pos]==' '){
+		(*pos)++;
+	}
+	//-----------check parse end--------
+	if(line[*pos]=='\0' || line[*pos]==')') return NULL;
+	cell =(cons_t *)malloc(sizeof(cons_t));
+	switch (line[*pos]) {
+		//-----------parse'('---------------
+		case '(':
+			cell->type=START;
+			(*pos)++;
+			cell->car=sgmt_read(line, pos);
+			break;
+			//-----------parse'operand'---------
+		case '=':
+			cell->type=EQ;
+			break;
+		case '+':
+			if (line[*pos+1] == ' ') cell->type=PLUS;
+			else if (isdigit(line[*pos+1])) {
+				cell->ivalue=atoi((line + *pos+1));
+				cell->type=INT;
+				while (isdigit(line[*pos + 1])) (*pos)++;
 			}
-			printf("token =)\n");
-			brcount++;
-			ps++;
-		} else if(blcount !=0 && (*ps=='+'||*ps=='-'||*ps=='*'||*ps=='/'||*ps=='<'||*ps=='>')) {//check'operator'
-			cell->car = (cons_t *)malloc(sizeof(cons_t));
-			cell = cell->car;
-			cell->value=*ps;
-			if(*ps=='+')cell->type=TYPE_PLUS;
-			else if(*ps=='-')cell->type=TYPE_MINUS;
-			else if(*ps=='*')cell->type=TYPE_MULTI;
-			else if(*ps=='/')cell->type=TYPE_DIVID;
-			else if(*ps=='<')cell->type=TYPE_CRE;
-			else if(*ps=='>')cell->type=TYPE_DECRE;
-			printf("token =%c\n", cell->value);
-			opcount++;
-			ps++;
-		} else if (blcount != 0 && blcount ==opcount && isdigit(*ps)) {//check'digit'
-			cell->cdr =(cons_t *)malloc(sizeof(cons_t));
-			cell = cell->cdr;
-			cell->ivalue=atoi(ps);
-			cell->type=TYPE_INT;
-			printf("token =%d\n",cell->ivalue);
-			while(isdigit(*ps)) {
-				ps++;
+			break;
+		case '-':
+			if (line[*pos+1] == ' ') cell->type=MINUS;
+			else if (isdigit(line[*pos+1])) {
+				cell->ivalue=-atoi((line + *pos+1));
+				cell->type=INT;
+				while (isdigit(line[*pos + 1])) (*pos)++;
 			}
-		} else if(blcount != 0 && strncmp(ps,def,5)==0){//declare'function'
-			opcount++;
-			cell->cdr=(cons_t *)malloc(sizeof(cons_t));
-			cell = cell->cdr;
-			cell->type=TYPE_FUNC;
-			ps=ps+5;
-			while(*ps==' ')ps++;
-			if(isalpha(*ps)){
-				cell->cdr=(cons_t *)malloc(sizeof(cons_t));
-				cell = cell->cdr;
-				cell->func=ps;
-				printf("function was defined=%s\n",cell->func);
-				// cell =cell ->cdr;
-				while(isalpha(*ps))ps++;
-				while(*ps==' ')ps++;
-				if(*ps=='(');
+			break;
+		case '*':
+			cell->type = MULTI;
+			break;
+		case '/':
+			cell->type = DIVID;
+			break;
+		case '<':
+			if (line[*pos+1] == ' ') {
+				cell->type=LT;
+			} else if (line[*pos+1] == '=') {
+				cell->type=LEQ;
+				(*pos)++;
 			}
-			else error();
-		}
-		else{//check error
-			if(errcount==0) {
-				error();
-				errcount++;
+			break;
+		case '>':
+			if (line[*pos+1] == ' ') {
+				cell->type=GT;
+			} else if (line[*pos+1] == '=') {
+				cell->type=GEQ;
+				(*pos)++;
 			}
+			break;
+			//----------parse'digit'----------
+		case '0': case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
+			cell->ivalue=atoi((line + *pos));
+			cell->type=INT;
+			while (isdigit(line[*pos + 1])) (*pos)++;
+			break;
+			//----------Parse'if'-------------
+		case 'i':
+			if(line[*pos+1] == 'f'){
+				cell->type=IF;
+				(*pos)++;
+			}
+			else{
+				int len = 0;
+				while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
+				cell->symbol=strndup((line+*pos),len);
+				cell->type=SYMBOL;
+				(*pos)=(*pos)+len-1;
+			}
+			break;
+		case 'T':
+			cell->type=T;
+			break;
+		case 'N':
+			if(line[*pos+1]=='I' && line[*pos+2]=='L')
+				cell->type=NIL;
+			(*pos)=(*pos)+2;
+			break;
+			//-----------Parse'setq'-----------
+		case 's':
+			if(line[*pos+1]=='e' && line[*pos+2]=='t' && line[*pos+3]=='q'){
+				cell->type=SETQ;
+				(*pos)=(*pos)+3;
+			}
+			else{
+				int len = 0;
+				while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
+				cell->symbol=strndup((line+*pos),len);
+				cell->type=SYMBOL;
+				(*pos)=(*pos)+len-1;
+			}
+			break;
+			//------------Parse'defun'---------
+		case'd':{
+				if(line[*pos+1]=='e' && line[*pos+2]=='f' && line[*pos+3]=='u' && line[*pos+4]=='n'){
+					cell->type=DEFUN;
+					(*pos)=(*pos)+4;
+				}
+				else{
+					int len = 0;
+					while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
+					cell->symbol=strndup((line+*pos),len);
+					cell->type=SYMBOL;
+					(*pos)=(*pos)+len-1;
+				}
+			}
+			break;
+		default: {
+			int len = 0;
+			while(line[*pos+len] !=' ' && line[*pos+len] != ')')len++;
+			cell->symbol=strndup((line+*pos),len);
+			cell->type=SYMBOL;
+			(*pos)=(*pos)+len;
+			break;
 		}
 	}
-	if(blcount != brcount && errcount==0){
-		error();
-	}
-	return root;
+	(*pos)++;
+	cell->cdr=sgmt_read(line,pos); 
+	return cell;
 }
+
+void dump(cons_t *cell,int depth){
+
+	int i=0;
+	if(cell==NULL){
+		return;
+	}
+	switch(cell->type) {
+		case START:
+			dump(cell->car,depth + 1);
+			p_indent("(\n",depth);
+			dump(cell->cdr,depth + 1);
+			return;
+		case INT:
+			dump(cell->cdr,depth + 1);
+			for(i=0;i<depth;i++){
+				printf("\t");
+			}
+			printf("%d",cell->ivalue);
+			break;
+		case PLUS:
+			dump(cell->cdr,depth+1);
+			p_indent("+",depth);
+			break;
+		case MINUS:
+			dump(cell->cdr,depth+1);
+			p_indent("-",depth);
+			break;
+		case MULTI:
+			dump(cell->cdr,depth+1);
+			p_indent("*",depth);
+			break;
+		case DIVID:
+			dump(cell->cdr,depth+1);
+			p_indent("/",depth);
+			break;
+		case GT:
+			dump(cell->cdr,depth+1);
+			p_indent(">",depth);
+			break;
+		case LT:
+			dump(cell->cdr,depth+1);
+			p_indent("<",depth);
+			break;
+		case GEQ:
+			dump(cell->cdr,depth+1);
+			p_indent(">=",depth);
+			break;
+		case LEQ:
+			dump(cell->cdr,depth+1);
+			p_indent("<=",depth);
+			break;
+		case IF:
+			dump(cell->cdr,depth+1);
+			p_indent("if",depth);
+			break;
+		case T:
+			dump(cell->cdr,depth+1);
+			p_indent("T",depth);
+			break;
+		case NIL:
+			dump(cell->cdr,depth+1);
+			p_indent("NIL",depth);
+			break;
+		case SETQ:
+			dump(cell->cdr,depth+1);
+			p_indent("setq",depth);
+			break;
+		case SYMBOL:
+			dump(cell->cdr,depth+1);
+			p_indent(cell->symbol,depth);
+			break;
+		case DEFUN:
+			dump(cell->cdr,depth+1);
+			p_indent("defun",depth);
+			break;
+		default:
+			return;
+	}
+	printf("\n");
+}
+
 
 void error(){
 	printf("parsing error !!\n");
+}
+
+void p_indent(char *ope,int depth){
+	int i;
+	for(i=0;i<depth;i++){
+		printf("\t");
+	}
+	printf("%s",ope);
 }
