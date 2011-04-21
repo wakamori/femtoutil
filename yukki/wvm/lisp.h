@@ -18,20 +18,6 @@ enum Types{
 	TYPE_STR
 };
 
-enum Operaters{
-	OP_PLUS,
-	OP_MINUS,
-	OP_MULTI,
-	OP_DIV,
-	OP_MOD,
-
-	OP_GT,
-	OP_GE,
-	OP_LT,
-	OP_LE,
-	OP_EQ
-};
-
 typedef union consvalue_t{
 	struct cons_t *car;
 	char *str;

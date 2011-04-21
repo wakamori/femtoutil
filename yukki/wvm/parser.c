@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include "lisp.h"
 #include "memory.h"
+#include "inst.h"
 
 static int depth = 0;
 
@@ -38,33 +39,33 @@ int next_token(Token *token){
 		token->type = TOKEN_OPERATE;
 		int v = *in++;
 		switch(v){
-		case '+': token->num = OP_PLUS; break;
-		case '-': token->num = OP_MINUS; break;
-		case '*': token->num = OP_MULTI; break;
-		case '/': token->num = OP_DIV; break;
-		case '%': token->num = OP_MOD; break;
-	/*	case '=':
+		case '+': token->num = ADD; break;
+		case '-': token->num = SUB; break;
+		case '*': token->num = MUL; break;
+		case '/': token->num = DIV; break;
+		case '%': token->num = MOD; break;
+		case '=':
 			token->type = TOKEN_COMPARE;
-			token->ope = cmp_eq;
+			token->num = EQ;
 			break;
 		case '<':
 			token->type = TOKEN_COMPARE;
 			if(*in == '='){
 				in++;
-				token->ope = cmp_le;
+				token->num = LE;
 			}else{
-				token->ope = cmp_lt;
+				token->num = LT;
 			}
 			break;
 		case '>':
 			token->type = TOKEN_COMPARE;
 			if(*in == '='){
 				in++;
-				token->ope = cmp_ge;
+				token->num = GE;
 			}else{
-				token->ope = cmp_gt;
+				token->num = GT;
 			}
-			break;*/
+			break;
 		case '(':
 			token->type = TOKEN_BRACE_OPEN;
 			break;
@@ -144,10 +145,10 @@ cons_t *create_list(Token *token){
 			list = add_list(list, TYPE_OPERATE, value);
 			break;
 
-	//	case TOKEN_COMPARE:
-	//		value.func = token->ope;
-	//		list = add_list(list, TYPE_COMPARE, value);
-	//		break;
+		case TOKEN_COMPARE:
+			value.i = token->num;
+			list = add_list(list, TYPE_COMPARE, value);
+			break;
 
 		case TOKEN_BRACE_CLOSE:
 			goto end;

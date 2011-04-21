@@ -11,13 +11,12 @@ void fib_test(){
 	int index = 1;
 
 	C(MOV_V, 0, 36);
-	C(MOV_R, 1, 0);		// FIB
-	C(MOV_V, 2, 3);
-	C(LT, 1, 2);
+	C(MOV_V, 1, 3);		// FIB
+	C(LT, 0, 1);
 	
-	code[5].inst = CMP;
-	code[5].v1.c = &code[6];
-	code[5].v2.c = &code[8];
+	code[index].inst = CMP;
+	code[index].v1.c = &code[index+1];
+	code[index].v2.c = &code[index+3];
 	index++;
 
 	C(MOV_V, 0, 1);		// L0:
@@ -29,8 +28,8 @@ void fib_test(){
 	C(MOV_R, 0, 1);
 
 	//C(10, CALL, 0, 0);	//
-	code[13].inst = CALL;
-	code[13].v1.c = &code[2];
+	code[index].inst = CALL;
+	code[index].v1.c = &code[2];
 	index++;
 
 	C(MOV_R, 3, 0);
@@ -42,8 +41,8 @@ void fib_test(){
 	C(PUSH, 3, 0);
 
 	//C(16, CALL, 0, 0);	//
-	code[21].inst = CALL;
-	code[21].v1.c = &code[2];
+	code[index].inst = CALL;
+	code[index].v1.c = &code[2];
 	index++;
 
 	C(POP, 3, 0);

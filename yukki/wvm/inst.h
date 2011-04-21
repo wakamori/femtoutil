@@ -29,7 +29,10 @@ enum Instruction {
 };
 
 typedef struct Code{
-	enum Instruction inst;
+	union{
+		enum Instruction inst;
+		void *addr;
+	};
 	union{
 		int i;
 		struct Code *c;
