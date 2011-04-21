@@ -14,11 +14,12 @@ int main( int argc, char* argv[] )
 
     while(1){
         sp_value = &stack_value[0];
+        pc = pc_next;
         printf(">>>");
 
         fgets( str, sizeof(str), stdin );
         parse( str, 0 );
-        eval();
+        eval( 0 );
         print_ans();
 
     }

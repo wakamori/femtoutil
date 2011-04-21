@@ -14,6 +14,7 @@ int parse( char* str, int id )
     int if_count = 0;
     int num_temp;
     cons_t* if_ptr;
+    void **table=eval( 1 );
 
     while( str[ index ] != '\0' && str[ index ] != '\n'){
         switch( str[ index ] ){
@@ -32,6 +33,7 @@ int parse( char* str, int id )
                     index += (int)log10( (double)num_temp );
                 cons = (cons_t*)myalloc( sizeof( cons_t ) );
                 cons->instruction = PUSH_PC;
+                cons->instruction_ptr = table[ cons->instruction ];
                 cons->op[0].i = num_temp;
                 if( operation_count > 0 ){
                     operation_count++;
@@ -39,11 +41,13 @@ int parse( char* str, int id )
                 if( operation_count > 2 ){
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
                     cons->instruction = operation_type;
+                    cons->instruction_ptr = table[ cons->instruction ];
                 }
                 if( if_count == 2){
                     if_count = 3;
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
                     cons->instruction = END;
+                    cons->instruction_ptr = table[ cons->instruction ];
                     if_ptr->op[1].adr = cons+1;
                 }
                 break;
@@ -55,6 +59,7 @@ int parse( char* str, int id )
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
                     cons->op[0].i = num_temp;
                     cons->instruction = PUSH_PC;
+                    cons->instruction_ptr = table[ cons->instruction ];
 
                     if(operation_count > 0 ){
                         operation_count++;
@@ -62,11 +67,13 @@ int parse( char* str, int id )
                     if( operation_count > 2 ){
                         cons = (cons_t*)myalloc( sizeof( cons_t ) );
                         cons->instruction = operation_type;
+                        cons->instruction_ptr = table[ cons->instruction ];
                     }
                     if( if_count == 2 ){
                         if_count = 3;
                         cons = myalloc( sizeof( cons_t ) );
                         cons->instruction = END;
+                        cons->instruction_ptr = table[ cons->instruction ];
                         if_ptr->op[1].adr = cons + 1;
                     }
                 } else {
@@ -128,6 +135,7 @@ int parse( char* str, int id )
                 if( operation_count > 2){
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
                     cons->instruction = operation_type;
+                    cons->instruction_ptr = table[cons->instruction];
                 }
                 if( if_count == 2 ){
                     if_count = 3;
@@ -136,13 +144,14 @@ int parse( char* str, int id )
                 if( if_count == 1 ){
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
                     cons->instruction = JMP;
+                    cons->instruction_ptr = table[ cons->instruction ];
                     if_ptr = cons;
                     if_ptr->op[0].adr = cons + 1;
                     if_count = 2;
                 }
                 break;
 
-            case ')':
+           case ')':
                 return index++;
                 break;
 
@@ -152,12 +161,15 @@ int parse( char* str, int id )
                 }
                 break;
 
+
+
         }
         index++;
 
     }
     cons = (cons_t*)myalloc( sizeof( cons_t ) );
     cons->instruction = END;
+    cons->instruction_ptr = table[ cons->instruction ];
     return index;
 
 }
@@ -172,5 +184,6 @@ void* myalloc( int size )
     }
     malloc_size -= size;
     malloc_ptr += size;
+    pc_next = malloc_ptr;
     return (malloc_ptr-size);
 }
