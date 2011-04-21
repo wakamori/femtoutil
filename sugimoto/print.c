@@ -3,13 +3,16 @@
 void sgmt_print(cons_t *result)
 {
 	switch(result->type){
-		case TYPE_T:
+		case T:
 			printf("T");
 			break;
-		case TYPE_NIL:
+		case NIL:
 			printf("NIL");
 			break;
-		case TYPE_INT:
+		case INT:
+			printf("%d",result->ivalue);
+			break;
+		case SETQ:
 			printf("%d",result->ivalue);
 			break;
 	}
