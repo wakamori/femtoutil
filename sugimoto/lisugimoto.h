@@ -17,6 +17,7 @@
 #define EQ 29
 #define IF 30
 #define SETQ 31
+#define VAR 310
 #define SYMBOL 311
 #define DEFUN 32 //defun func
 #define FUNC 331
@@ -26,21 +27,38 @@
 #define T 6
 #define NIL 7
 #define T_SIZE 50 //Size of Table
-#define M_LEN 50 //Length of Symbol-Name
 /*----Parsing Cons Cell----*/
 typedef struct cons_t {
 	int type;
 	union {
 		struct cons_t *car;
-		char *value;
 		char *symbol;
 		int ivalue;
 		char *func;
 	};
 	struct cons_t *cdr;
 } cons_t;
+/*-----Variable list--------*/
+struct vlist{
+	int key;
+	int data;
+	struct vlist *next;
+}vlist;
+struct vlist *vtable[T_SIZE];
+/*-----Function list--------*/
+struct flist{
+	int key;
+	cons_t *aroot;
+	cons_t *oroot;
+	struct flist *next;
+}flist;
+struct flist *ftable[T_SIZE];
+int hash(char *name);
+int *search(int key);
 cons_t *sgmt_read(char *line, int *pos);
 cons_t sgmt_eval(cons_t *cell);
 void sgmt_print(cons_t *root);
 void dump(cons_t *root,int depth);
+void vhash(cons_t *cell);
+void fhash(cons_t *cell);
 void error();

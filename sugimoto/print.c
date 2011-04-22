@@ -15,6 +15,9 @@ void sgmt_print(cons_t *result)
 		case SETQ:
 			printf("%d",result->ivalue);
 			break;
+		case DEFUN:
+			printf("%s",result->symbol);
+			break;
 	}
 	printf("\n");
 }

@@ -62,9 +62,23 @@ cons_t *sgmt_read(char *line, int *pos)
 			//----------parse'digit'----------
 		case '0': case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8': case '9':
+			{
+			int len1 = 0,len2 = 0;
+			while(line[*pos+len1] != ' ' && line[*pos+len1] !=')')len1++;
+			while(isdigit(line[*pos+len2]))len2++;
+			if(len1 == len2){
 			cell->ivalue=atoi((line + *pos));
 			cell->type=INT;
 			while (isdigit(line[*pos + 1])) (*pos)++;
+			}
+				else{
+				int len = 0;
+				while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
+				cell->symbol=strndup((line+*pos),len);
+				cell->type=SYMBOL;
+				(*pos)=(*pos)+len-1;
+			}
+			}
 			break;
 			//----------Parse'if'-------------
 		case 'i':

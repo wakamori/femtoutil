@@ -1,28 +1,14 @@
 #include "lisugimoto.h"
-/*-----Symbol list--------*/
-struct slist{
-	int key;
-	int data;
-	struct slist *next;
-};
-/*-----Function List-------*/
-//struct flist{
-//				//
-//};
-struct slist *stable[T_SIZE];
-//struct flist *ftable[T_SIZE];
-int getkey(char *name);
-int hash(int key);
-int add(int key,int data);
-int* search(int key);
-void clear(void);
 
 cons_t sgmt_eval(cons_t *cell)
 {
 	cons_t result = {0, {NULL}, NULL};
 	switch (cell->type) {
 		case START:
-			result = sgmt_eval(cell->car);
+					if(cell->car->type == SYMBOL && cell->car->type != DEFUN && cell->car->type != IF && cell->car->type != SETQ){
+		cell->car->type = FUNC;
+		}
+					result = sgmt_eval(cell->car);
 			break;
 		case INT:
 			result.ivalue = cell->ivalue;
@@ -141,91 +127,27 @@ cons_t sgmt_eval(cons_t *cell)
 				result=sgmt_eval(cell->cdr->cdr);
 			}
 			break;
-		case SETQ:{
-				  int key, data;
-				  key = getkey(cell->cdr->symbol);
-				  data = sgmt_eval(cell->cdr->cdr).ivalue;
-				  result.ivalue=data;
-				  if(add(key, data) == 1) { 
-					  printf("The Symbol's key have already been used\n");
-				  }
-					 // else{
-					  
-					  break;
-			  }
+		case SETQ:
+				vhash(cell);
+				result.type=SETQ;
+				result.ivalue = vtable[*search(hash(cell->cdr->symbol))]->data;
+			break;
+		case VAR: 
+					result.ivalue = vtable[*search(hash(cell->symbol))]->data;
 		case SYMBOL:
-			  if(search(getkey(cell->symbol))!=NULL){
-				  result.ivalue=*search(getkey(cell->symbol));
-					}
-					else{
-					result.ivalue=sgmt_eval(cell->cdr).ivalue;
-					}
-				break;
+				cell->type = VAR;
+			break;
+		case DEFUN:{
+					fhash(cell);
+					result.type=DEFUN;
+					result.symbol=cell->cdr->symbol;
+		}
+			break;
 		case FUNC:
 			break;
 		case END:
 			break;
 	}
 	return result;
-}
-
-/*-----Get Key--------------*/
-int getkey(char *name){
-	int key = 0;
-	while(*name != '\0')
-		key += *name++;
-	return key;
-}
-/*-----Hash Function--------*/
-int hash(int key)
-{
-	return key % T_SIZE;
-}
-
-/*-----Add Symbol Data------*/
-int add(int key, int data)
-{
-	struct slist *p;
-	int bucket;
-	if( search( key ) != NULL )
-	return 1;
-	p =malloc(sizeof(struct slist));
-	bucket = hash( key );
-	p->key = key;
-	p->data = data;
-	p->next =stable[bucket];
-	stable[bucket] = p;
-	return 0;
-}
-/*------Search Data---------*/
-int* search(int key)
-{
-	struct slist *p;
-	int bucket;
-	bucket = hash( key );
-	for( p=stable[bucket]; p!=NULL; p=p->next )
-	{
-if( key == p->key )
-return &p->data;
- }
-	return NULL;
-}
-
-/*-------Clear Hash Table----*/
-void clear(void)
-{
-	struct slist *p;
-	struct slist *q;
-	int i;
-	for( i=0; i<T_SIZE; ++i )
-	{
-	  p = stable[i];
-  while( p != NULL ){
-		  q = p;
-		  p = p->next;
-		  free( q );
-	  }
-	  stable[i] = NULL;
-  }
 }
 
