@@ -4,8 +4,8 @@
 #define MALLOC_SIZE 100000
 
 
-enum eINSTRUCTION { PUSH_PC, PLUS, MINUS, MUL, DIV, END, GT, GTE, LT, LTE, EQ, JMP, POP, PUSH, PUSH_BOOL };
-enum eTYPE { T = 0, nil = 1, NUM, ARG, VAL };
+enum eINSTRUCTION { PUSH_PC, PLUS, MINUS, MUL, DIV, END, GT, GTE, LT, LTE, EQ, JMP, GOTO, RETURN, ARG, POP, PUSH, PUSH_BOOL };
+enum eTYPE { T = 0, nil = 1, NUM, VAL };
 typedef struct cons_t{
     enum eINSTRUCTION instruction;
     void* instruction_ptr;
@@ -30,6 +30,19 @@ typedef struct value_t{
     }u;
 }value_t;
 
+typedef struct function_Data_t{
+    char name[40];
+    char arg[40];
+    struct function_Data_t* next;
+    int arg_count;
+    cons_t* adr;
+}function_Data_t;
+function_Data_t function_Data[100];
+
+cons_t* stack_adr[STACK_MAX];
+int stack_arg[STACK_MAX];
 value_t stack_value[STACK_MAX];
-extern value_t* sp_value;
+value_t* sp_value;
+int* sp_arg;
+cons_t** sp_adr;
 #endif /*MAIN*/

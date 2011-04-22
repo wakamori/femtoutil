@@ -2,6 +2,18 @@
 #include"main.h"
 #include"eval.h"
 
+/*pc_0 = {};
+void ** __thcode__;
+void eval(void *pc)
+{
+    void *table[];
+    goto *(table[pc->opcode]);
+
+    L_thcode:
+        __thcode = table;
+        return;
+}*/
+
 
 void** eval( int i )
 {
@@ -18,7 +30,10 @@ void** eval( int i )
         &&lt,
         &&lte,
         &&eq,
-        &&jmp
+        &&jmp,
+        &&go_to,
+        &&re_turn,
+        &&arg
     };
     int a,ret;
     struct value_t *a_ptr,*ret_ptr;
@@ -95,32 +110,54 @@ eq:
     goto *((++pc)->instruction_ptr);
 
 jmp:
-    ret_ptr = pop();
-    printf( "if %d\n",ret_ptr->type);
-    cons_ptr = pc->op[ ret_ptr->type ].adr;
+    //ret_ptr = pop();
+    //printf( "if %d\n",ret_ptr->type);
+    cons_ptr = pc->op[ pop()->type ].adr;
     pc = cons_ptr;
     goto *((pc)->instruction_ptr);
+
+go_to:
+    *(sp_arg++) = pop()->u.i;
+    *(sp_adr++) = pc + 1;
+    pc = pc->op[0].adr;
+    goto *((pc)->instruction_ptr);
+
+
+re_turn:
+    //printf("return\n");
+    --sp_arg;
+    pc = *(--sp_adr);
+    goto *((pc)->instruction_ptr);
+
+arg:
+    sp_value->type = NUM;
+    push_i( *(sp_arg-1) );
+    //printf("arg%d\n",*(sp_arg-1));
+    goto *((++pc)->instruction_ptr);
 }
 
 
 
-void push_value_t( value_t* t )
+static inline void push_value_t( value_t* t )
 {
     *(sp_value++) = *t;
 }
 
-void push_i( int i)
+static inline void push_i( int i)
 {
     (sp_value++)->u.i = i;
 }
 
-void push_bool( enum eTYPE t )
+static inline void push_bool( enum eTYPE t )
 {
     (sp_value++)->type = t;
 }
-value_t* pop( void )
+static inline value_t* pop( void )
 {
     return (--sp_value);
 }
 
-
+value_t* pop_ans( void )
+{
+    return (--sp_value);
+}
