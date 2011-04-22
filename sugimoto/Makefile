@@ -5,9 +5,11 @@ OBJS = \
 	lisugimoto.o\
 	read.o\
 	eval.o\
-	print.o
+	print.o\
+	vhash.o\
+	fhash.o
 CC = gcc
-CFLAGS = -g -Wall -O0
+CFLAGS = -g3 -Wall -O0
 LDLIBS = -lreadline
 
 .PHONY: all
@@ -26,6 +28,11 @@ eval.o: eval.c
 print.o: print.c
 	$(CC) $(CFLAGS) -c $<
 
+vhash.o: vhash.c
+	$(CC) $(CFLAGS) -c $<
+
+fhash.o: fhash.c
+	$(CC) $(CFLAGS) -c $<
 .PHONY: clean
 clean:
 	$(RM) $(TARGET) $(OBJS)

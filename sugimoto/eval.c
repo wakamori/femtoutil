@@ -4,21 +4,26 @@ cons_t sgmt_eval(cons_t *cell)
 {
 	cons_t result = {0, {NULL}, NULL};
 	switch (cell->type) {
-		case TYPE_START:
-			result = sgmt_eval(cell->car);
+		case START:
+					if(cell->car->type == SYMBOL && cell->car->type != DEFUN && cell->car->type != IF && cell->car->type != SETQ){
+		cell->car->type = FUNC;
+		}
+					result = sgmt_eval(cell->car);
 			break;
-		case TYPE_INT:
+		case INT:
 			result.ivalue = cell->ivalue;
 			break;
-		case TYPE_CHAR:
-			break;
-		case TYPE_PLUS:
+		case T:
+			result.type=T;
+		case NIL:
+			result.type=NIL;
+		case PLUS:
 			while (cell->cdr != NULL) {
 				result.ivalue += sgmt_eval(cell->cdr).ivalue;
 				cell = cell->cdr;
 			}
 			break;
-		case TYPE_MINUS:
+		case MINUS:
 			if (cell->cdr != NULL && cell->cdr->cdr != NULL) {
 				result.ivalue = sgmt_eval(cell->cdr).ivalue;
 			} else {
@@ -30,14 +35,14 @@ cons_t sgmt_eval(cons_t *cell)
 				cell = cell->cdr;
 			}
 			break;
-		case TYPE_MULTI:
+		case MULTI:
 			result.ivalue=1;
 			while(cell->cdr != NULL) {
 				result.ivalue = result.ivalue*sgmt_eval(cell->cdr).ivalue;
 				cell = cell->cdr;
 			}
 			break;
-		case TYPE_DIVID:
+		case DIVID:
 			result.ivalue = sgmt_eval(cell->cdr).ivalue;
 			cell = cell->cdr;
 			int div;
@@ -54,58 +59,93 @@ cons_t sgmt_eval(cons_t *cell)
 				cell = cell->cdr;
 			}
 			break;
-		case TYPE_GT:
+		case GT:
 			cell=cell->cdr;
 			while (cell->cdr != NULL) {
 				if(sgmt_eval(cell).ivalue <= sgmt_eval(cell->cdr).ivalue) {
-					result.type = TYPE_NIL;
+					result.type = NIL;
 					break;
 				}
 				cell = cell->cdr;
 			}
-			if(result.type != TYPE_NIL)
-				result.type = TYPE_T;
+			if(result.type != NIL)
+				result.type = T;
 			break;
-		case TYPE_LT:
+		case LT:
 			cell=cell->cdr;
 			while (cell->cdr != NULL) {
 				if(sgmt_eval(cell).ivalue >= sgmt_eval(cell->cdr).ivalue) {
-					result.type = TYPE_NIL;
+					result.type = NIL;
 					break;
 				}
 				cell = cell->cdr;
 			}
-			if(result.type != TYPE_NIL)
-				result.type = TYPE_T;
+			if(result.type != NIL)
+				result.type = T;
 			break;
-		case TYPE_GEQ:
+		case GEQ:
 			cell=cell->cdr;
 			while (cell->cdr != NULL) {
 				if(sgmt_eval(cell).ivalue < sgmt_eval(cell->cdr).ivalue) {
-					result.type = TYPE_NIL;
+					result.type = NIL;
 					break;
 				}
 				cell = cell->cdr;
 			}
-			if(result.type != TYPE_NIL)
-				result.type = TYPE_T;
+			if(result.type != NIL)
+				result.type = T;
 			break;
-		case TYPE_LEQ:
+		case LEQ:
 			cell=cell->cdr;
 			while (cell->cdr != NULL) {
 				if(sgmt_eval(cell).ivalue > sgmt_eval(cell->cdr).ivalue) {
-					result.type = TYPE_NIL;
+					result.type = NIL;
 					break;
 				}
 				cell = cell->cdr;
 			}
-			if(result.type != TYPE_NIL)
-				result.type = TYPE_T;
+			if(result.type != NIL)
+				result.type = T;
 			break;
-		case TYPE_FUNC:
+		case EQ:
+			cell=cell->cdr;
+			while (cell->cdr != NULL) {
+				if(sgmt_eval(cell).ivalue != sgmt_eval(cell->cdr).ivalue) {
+					result.type = NIL;
+					break;
+				}
+				cell = cell->cdr;
+			}
+			if(result.type != NIL)
+				result.type = T;
 			break;
-		case TYPE_END:
+		case IF:
+			cell=cell->cdr;
+			if(sgmt_eval(cell).type == T){
+				result=sgmt_eval(cell->cdr);
+			} else if(sgmt_eval(cell).type == NIL) {
+				result=sgmt_eval(cell->cdr->cdr);
+			}
+			break;
+		case SETQ:
+				vhash(cell);
+				result.type=SETQ;
+				result.ivalue = vtable[hash(cell->cdr->symbol)]->data;
+			break;
+		case SYMBOL:
+					result.ivalue=vtable[hash(cell->symbol)]->data;
+			break;
+		case DEFUN:{
+					fhash(cell);
+					result.type=DEFUN;
+					result.symbol=cell->cdr->symbol;
+		}
+			break;
+		case FUNC:
+			break;
+		case END:
 			break;
 	}
 	return result;
 }
+
