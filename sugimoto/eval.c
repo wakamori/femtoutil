@@ -130,12 +130,13 @@ cons_t sgmt_eval(cons_t *cell)
 		case SETQ:
 				vhash(cell);
 				result.type=SETQ;
-				result.ivalue = vtable[*search(hash(cell->cdr->symbol))]->data;
+				result.ivalue = vtable[hash(cell->cdr->symbol)]->data;
 			break;
-		case VAR: 
-					result.ivalue = vtable[*search(hash(cell->symbol))]->data;
+		case VAR:
+					result.ivalue = vtable[hash(cell->symbol)]->data;
+					break;
 		case SYMBOL:
-				cell->type = VAR;
+					result.ivalue=vtable[hash(cell->symbol)]->data;
 			break;
 		case DEFUN:{
 					fhash(cell);
