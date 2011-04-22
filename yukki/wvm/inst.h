@@ -13,6 +13,13 @@ enum Instruction {
 	DIV,
 	MOD,
 
+	// xxx r1, value
+	ADD_V,	// r1 += value
+	SUB_V,
+	MUL_V,
+	DIV_V,
+	MOD_V,
+
  	// xxx r1, r2
 	LT,		// if(r1<r2) flag=1 else flag=0
 	LE,
@@ -25,22 +32,24 @@ enum Instruction {
 	PUSH,	// PUSH r
 	POP,	// POP r
 	CALL,	// CALL (code)
-	RET		// RET
+	RET,	// RET
+
+	PUSH_ARG	// r0
 };
 
+typedef union CodeValue{
+	long int i;
+	struct Code *c;
+	char *s;
+}CodeValue;
+
 typedef struct Code{
-	union{
-		enum Instruction inst;
-		void *addr;
-	};
-	union{
-		int i;
-		struct Code *c;
-		char *s;
-	}v1, v2;
+	enum Instruction inst;
+	CodeValue v1;
+	CodeValue v2;
 }Code;
 
-void exe_code(Code *);
+void exe_code(Code *, int arg);
 void print_regs();
 
 #endif

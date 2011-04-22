@@ -10,11 +10,12 @@ void print_code(Code *c){
 	char *names[] = {
 		"MOV_V", "MOV_R", "MOV_B",
 		"ADD", "SUB", "MUL", "DIV", "MOD",
+		"ADD_V", "SUB_V", "MUL_V", "DIV_V", "MOD_V",
 		"LT", "LE", "GT", "GE", "EQ",
-		"CMP", "JMP", "PUSH", "POP", "CALL", "RET"
+		"CMP", "JMP", "PUSH", "POP", "CALL", "RET", "PUSH_ARG"
 	};
 	while(1){
-		printf("%s %d, %d\n", names[c->inst], c->v1.i, c->v2.i);
+		printf("%s %ld, %ld\n", names[c->inst], c->v1.i, c->v2.i);
 		if(c->inst == RET) break;
 		c++;
 	}
@@ -25,13 +26,15 @@ void exe_lisp(char *input){
 	cons_t *c;
 	token.input = input;
 	while((c = create_list(&token)) != NULL){
-		code_index = 0;
-		eval(c);
+		//code_index = 0;
+		
+		Code *begin = &code[code_index];	
+		compile(c);
 		add_code(RET, 0, 0);
 
-		print_code(code);
+		print_code(begin);//code);
 
-		exe_code(code);
+		exe_code(begin, 0);//code);
 		print_regs();
 	}
 }

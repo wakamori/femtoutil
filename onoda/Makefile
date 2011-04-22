@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS= -O0 -g3 -Wall 
+CFLAGS = -O2
+#CFLAGS= -O0 -g3 -Wall 
 LDLIBS= -lreadline -lm
 
 target = lispei

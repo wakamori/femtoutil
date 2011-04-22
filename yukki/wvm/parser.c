@@ -130,7 +130,7 @@ cons_t *create_list(Token *token){
 			}else if(strcmp(token->str, "setq") == 0){
 				list = add_list(list, TYPE_SETQ, value);
 			}else if(strcmp(token->str, "defun") == 0){
-				list = add_list(list, TYPE_DEFUN, value);		
+				list = add_list(list, TYPE_DEFUN, value);
 			}else{
 				// variable or function ?
 				int length = strlen(token->str);

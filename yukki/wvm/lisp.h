@@ -50,7 +50,7 @@ typedef struct Token{
 
 
 cons_t *create_list(Token *token);
-void eval(cons_t *);
+void compile(cons_t *);
 void add_code(int inst, int v1, int v2);
 
 #endif
