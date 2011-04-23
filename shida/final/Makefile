@@ -9,7 +9,7 @@ $(TARGET): $(OBJS)
 main.o : main.c main.h
 	$(CC) $(CFLAGS) -c main.c
 
-eval.o : eval.c eval.h
+eval.o : eval.c
 	$(CC) $(CFLAGS) -c eval.c
 
 parser.o : parser.c parser.h

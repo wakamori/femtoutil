@@ -1,6 +1,6 @@
 #ifndef MAIN
 #define MAIN
-#define STACK_MAX 100000
+#define STACKSIZE 1000
 #define MALLOC_SIZE 100000
 
 
@@ -11,24 +11,22 @@ typedef struct cons_t{
     void* instruction_ptr;
     union{
         int i;
-        char* c;
         struct cons_t* adr;
     }op[2];
 }cons_t;
 
-cons_t* pc;
+cons_t* pc_gloval;
 void* pc_next;
 
 void *malloc_ptr;
+void *malloc_ptr_base;
 extern int malloc_size;
 
 typedef struct value_t{
     enum eTYPE type;
-    union{
-        int i;
-        char* c;
-    }u;
+    int i;
 }value_t;
+
 
 typedef struct function_Data_t{
     char name[40];
@@ -39,10 +37,5 @@ typedef struct function_Data_t{
 }function_Data_t;
 function_Data_t function_Data[100];
 
-cons_t* stack_adr[STACK_MAX];
-int stack_arg[STACK_MAX];
-value_t stack_value[STACK_MAX];
-value_t* sp_value;
-int* sp_arg;
-cons_t** sp_adr;
+
 #endif /*MAIN*/

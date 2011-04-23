@@ -5,7 +5,9 @@
 #include"parser.h"
 
 cons_t* cons;
-
+struct function_Data_t* searchf(char*);
+int setf(char*, int );
+void* myalloc(int);
 int parse( char* str, int id, struct function_Data_t* p )
 {
     int index = id;
@@ -36,7 +38,7 @@ int parse( char* str, int id, struct function_Data_t* p )
                     index += (int)log10( (double)num_temp );
                 cons = (cons_t*)myalloc( sizeof( cons_t ) );
                 cons->instruction = PUSH_PC;
-                printf("PUSH_PC\n");
+                //printf("PUSH\n");
                 cons->instruction_ptr = table[ cons->instruction ];
                 cons->op[0].i = num_temp;
                 if( operation_count > 0 ){
@@ -44,14 +46,14 @@ int parse( char* str, int id, struct function_Data_t* p )
                 }
                 if( operation_count > 2 ){
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                    printf("operation\n");
+                    //printf("operation\n");
                     cons->instruction = operation_type;
                     cons->instruction_ptr = table[ cons->instruction ];
                 }
                 if( if_count == 2){
                     if_count = 3;
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                    printf("return or end\n");
+                    //printf("return or end\n");
                     cons->instruction = (p != NULL) ? RETURN :END;
                     cons->instruction_ptr = table[ cons->instruction ];
                     if_ptr->op[1].adr = cons+1;
@@ -63,7 +65,7 @@ int parse( char* str, int id, struct function_Data_t* p )
                     num_temp = atoi( &str[index] );
                     index += (int)log10( (double)-num_temp ) + 1;
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                    printf("num\n");
+                    //printf("PUSH\n");
                     cons->op[0].i = num_temp;
                     cons->instruction = PUSH_PC;
                     cons->instruction_ptr = table[ cons->instruction ];
@@ -73,14 +75,14 @@ int parse( char* str, int id, struct function_Data_t* p )
                     }
                     if( operation_count > 2 ){
                         cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                        printf("operation\n");
+                        //printf("operation\n");
                         cons->instruction = operation_type;
                         cons->instruction_ptr = table[ cons->instruction ];
                     }
                     if( if_count == 2 ){
                         if_count = 3;
                         cons = myalloc( sizeof( cons_t ) );
-                        printf("return or end\n");
+                        //printf("return or end\n");
                         cons->instruction = (p != NULL) ? RETURN : END;
                         cons->instruction_ptr = table[ cons->instruction ];
                         if_ptr->op[1].adr = cons + 1;
@@ -143,7 +145,7 @@ int parse( char* str, int id, struct function_Data_t* p )
                 }
                 if( operation_count > 2){
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                    printf("operation\n");
+                    //printf("operation\n");
                     cons->instruction = operation_type;
                     cons->instruction_ptr = table[cons->instruction];
                 }
@@ -153,7 +155,7 @@ int parse( char* str, int id, struct function_Data_t* p )
                 }
                 if( if_count == 1 ){
                     cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                    printf("jump\n");
+                    //printf("jump\n");
                     cons->instruction = JMP;
                     cons->instruction_ptr = table[ cons->instruction ];
                     if_ptr = cons;
@@ -186,7 +188,7 @@ int parse( char* str, int id, struct function_Data_t* p )
                     cons = (cons_t*)myalloc( sizeof( cons_t) );
                     cons->instruction = RETURN;
                     cons->instruction_ptr = table[ cons->instruction ];
-                    printf("return\n");
+                    //printf("return\n");
                     return -10;
                 }
                 break;
@@ -207,7 +209,7 @@ int parse( char* str, int id, struct function_Data_t* p )
                     p_temp = searchf( token_temp );
                     index = parse( str, index + 1, p_temp );
                     cons = (cons_t*)myalloc( sizeof( cons_t) );
-                    printf("goto\n");
+                    //printf("goto\n");
                     cons->instruction = GOTO;
                     cons->op[0].adr = p_temp->adr;
                     cons->instruction_ptr = table[ cons->instruction ];
@@ -216,7 +218,7 @@ int parse( char* str, int id, struct function_Data_t* p )
                     }
                     if( operation_count > 2){
                         cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                        printf("operation\n");
+                        //printf("operation\n");
                         cons->instruction = operation_type;
                         cons->instruction_ptr = table[cons->instruction];
                     }
@@ -226,7 +228,7 @@ int parse( char* str, int id, struct function_Data_t* p )
                     }
                     if( if_count == 1 ){
                         cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                        printf("jump\n");
+                        //printf("jump\n");
                         cons->instruction = JMP;
                         cons->instruction_ptr = table[ cons->instruction ];
                         if_ptr = cons;
@@ -238,7 +240,7 @@ int parse( char* str, int id, struct function_Data_t* p )
 
                 if( p != NULL && strcmp( p->arg, token_temp ) == 0 ){
                     cons = (cons_t*)myalloc(sizeof( cons_t ) );
-                    printf("arg\n");
+                    //printf("PUSH_ARG\n");
                     cons->instruction = ARG;
                     cons->instruction_ptr = table[ cons->instruction ];
                     if( operation_count > 0 ){
@@ -246,14 +248,14 @@ int parse( char* str, int id, struct function_Data_t* p )
                     }
                     if( operation_count > 2 ){
                         cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                        printf("operation\n");
+                        //printf("operation\n");
                         cons->instruction = operation_type;
                         cons->instruction_ptr = table[ cons->instruction ];
                     }
                     if( if_count == 2){
                         if_count = 3;
                         cons = (cons_t*)myalloc( sizeof( cons_t ) );
-                        printf("return or end\n");
+                        //printf("return or end\n");
                         cons->instruction = (p != NULL) ? RETURN :END;
                         cons->instruction_ptr = table[ cons->instruction ];
                         if_ptr->op[1].adr = cons+1;
@@ -269,7 +271,7 @@ int parse( char* str, int id, struct function_Data_t* p )
     }
     if (p == NULL ){
         cons = (cons_t*)myalloc( sizeof( cons_t ) );
-        printf("return or end\n");
+        //printf("return or end\n");
         cons->instruction = (p != NULL) ? RETURN : END;
         cons->instruction_ptr = table[ cons->instruction ];
     }
@@ -319,7 +321,7 @@ int setf( char* str, int i ){
         if( p->name[0] == '\0' ){
             strcpy( p->name, name_temp );
             strcpy(p->arg, arg_temp );
-            printf("name = %s\narg = %s\n", name_temp, arg_temp);
+            //printf("name = %s\narg = %s\n", name_temp, arg_temp);
             cons = (cons_t*)myalloc( sizeof(cons_t) );
             p->adr = cons + 1 ;
             index = parse( str, index, p );
@@ -353,9 +355,16 @@ struct function_Data_t* searchf( char* str )
 void* myalloc( int size )
 {
     if ( size > malloc_size ) {
-        malloc_ptr = malloc( sizeof( char ) * MALLOC_SIZE );
-        if( pc == NULL ){
-            pc = malloc_ptr;
+        if (malloc_ptr_base == NULL ){
+        malloc_ptr_base = malloc( sizeof( char ) * MALLOC_SIZE );
+        malloc_ptr = malloc_ptr_base;
+        } else {
+            //printf("memory over flow\n");
+            free( malloc_ptr_base );
+            exit(1);
+        }
+        if( pc_gloval == NULL ){
+            pc_gloval = malloc_ptr;
         }
         malloc_size = MALLOC_SIZE;
     }
