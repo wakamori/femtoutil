@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "lisp.h"
 
-static g_mallocedSize = 0;
+//static g_mallocedSize = 0;
 //static var_t *free_list = NULL;
 
 #define A(expr) assert(expr)
@@ -32,6 +32,7 @@ void low_freeVar(var_t *v)
 
 void *low_malloc(size_t size)
 {
+	/*
   A(size >= 0);
   void *ret = malloc(size);
   if (ret == NULL){
@@ -39,14 +40,16 @@ void *low_malloc(size_t size)
   	exit(0);
   }
   g_mallocedSize += size;
-  return ret;
+  return ret;*/
+	return malloc(size);
 }
 
 void *low_free(void *ptr, size_t size)
 {
-  A(ptr != NULL);
+  /*A(ptr != NULL);
   A(size >= 0);
   g_mallocedSize -= size;
-  free(ptr);
+  free(ptr);*/
+	free(ptr);
 }
 
