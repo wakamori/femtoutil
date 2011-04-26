@@ -49,6 +49,7 @@ void findarg(cons_t *root, func name)
 
 int getvalue(cons_t *next)
 {
+
 	switch (next->type) {
 	case L_K:
 		if (next->car != NULL) {
