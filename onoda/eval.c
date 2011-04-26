@@ -47,25 +47,6 @@ void findarg(cons_t *root, func name)
   }
 }
 
-void clean(cons_t *root,int layer)
-{
-  if (root->type == L_K) {
-	root->result[layer] = 0;
-	
-	if (root->car != NULL) {
-	  clean(root->car,layer);
-	}
-	if (root->cdr != NULL) {
-	  clean(root->cdr,layer);
-	}
-  }else {
-	root->result[layer] = 0;
-    if (root->cdr != NULL) {
-	  clean(root->cdr,layer);
-	}
-  }
-}
-
 int getvalue(cons_t *next)
 {
 	switch (next->type) {
@@ -90,10 +71,12 @@ int add(cons_t *next)
 {
 	cons_t *now;
 	now = next;
+	int answer = 0;
 	do {
 		next = next->cdr;
-		now->result[g_funcl] += getvalue(next);
-	} while (next->cdr != NULL);	
+		answer += getvalue(next);
+	} while (next->cdr != NULL);
+	now->result[g_funcl] = answer;	
 	return now->result[g_funcl];
 }
 
@@ -101,11 +84,12 @@ int mul(cons_t *next)
 {
 	cons_t *now;
 	now = next;
-	now->result[g_funcl] = 1;
+	int answer = 1;
 	do {
 		next = next->cdr;
-		now->result[g_funcl] *= getvalue(next);
+		answer *= getvalue(next);
 	} while (next->cdr != NULL);
+	now->result[g_funcl] = answer;
 	return now->result[g_funcl];
 }
 
@@ -114,12 +98,12 @@ int sub(cons_t *next)
 	cons_t *now;
 	now = next;
 	next = next->cdr;
-	now->result[g_funcl] = getvalue(next);
-	
+	int answer = getvalue(next);
 	do {
 		next = next->cdr;
-		now->result[g_funcl] -= getvalue(next);
+		answer -= getvalue(next);
 	} while(next->cdr != NULL);	
+	now->result[g_funcl] = answer;
 	return now->result[g_funcl];
 }
 
@@ -128,11 +112,12 @@ int dev(cons_t *next)
 	cons_t *now;
 	now = next;
 	next = next->cdr;
-	now->result[g_funcl] = getvalue(next);
+	int answer = getvalue(next);
 	do {
 		next = next->cdr;
-		now->result[g_funcl] /= getvalue(next);
+		answer /= getvalue(next);
 	} while(next->cdr != NULL);	
+	now->result[g_funcl] = answer;
 	return now->result[g_funcl];
 }
 
@@ -318,7 +303,6 @@ int lfunc(cons_t *next)
 	g_arga[g_argl] = nextarg;
 
 	now->result[g_funcl-1] = eval(findfunc(now->cvalue).exp);
-	clean(findfunc(now->cvalue).exp,g_funcl);
 
 	g_argl--;	
 	g_funcl--;
