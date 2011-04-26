@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include"main.h"
 
-void** eval( int i )
+void** eval( int i, void* base )
 {
-    static const void *table [] = {
+    static void *table [] = {
         &&push_pc,
         &&plus,
         &&minus,
@@ -16,25 +16,31 @@ void** eval( int i )
         &&lte,
         &&eq,
         &&jmp,
-        &&go_to,
-        &&re_turn,
+        &&funccall,
+        &&Return,
         &&arg
     };
-    cons_t* stack_adr[STACKSIZE];
-    int stack_arg[STACKSIZE];
-    value_t stack_value[STACKSIZE];
-
-    register value_t* sp_value = stack_value;
-    register int* sp_arg = stack_arg;
-    register cons_t** sp_adr = stack_adr;
-    register cons_t* pc = pc_gloval;
-    register int a,b,ret;
-    register struct value_t *a_ptr,*ret_ptr;
-    register cons_t* cons_ptr;
 
     if( i == 1 ){
         return table;
     }
+
+
+    cons_t instructions[INSTSIZE];
+    memcpy( instructions, base, sizeof(cons_t) * INSTSIZE );
+
+    cons_t* stack_adr[STACKSIZE];
+    long int stack_arg[STACKSIZE];
+    value_t stack_value[STACKSIZE];
+
+    register value_t* sp_value = stack_value;
+    register long int* sp_arg = stack_arg;
+    register cons_t** sp_adr = stack_adr;
+    register cons_t* pc = instructions + ipc;
+    register long int a,b,ret; 
+    register struct value_t *a_ptr,*ret_ptr;
+    register cons_t* cons_ptr;
+
 
     goto *(pc->instruction_ptr);
 
@@ -102,14 +108,13 @@ jmp:
     pc = cons_ptr;
     goto *((pc)->instruction_ptr);
 
-go_to:
+funccall:
     *(sp_arg++) = (--sp_value)->i;
     *(sp_adr++) = pc + 1;
     pc = pc->op[0].adr;
     goto *((pc)->instruction_ptr);
 
-
-re_turn:
+Return:
     --sp_arg;
     pc = *(--sp_adr);
     goto *((pc)->instruction_ptr);

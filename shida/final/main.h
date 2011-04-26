@@ -1,7 +1,7 @@
 #ifndef MAIN
 #define MAIN
 #define STACKSIZE 1000
-#define MALLOC_SIZE 100000
+#define INSTSIZE 1000
 
 
 enum eINSTRUCTION { PUSH_PC, PLUS, MINUS, MUL, DIV, END, GT, GTE, LT, LTE, EQ, JMP, GOTO, RETURN, ARG, POP, PUSH, PUSH_BOOL };
@@ -10,21 +10,14 @@ typedef struct cons_t{
     enum eINSTRUCTION instruction;
     void* instruction_ptr;
     union{
-        int i;
+        long int i;
         struct cons_t* adr;
     }op[2];
 }cons_t;
 
-cons_t* pc_gloval;
-void* pc_next;
-
-void *malloc_ptr;
-void *malloc_ptr_base;
-extern int malloc_size;
-
 typedef struct value_t{
     enum eTYPE type;
-    int i;
+    long int i;
 }value_t;
 
 
@@ -37,5 +30,7 @@ typedef struct function_Data_t{
 }function_Data_t;
 function_Data_t function_Data[100];
 
+int ipc, next_ipc;
+void* ptr_base;
 
 #endif /*MAIN*/

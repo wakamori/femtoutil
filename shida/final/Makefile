@@ -1,4 +1,4 @@
-CFLAGS= -g -O2
+CFLAGS= -O2
 CC=gcc
 TARGET=a
 OBJS=main.o eval.o parser.o
