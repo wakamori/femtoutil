@@ -11,7 +11,6 @@ void fhash(cons_t *cell){
 	aroot = cell->cdr->cdr->car;
 	oroot = cell->cdr->cdr->cdr;
 	f_add(hash(fname),aroot,oroot);
-	printf("argument = %s\n",aroot->symbol);
 }
 /*-----Add Function Data------*/
 void f_add(int key, cons_t *aroot,cons_t *oroot)

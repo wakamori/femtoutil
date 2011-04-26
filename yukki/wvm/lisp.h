@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-enum Types{
+enum {
 	TYPE_NIL,
 	TYPE_T,
 	TYPE_INT,
@@ -30,7 +30,7 @@ typedef struct cons_t{
 	struct cons_t *cdr;
 }cons_t;
 
-enum Tokens{
+enum {
 	TOKEN_INT,
 	TOKEN_STR,
 	TOKEN_OPERATE,
@@ -47,7 +47,6 @@ typedef struct Token{
 	};
 	char *input;
 }Token;
-
 
 cons_t *create_list(Token *token);
 void compile(cons_t *);

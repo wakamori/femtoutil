@@ -1,21 +1,24 @@
 CC = gcc
-CFLAGS = -O2
-#CFLAGS= -O0 -g3 -Wall 
+CFLAGS= -O2 -g3 -Wall
 LDLIBS= -lreadline -lm
 
-target = lispei
-objs = lisp.o\
-#       hoge.o
+target = liso
+objs = main.o eval.o parse.o token.o
 
 .PHONY: all
 $(target): $(objs)
-	$(CC) -o $@ $< $(LDLIBS) $(CFLAGS)
+	$(CC) -o $@ $^ $(LDLIBS)
+eval.o : eval.c
+	$(CC) $(CFLAGS) -o $@ -c $^ 
 
-#hoge.o : hoge.c
-#	$(CC) -c $< $(CFLAGS)
+parse.o : parse.c
+	$(CC) $(CFLAGS) -o $@ -c $^
 
-lisp.o: lisp.c
-	$(CC) -c $< $(CFLAGS)
+token.o : token.c
+	$(CC) $(CFLAGS) -o $@ -c $^ 
+
+main.o: main.c
+	$(CC) $(CFLAGS) -o $@ -c $^
 
 .PHONY: clean
 clean:

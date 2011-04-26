@@ -1,38 +1,38 @@
 #include "lisp.h"
 #include "inst.h"
+#include "func.h"
 
 extern Code code[1024];
 extern int code_index;
+extern void **g_jtable;
 
-typedef struct Func{
-	char *name;
-	Code *code;
-}Func;
-
-Func func[64] = {0};
-int func_index = 0;
-
-Func *get_func(char *name){
-	int i;
-	for(i=0; i<func_index; i++){
-		if(strcmp(name, func[i].name) == 0){
-			return &func[i];
-		}
-	}
-	return NULL;
-}
-
+char *names[] = {
+		"MOV_V", "MOV_R", "MOV_B",
+		"ADD", "SUB", "MUL", "DIV", "MOD",
+		"ADD_V", "SUB_V", "MUL_V", "DIV_V", "MOD_V",
+		"LT", "LE", "GT", "GE", "EQ",
+		"CMP", "JMP", "PUSH", "POP", "CALL", "RET", "PUSH_ARG", "END"
+};
 
 void add_code(int inst, int v1, int v2){
-	code[code_index].inst = inst;
+	//code[code_index].inst = inst;
+	printf("%s %d, %d\n", names[inst], v1, v2);
+	code[code_index].instp = g_jtable[inst];
 	code[code_index].v1.i = v1;
 	code[code_index].v2.i = v2;
 	code_index++;
 }
 
+Code *add_code2(int inst){
+	printf("%s\n", names[inst]);
+	Code*c = &code[code_index];
+	c->instp = g_jtable[inst];
+	code_index++;
+	return c;
+}
+
 void compile(cons_t *c){
 	int op;
-	op++++;
 	switch(c->type){
 	// set result to R0
 	case TYPE_OPERATE:
@@ -45,14 +45,12 @@ void compile(cons_t *c){
 				//add_code(MOV_V, 1, c->v.i);
 				//add_code(op, 0, 1);
 				add_code(op+5, 0, c->v.i);	// ex)ADD -> ADD_V
-			}else if(c->type == TYPE_CAR){
+			}else{
 				add_code(PUSH, 0, 0);
-				compile(c->v.car);
+				compile(c);
 				add_code(MOV_R, 1, 0);
 				add_code(POP, 0, 0);
 				add_code(op, 0, 1);
-			}else{
-				printf("operate error 2\n");
 			}
 			c = c->cdr;
 		}
@@ -92,9 +90,7 @@ void compile(cons_t *c){
 		}
 
 		// add CMP
-		Code *cmp = &code[code_index];
-		cmp->inst = CMP;
-		code_index++;
+		Code *cmp = add_code2(CMP);
 		c = c->cdr;
 
 		// true case
@@ -103,30 +99,33 @@ void compile(cons_t *c){
 		c = c->cdr;
 
 		// add JMP
-		Code *jmp = &code[code_index];
-		jmp->inst = JMP;
-		code_index++;
+		//Code *jmp = add_code2(JMP);
+		add_code(RET, 0, 0);
 
 		// false case
 		cmp->v2.c = &code[code_index];
 		compile(c);
 
-		jmp->v1.c = &code[code_index];
+		//jmp->v1.c = &code[code_index];
 		break;
 
 	case TYPE_DEFUN:
+		add_code(END, 0, 0);
 		c = c->cdr;
 		if(c->type != TYPE_STR){
-				printf("defun error!\n");
-				break;
+			printf("defun error!\n");
+			break;
 		}
-		func[func_index].name = c->v.str;
+		char *name = c->v.str;
 		c = c->cdr;
-		// skip args
+		// args
+		cons_t *args = c->v.car;
 		c = c->cdr;
-		func[func_index].code = &code[code_index];
+		
+		add_function(name, args, &code[code_index]);
 		compile(c);
-		func_index++;
+
+		add_code(RET, 0, 0);
 		break;
 
 	case TYPE_CAR:
@@ -141,18 +140,22 @@ void compile(cons_t *c){
 	// set R0
 	case TYPE_STR:
 		{
-		Func *f = get_func(c->v.str);
+		Func *f = get_function(c->v.str);
 		if(f != NULL){
-			// push arguments
 			c = c->cdr;
-			compile(c);
-			add_code(PUSH_ARG, 0, 0);
-
+			cons_t *arg = f->arg;
+			int n = 0;
+			while(arg != NULL){
+				compile(c);
+				// push argument
+				add_code(PUSH_ARG, 0, n);
+				arg = arg->cdr;
+				c = c->cdr;
+				n++;
+			}
 			// add CALL
-			code[code_index].inst = CALL;
-			code[code_index].v1.c = f->code;
-
-			code_index++;
+			Code *call = add_code2(CALL);
+			call->v1.c = f->code;
 		}else{
 				// variable?
 				add_code(MOV_B, 0, 0);

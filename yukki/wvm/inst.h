@@ -34,17 +34,18 @@ enum Instruction {
 	CALL,	// CALL (code)
 	RET,	// RET
 
-	PUSH_ARG	// r0
+	PUSH_ARG,	// r, arg_n
+	END
 };
 
 typedef union CodeValue{
-	long int i;
+	int i;
+	int *iPtr;
 	struct Code *c;
-	char *s;
 }CodeValue;
 
 typedef struct Code{
-	enum Instruction inst;
+	void *instp;
 	CodeValue v1;
 	CodeValue v2;
 }Code;

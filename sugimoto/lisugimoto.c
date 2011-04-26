@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 		clear_history();
 	} else {
 		FILE *fp = NULL;
-		char str[80] = "";
+		char str[1024] = "";
 		fp = fopen(argv[1], "r");
 		if (fp == NULL) return 1;
 		while(fgets(str,80,fp)!=NULL) {
