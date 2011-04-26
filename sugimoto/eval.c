@@ -1,5 +1,7 @@
 #include "lisugimoto.h"
-
+void setarg(cons_t *cell);
+void getarg(cons_t *cell,int arg);
+cons_t *tmp_o;
 cons_t sgmt_eval(cons_t *cell)
 {
 	cons_t result = {0, {NULL}, NULL};
@@ -129,19 +131,38 @@ cons_t sgmt_eval(cons_t *cell)
 			break;
 		case SETQ:
 				vhash(cell);
-				result.type=SETQ;
-				result.ivalue = vtable[hash(cell->cdr->symbol)]->data;
+				result.type = SETQ;
+				result.ivalue = vtable[hash(cell->cdr->symbol)]->data;;
 			break;
 		case SYMBOL:
-					result.ivalue=vtable[hash(cell->symbol)]->data;
+					result.ivalue = vtable[hash(cell->symbol)]->data;
 			break;
 		case DEFUN:{
-					fhash(cell);
-					result.type=DEFUN;
-					result.symbol=cell->cdr->symbol;
-		}
+				int i = 0;
+				cons_t *tmp = cell;
+				result.type = DEFUN;
+				cell = cell->cdr;
+				result.symbol=cell->symbol;
+				cell = cell->cdr;
+				cons_t *tmp_a = cell->car;
+				tmp_o = cell->cdr;
+						while (tmp_a != NULL) {
+					arg_a[i] = tmp_a->symbol;
+					tmp_a = tmp_a->cdr;
+					i ++;
+						}
+				setarg(tmp_o);
+						fhash(tmp);
 			break;
+						}
 		case FUNC:
+					//getarg(tmp_o,sgmt_eval(cell->cdr).ivalue);
+					a_push(sgmt_eval(cell->cdr).ivalue);
+					result=sgmt_eval(ftable[hash(cell->symbol)]->oroot);
+					a_pop();
+			break;
+		case ARG:
+			result.ivalue=a_get();
 			break;
 		case END:
 			break;
@@ -149,3 +170,54 @@ cons_t sgmt_eval(cons_t *cell)
 	return result;
 }
 
+void setarg(cons_t *cell){
+	int i= 0;
+	if (cell == NULL) return;
+	switch (cell->type){
+		case START :
+			if(cell->car->type == SYMBOL && cell->car->type != DEFUN && cell->car->type != IF && cell->car->type != SETQ){
+				cell->car->type = FUNC;
+			}
+			setarg(cell->car);
+			setarg(cell->cdr);
+			break;
+		case SYMBOL :
+					for(i = 0;i < ARG_SIZE ;i ++ ){
+						if(arg_a[i] != NULL && strncmp(cell->symbol, arg_a[i], sizeof(arg_a[i])) == 0)
+							cell->type = ARG;
+					}
+				setarg(cell->cdr);
+				break;
+		case END :
+				break;
+		default:
+				setarg(cell->cdr);
+				break;
+	}
+}
+
+void getarg(cons_t *cell,int arg){
+	int i= 0;
+	if (cell == NULL) return;
+	switch (cell->type){
+		case START :
+			if(cell->car->type == SYMBOL && cell->car->type != DEFUN && cell->car->type != IF && cell->car->type != SETQ){
+				cell->car->type = FUNC;
+			}
+			getarg(cell->car,arg);
+			getarg(cell->cdr,arg);
+			break;
+		case SYMBOL :
+					for(i = 0;i < ARG_SIZE ;i ++ ){
+						if(arg_a[i] != NULL && strncmp(cell->symbol, arg_a[i], sizeof(arg_a[i])) == 0)
+							cell->ivalue = arg;
+					}
+				getarg(cell->cdr,arg);
+				break;
+		case END :
+				break;
+		default:
+				getarg(cell->cdr,arg);
+				break;
+	}
+}
