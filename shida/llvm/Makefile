@@ -1,4 +1,4 @@
-CFLAGS= -O2
+CFLAGS= -g -O2
 CC=g++
 TARGET=a
 OBJS=main.o parser.o ast.o lexer.o
