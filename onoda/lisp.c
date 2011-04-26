@@ -506,7 +506,7 @@ int eval(cons_t *root)
 
   } else if (next->type == IF) {
 	cons_t *now;
-	int v;
+	int v = 0;
 
 	now = next;
 
@@ -763,7 +763,7 @@ int eval(cons_t *root)
 
   } else if (next->type == FUNC) {
 	cons_t *now;
-	int nextarg;
+	int nextarg = 0;
 
 	now = next;
 	next = next->cdr;
