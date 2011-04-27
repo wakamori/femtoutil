@@ -61,21 +61,10 @@ enum Instruction {
 	END
 };
 
-/*typedef struct Code{
-	void *instp;
-	long int op0;
-	long int op1;
-}Code;*/
 typedef struct Code{
 	void *instp;
-	union{
-		struct{
-			long op0;
-			long op1;
-		};
-		long ar[2];
-	};
-	//int op0, op1;
+	long op0;
+	long op1;
 }Code;
 
 void exe_code(Code *);
