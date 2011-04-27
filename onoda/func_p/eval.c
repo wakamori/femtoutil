@@ -1,6 +1,7 @@
 #include "liso.h"
 
-
+int (*func_p[SIZE]) (cons_t *p) = {fl_k, NULL, add, sub, mul, dev, NULL, \
+								   NULL, froot, lif, equ, lt, gt, elt, egt, setq, def, lfunc, NULL, rfunc};
 
 
 int getmap(char *key)
@@ -285,17 +286,18 @@ int egt(cons_t *next)
 	return now->result[g_funcl];
 }
 
-void setq(cons_t *next)
+int setq(cons_t *next)
 {
 	next = next->cdr;
 	g_qa[g_qc].key = next->cvalue;
 	next = next->cdr;
 	g_qa[g_qc].value = getvalue(next);
-	printf("%s = %d\n", g_qa[g_qc].key, g_qa[g_qc].value);
+	printf("%s = ", g_qa[g_qc].key);
 	g_qc++;
+	return getvalue(next);
 }
 
-void def(cons_t *next)
+int def(cons_t *next)
 {
 	cons_t *now = NULL;
 	
@@ -313,6 +315,7 @@ void def(cons_t *next)
 	now->cdr = NULL;
 
 	g_fc++;
+	return 0;
 }
 
 int lfunc(cons_t *next)
@@ -362,51 +365,20 @@ int rfunc(cons_t *next)
 
 }
 
+int froot(cons_t *next)
+{
+	return eval(next->cdr);
+}
 
-
+int fl_k(cons_t *next)
+{
+	return eval(next->car);
+}
 
 int eval(cons_t *root)
 {
   cons_t *next;
   next = root;
 
-  switch (next->type) {
-  case ROOT:
-	  next = root->cdr;
-  case L_K:
-	  return eval(next->car);
-  case LT:
-	  return lt(next);
-  case SUB:
-	  return sub(next);
-  case RFUNC:
-	  return rfunc(next);
-  case IF:
-	  return lif(next);
-  case ADD:
-	  return add(next);
-  case FUNC:
-	  return lfunc(next);
-  case DEF:
-	  def(next);
-	  break;
-  case MUL:
-	  return mul(next);
-  case DEV:
-	  return dev(next);
-  case EQU:
-	  return equ(next);
-  case GT:
-	  return gt(next);
-  case ELT:
-	  return elt(next);
-  case EGT:
-	  return egt(next);
-  case SETQ:
-	  setq(next);
-	  break;
-
-  }
-
-  return 0;
+  return (*func_p[next->type]) (next);
 }
