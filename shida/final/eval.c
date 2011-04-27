@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include <string.h>
 #include"main.h"
 
-void** eval( int i, void* base )
+void** eval( int i, cons_t* base )
 {
     static void *table [] = {
         &&push_pc,
@@ -37,9 +38,8 @@ void** eval( int i, void* base )
     register long int* sp_arg = stack_arg;
     register cons_t** sp_adr = stack_adr;
     register cons_t* pc = instructions + ipc;
-    register long int a,b,ret; 
+    register long int a,ret; 
     register struct value_t *a_ptr,*ret_ptr;
-    register cons_t* cons_ptr;
 
 
     goto *(pc->instruction_ptr);
@@ -104,8 +104,7 @@ eq:
     goto *((++pc)->instruction_ptr);
 
 jmp:
-    cons_ptr = pc->op[ (--sp_value)->type ].adr;
-    pc = cons_ptr;
+    pc = pc->op[ (--sp_value)->type ].adr;
     goto *((pc)->instruction_ptr);
 
 funccall:

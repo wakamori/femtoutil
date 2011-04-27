@@ -16,7 +16,7 @@ static ExprAST *ParseNumberExpr() {
 
 static ExprAST *ParseParenExpr() {
     getNextToken();  // eat (.
-    ExprAST *V = ParsePrimary();
+    ExprAST *V = ParseExpression();
     if (!V) return 0;
 
     if (CurTok != ')')
@@ -83,7 +83,7 @@ static ExprAST *ParseExpression() {
 
     //return ParseBinOpRHS(0, LHS);
 }
-
+static ExprAST *ParseBinOp(int op){
 static FunctionAST *ParseDefinition() {
     getNextToken();  // eat def.
     PrototypeAST *Proto = ParsePrototype();

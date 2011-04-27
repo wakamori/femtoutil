@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include"main.h"
 #include"parser.h"
@@ -7,7 +8,7 @@ int i_temp;
 char str[200];
 int main( int argc, char* argv[] )
 {
-    void** table = eval( 1, NULL );
+    void** table = (void**)eval( 1, NULL );
     cons_t* cons;
     int flag = 0;
     FILE *file;
