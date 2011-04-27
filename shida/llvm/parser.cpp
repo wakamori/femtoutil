@@ -63,7 +63,6 @@ static ExprAST *ParsePrimary() {
         case tok_number:     return ParseNumberExpr();
         case '(':            return ParseParenExpr();
                              break;
-
     }
 }
 
@@ -77,13 +76,25 @@ static FunctionAST *ParseTopLevelExpr() {
 }
 
 static ExprAST *ParseExpression() {
+    ExprAST *LHS;
+    int Tok;
     getNextToken();
-    ExprAST *LHS = ParsePrimary();
-    if (!LHS) return 0;
-
-    //return ParseBinOpRHS(0, LHS);
+    Tok = CurTok;
+    switch(CurTok){
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '<':
+            LHS = ParsePrimary();
+            return ParseBinOp(Tok,LHS);
+        default:
+            return ParsePrimary();
+    }
 }
-static ExprAST *ParseBinOp(int op){
+static ExprAST *ParseBinOp(int op, ExprAST *LHS){
+
+}
 static FunctionAST *ParseDefinition() {
     getNextToken();  // eat def.
     PrototypeAST *Proto = ParsePrototype();

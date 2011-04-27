@@ -1,7 +1,7 @@
 #ifndef MAIN
 #define MAIN
-#define STACKSIZE 1000
-#define INSTSIZE 1000
+#define STACKSIZE 100
+#define INSTSIZE 100
 
 
 enum eINSTRUCTION { PUSH_PC, PLUS, MINUS, MUL, DIV, END, GT, GTE, LT, LTE, EQ, JMP, GOTO, RETURN, ARG, POP, PUSH, PUSH_BOOL };
@@ -29,7 +29,7 @@ typedef struct function_Data_t{
     cons_t* adr;
 }function_Data_t;
 function_Data_t function_Data[100];
-
+cons_t hairetu[INSTSIZE];
 int ipc, next_ipc;
 void* ptr_base;
 

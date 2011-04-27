@@ -24,7 +24,7 @@ int main( int argc, char* argv[] )
         flag = 1;
     }
 
-    strcpy( str,"defun func(n) if(< n 3) 1 (+ func(- n 1) func(- n 2) )\n");
+    /*strcpy( str,"defun func(n) (if(< n 3) 1 (+ func(- n 1) func(- n 2)))\n");
     parse( str, 0, NULL );
 
     ipc = next_ipc;
@@ -32,17 +32,20 @@ int main( int argc, char* argv[] )
     strcpy( str,"func 36\n");
     parse( str, 0, NULL );
     eval( 0, getbase() );
-
+    
     exit(1);
+    */
     while(1){
         ipc = next_ipc;
-        printf(">>>");
-        if( flag == 1)
-            fgets( str, sizeof(str), file );
+        if( flag == 1){
+            if (fgets( str, sizeof(str), file ) == NULL){
+                fclose(file);
+                exit(0);
+            }
+        }
         else
             fgets( str, sizeof(str), stdin );
         if (parse( str, 0, NULL ) != -10 ){
-            printf("\n\n");
             eval( 0, getbase() );
         }
     }
