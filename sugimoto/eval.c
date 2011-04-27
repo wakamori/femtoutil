@@ -6,9 +6,9 @@ cons_t sgmt_eval(cons_t *cell)
 	switch (cell->type) {
 		case START:
 					if(cell->car->type == SYMBOL && cell->car->type != DEFUN && cell->car->type != IF && cell->car->type != SETQ){
-		cell->car->type = FUNC;
-		}
-					result = sgmt_eval(cell->car);
+						cell->car->type = FUNC;
+					}
+			result = sgmt_eval(cell->car);
 			break;
 		case INT:
 			result.ivalue = cell->ivalue;
@@ -154,14 +154,14 @@ cons_t sgmt_eval(cons_t *cell)
 				result.symbol=cell->symbol;
 				cell = cell->cdr;
 				cons_t *tmp_a = cell->car;
-				tmp_o = cell;
+				tmp_o = cell->cdr;
 						while (tmp_a != NULL) {
 					arg_a2[i][0] = tmp_a->symbol;
 					tmp_a = tmp_a->cdr;
 					i++;
 				}
 				setarg(tmp_o);
-						fhash(tmp);
+				fhash(tmp);
 			break;
 						}
 		case END:
@@ -183,9 +183,10 @@ void setarg(cons_t *cell){
 			break;
 		case SYMBOL :
 			for(i = 0;i < ARG_SIZE ; i ++ ){
-						if(arg_a2[i][0] != NULL && strncmp(cell->symbol, arg_a2[i][0], sizeof(arg_a2[i][0])) == 0)
+						if(arg_a2[i][0] != NULL && strncmp(cell->symbol, arg_a2[i][0], sizeof(arg_a2[i][0])) == 0) {
 							cell->type = ARG;
 						printf("argument is %s\n",arg_a2[i][0]);
+						}
 					}
 				setarg(cell->cdr);
 				break;

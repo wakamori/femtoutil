@@ -10,7 +10,7 @@ OBJS = \
 	fhash.o\
 	stack.o
 CC = gcc
-CFLAGS = -g0 -Wall -O2 
+CFLAGS = -g3 -Wall -O0 
 LDLIBS = -lreadline
 
 .PHONY: all

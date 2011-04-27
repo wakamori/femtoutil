@@ -24,8 +24,6 @@ void f_add(int key, cons_t *aroot,cons_t *oroot)
 	else{
 		p =malloc(sizeof(struct flist));
 		p->key = key;
-		// p->aroot = (cons_t *)malloc(sizeof(cons_t));
-		// p->oroot = (cons_t *)malloc(sizeof(cons_t));
 		p->aroot = aroot;
 		p->oroot = oroot;
 		p->next =ftable[key];
