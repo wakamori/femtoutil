@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include <string.h>
 #include"main.h"
 
-void** eval( int i, void* base )
+void** eval( int i, cons_t* base )
 {
     static void *table [] = {
         &&push_pc,
@@ -37,9 +38,8 @@ void** eval( int i, void* base )
     register long int* sp_arg = stack_arg;
     register cons_t** sp_adr = stack_adr;
     register cons_t* pc = instructions + ipc;
-    register long int a,b,ret; 
+    register long int a,ret; 
     register struct value_t *a_ptr,*ret_ptr;
-    register cons_t* cons_ptr;
 
 
     goto *(pc->instruction_ptr);
@@ -49,7 +49,7 @@ end:
     return;
 
 push_pc:
-    (sp_value)->type = NUM;
+    //(sp_value)->type = NUM;
     (sp_value++)->i = pc->op[0].i;
     goto *((++pc)->instruction_ptr);
 
@@ -71,9 +71,10 @@ div:
 
 gt:
     ret_ptr = (--sp_value);
-    a_ptr = (--sp_value);
-    ret_ptr->type = ( ret_ptr->i > a_ptr->i && a_ptr->type != nil) ? T : nil;
-    *(sp_value++) = *ret_ptr;
+    //a_ptr = (--sp_value);
+    //ret_ptr->type = ( ret_ptr->i > a_ptr->i && a_ptr->type != nil) ? T : nil;
+    //*(sp_value++) = *ret_ptr;
+    (sp_value++)->type = (ret_ptr->i > (--sp_value)->i) ? T : nil;
     goto *((++pc)->instruction_ptr);
 
 gte:
@@ -104,8 +105,7 @@ eq:
     goto *((++pc)->instruction_ptr);
 
 jmp:
-    cons_ptr = pc->op[ (--sp_value)->type ].adr;
-    pc = cons_ptr;
+    pc = pc->op[ (--sp_value)->type ].adr;
     goto *((pc)->instruction_ptr);
 
 funccall:
@@ -120,7 +120,7 @@ Return:
     goto *((pc)->instruction_ptr);
 
 arg:
-    sp_value->type = NUM;
+    //sp_value->type = NUM;
     (sp_value++)->i = *(sp_arg-1);
     goto *((++pc)->instruction_ptr);
 }

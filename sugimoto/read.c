@@ -1,5 +1,6 @@
 #include "lisugimoto.h"
 void p_indent(char *ope,int depth);
+void set_symbol(char *line, int *pos,cons_t *cell);
 cons_t *sgmt_read(char *line, int *pos)
 {
 	cons_t *cell = NULL;
@@ -72,11 +73,7 @@ cons_t *sgmt_read(char *line, int *pos)
 			while (isdigit(line[*pos + 1])) (*pos)++;
 			}
 				else{
-				int len = 0;
-				while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
-				cell->symbol=strndup((line+*pos),len);
-				cell->type=SYMBOL;
-				(*pos)=(*pos)+len-1;
+					set_symbol(line,pos,cell);
 			}
 			}
 			break;
@@ -87,11 +84,7 @@ cons_t *sgmt_read(char *line, int *pos)
 				(*pos)++;
 			}
 			else{
-				int len = 0;
-				while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
-				cell->symbol=strndup((line+*pos),len);
-				cell->type=SYMBOL;
-				(*pos)=(*pos)+len-1;
+				set_symbol(line,pos,cell);
 			}
 			break;
 		case 'T':
@@ -109,11 +102,7 @@ cons_t *sgmt_read(char *line, int *pos)
 				(*pos)=(*pos)+3;
 			}
 			else{
-				int len = 0;
-				while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
-				cell->symbol=strndup((line+*pos),len);
-				cell->type=SYMBOL;
-				(*pos)=(*pos)+len-1;
+				set_symbol(line,pos,cell);
 			}
 			break;
 			//------------Parse'defun'---------
@@ -123,22 +112,13 @@ cons_t *sgmt_read(char *line, int *pos)
 					(*pos)=(*pos)+4;
 				}
 				else{
-					int len = 0;
-					while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
-					cell->symbol=strndup((line+*pos),len);
-					cell->type=SYMBOL;
-					(*pos)=(*pos)+len-1;
+					set_symbol(line,pos,cell);
 				}
 			}
 			break;
-		default: {
-			int len = 0;
-			while(line[*pos+len] !=' ' && line[*pos+len] != ')')len++;
-			cell->symbol=strndup((line+*pos),len);
-			cell->type=SYMBOL;
-			(*pos)=(*pos)+len;
+		default:
+			set_symbol(line,pos,cell);
 			break;
-		}
 	}
 	(*pos)++;
 	cell->cdr=sgmt_read(line,pos); 
@@ -237,4 +217,12 @@ void p_indent(char *ope,int depth){
 		printf("\t");
 	}
 	printf("%s",ope);
+}
+
+void set_symbol(char *line,int *pos,cons_t *cell){
+	int len = 0;
+		while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
+		cell->symbol=strndup((line+*pos),len);
+		cell->type=SYMBOL;
+		(*pos)=(*pos)+len-1;
 }

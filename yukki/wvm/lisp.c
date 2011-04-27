@@ -14,7 +14,7 @@ void exe_lisp(char *input){
 		Code *begin = &code[code_index];
 		compile(c);
 		add_code(END, 0, 0);
-		exe_code(begin, 0);
+		exe_code(begin);
 	}
 }
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
 	puts("WELCOME TO LOW(Lisp Of Wakamatsu) VM Version !!");
 
 	// get g_jtable
-	exe_code(NULL, 0);
+	exe_code(NULL);
 
 	for(i=1; i<argc; i++){
 		open_file(argv[i]);

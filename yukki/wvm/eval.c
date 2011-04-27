@@ -6,35 +6,40 @@ extern Code code[1024];
 extern int code_index;
 extern void **g_jtable;
 
-char *names[] = {
-		"MOV_V", "MOV_R", "MOV_B",
-		"ADD", "SUB", "MUL", "DIV", "MOD",
-		"ADD_V", "SUB_V", "MUL_V", "DIV_V", "MOD_V",
-		"LT", "LE", "GT", "GE", "EQ",
-		"CMP", "JMP", "PUSH", "POP", "CALL", "RET", "PUSH_ARG", "END"
-};
+static int reg = 0;
 
-void add_code(int inst, int v1, int v2){
-	//code[code_index].inst = inst;
-	printf("%s %d, %d\n", names[inst], v1, v2);
+Code *add_code(int inst, int v1, int v2){
+	if(inst == MOV_ARG){
+		if(v1 == 0){
+				inst = MOV_ARG_R0;
+		}else if(v1 == 1){
+				inst = MOV_ARG_R1;
+		}
+	}
+
+	if(inst == SUB_V){
+		if(v1 == 0){
+			inst = SUB_V_R0;
+		}else if(v1 == 1){
+			inst = SUB_V_R1;
+		}
+	}
+
+	printf("%s %d, %d\n", inst_names[inst], v1, v2);
+	
+	Code *c = &code[code_index];
 	code[code_index].instp = g_jtable[inst];
-	code[code_index].v1.i = v1;
-	code[code_index].v2.i = v2;
+	code[code_index].op0 = v1;
+	code[code_index].op1 = v2;
 	code_index++;
-}
 
-Code *add_code2(int inst){
-	printf("%s\n", names[inst]);
-	Code*c = &code[code_index];
-	c->instp = g_jtable[inst];
-	code_index++;
 	return c;
 }
 
+// set result to register[reg]
 void compile(cons_t *c){
 	int op;
 	switch(c->type){
-	// set result to R0
 	case TYPE_OPERATE:
 		op = c->v.i;
 		c = c->cdr;
@@ -42,15 +47,12 @@ void compile(cons_t *c){
 		c = c->cdr;
 		while(c != NULL){
 			if(c->type == TYPE_INT){
-				//add_code(MOV_V, 1, c->v.i);
-				//add_code(op, 0, 1);
-				add_code(op+5, 0, c->v.i);	// ex)ADD -> ADD_V
+				add_code(op+1, reg, c->v.i);	// ex)ADD -> ADD_V
 			}else{
-				add_code(PUSH, 0, 0);
+				reg++;
 				compile(c);
-				add_code(MOV_R, 1, 0);
-				add_code(POP, 0, 0);
-				add_code(op, 0, 1);
+				reg--;
+				add_code(op, reg, reg+1);
 			}
 			c = c->cdr;
 		}
@@ -62,17 +64,15 @@ void compile(cons_t *c){
 		c = c->cdr;
 		compile(c);			
 		c = c->cdr;
+
 		if(c->type == TYPE_INT){
-			add_code(MOV_V, 1, c->v.i);
-		}else if(c->type == TYPE_CAR){
-			add_code(PUSH, 0, 0);
-			compile(c->v.car);
-			add_code(MOV_R, 1, 0);
-			add_code(POP, 0, 0);			
+			add_code(op+5, reg, c->v.i);
 		}else{
-			printf("compare error 1\n");
+			reg++;
+			compile(c);
+			reg--;
+			add_code(op, reg, reg+1);
 		}
-		add_code(op, 0, 1);
 		break;
 
 	case TYPE_IF:
@@ -90,26 +90,25 @@ void compile(cons_t *c){
 		}
 
 		// add CMP
-		Code *cmp = add_code2(CMP);
+		int cmp_i = code_index;
+		Code *cmp = add_code(CMP, 0, 0);
 		c = c->cdr;
 
 		// true case
-		cmp->v1.c = &code[code_index];
+		cmp->op0 = 1;
 		compile(c);
 		c = c->cdr;
 
-		// add JMP
-		//Code *jmp = add_code2(JMP);
+		// add RET
 		add_code(RET, 0, 0);
 
 		// false case
-		cmp->v2.c = &code[code_index];
+		cmp->op1 = code_index - cmp_i;
 		compile(c);
-
-		//jmp->v1.c = &code[code_index];
 		break;
 
 	case TYPE_DEFUN:
+		reg = 0;
 		add_code(END, 0, 0);
 		c = c->cdr;
 		if(c->type != TYPE_STR){
@@ -122,7 +121,7 @@ void compile(cons_t *c){
 		cons_t *args = c->v.car;
 		c = c->cdr;
 		
-		add_function(name, args, &code[code_index]);
+		add_function(name, args, &code[code_index], code_index);
 		compile(c);
 
 		add_code(RET, 0, 0);
@@ -134,7 +133,7 @@ void compile(cons_t *c){
 	
 	// set R0
 	case TYPE_INT:
-		add_code(MOV_V, 0, c->v.i);
+		add_code(MOV_V, reg, c->v.i);
 		break;
 
 	// set R0
@@ -148,17 +147,32 @@ void compile(cons_t *c){
 			while(arg != NULL){
 				compile(c);
 				// push argument
-				add_code(PUSH_ARG, 0, n);
+				add_code(PUSH_ARG, reg, n);
 				arg = arg->cdr;
 				c = c->cdr;
 				n++;
 			}
+			// push using register
+			int i, r=reg;
+			for(i=0; i<r; i++){
+				add_code(PUSH, i, 0);
+			}
 			// add CALL
-			Code *call = add_code2(CALL);
-			call->v1.c = f->code;
+			reg = 0;
+			Code *call = add_code(CALL, f->code_index - code_index, 0);
+			reg = r;
+			
+			if(reg != 0){
+				add_code(MOV_R, reg, 0);
+			}
+
+			// pop
+			for(i=r-1; i>=0; i--){
+				add_code(POP, i, 0);
+			}
 		}else{
 				// variable?
-				add_code(MOV_B, 0, 0);
+				add_code(MOV_ARG, reg, 0);
 		}
 		}
 		break;

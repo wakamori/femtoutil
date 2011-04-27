@@ -5,12 +5,13 @@
 
 Func *funclist = NULL;
 
-Func *add_function(char *name, cons_t *arg, Code *code)
+Func *add_function(char *name, cons_t *arg, Code *code, int code_index)
 {
 	Func *f = (Func *)low_malloc(sizeof(Func));
 	f->name = name;
 	f->arg = arg;
 	f->code = code;
+	f->code_index = code_index;
 	f->next = funclist;
 	funclist = f;
 	return f;
