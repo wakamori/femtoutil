@@ -38,8 +38,8 @@ void exe_code(Code *c_arg){
 	int arg = 0;
 	int flag = 0;
 	long reg[REG_MAX] = {0};
-	int	stack[STACK_MAX] = {0};
-	Code *codestack[64] = {0};
+	static int	stack[STACK_MAX] = {0};
+	static Code *codestack[64] = {0};
 	register int *stackptr = stack;
 	register Code **codeptr = codestack;
 	register Code *c = c_arg;
