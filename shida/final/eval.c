@@ -49,7 +49,7 @@ end:
     return;
 
 push_pc:
-    (sp_value)->type = NUM;
+    //(sp_value)->type = NUM;
     (sp_value++)->i = pc->op[0].i;
     goto *((++pc)->instruction_ptr);
 
@@ -71,9 +71,10 @@ div:
 
 gt:
     ret_ptr = (--sp_value);
-    a_ptr = (--sp_value);
-    ret_ptr->type = ( ret_ptr->i > a_ptr->i && a_ptr->type != nil) ? T : nil;
-    *(sp_value++) = *ret_ptr;
+    //a_ptr = (--sp_value);
+    //ret_ptr->type = ( ret_ptr->i > a_ptr->i && a_ptr->type != nil) ? T : nil;
+    //*(sp_value++) = *ret_ptr;
+    (sp_value++)->type = (ret_ptr->i > (--sp_value)->i) ? T : nil;
     goto *((++pc)->instruction_ptr);
 
 gte:
@@ -119,7 +120,7 @@ Return:
     goto *((pc)->instruction_ptr);
 
 arg:
-    sp_value->type = NUM;
+    //sp_value->type = NUM;
     (sp_value++)->i = *(sp_arg-1);
     goto *((++pc)->instruction_ptr);
 }
