@@ -65,10 +65,12 @@ struct flist{
 /*------Argument Stack-------*/
 int stack_num;
 int as_data[AS_SIZE];
+int arg_stack[ARG_SIZE][AS_SIZE];
 
-/*------Declare Function------*/
+/*------Declare Function & Variable------*/
 char *arg_a[ARG_SIZE];
-struct a_stack *a_stack[AS_SIZE];
+char *arg_a2[ARG_SIZE][AS_SIZE];
+struct a_stack *a_stack[ARG_SIZE][AS_SIZE];
 struct flist *ftable[T_SIZE];
 int hash(char *name);
 int *search(int key);
@@ -79,7 +81,8 @@ void dump(cons_t *root,int depth);
 void vhash(cons_t *cell);
 void v_add(int key,int data);
 void fhash(cons_t *cell);
-void a_push(int arg);
+void a_push(cons_t *cell);
 void a_pop();
-int a_get();
+int a_get(int argcount);
+int get_arg_count(cons_t *cell);
 void error();
