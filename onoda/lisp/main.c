@@ -7,9 +7,9 @@ int main(int argc, char *argv[])
 	char **token = {NULL};
 	FILE *fp = NULL;
 
-	fp = fopen(argv[1],"r");
+	fp = fopen(argv[1], "r");
 
-	if(fp == NULL){
+	if (fp == NULL) {
 	  printf("file not open");
 	  return 0;
 	}
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
 	  int answer; 
 	  answer = eval(root);
-	  printf("answer=%d\n", answer);
+	  printf("answer = %d\n", answer);
 
 	}
 	return 0;

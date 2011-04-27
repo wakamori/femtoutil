@@ -2,98 +2,98 @@
 
 cons_t *maketree(char **token)
 {
-  int depth = 0,i = 0;
-  cons_t *ad[MAX_DEPTH] = {NULL};
+	int depth = 0, i = 0;
+	cons_t *ad[MAX_DEPTH] = {NULL};
 
-  cons_t *root = NULL, *next = NULL;
-  root = (cons_t*)malloc(sizeof(cons_t));
-  root->type = ROOT;
-  root->car = NULL;
-  root->cdr = NULL;
-  next = root;
+	cons_t *root = NULL, *next = NULL;
+	root = (cons_t*)malloc(sizeof(cons_t));
+	root->type = ROOT;
+	root->car = NULL;
+	root->cdr = NULL;
+	next = root;
 
-  while (token[i] != NULL) {
-	if (strcmp(token[i],"(") == 0) {
-	  next->cdr = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->cdr;  
-	  next->type = L_K;
-	  next->car = NULL;
-	  next->cdr = NULL;
-	  ad[depth] = next;
-	  depth++;
-	} else if (strcmp(token[i], ")") == 0) {
-	  next->cdr = NULL;
-	  depth--;
-	  next = ad[depth];
-	} else if (strcmp(token[i], "+") == 0){
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = ADD;
-	} else if (strcmp(token[i],"-") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = SUB;
-	} else if (strcmp(token[i], "*") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = MUL;
-	} else if (strcmp(token[i], "/") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next =  next->car;
-	  next->type = DEV;
-	} else if (strcmp(token[i],"if") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = IF;
-	} else if (strcmp(token[i], "=") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = EQU;	
-	} else if (strcmp(token[i], "<") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = LT;
-	} else if (strcmp(token[i], ">") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = GT;
-	} else if (strcmp(token[i], "<=") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = ELT;
-	} else if (strcmp(token[i], ">=") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = EGT;
-	} else if (strcmp(token[i], "setq") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = SETQ;
-	} else if (strcmp(token[i], "defun") == 0) {
-	  next->car = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->car;
-	  next->type = DEF;
-	} else if (48 <= token[i][0] && token[i][0] <= 57) {
-	  next->cdr = (cons_t*)malloc(sizeof(cons_t));
-	  next = next->cdr;
-	  next->type = INT;
-	  next->ivalue = typechange(token[i]);
-	} else {
-	  if (next->type == L_K && next->car ==NULL) {
-		next->car = (cons_t*)malloc(sizeof(cons_t));
-		next = next->car;
-		next->type = FUNC;
-	  } else {
-		next->cdr = (cons_t*)malloc(sizeof(cons_t));
-		next = next->cdr;
-		next->type = STR;
-	  }
-	  next->cvalue = token[i];
+	while (token[i] != NULL) {
+		if (strcmp(token[i],"(") == 0) {
+			next->cdr = (cons_t*)malloc(sizeof(cons_t));
+			next = next->cdr;  
+			next->type = L_K;
+			next->car = NULL;
+			next->cdr = NULL;
+			ad[depth] = next;
+			depth++;
+		} else if (strcmp(token[i], ")") == 0) {
+			next->cdr = NULL;
+			depth--;
+			next = ad[depth];
+		} else if (strcmp(token[i], "+") == 0){
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = ADD;
+		} else if (strcmp(token[i],"-") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = SUB;
+		} else if (strcmp(token[i], "*") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = MUL;
+		} else if (strcmp(token[i], "/") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next =  next->car;
+			next->type = DEV;
+		} else if (strcmp(token[i],"if") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = IF;
+		} else if (strcmp(token[i], "=") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = EQU;	
+		} else if (strcmp(token[i], "<") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = LT;
+		} else if (strcmp(token[i], ">") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = GT;
+		} else if (strcmp(token[i], "<=") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = ELT;
+		} else if (strcmp(token[i], ">=") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = EGT;
+		} else if (strcmp(token[i], "setq") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = SETQ;
+		} else if (strcmp(token[i], "defun") == 0) {
+			next->car = (cons_t*)malloc(sizeof(cons_t));
+			next = next->car;
+			next->type = DEF;
+		} else if (48 <= token[i][0] && token[i][0] <= 57) {
+			next->cdr = (cons_t*)malloc(sizeof(cons_t));
+			next = next->cdr;
+			next->type = INT;
+			next->ivalue = typechange(token[i]);
+		} else {
+			if (next->type == L_K && next->car == NULL) {
+				next->car = (cons_t*)malloc(sizeof(cons_t));
+				next = next->car;
+				next->type = FUNC;
+			} else {
+				next->cdr = (cons_t*)malloc(sizeof(cons_t));
+				next = next->cdr;
+				next->type = STR;
+			}
+			next->cvalue = token[i];
+		}
+		i++;
 	}
-	i++;
-  }
-  next = NULL;
-  return root;
+	next = NULL;
+	return root;
 }
 
 int typechange(char *chartoken)

@@ -3,46 +3,70 @@
 
 
 
-int findmap(char *key)
+int getmap(char *key)
 {
   int count;
   
   for (count = 0; strncmp(key, g_qa[count].key, sizeof(key)) != 0; count++) {
 	;
   }
-  
   return g_qa[count].value;
 }
 
-func findfunc(char *key)
+func getfunc(char *key)
 {
-  int count;
+	int count;
 
-  for (count = 0; strncmp(key, g_fa[count].key, sizeof(key)) != 0; count++) {
-	;
-  }
-  return g_fa[count];
+	for (count = 0; strcmp(key, g_fa[count].key) != 0; count++) {
+		;
+	}
+	return g_fa[count];
 }
 
-void findarg(cons_t *root, func name)
+void findfunc(cons_t *root, char *key)
+{
+	if (root->type == L_K) {
+		if (root->car != NULL) {
+			findfunc(root->car, key);
+		}
+		if (root->cdr != NULL) {
+			findfunc(root->cdr, key);
+		}
+	} else if (root->type == FUNC) {
+		if (strcmp(root->cvalue, key) == 0) {
+			root->type = RFUNC;
+			root->ivalue = g_fc;
+		}
+		if (root->cdr != NULL) {
+			findfunc(root->cdr, key);
+		}
+	} else {
+		if (root->cdr != NULL) {
+			findfunc(root->cdr, key);
+		}
+	}
+	printf("type %d\n",root->type);
+}
+
+void findarg(cons_t *root, char *key)
 {
   if (root->type == L_K) {
 	if (root->car != NULL) {
-	  findarg(root->car,name);
+	  findarg(root->car, key);
 	}
 	if (root->cdr != NULL) {
-	  findarg(root->cdr,name);
+	  findarg(root->cdr, key);
 	}
   } else if (root->type == STR) {
-	if (strcmp(root->cvalue, name.arg) == 0) {
+	if (strcmp(root->cvalue, key) == 0) {
 	  root->type = ARG;
 	}
 	if (root->cdr != NULL) {
-	  findarg(root->cdr,name);
+	  findarg(root->cdr, key);
 	}
   } else {
 	if (root->cdr != NULL) {
-	  findarg(root->cdr,name);
+	  findarg(root->cdr, key);
 	}
   }
 }
@@ -62,7 +86,7 @@ int getvalue(cons_t *next)
 	case INT:
 		return next->ivalue;
 	case STR:
-		return findmap(next->cvalue);
+		return getmap(next->cvalue);
 	default:
 		return 0;
 	}
@@ -274,13 +298,14 @@ void def(cons_t *next)
 	now = next->cdr;
 	g_fa[g_fc].key = now->cvalue;
 
-	now = now->cdr;
-	next = now->car;
-	g_fa[g_fc].arg = next->cvalue;
-	g_fa[g_fc].exp = now->cdr;
-
-	findarg(now->cdr, g_fa[g_fc]);
+	next = now->cdr;
+	g_fa[g_fc].exp = next->cdr;
+	findfunc(next->cdr, now->cvalue);
  
+	now = next->cdr;
+	next = next->car;
+	g_fa[g_fc].arg = next->cvalue;
+	findarg(now, next->cvalue);
 	now->cdr = NULL;
 
 	g_fc++;
@@ -301,13 +326,40 @@ int lfunc(cons_t *next)
 
 	g_arga[g_argl] = nextarg;
 
-	now->result[g_funcl-1] = eval(findfunc(now->cvalue).exp);
+	now->result[g_funcl-1] = eval(getfunc(now->cvalue).exp);
 
 	g_argl--;	
 	g_funcl--;
 
 	return now->result[g_funcl];
 }
+
+int rfunc(cons_t *next)
+{
+	cons_t *now;
+	int nextarg;
+	
+	now = next;
+	next = next->cdr;
+
+	nextarg = getvalue(next);
+
+	g_funcl++;
+	g_argl++;
+
+	g_arga[g_argl] = nextarg;
+
+	now->result[g_funcl-1] = eval(g_fa[now->ivalue].exp);
+
+	g_argl--;	
+	g_funcl--;
+
+	return now->result[g_funcl];
+
+}
+
+
+
 
 int eval(cons_t *root)
 {
@@ -321,14 +373,16 @@ int eval(cons_t *root)
 	  return eval(next->car);
   case LT:
 	  return lt(next);
+  case SUB:
+	  return sub(next);
+  case RFUNC:
+	  return rfunc(next);
+  case IF:
+	  return lif(next);
   case ADD:
 	  return add(next);
   case FUNC:
 	  return lfunc(next);
-  case SUB:
-	  return sub(next);
-  case IF:
-	  return lif(next);
   case DEF:
 	  def(next);
 	  break;

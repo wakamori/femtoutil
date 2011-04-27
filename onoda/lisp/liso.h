@@ -26,8 +26,9 @@
 #define DEF 16
 #define FUNC 17
 #define ARG 18
+#define RFUNC 19
 #define LAYER 2048
-#define SIZE 2048
+#define SIZE 32
 
 typedef struct cons_t{
   int type;
@@ -63,11 +64,12 @@ int g_argl;
 
 int g_funcl;
  
-int findmap(char *key);
-func findfunc(char *key);
-void findarg(cons_t *root, func mame);
+void findfunc(cons_t *root, char *key);
+void findarg(cons_t *root, char *key);
 void clean(cons_t *root, int layer);
 int getvalue(cons_t *next);
+int getmap(char *key);
+func getfunc(char *key);
 int eval(cons_t *root);
 char **tokenizer(char *line);
 void dump_token(char **token);
@@ -87,3 +89,4 @@ int egt(cons_t *next);
 void setq(cons_t *next);
 void def(cons_t *next);
 int lfunc(cons_t *next);
+int rfunc(cons_t *next);
