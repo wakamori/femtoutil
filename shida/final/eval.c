@@ -4,7 +4,7 @@
 
 void** eval( int i, cons_t* base )
 {
-    static void *table [] = {
+    static const void *table [] = {
         &&push_pc,
         &&plus,
         &&minus,
@@ -27,8 +27,8 @@ void** eval( int i, cons_t* base )
     }
 
 
-    cons_t instructions[INSTSIZE];
-    memcpy( instructions, base, sizeof(cons_t) * INSTSIZE );
+    //static cons_t instructions[INSTSIZE];
+    //memcpy( instructions, base, sizeof(cons_t) * INSTSIZE );
 
     cons_t* stack_adr[STACKSIZE];
     long int stack_arg[STACKSIZE];
@@ -37,7 +37,7 @@ void** eval( int i, cons_t* base )
     register value_t* sp_value = stack_value;
     register long int* sp_arg = stack_arg;
     register cons_t** sp_adr = stack_adr;
-    register cons_t* pc = instructions + ipc;
+    register cons_t* pc = base + ipc;
     register long int a,ret; 
     register struct value_t *a_ptr,*ret_ptr;
 
