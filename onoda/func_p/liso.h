@@ -4,34 +4,18 @@
 #include <string.h>
 #include <stdlib.h>
 
+typedef enum cons_type {L_K, R_K, ADD, SUB, MUL, DEV, STR, INT, ROOT, IF, EQU,\
+						  LT, GT, ELT, EGT, SETQ, DEF, FUNC, ARG, RFUNC}cons_type;
 #define MAX_DEPTH 32
 #define TRUE 1
 #define FALSE 0
-#define L_K 0
-#define R_K 1
-#define ADD 2
-#define SUB 3
-#define MUL 4
-#define DEV 5
-#define STR 6
-#define INT 7
-#define ROOT 8
-#define IF 9
-#define EQU 10
-#define LT 11
-#define GT 12
-#define ELT 13
-#define EGT 14
-#define SETQ 15
-#define DEF 16
-#define FUNC 17
-#define ARG 18
-#define RFUNC 19
-#define LAYER 2048
-#define SIZE 32
+#define FPA_SIZE 32
+#define ARG_SIZE 16
+#define FUNC_SIZE 16
+#define LAYER 1024
 
 typedef struct cons_t{
-  int type;
+  cons_type type;
   union{
     struct cons_t *car;
     int ivalue;
@@ -47,7 +31,7 @@ typedef struct map{
   int hash;
 } map;
 
-map g_qa[SIZE];
+map g_qa[ARG_SIZE];
 int g_qc;
 
 typedef struct func{
@@ -56,7 +40,7 @@ typedef struct func{
   cons_t *exp;
 } func;
 
-func g_fa[SIZE];
+func g_fa[FUNC_SIZE];
 int g_fc;
 
 int g_arga[LAYER];

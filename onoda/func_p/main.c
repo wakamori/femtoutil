@@ -33,8 +33,6 @@ int main(int argc, char *argv[])
 
 	fclose(fp);
 	  
-	return 0;
-
   } else {
 	char *input = NULL;
 	char **token = {NULL};
@@ -63,6 +61,6 @@ int main(int argc, char *argv[])
 	  printf("answer = %d\n", answer);
 
 	}
-	return 0;
   }
+  return 0;
 }

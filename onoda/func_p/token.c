@@ -3,8 +3,8 @@
 char **tokenizer(char *line)
 {
   
-  char **t;
-  t = (char**)malloc(sizeof(char*)*strlen(line));
+  char **token;
+  token = (char**)malloc(sizeof(char*)*strlen(line));
 
   char *linec;
   linec = (char*)malloc(sizeof(char)*(strlen(line)));
@@ -17,43 +17,43 @@ char **tokenizer(char *line)
 
   for (l = 0; linec[l] != 0; l++) {
 	if (linec[l] == '(') {
-	  t[m] = (char*)malloc(sizeof(char));
-	  t[m] = "(";
+	  token[m] = (char*)malloc(sizeof(char));
+	  token[m] = "(";
 	  m++;
 	  next = &linec[l+1];
 	}else if (linec[l] == ' '){
-	  if (strcmp(t[m-1],")") == 0 && (*next == ')' || *next == ' ')) {
+	  if (strcmp(token[m-1],")") == 0 && (*next == ')' || *next == ' ')) {
 		next = &linec[l+1];
 	  } else {
 		linec[l] = '\0';
-		t[m] = (char*)malloc(strlen(next) + 1);
-		strcpy(t[m],next);
+		token[m] = (char*)malloc(strlen(next) + 1);
+		strcpy(token[m],next);
 		m++;
 		next = &linec[l+1];
 	  }
 	} else if (linec[l] == ')') {
-	  if (strcmp(t[m-1],")") == 0 && *next == ')') {
+	  if (strcmp(token[m-1],")") == 0 && *next == ')') {
 		linec[l] = '\0';
-		t[m] = (char*)malloc(sizeof(char));
-		t[m] = ")";
+		token[m] = (char*)malloc(sizeof(char));
+		token[m] = ")";
 		m++;
 		next = &linec[l+1];
 	  } else {	 
 		linec[l] = '\0';
-		t[m] = (char*)malloc(strlen(next) + 1);
-		strcpy(t[m],next);
+		token[m] = (char*)malloc(strlen(next) + 1);
+		strcpy(token[m],next);
 		m++;
-		t[m] = (char*)malloc(sizeof(char));
-		t[m] = ")";
+		token[m] = (char*)malloc(sizeof(char));
+		token[m] = ")";
 		m++;
 		next = &linec[l+1];
 	  }
 	}
   }
-  t[m] = (char*)malloc(sizeof(char));
-  t[m] = NULL;
+  token[m] = (char*)malloc(sizeof(char));
+  token[m] = NULL;
  
-  return t;
+  return token;
 }
 
 

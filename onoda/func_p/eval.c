@@ -1,6 +1,6 @@
 #include "liso.h"
 
-int (*func_p[SIZE]) (cons_t *p) = {fl_k, NULL, add, sub, mul, dev, NULL, \
+int (*func_p[FPA_SIZE]) (cons_t *p) = {fl_k, NULL, add, sub, mul, dev, NULL, \
 								   NULL, froot, lif, equ, lt, gt, elt, egt, setq, def, lfunc, NULL, rfunc};
 
 
