@@ -1,7 +1,7 @@
-CFLAGS= -O2
+CFLAGS= -O2 -W -Wall
 CC=gcc
 TARGET=a
-OBJS=main.o eval.o parser.o generator.o
+OBJS=main.o eval.o parser.o generator.o hash.o
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
@@ -17,6 +17,9 @@ parser.o : parser.c parser.h
 
 generator.o : generator.c generator.h
 	$(CC) $(CFLAGS) -c generator.c
+
+hash.o : hash.c hash.h
+	$(CC) $(CFLAGS) -c hash.c
 
 .PHONY:clean
 clean:

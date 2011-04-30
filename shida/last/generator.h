@@ -1,2 +1,2 @@
 #include"main.h"
-void generate(AST*);
+void GenerateProgram (AST*);

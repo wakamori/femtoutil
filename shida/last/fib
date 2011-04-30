@@ -1,2 +1,0 @@
-(defun func(n) (if(< n 3) 1 (+ (func(- n 1)) (func(- n 2)))))\n
-(func 36)
