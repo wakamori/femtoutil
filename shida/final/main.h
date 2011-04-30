@@ -31,6 +31,5 @@ typedef struct function_Data_t{
 function_Data_t function_Data[100];
 cons_t hairetu[INSTSIZE];
 int ipc, next_ipc;
-void* ptr_base;
-
+void* ptr_base; 
 #endif /*MAIN*/

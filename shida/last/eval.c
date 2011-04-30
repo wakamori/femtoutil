@@ -5,7 +5,7 @@
 const void** eval (int i )
 {
     static const void *table [] = {
-        &&push_pc,
+        &&push,
         &&plus,
         &&minus,
         &&mul,
@@ -30,10 +30,11 @@ const void** eval (int i )
         &&nfunccall,
         &&Return,
         &&nReturn,
+        &&arg,
+        &&narg,
         &&defun,
         &&setq,
-        &&arg,
-        &&narg
+
     };
 
     if( i == 1 ){
@@ -59,7 +60,7 @@ end:
         printf("%d\n",stack_value[0].i);
     return 0;
 
-push_pc:
+push:
     sp_value->type = NUM;
     (sp_value++)->i = pc->op[0].i;
     goto *((++pc)->instruction_ptr);

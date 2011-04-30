@@ -182,7 +182,7 @@ AST* ParseDefun (void)
     }
     ret->LHS = ParseArgument();
     p = setF(ret->u.s, ret->LHS->u.i, NULL);
-    if (ret->LHS->type == -1){
+    if ((signed int)ret->LHS->type == -1){
         free(ret->LHS);
         free(ret);
         //p->name[0] = '\0';

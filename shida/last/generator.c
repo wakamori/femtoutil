@@ -29,7 +29,7 @@ void GenerateOperation(AST* ast, int i)
 void GenerateNumber (AST* ast)
 {
     //printf("push\n");
-    memory[NextIndex].instruction = PUSH_PC;
+    memory[NextIndex].instruction = PUSH;
     memory[NextIndex].op[0].i = ast->u.i;
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
     NextIndex++;
@@ -78,7 +78,7 @@ void GenerateSetq (AST* ast,int i){
 void GenerateVariable (AST* ast)
 {
     //printf("variable\n");
-    memory[NextIndex].instruction = PUSH_PC;
+    memory[NextIndex].instruction = PUSH;
     memory[NextIndex].op[0].i = searchV(ast->u.s)->value;
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
     NextIndex++;
@@ -128,7 +128,7 @@ void GenerateFunc (AST* ast, int i)
     int count = p->value;
     while (1){
         if (count == 0){
-            memory[NextIndex].instruction = PUSH_PC;
+            memory[NextIndex].instruction = PUSH;
             memory[NextIndex].op[0].i = 0;
             memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
             NextIndex++;
