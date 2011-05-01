@@ -108,12 +108,10 @@ void GenerateDefun (AST* ast)
 void GenerateArg (AST* ast)
 {
     if (ast->u.i == 0){
-        //printf("arg\n");
         memory[NextIndex].instruction = ARG;
         memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
         NextIndex++;
     } else {
-        //printf("arg\n");
         memory[NextIndex].instruction = NARG;
         memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
         memory[NextIndex].op[0].i = ast->u.i + 1;
@@ -141,7 +139,16 @@ void GenerateFunc (AST* ast, int i)
         } else if (count == 1){
             Generate(temp->RHS, i, "");
             //printf("goto\n");
-            memory[NextIndex].instruction = (p->value == 1) ? GOTO : NGOTO;
+            memory[NextIndex].instruction = GOTO;
+            memory[NextIndex].op[0].adr = p->adr;
+            memory[NextIndex].op[1].i = p->value;
+            memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
+            NextIndex++;
+            break;
+        } else if (count == 2){
+            Generate(temp->LHS, i, "");
+            Generate(temp->RHS, i, "");
+            memory[NextIndex].instruction = NGOTO;
             memory[NextIndex].op[0].adr = p->adr;
             memory[NextIndex].op[1].i = p->value;
             memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];

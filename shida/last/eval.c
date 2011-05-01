@@ -55,16 +55,6 @@ const void** eval (int i )
 
     goto *(pc->instruction_ptr);
 
-end:
-    if (i == 2)
-        printf("%d\n",stack_value[0].i);
-    return 0;
-
-push:
-    sp_value->type = NUM;
-    (sp_value++)->i = pc->op[0].i;
-    goto *((++pc)->instruction_ptr);
-
 plus:
     (sp_value-2)->i += (sp_value-1)->i;
     sp_value--;
@@ -85,6 +75,21 @@ div:
     sp_value--;
     goto *((++pc)->instruction_ptr);
 
+defun:
+    if (i == 2)
+        printf("%s\n",pc->op[0].c);
+    return 0;
+
+end:
+    if (i == 2)
+        printf("%d\n",stack_value[0].i);
+    return 0;
+
+push:
+    sp_value->type = NUM;
+    (sp_value++)->i = pc->op[0].i;
+    goto *((++pc)->instruction_ptr);
+
 plus2:
     (sp_value - 1)->i += pc->op[0].i;
     goto *((++pc)->instruction_ptr);
@@ -96,22 +101,9 @@ gt2:
     goto *((++pc)->instruction_ptr);
 
 gt:
+    ret_ptr = (--sp_value);
     a_ptr = (--sp_value);
     ret_ptr->type = ( ret_ptr->i > a_ptr->i && a_ptr->type != nil) ? T : nil;
-    *(sp_value++) = *ret_ptr;
-    goto *((++pc)->instruction_ptr);
-
-gte:
-    ret_ptr = (--sp_value);
-    a_ptr = (--sp_value);
-    ret_ptr->type = ( ret_ptr->i >= a_ptr->i && a_ptr->type != nil) ? T : nil; 
-    *(sp_value++) = *ret_ptr;
-    goto *((++pc)->instruction_ptr);
-
-lt:
-    ret_ptr = (--sp_value);
-    a_ptr = (--sp_value);
-    ret_ptr->type = ( ret_ptr->i < a_ptr->i && a_ptr->type != nil) ? T : nil;
     *(sp_value++) = *ret_ptr;
     goto *((++pc)->instruction_ptr);
 
@@ -140,9 +132,8 @@ funccall:
 
 nfunccall:
     a = pc->op[1].i;
-    while (a != 0){
+    while (a-- != 0){
         *(sp_arg++) = (--sp_value)->i;
-        a--;
     }
     *(sp_adr++) = pc + 1;
     pc = pc->op[0].adr;
@@ -208,9 +199,18 @@ setq:
     ((Variable_Data_t*)pc->op[0].adr)->value = (--sp_value)->i;
     goto *((++pc)->instruction_ptr);
 
-defun:
-    if (i == 2)
-        printf("%s\n",pc->op[0].c);
-    return 0;
+gte:
+    ret_ptr = (--sp_value);
+    a_ptr = (--sp_value);
+    ret_ptr->type = ( ret_ptr->i >= a_ptr->i && a_ptr->type != nil) ? T : nil; 
+    *(sp_value++) = *ret_ptr;
+    goto *((++pc)->instruction_ptr);
+
+lt:
+    ret_ptr = (--sp_value);
+    a_ptr = (--sp_value);
+    ret_ptr->type = ( ret_ptr->i < a_ptr->i && a_ptr->type != nil) ? T : nil;
+    *(sp_value++) = *ret_ptr;
+    goto *((++pc)->instruction_ptr);
 
 }
