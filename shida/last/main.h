@@ -8,7 +8,8 @@ enum TokType {  tok_number, tok_plus, tok_minus, tok_mul, tok_div, tok_gt, tok_g
 enum eINSTRUCTION { PUSH, PLUS, MINUS, MUL, DIV, GT, GTE, LT, LTE, EQ, PLUS2, MUNUS2, MUL2, DIV2, GT2, GTE2, LT2, LTE2, EQ2, END, JMP, GOTO, NGOTO, RETURN, NRETURN,  ARG, NARG, DEFUN, SETQ };
 enum eTYPE { T = 0, nil = 1, NUM, VAL };
 typedef struct cons_t{
-    enum eINSTRUCTION instruction;
+    //enum eINSTRUCTION instruction;
+    int instruction;
     void* instruction_ptr;
     union{
         int i;
@@ -18,12 +19,14 @@ typedef struct cons_t{
 }cons_t;
 
 typedef struct value_t{
-    enum eTYPE type;
+    //enum eTYPE type;
+    int type;
     int i;
 }value_t;
 
 typedef struct AST{
-    enum TokType type;
+    //enum TokType type;
+    int type;
     union{
         int i;
         char s[20];

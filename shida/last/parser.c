@@ -155,7 +155,7 @@ AST* ParseArgument (void)
 AST* ParseIf (void)
 {
     getNextToken(); //eat '('
-    AST* ret = malloc(sizeof(AST));
+    AST* ret = (AST*)malloc(sizeof(AST));
     ret->type = tok_if;
     ret->COND = ParseExpression();
     ret->LHS = ParseBlock();
@@ -174,7 +174,7 @@ AST* ParseDefun (void)
 {
     Function_Data_t* p = NULL;
     int i = 0;
-    AST* ret = malloc(sizeof(AST));
+    AST* ret = (AST*)malloc(sizeof(AST));
     ret->type = tok_defun;
     getNextToken();
     if (CurTok == tok_str){
@@ -208,7 +208,7 @@ AST* ParseDefun (void)
 
 AST* ParseSetq (void)
 {
-    AST* ret = malloc(sizeof(AST));
+    AST* ret = (AST*)malloc(sizeof(AST));
     ret->type = tok_setq;
     getNextToken();
     if (CurTok == tok_str){
@@ -360,7 +360,11 @@ AST* ParseOperation (int Tok,AST* pRHS)
             if (CurTok == tok_number || CurTok == tok_open || CurTok == tok_str){
                 ret->type = OpType;
                 ret->LHS = LHS;
-                ret->RHS = ParseOperation(OpType, RHS);
+                if (pRHS == NULL && (OpType == tok_minus || OpType == tok_div)){
+                    ret->RHS = ParseOperation(tok_plus, RHS);
+                } else {
+                    ret->RHS = ParseOperation(OpType, RHS);
+                }
                 if (ret->RHS == NULL) {PERROR}
             } else if (CurTok == tok_close){
                 ret->LHS = LHS;
