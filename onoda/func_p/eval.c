@@ -56,31 +56,52 @@ void findfunc(cons_t *root, char *key, int count)
 	}
 }
 
-void findarg(cons_t *root, char *key)
+void findarg(cons_t *root, cons_t *arg_name)
 {
+	int arg_number = 0;
+	cons_t *search_name = NULL;
 	switch (root->type) {
 	case L_K:
 		if (root->car != NULL) {
-			findarg(root->car, key);
+			findarg(root->car, arg_name);
 		}
 		if (root->cdr != NULL) {
-			findarg(root->cdr, key);
+			findarg(root->cdr, arg_name);
 		}
 		break;
 	case STR:
-		if (strcmp(root->cvalue, key) == 0) {
-			root->type = ARG;
+		search_name = arg_name;
+		while (search_name != NULL) {
+			if (strcmp(root->cvalue, search_name->cvalue) == 0) {
+				root->type = ARG;
+				root->ivalue = arg_number;
+				break;
+			}
+			search_name = search_name->cdr;
+			arg_number++;
 		}
 		if (root->cdr != NULL) {
-			findarg(root->cdr, key);
+			findarg(root->cdr, arg_name);
 		}
 		break;
 	default:
 		if (root->cdr != NULL) {
-			findarg(root->cdr, key);
+			findarg(root->cdr, arg_name);
 		}
 	}
 }
+
+void set_arg(cons_t *arg_value,int layer)
+{
+	int arg_number = 0;
+	while (arg_value != NULL) {
+		g_arga[layer + 1][arg_number] = getvalue(arg_value);
+		arg_number++;
+		arg_value = arg_value->cdr;
+	}
+}
+
+
 int getvalue(cons_t *next)
 {
 	switch (next->type) {
@@ -91,7 +112,7 @@ int getvalue(cons_t *next)
 			return eval(next->cdr);
 		}		
 	case ARG:
-		return g_arga[g_argl];
+		return g_arga[g_argl][next->ivalue];
 	case INT:
 		return next->ivalue;
 	case STR:
@@ -321,8 +342,8 @@ int def(cons_t *next)
 	findfunc(now->cdr, next->cvalue, count);
 	next = now->car;
 
-	g_fa[count].arg = next->cvalue;
-	findarg(now->cdr, next->cvalue);
+	findarg(now->cdr, next);
+	
 	now->cdr = NULL;
 	printf("define %s\n",g_fa[count].key);
 	return 0;
@@ -332,7 +353,7 @@ int lfunc(cons_t *next)
 {
 	cons_t *now;
 	now = next;
-	int nextarg,fc;
+	int fc;
 
 	fc = getfunc(next->cvalue);
 	if (g_fa[fc].key == NULL) {
@@ -340,12 +361,11 @@ int lfunc(cons_t *next)
 		return 0;
 	} else {	
 		next = next->cdr;
-		nextarg = getvalue(next);
+		set_arg(next, g_argl);
 
 		g_funcl++;
 		g_argl++;
 
-		g_arga[g_argl] = nextarg;
 		now->result[g_funcl-1] = eval(g_fa[fc].exp);
 
 		g_argl--;	
@@ -358,17 +378,12 @@ int lfunc(cons_t *next)
 int rfunc(cons_t *next)
 {
 	cons_t *now;
-	int nextarg;
-	
 	now = next;
 	next = next->cdr;
-
-	nextarg = getvalue(next);
+	set_arg(next, g_argl);
 
 	g_funcl++;
 	g_argl++;
-
-	g_arga[g_argl] = nextarg;
 
 	now->result[g_funcl-1] = eval(g_fa[now->ivalue].exp);
 

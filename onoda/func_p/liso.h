@@ -10,8 +10,9 @@ typedef enum cons_type {L_K, R_K, ADD, SUB, MUL, DEV, STR, INT, ROOT, IF, EQU,\
 #define TRUE 1
 #define FALSE 0
 #define FPA_SIZE 32
-#define ARG_SIZE 16
+#define MAP_SIZE 16
 #define FUNC_SIZE 16
+#define ARG_SIZE 16
 #define LAYER 1024
 
 typedef struct cons_t{
@@ -31,24 +32,22 @@ typedef struct map{
 	int hash;
 } map;
 
-map g_qa[ARG_SIZE];
+map g_qa[MAP_SIZE];
 
 typedef struct func{
 	char *key;
-	char *arg;
-	int arg_num;
 	cons_t *exp;
 } func;
 
 func g_fa[FUNC_SIZE];
 
-int g_arga[LAYER];
+int g_arga[LAYER][ARG_SIZE];
 int g_argl;
 
 int g_funcl;
  
 void findfunc(cons_t *root, char *key, int count);
-void findarg(cons_t *root, char *key);
+void findarg(cons_t *root, cons_t *arg_name);
 void clean(cons_t *root, int layer);
 int getvalue(cons_t *next);
 int getmap(char *key);
