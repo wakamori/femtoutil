@@ -12,7 +12,7 @@ int decode(int n)
 	return x;
 }
 
-void ans_alloc(void)
+ans_stack* ans_alloc(ans_stack* ans_head)
 {
 	ans_stack* temp;
 	
@@ -27,9 +27,10 @@ void ans_alloc(void)
 		ans_head = ans_free_head;
 		ans_free_head = temp;
 	}
+	return ans_head;
 }
 
-void ans_free(void)
+ans_stack* ans_free(ans_stack* ans_head)
 {
 	ans_stack* temp;
 	ans_head->ans = 0;
@@ -37,6 +38,36 @@ void ans_free(void)
 	ans_head->next = ans_free_head;
 	ans_free_head = ans_head;
 	ans_head = temp;
+	return ans_head;
+}
+
+arg_list* arg_alloc(arg_list* arg_head)
+{
+	arg_list* temp;
+	
+	if(arg_counter < 300){
+		arg_pool[arg_counter].next = arg_head;
+		arg_head = &arg_pool[arg_counter];
+		arg_counter++;
+	}
+	else{
+		temp = arg_free_head->next;
+		arg_free_head->next = arg_head;
+		arg_head = arg_free_head;
+		arg_free_head = temp;
+	}
+	return arg_head;
+}
+
+arg_list* arg_free(arg_list* arg_head)
+{
+	arg_list* temp;
+	arg_head-> arg = 0;
+	temp = arg_head->next;
+	arg_head->next = arg_free_head;
+	arg_free_head = arg_head;
+	arg_head = temp;
+	return arg_head;
 }
 
 void print(int x)
@@ -60,5 +91,4 @@ void print(int x)
 		printf("%d\n", x); 
 	return;
 }
-
 
