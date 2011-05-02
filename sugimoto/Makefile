@@ -7,9 +7,10 @@ OBJS = \
 	eval.o\
 	print.o\
 	vhash.o\
-	fhash.o
+	fhash.o\
+	stack.o
 CC = gcc
-CFLAGS = -g3 -Wall -O0
+CFLAGS = -g3 -Wall -O0 
 LDLIBS = -lreadline
 
 .PHONY: all
@@ -33,6 +34,10 @@ vhash.o: vhash.c
 
 fhash.o: fhash.c
 	$(CC) $(CFLAGS) -c $<
+
+stack.o: stack.c
+	$(CC) $(CFLAGS) -c $<
+
 .PHONY: clean
 clean:
 	$(RM) $(TARGET) $(OBJS)

@@ -1,23 +1,45 @@
-TARGET1=lispo
-TARGET2=exe
+TARGET=lispo
 CC=gcc
 OBJS=\
-     lispo.o
-CFLAGS=-g3 -O0
+     main.o\
+	 make_cons.o\
+	 search.o\
+	 other_func.o\
+	 eval.o
+CFLAGS=-g3 -O2
 LDLIBS=-lreadline -lcurses
 
 .PHONY: all
-all: $(TARGET1) $(TARGET2)
+all: $(TARGET)
 
-$(TARGET1): $(OBJS)
-	$(CC) $(LDLIBS) -o $(TARGET1) $^
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(LDLIBS) -o $(TARGET) $^
 
-$(TARGET2): $(OBJS)
-	$(CC) $(CFLAGS) $(LDLIBS) -o $(TARGET2) $^
-
-lispo.o: lispo.c
+main.o: main.c
 	$(CC) $(CFLAGS) -c $^
+
+main.o: lispo.h
+
+make_cons.o: make_cons.c
+	$(CC) $(CFLAGS) -c $^
+
+make_cons.o: lispo.h
+
+search.o: search.c
+	$(CC) $(CFLAGS) -c $^
+
+search.o: lispo.h
+
+other_func.o: other_func.c
+	$(CC) $(CFLAGS) -c $^
+
+other_func.o: lispo.h
+
+eval.o: eval.c
+	$(CC) $(CFLAGS) -c $^
+
+eval.o: lispo.h
 
 .PHONY: clean
 clean:
-	$(RM) $(TARGET1) $(TARGET2) $(OBJS)
+	$(RM) $(TARGET) $(OBJS) *~ *.gch gmon.* 

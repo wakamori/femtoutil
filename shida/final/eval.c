@@ -1,23 +1,9 @@
 #include <stdio.h>
+#include <string.h>
 #include"main.h"
-#include"eval.h"
 
-/*pc_0 = {};
-void ** __thcode__;
-void eval(void *pc)
+void** eval( int i, cons_t* base )
 {
-    void *table[];
-    goto *(table[pc->opcode]);
-
-    L_thcode:
-        __thcode = table;
-        return;
-}*/
-
-
-void** eval( int i )
-{
-
     static const void *table [] = {
         &&push_pc,
         &&plus,
@@ -31,133 +17,110 @@ void** eval( int i )
         &&lte,
         &&eq,
         &&jmp,
-        &&go_to,
-        &&re_turn,
+        &&funccall,
+        &&Return,
         &&arg
     };
-    int a,ret;
-    struct value_t *a_ptr,*ret_ptr;
-    cons_t* cons_ptr;
 
     if( i == 1 ){
         return table;
     }
 
+
+    //static cons_t instructions[INSTSIZE];
+    //memcpy( instructions, base, sizeof(cons_t) * INSTSIZE );
+
+    cons_t* stack_adr[STACKSIZE];
+    long int stack_arg[STACKSIZE];
+    value_t stack_value[STACKSIZE];
+
+    register value_t* sp_value = stack_value;
+    register long int* sp_arg = stack_arg;
+    register cons_t** sp_adr = stack_adr;
+    register cons_t* pc = base + ipc;
+    register long int a,ret; 
+    register struct value_t *a_ptr,*ret_ptr;
+
+
     goto *(pc->instruction_ptr);
 
 end:
+    printf("answer = %d\n",stack_value[0].i);
     return;
 
 push_pc:
-    (sp_value)->type = NUM;
-    (sp_value++)->u.i = pc->op[0].i;
+    //(sp_value)->type = NUM;
+    (sp_value++)->i = pc->op[0].i;
     goto *((++pc)->instruction_ptr);
 
 plus:
-    ret = pop()->u.i + pop()->u.i;
-    push_i( ret );
+    (sp_value-2)->i += (--sp_value)->i;
     goto *((++pc)->instruction_ptr);
 
 minus:
-    a = pop()->u.i;
-    ret = pop()->u.i - a;
-    push_i( ret );
+    (sp_value-2)->i -= (--sp_value)->i;
     goto *((++pc)->instruction_ptr);
 
 mul:
-    ret = pop()->u.i * pop()->u.i;
-    push_i( ret );
+    (sp_value-2)->i *= (--sp_value)->i;
     goto *((++pc)->instruction_ptr);
 
 div:
-    a = pop()->u.i;
-    ret = pop()->u.i / a;
-    push_i( ret );
+    (sp_value-2)->i /= (--sp_value)->i;
     goto *((++pc)->instruction_ptr);
 
 gt:
-    ret_ptr = pop();
-    a_ptr = pop();
-    ret_ptr->type = ( ret_ptr->u.i > a_ptr->u.i && a_ptr->type != nil) ? T : nil;
-    push_value_t( ret_ptr );
+    ret_ptr = (--sp_value);
+    //a_ptr = (--sp_value);
+    //ret_ptr->type = ( ret_ptr->i > a_ptr->i && a_ptr->type != nil) ? T : nil;
+    //*(sp_value++) = *ret_ptr;
+    (sp_value++)->type = (ret_ptr->i > (--sp_value)->i) ? T : nil;
     goto *((++pc)->instruction_ptr);
 
 gte:
-    ret_ptr = pop();
-    a_ptr = pop();
-    ret_ptr->type = ( ret_ptr->u.i >= a_ptr->u.i && a_ptr->type != nil) ? T : nil; 
-    push_value_t( ret_ptr );
+    ret_ptr = (--sp_value);
+    a_ptr = (--sp_value);
+    ret_ptr->type = ( ret_ptr->i >= a_ptr->i && a_ptr->type != nil) ? T : nil; 
+    *(sp_value++) = *ret_ptr;
     goto *((++pc)->instruction_ptr);
 
 lt:
-    ret_ptr = pop();
-    a_ptr = pop();
-    ret_ptr->type = ( ret_ptr->u.i < a_ptr->u.i && a_ptr->type != nil) ? T : nil;
-    push_value_t( ret_ptr );
+    ret_ptr = (--sp_value);
+    a_ptr = (--sp_value);
+    ret_ptr->type = ( ret_ptr->i < a_ptr->i && a_ptr->type != nil) ? T : nil;
+    *(sp_value++) = *ret_ptr;
     goto *((++pc)->instruction_ptr);
 
 lte:
-    ret_ptr = pop();
-    a_ptr = pop();
-    ret_ptr->type = ( ret_ptr->u.i <= a_ptr->u.i && a_ptr->type != nil) ? T : nil;
-    push_value_t( ret_ptr );
+    ret_ptr = (--sp_value);
+    a_ptr = (--sp_value);
+    ret_ptr->type = ( ret_ptr->i <= a_ptr->i && a_ptr->type != nil) ? T : nil;
+    *(sp_value++) = *ret_ptr;
     goto *((++pc)->instruction_ptr);
 
 eq:
-    ret_ptr = pop();
-    ret_ptr->type = ( ret_ptr->u.i == pop()->u.i ) ? T : nil;
-    push_value_t( ret_ptr );
+    ret_ptr = (--sp_value);
+    ret_ptr->type = ( ret_ptr->i == (--sp_value)->i ) ? T : nil;
+    *(sp_value++) = *ret_ptr;
     goto *((++pc)->instruction_ptr);
 
 jmp:
-    //ret_ptr = pop();
-    //printf( "if %d\n",ret_ptr->type);
-    cons_ptr = pc->op[ pop()->type ].adr;
-    pc = cons_ptr;
+    pc = pc->op[ (--sp_value)->type ].adr;
     goto *((pc)->instruction_ptr);
 
-go_to:
-    *(sp_arg++) = pop()->u.i;
+funccall:
+    *(sp_arg++) = (--sp_value)->i;
     *(sp_adr++) = pc + 1;
     pc = pc->op[0].adr;
     goto *((pc)->instruction_ptr);
 
-
-re_turn:
-    //printf("return\n");
+Return:
     --sp_arg;
     pc = *(--sp_adr);
     goto *((pc)->instruction_ptr);
 
 arg:
-    sp_value->type = NUM;
-    push_i( *(sp_arg-1) );
-    //printf("arg%d\n",*(sp_arg-1));
+    //sp_value->type = NUM;
+    (sp_value++)->i = *(sp_arg-1);
     goto *((++pc)->instruction_ptr);
-}
-
-
-
-static inline void push_value_t( value_t* t )
-{
-    *(sp_value++) = *t;
-}
-
-static inline void push_i( int i)
-{
-    (sp_value++)->u.i = i;
-}
-
-static inline void push_bool( enum eTYPE t )
-{
-    (sp_value++)->type = t;
-}
-static inline value_t* pop( void )
-{
-    return (--sp_value);
-}
-
-value_t* pop_ans( void )
-{
-    return (--sp_value);
 }

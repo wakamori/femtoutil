@@ -1,169 +1,219 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "inst.h"
 
 #define REG_MAX 8
 #define STACK_MAX 1024
 
-CodeValue reg[REG_MAX] = {0};
-int flag = 0;
-int stackptr = 0;
-CodeValue stack[STACK_MAX];
+#define PROF_START()
+#define PROF_STOP()
 
-int argstackptr = 0;
-int argstack[STACK_MAX];
+void **g_jtable = NULL;
 
-void exe_code(Code *c, int arg){
-	const static void *jtable[] = {
-		&&I_MOV_V, &&I_MOV_R, &&I_MOV_B,
-		&&I_ADD, &&I_SUB, &&I_MUL, &&I_DIV, &&I_MOD,
-		&&I_ADD_V, &&I_SUB_V, &&I_MUL_V, &&I_DIV_V, &&I_MOD_V,
-		&&I_LT, &&I_LE, &&I_GT, &&I_GE, &&I_EQ,
-		&&I_CMP, &&I_JMP,
-		&&I_PUSH, &&I_POP,
-		&&I_CALL, &&I_RET,
-		&&I_PUSH_ARG
-	};
-	int r_arg;
+void exe_code(Code *c_arg){
+	if(c_arg == NULL){
+		static void *jtable[] = {
+			&&I_MOV_V, &&I_MOV_R, &&I_MOV_ARG,
+			&&I_MOV_ARG_R0,
+			&&I_MOV_ARG_R1,
+			&&I_ADD, &&I_ADD_V,
+			&&I_SUB, &&I_SUB_V,	&&I_SUB_V_R0, &&I_SUB_V_R1,
+			&&I_MUL, &&I_MOV_V,
+			&&I_DIV, &&I_DIV_V,
+			&&I_MOD, &&I_MOD_V,
+		
+			&&I_LT, &&I_LE, &&I_GT, &&I_GE, &&I_EQ,
+			&&I_LT_V,
+			&&I_CMP, &&I_JMP,
+			&&I_PUSH, &&I_POP,
+			&&I_CALL, &&I_RET,
+			&&I_PUSH_ARG, &&I_END
+		};
+		g_jtable = jtable;
+		return;
+	}
 
-	goto *jtable[c->inst];
+	int r_arg = 0;
+	int arg = 0;
+	int flag = 0;
+	long reg[REG_MAX] = {0};
+	static int	stack[STACK_MAX] = {0};
+	static Code *codestack[64] = {0};
+	register int *stackptr = stack;
+	register Code **codeptr = codestack;
+	register Code *c = c_arg;
+
+	time_t t1, t2;
+
+	goto *c->instp;
 
 I_MOV_V:
-	reg[c->v1.i] = c->v2;
+	reg[c->op0] = c->op1;
 	c++;
-	goto *jtable[c->inst];
+	goto *c->instp;
 
 I_MOV_R:
-	reg[c->v1.i] = reg[c->v2.i];
+	reg[c->op0] = reg[c->op1];
 	c++;
-	goto *jtable[c->inst];
+	goto *c->instp;
 
-I_MOV_B:
-	//reg[c->v1.i] = stack[baseptr + c->v2.i];
-	reg[c->v1.i].i = arg;
+I_MOV_ARG:
+	reg[c->op0] = arg;
 	c++;
-	goto *jtable[c->inst];
+	goto *c->instp;
 
-I_ADD:
-	reg[c->v1.i].i += reg[c->v2.i].i;
+I_MOV_ARG_R0:
+	reg[0] = arg;
 	c++;
-	goto *jtable[c->inst];
+	goto *c->instp;
 
-I_SUB:
-	reg[c->v1.i].i -= reg[c->v2.i].i;
+I_MOV_ARG_R1:
+	reg[1] = arg;
 	c++;
-	goto *jtable[c->inst];
-
-I_MUL:
-	reg[c->v1.i].i *= reg[c->v2.i].i;
-	c++;
-	goto *jtable[c->inst];
-
-I_DIV:
-	reg[c->v1.i].i /= reg[c->v2.i].i;
-	c++;
-	goto *jtable[c->inst];
-
-I_MOD:
-	reg[c->v1.i].i %= reg[c->v2.i].i;
-	c++;
-	goto *jtable[c->inst];
-
-I_ADD_V:
-	reg[c->v1.i].i += c->v2.i;
-	c++;
-	goto *jtable[c->inst];
-
-I_SUB_V:
-	reg[c->v1.i].i -= c->v2.i;
-	c++;
-	goto *jtable[c->inst];
-
-I_MUL_V:
-	reg[c->v1.i].i *= c->v2.i;
-	c++;
-	goto *jtable[c->inst];
-
-I_DIV_V:
-	reg[c->v1.i].i /= c->v2.i;
-	c++;
-	goto *jtable[c->inst];
-
-I_MOD_V:
-	reg[c->v1.i].i %= c->v2.i;
-	c++;
-	goto *jtable[c->inst];
-
-I_LT:
-	flag = (reg[c->v1.i].i < reg[c->v2.i].i) ? 1 : 0;
-	c++;
-	goto *jtable[c->inst];
-
-I_LE:
-	flag = (reg[c->v1.i].i <= reg[c->v2.i].i) ? 1 : 0;
-	c++;
-	goto *jtable[c->inst];
-
-I_GT:
-	flag = (reg[c->v1.i].i > reg[c->v2.i].i) ? 1 : 0;
-	c++;
-	goto *jtable[c->inst];
-
-I_GE:
-	flag = (reg[c->v1.i].i >= reg[c->v2.i].i) ? 1 : 0;
-	c++;
-	goto *jtable[c->inst];
-
-I_EQ:
-	flag = (reg[c->v1.i].i == reg[c->v2.i].i) ? 1 : 0;
-	c++;
-	goto *jtable[c->inst];
-
-I_CMP:
-	if(flag){
-		c = c->v1.c;
-	}else{
-		c = c->v2.c;
-	}
-	goto *jtable[c->inst];
-
-I_JMP:
-	c = c->v1.c;
-	goto *jtable[c->inst];
-
-I_CALL:
-	exe_code(c->v1.c, r_arg);
-	c++;
-	goto *jtable[c->inst];
-
-I_RET:
-	return;
+	goto *c->instp;
 
 I_PUSH:
-	stack[stackptr] = reg[c->v1.i];
-	stackptr++;
+	*stackptr++ = reg[c->op0];
 	c++;
-	goto *jtable[c->inst];
+	goto *c->instp;
 
 I_POP:
-	stackptr--;
-	reg[c->v1.i] = stack[stackptr];
+	reg[c->op0] = *(--stackptr);
 	c++;
-	goto *jtable[c->inst];
+	goto *c->instp;
 
 I_PUSH_ARG:
-	r_arg = reg[c->v1.i].i;
+	r_arg = reg[c->op0];
 	c++;
-	goto *jtable[c->inst];
+	goto *c->instp;
+
+I_ADD:
+	reg[c->op0] += reg[c->op1];
+	c++;
+	goto *c->instp;
+
+I_ADD_V:
+	reg[c->op0] += c->op1;
+	c++;
+	goto *c->instp;
+
+I_SUB:
+	reg[c->op0] -= reg[c->op1];
+	c++;
+	goto *c->instp;
+
+I_SUB_V:
+	reg[c->op0] -= c->op1;
+	c++;
+	goto *c->instp;
+
+I_SUB_V_R0:
+	reg[0] -= c->op1;
+	c++;
+	goto *c->instp;
+
+I_SUB_V_R1:
+	reg[1] -= c->op1;
+	c++;
+	goto *c->instp;
+
+I_MUL:
+	reg[c->op0] *= reg[c->op1];
+	c++;
+	goto *c->instp;
+
+I_MUL_V:
+	reg[c->op0] *= c->op1;
+	c++;
+	goto *c->instp;
+
+I_LT:
+	flag = (reg[c->op0] < reg[c->op1]) ? 1 : 0;
+	c++;
+	goto *c->instp;
+
+I_LE:
+	flag = (reg[c->op0] <= reg[c->op1]) ? 1 : 0;
+	c++;
+	goto *c->instp;
+
+I_GT:
+	flag = (reg[c->op0] > reg[c->op1]) ? 1 : 0;
+	c++;
+	goto *c->instp;
+
+I_GE:
+	flag = (reg[c->op0] >= reg[c->op1]) ? 1 : 0;
+	c++;
+	goto *c->instp;
+
+I_EQ:
+	flag = (reg[c->op0] == reg[c->op1]) ? 1 : 0;
+	c++;
+	goto *c->instp;
+
+I_LT_V:
+	flag = (reg[c->op0] < c->op1) ? 1 : 0;
+	c++;
+	goto *c->instp;
+
+I_CMP:
+	c += (flag) ? c->op0 : c->op1;
+	goto *c->instp;
+
+I_JMP:
+	c += c->op0;
+	goto *c->instp;
+
+I_CALL:
+	*codeptr++ = c + 1;
+	*stackptr++ = arg;
+	arg = r_arg;
+	c += c->op0;
+	goto *c->instp;
+
+I_RET:
+	c = *(--codeptr);
+	arg = *(--stackptr);
+	goto *c->instp;
+
+
+I_DIV:
+	reg[c->op0] /= reg[c->op1];
+	c++;
+	goto *c->instp;
+
+I_DIV_V:
+	reg[c->op0] /= c->op1;
+	c++;
+	goto *c->instp;
+
+I_MOD:
+	reg[c->op0] %= reg[c->op1];
+	c++;
+	goto *c->instp;
+
+I_MOD_V:
+	reg[c->op0] %= c->op1;
+	c++;
+	goto *c->instp;
+
+
+
+I_END:
+	PROF_STOP();
+	fprintf(stderr, "%d\n", t2 - t1);
+	printf("%d\n", reg[0]);
 }
 
 
 void print_regs(){
-	int i;
+	/*int i;
 	for(i=0; i<REG_MAX; i++){
-		printf("reg[%d] = %ld\n", i, reg[i].i);
+		printf("reg[%d] = %d\n", i, reg[i]);
 	}
 	printf("flag = %d\n", flag);
+*/
 }
-
 
