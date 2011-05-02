@@ -47,11 +47,24 @@ typedef struct Function_Data_t{
     cons_t* adr;
 }Function_Data_t;
 
-Function_Data_t Function_Data[100];
-Variable_Data_t Variable_Data[100];
-cons_t memory[INSTSIZE];
-int CurrentIndex, NextIndex;
-char str[200];
-void** table;
+extern Function_Data_t Function_Data[100];
+extern Variable_Data_t Variable_Data[100];
+extern cons_t memory[INSTSIZE];
+extern int CurrentIndex, NextIndex;
+extern char str[200];
+extern void** table;
 
+/*hash.h*/
+struct Function_Data_t* setF (char* str, int i , void* adr);
+struct Variable_Data_t* setV (char* str);
+struct Variable_Data_t* searchV (char* str);
+struct Function_Data_t* searchF (char* str);
+/*generator.h*/
+void GenerateProgram (AST*);
+/*parser.h*/
+#define defun 1
+#define normal 0
+int ParseProgram();
+/*eval.h*/
+void** eval (int);
 #endif /*MAIN*/

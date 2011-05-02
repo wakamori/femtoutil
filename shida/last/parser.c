@@ -4,9 +4,6 @@
 #include <ctype.h>
 #include <math.h>
 #include"main.h"
-#include"hash.h"
-#include"parser.h"
-#include"generator.h"
 #define ERROR printf("Error In Tokenizer\n"); return tok_error;
 #define ARGERROR if (ArgCount[ArgIndex] > p->value)printf("Too many "); else printf("Too few "); printf("arguments given to function\n");  return NULL;
 #define PERROR return NULL;

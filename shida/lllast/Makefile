@@ -1,5 +1,5 @@
 CFLAGS= -O2 -W -Wall
-CC=g++
+CC=gcc
 TARGET=a
 OBJS=main.o eval.o parser.o generator.o hash.o
 

@@ -1,9 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include"eval.h"
 #include"main.h"
-#include"parser.h"
+
+Function_Data_t Function_Data[100];
+Variable_Data_t Variable_Data[100];
+cons_t memory[INSTSIZE];
+int CurrentIndex, NextIndex;
+char str[200];
+void** table;
+
 
 int main (int argc, char* args[])
 {

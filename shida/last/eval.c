@@ -24,9 +24,9 @@ void printAns (value_t* v)
     printf("%s",ret);
 }
 
-const void** eval (int i )
+void** eval (int i )
 {
-    static const void *table [] = {
+    static void *table [] = {
         &&push,
         &&plus,
         &&minus,
@@ -54,7 +54,7 @@ const void** eval (int i )
         &&nReturn,
         &&arg,
         &&narg,
-        &&defun,
+        &&funcdef,
         &&setq,
 
     };
@@ -97,16 +97,16 @@ div:
     sp_value--;
     goto *((++pc)->instruction_ptr);
 
-defun:
+funcdef:
     if (i == 2)
         printf("%s\n",pc->op[0].c);
-    return 0;
+    return NULL;
 
 end:
     if (i == 2){
         printAns(stack_value);
     }
-    return 0;
+    return NULL;
 
 push:
     sp_value->type = NUM;

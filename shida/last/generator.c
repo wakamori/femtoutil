@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include"hash.h"
 #include"main.h"
 
 void Generate (AST* ast, int i, char* str);
 int TempIndex;
+char* null = NULL;
 
 
 void GenerateOperation(AST* ast, int i)
 {
-    Generate(ast->LHS, i, "");
+    Generate(ast->LHS, i, null);
     if(ast->RHS->type == tok_number){
         //printf("push\noperation\n");
         memory[NextIndex].instruction = ast->type + 9;
@@ -18,7 +18,7 @@ void GenerateOperation(AST* ast, int i)
         memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
         NextIndex++;
     } else {
-        Generate(ast->RHS, i, "");
+        Generate(ast->RHS, i, null);
         //printf("operation\n");
         memory[NextIndex].instruction = ast->type;
         memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
@@ -67,7 +67,7 @@ void GenerateIf (AST* ast, int i, char* str)
 void GenerateSetq (AST* ast,int i){
     Variable_Data_t* p;
     p = setV (ast->u.s);
-    Generate (ast->LHS, i, "");
+    Generate (ast->LHS, i, null);
     //printf("setq\n");
     memory[NextIndex].instruction = SETQ;
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
@@ -137,7 +137,7 @@ void GenerateFunc (AST* ast, int i)
             NextIndex++;
             break;
         } else if (count == 1){
-            Generate(temp->RHS, i, "");
+            Generate(temp->RHS, i, null);
             //printf("goto\n");
             memory[NextIndex].instruction = GOTO;
             memory[NextIndex].op[0].adr = p->adr;
@@ -146,8 +146,8 @@ void GenerateFunc (AST* ast, int i)
             NextIndex++;
             break;
         } else if (count == 2){
-            Generate(temp->LHS, i, "");
-            Generate(temp->RHS, i, "");
+            Generate(temp->LHS, i, null);
+            Generate(temp->RHS, i, null);
             memory[NextIndex].instruction = NGOTO;
             memory[NextIndex].op[0].adr = p->adr;
             memory[NextIndex].op[1].i = p->value;
@@ -155,7 +155,7 @@ void GenerateFunc (AST* ast, int i)
             NextIndex++;
             break;
         } else {
-            Generate(temp->LHS, i, "");
+            Generate(temp->LHS, i, null);
             temp = temp->RHS;
             count--;
         }
@@ -207,7 +207,7 @@ void Generate (AST* ast, int i,char* str)
 
 void GenerateProgram (AST* ast)
 {
-    Generate(ast, 0, "");
+    Generate(ast, 0, null);
     //printf("return or end\n");
     memory[NextIndex].instruction = END;
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];

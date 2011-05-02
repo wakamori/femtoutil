@@ -48,7 +48,7 @@ struct Function_Data_t* searchF (char* str)
     }
 }
 
-struct Function_Data_t* setF (char* str,int i, cons_t* adr)
+struct Function_Data_t* setF (char* str,int i, void* adr)
 {
 
     Function_Data_t* p = &Function_Data[(str[0] * str[1]) % (sizeof(Function_Data) / sizeof(Function_Data[0]))];
@@ -56,7 +56,7 @@ struct Function_Data_t* setF (char* str,int i, cons_t* adr)
         if (p->name[0] == '\0' || strcmp(p->name,str) == 0){
             strcpy (p->name, str);
             p->value = i;
-            p->adr = adr;
+            p->adr = (cons_t*)adr;
             return p;
         } else if (p->next == NULL){
             p->next = (Function_Data_t*)malloc(sizeof(Function_Data_t));
