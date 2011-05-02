@@ -330,8 +330,21 @@ AST* ParseOperation (int Tok,AST* pRHS)
         }
         getNextToken();
         LHS = ParseExpression();
+        char* temp = CurrentChar;
         getNextToken();
-        RHS = ParseExpression();
+        if (CurTok == tok_close){
+            RHS = (AST*)malloc(sizeof(AST));
+            RHS->type = tok_number;
+            if (OpType == tok_plus || OpType == tok_minus){
+                RHS->u.i = 0;
+            } else {
+                RHS->u.i = 1;
+            }
+            RHS->LHS = RHS->RHS = NULL;
+            CurrentChar = temp;
+        } else {
+            RHS = ParseExpression();
+        }
 
     } else {
         OpType = Tok;
