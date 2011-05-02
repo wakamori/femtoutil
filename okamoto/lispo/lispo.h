@@ -55,9 +55,10 @@ typedef struct ans_stack{
 	struct ans_stack* next;
 }ans_stack;
 
-ans_stack* ans_head;
 ans_stack* ans_list;
 ans_stack* ans_free_head;
+arg_list* arg_pool;
+arg_list* arg_free_head;
 s_b_stack* s_b_pointer;
 s_b_stack* s_b_s_head;
 name_stack* n_s_head;
@@ -68,13 +69,15 @@ int setq_flag;
 int defun_flag;
 int char_flag;
 int ans_counter;
+int arg_counter;
 
 int decode(int x);
 void make_cons(cons_t* p, FILE* fp);
-void search_s_bracket(cons_t* p);
-void search_name(cons_t* p);
-int eval(cons_t* p);
+ans_stack*  search_s_bracket(cons_t* p, ans_stack* ans_head);
+ans_stack* search_name(cons_t* p, ans_stack* ans_head);
+int eval(cons_t* p, ans_stack* ans_head);
 void print(int x);
-void ans_alloc(void);
-void ans_free(void);
-
+ans_stack* ans_alloc(ans_stack* ans_head);
+ans_stack* ans_free(ans_stack* ans_head);
+arg_list* arg_alloc(arg_list* arg_head);
+arg_list* arg_free(arg_list* arg_head);
