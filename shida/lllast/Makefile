@@ -6,20 +6,20 @@ OBJS=main.o eval.o parser.o generator.o hash.o
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
-main.o : main.c
-	$(CC) $(CFLAGS) -c main.c
+main.o : main.cpp
+	$(CC) $(CFLAGS) -c main.cpp
 
-eval.o : eval.c
-	$(CC) $(CFLAGS) -c eval.c
+eval.o : eval.cpp
+	$(CC) $(CFLAGS) -c eval.cpp
 
-parser.o : parser.c
-	$(CC) $(CFLAGS) -c parser.c
+parser.o : parser.cpp
+	$(CC) $(CFLAGS) -c parser.cpp
 
-generator.o : generator.c
-	$(CC) $(CFLAGS) -c generator.c
+generator.o : generator.cpp
+	$(CC) $(CFLAGS) -c generator.cpp
 
-hash.o : hash.c
-	$(CC) $(CFLAGS) -c hash.c
+hash.o : hash.cpp
+	$(CC) $(CFLAGS) -c hash.cpp
 
 .PHONY:clean
 clean:
