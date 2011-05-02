@@ -12,8 +12,10 @@ int main(int argc, char* argv[])
 	char_flag = 0;
 	n_s_head = NULL;
 	ans_free_head = NULL;
-	ans_list = (ans_stack*)malloc(sizeof(ans_stack) * 5000);
+	ans_list = (ans_stack*)malloc(sizeof(ans_stack) * 300);
+	arg_pool = (arg_list*)malloc(sizeof(arg_list) * 300);
 	ans_counter = 0;
+	arg_counter = 0;
 	FILE* fp;
 	if(argc == 2){
 		if((fp = fopen(argv[1], "r")) == NULL){
@@ -24,13 +26,12 @@ int main(int argc, char* argv[])
 	while(1){
 		cons_t* p = malloc(sizeof(cons_t));
 		s_b_s_head = NULL;
-		ans_head = NULL;
+		ans_stack* ans_head = NULL;
 		make_cons(p, fp);
 		while(s_b_s_head->next != NULL)
 			s_b_s_head = s_b_s_head->next;
 		p = s_b_s_head->ps;
-		print(eval(p));
+		print(eval(p, ans_head));
 	}
 	return;
 }
-

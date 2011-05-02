@@ -1,9 +1,9 @@
 CC = gcc
-CFLAGS= -O2 -g3 -Wall
+CFLAGS= -g3 -Wall
 LDLIBS= -lreadline -lm
 
 target = liso
-objs = main.o eval.o parse.o token.o
+objs = main.o eval.o parse.o token2.o
 
 .PHONY: all
 $(target): $(objs)
@@ -14,7 +14,7 @@ eval.o : eval.c
 parse.o : parse.c
 	$(CC) $(CFLAGS) -o $@ -c $^
 
-token.o : token.c
+token2.o : token2.c
 	$(CC) $(CFLAGS) -o $@ -c $^ 
 
 main.o: main.c

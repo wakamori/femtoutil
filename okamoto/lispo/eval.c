@@ -5,7 +5,7 @@
 #include<string.h>
 #include"lispo.h"
 
-int eval(cons_t* p)
+int eval(cons_t* p, ans_stack* ans_head)
 {
 		int x, y; 
 		char_flag = 0;
@@ -13,15 +13,15 @@ int eval(cons_t* p)
 
 		switch(p->type){
 				case s_bracket:
-						search_s_bracket(p);
+						ans_head = search_s_bracket(p, ans_head);
 						x = ans_head->ans;
-						ans_free();
+						ans_head = ans_free(ans_head);
 						break;
 
 				case string:
-						search_name(p);
+						ans_head = search_name(p, ans_head);
 						x = ans_head->ans;
-						ans_free();
+						ans_head = ans_free(ans_head);
 						break;
 
 				case add:
@@ -30,11 +30,11 @@ int eval(cons_t* p)
 								x = p->ivalue;
 						else{
 								if(p->type == s_bracket)
-										search_s_bracket(p);
+										ans_head = search_s_bracket(p, ans_head);
 								else if(p->type == string)
-										search_name(p);
+										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
-								ans_free();
+								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
 						while(p->type != e_bracket){
@@ -42,11 +42,11 @@ int eval(cons_t* p)
 										x = x + p->ivalue;
 								else{
 										if(p->type == s_bracket)
-												search_s_bracket(p);
+												ans_head = search_s_bracket(p, ans_head);
 										else if(p->type == string)
-												search_name(p);
+												ans_head = search_name(p, ans_head);
 										x = x + ans_head->ans;
-										ans_free();
+										ans_head = ans_free(ans_head);
 								}
 								p = p->cdr;
 						}	
@@ -58,11 +58,11 @@ int eval(cons_t* p)
 								x = p->ivalue;
 						else{
 								if(p->type == s_bracket)
-										search_s_bracket(p);
+										ans_head = search_s_bracket(p, ans_head);
 								else if(p->type == string)
-										search_name(p);
+										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
-								ans_free();
+								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
 						while(p->type != e_bracket){
@@ -70,11 +70,11 @@ int eval(cons_t* p)
 										x = x - p->ivalue;
 								else{
 										if(p->type == s_bracket)
-												search_s_bracket(p);
+												ans_head = search_s_bracket(p, ans_head);
 										else if(p->type == string)
-												search_name(p);
+												ans_head = search_name(p, ans_head);
 										x = x - ans_head->ans;
-										ans_free();
+										ans_head = ans_free(ans_head);
 								}
 								p = p->cdr;
 						}
@@ -86,11 +86,11 @@ int eval(cons_t* p)
 								x = p->ivalue;
 						else{
 								if(p->type == s_bracket)
-										search_s_bracket(p);
+										ans_head = search_s_bracket(p, ans_head);
 								else if(p->type == string)
-										search_name(p);
+										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
-								ans_free();
+								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
 						while(p->type != e_bracket){
@@ -98,11 +98,11 @@ int eval(cons_t* p)
 										x = x * p->ivalue;
 								else{
 										if(p->type == s_bracket)
-												search_s_bracket(p);
+												ans_head = search_s_bracket(p, ans_head);
 										else if(p->type == string)
-												search_name(p);
+												ans_head = search_name(p, ans_head);
 										x = x * ans_head->ans;
-										ans_free();
+										ans_head = ans_free(ans_head);
 								}
 								p = p->cdr;
 						}	
@@ -114,11 +114,11 @@ int eval(cons_t* p)
 								x = p->ivalue;
 						else{
 								if(p->type == s_bracket)
-										search_s_bracket(p);
+										ans_head = search_s_bracket(p, ans_head);
 								else if(p->type == string)
-										search_name(p);
+										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
-								ans_free();
+								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
 						while(p->type != e_bracket){
@@ -126,11 +126,11 @@ int eval(cons_t* p)
 										x = x / p->ivalue;
 								else{
 										if(p->type == s_bracket)
-												search_s_bracket(p);
+												ans_head = search_s_bracket(p, ans_head);
 										else if(p->type == string)
-												search_name(p);
+												ans_head = search_name(p, ans_head);
 										x = x / ans_head->ans;
-										ans_free();
+										ans_head = ans_free(ans_head);
 								}
 								p = p->cdr;
 						}
@@ -143,22 +143,22 @@ int eval(cons_t* p)
 								x = p->ivalue;
 						else{
 								if(p->type == s_bracket)
-										search_s_bracket(p);
+										ans_head = search_s_bracket(p, ans_head);
 								else if(p->type == string)
-										search_name(p);
+										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
-								ans_free();
+								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
 						if(p->type == number)
 								y = p->ivalue;
 						else{
 								if(p->type == s_bracket)
-										search_s_bracket(p);
+										ans_head = search_s_bracket(p, ans_head);
 								else if(p->type == string)
-										search_name(p);
+										ans_head = search_name(p, ans_head);
 								y = ans_head->ans;
-								ans_free();
+								ans_head = ans_free(ans_head);
 						}
 						if(x < y)
 								x = 'T';
@@ -173,22 +173,22 @@ int eval(cons_t* p)
 								x = p->ivalue;
 						else{
 								if(p->type == s_bracket)
-										search_s_bracket(p);
+										ans_head = search_s_bracket(p, ans_head);
 								else if(p->type == string)
-										search_name(p);
+										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
-								ans_free();
+								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
 						if(p->type == number)
 								y = p->ivalue;
 						else{
 								if(p->type == s_bracket)
-										search_s_bracket(p);
+										ans_head = search_s_bracket(p, ans_head);
 								else if(p->type == string)
-										search_name(p);
+										ans_head = search_name(p, ans_head);
 								y = ans_head->ans;
-								ans_free();
+								ans_head = ans_free(ans_head);
 						}
 						if(x > y)
 								x = 'T';
@@ -198,21 +198,21 @@ int eval(cons_t* p)
 
 				case IF:
 						p = p->cdr;
-						search_s_bracket(p);
+						ans_head = search_s_bracket(p, ans_head);
 						char_flag = 0;
 						x = ans_head->ans;
-						ans_free();
+						ans_head = ans_free(ans_head);
 						if(x == 'T'){
 								p = p->cdr;
 								if(p->type == number)
 										x = p->ivalue;
 								else{
 										if(p->type == s_bracket)
-												search_s_bracket(p);
+												ans_head = search_s_bracket(p, ans_head);
 										else if(p->type == string)
-												search_name(p);
+												ans_head = search_name(p, ans_head);
 										x = ans_head->ans;
-										ans_free();
+										ans_head = ans_free(ans_head);
 								}
 								break;
 						}
@@ -223,11 +223,11 @@ int eval(cons_t* p)
 										x = p->ivalue;
 								else{
 										if(p->type == s_bracket)
-												search_s_bracket(p);
+												ans_head = search_s_bracket(p, ans_head);
 										else if(p->type == string)
-												search_name(p);
+												ans_head = search_name(p, ans_head);
 										x = ans_head->ans;
-										ans_free();
+										ans_head = ans_free(ans_head);
 								}
 								break;
 						}
@@ -242,11 +242,11 @@ int eval(cons_t* p)
 								x = p->ivalue;
 						else{
 								if(p->type == s_bracket)
-										search_s_bracket(p);
+										ans_head = search_s_bracket(p, ans_head);
 								else if(p->type == string)
-										search_name(p);
+										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
-								ans_free();
+								ans_head = ans_free(ans_head);
 						}
 						n_s_temp->ivalue = x;
 						n_s_temp->next = n_s_head;
@@ -280,4 +280,3 @@ int eval(cons_t* p)
 		}
 		return x;
 }
-
