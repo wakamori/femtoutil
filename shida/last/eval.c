@@ -1,6 +1,28 @@
 #include <stdio.h>
-#include <string.h>
 #include"main.h"
+
+void printAns (value_t* v)
+{
+    char ret[40];
+    switch (v->type){
+        case NUM:
+            sprintf(ret,"%d\n",v->i);
+            break;
+
+        case T:
+            sprintf(ret,"T\n");
+            break;
+
+        case nil:
+            sprintf(ret,"nil\n");
+            break;
+
+        default :
+            break;
+
+    }
+    printf("%s",ret);
+}
 
 const void** eval (int i )
 {
@@ -81,8 +103,9 @@ defun:
     return 0;
 
 end:
-    if (i == 2)
-        printf("%d\n",stack_value[0].i);
+    if (i == 2){
+        printAns(stack_value);
+    }
     return 0;
 
 push:
@@ -97,20 +120,17 @@ plus2:
 gt2:
     a_ptr = (sp_value - 1);
     a_ptr->type = ( pc->op[0].i > a_ptr->i && a_ptr->type != nil) ? T : nil; 
-    a_ptr->i = pc->op[0].i;
     goto *((++pc)->instruction_ptr);
 
 gt:
     ret_ptr = (--sp_value);
-    a_ptr = (--sp_value);
-    ret_ptr->type = ( ret_ptr->i > a_ptr->i && a_ptr->type != nil) ? T : nil;
+    ret_ptr->type = ( ret_ptr->i > (--sp_value)->i && ret_ptr->type != nil) ? T : nil;
     *(sp_value++) = *ret_ptr;
     goto *((++pc)->instruction_ptr);
 
 lte:
     ret_ptr = (--sp_value);
-    a_ptr = (--sp_value);
-    ret_ptr->type = ( ret_ptr->i <= a_ptr->i && a_ptr->type != nil) ? T : nil;
+    ret_ptr->type = ( ret_ptr->i <= (--sp_value)->i && ret_ptr->type != nil) ? T : nil;
     *(sp_value++) = *ret_ptr;
     goto *((++pc)->instruction_ptr);
 
@@ -174,19 +194,16 @@ div2:
 gte2:
     a_ptr = (sp_value - 1);
     a_ptr->type = ( pc->op[0].i >= a_ptr->i && a_ptr->type != nil) ? T : nil; 
-    a_ptr->i = pc->op[0].i;
     goto *((++pc)->instruction_ptr);
 
 lt2:
     a_ptr = (sp_value - 1);
     a_ptr->type = ( pc->op[0].i < a_ptr->i && a_ptr->type != nil) ? T : nil; 
-    a_ptr->i = pc->op[0].i;
     goto *((++pc)->instruction_ptr);
 
 lte2:
     a_ptr = (sp_value - 1);
     a_ptr->type = ( pc->op[0].i <= a_ptr->i && a_ptr->type != nil) ? T : nil; 
-    a_ptr->i = pc->op[0].i;
     goto *((++pc)->instruction_ptr);
 
 eq2:
@@ -201,16 +218,16 @@ setq:
 
 gte:
     ret_ptr = (--sp_value);
-    a_ptr = (--sp_value);
-    ret_ptr->type = ( ret_ptr->i >= a_ptr->i && a_ptr->type != nil) ? T : nil; 
+    ret_ptr->type = ( ret_ptr->i >= (--sp_value)->i && ret_ptr->type != nil) ? T : nil; 
     *(sp_value++) = *ret_ptr;
     goto *((++pc)->instruction_ptr);
 
 lt:
     ret_ptr = (--sp_value);
-    a_ptr = (--sp_value);
-    ret_ptr->type = ( ret_ptr->i < a_ptr->i && a_ptr->type != nil) ? T : nil;
+    ret_ptr->type = ( ret_ptr->i < (--sp_value)->i && ret_ptr->type != nil) ? T : nil;
     *(sp_value++) = *ret_ptr;
     goto *((++pc)->instruction_ptr);
 
 }
+
+
