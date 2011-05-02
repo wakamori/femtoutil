@@ -11,7 +11,9 @@ char* null = NULL;
 void GenerateOperation(AST* ast, int i)
 {
     Generate(ast->LHS, i, null);
-    if(ast->RHS->type == tok_number){
+    if (ast->RHS == NULL){
+
+    } else if (ast->RHS->type == tok_number){
         //printf("push\noperation\n");
         memory[NextIndex].instruction = ast->type + 9;
         memory[NextIndex].op[0].i = ast->RHS->u.i;
@@ -28,7 +30,6 @@ void GenerateOperation(AST* ast, int i)
 
 void GenerateNumber (AST* ast)
 {
-    //printf("push\n");
     memory[NextIndex].instruction = PUSH;
     memory[NextIndex].op[0].i = ast->u.i;
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];

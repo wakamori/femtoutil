@@ -1,84 +1,109 @@
 #include "liso.h"
 
-int (*func_p[FPA_SIZE]) (cons_t *p) = {fl_k, NULL, add, sub, mul, dev, NULL, \
-								   NULL, froot, lif, equ, lt, gt, elt, egt, setq, def, lfunc, NULL, rfunc};
+int (*func_p[FPA_SIZE]) (cons_t *p) = {fl_k, NULL, add, sub, mul, dev, fstr, \
+									   error, froot, lif, equ, lt, gt, elt, \
+									   egt, setq, def, lfunc, error, rfunc};
 
 
 int getmap(char *key)
 {
-  int count;
+  int count = 0;
   
-  for (count = 0; strncmp(key, g_qa[count].key, sizeof(key)) != 0; count++) {
-	;
+  while (1) {
+	  if (g_qa[count].key == NULL || strcmp(g_qa[count].key, key) == 0) {
+		  return count;
+	  }
+	  count++;
   }
-  return g_qa[count].value;
 }
 
-func getfunc(char *key)
+int getfunc(char *key)
 {
-	int count;
+	int count = 0;
 
-	for (count = 0; strcmp(key, g_fa[count].key) != 0; count++) {
-		;
+	while (1) {
+		if (g_fa[count].key == NULL || strcmp(key, g_fa[count].key) == 0) {
+			return count;
+		}
+		count++;
 	}
-	return g_fa[count];
 }
 
-void findfunc(cons_t *root, char *key)
+void findfunc(cons_t *root, char *key, int count)
 {
 	switch (root->type) {
 	case L_K:
 		if (root->car != NULL) {
-			findfunc(root->car, key);
+			findfunc(root->car, key, count);
 		}
 		if (root->cdr != NULL) {
-			findfunc(root->cdr, key);
+			findfunc(root->cdr, key, count);
 		}
 		break;
 	case FUNC:
 		if (strcmp(root->cvalue, key) == 0) {
 			root->type = RFUNC;
-			root->ivalue = g_fc;
+			root->ivalue = count;
 		}
 		if (root->cdr != NULL) {
-			findfunc(root->cdr, key);
+			findfunc(root->cdr, key, count);
 		}
 		break;
 	default:
 		if (root->cdr != NULL) {
-			findfunc(root->cdr, key);
+			findfunc(root->cdr, key, count);
 		}
 	}
 }
 
-void findarg(cons_t *root, char *key)
+void findarg(cons_t *root, cons_t *arg_name)
 {
+	int arg_number = 0;
+	cons_t *search_name = NULL;
 	switch (root->type) {
 	case L_K:
 		if (root->car != NULL) {
-			findarg(root->car, key);
+			findarg(root->car, arg_name);
 		}
 		if (root->cdr != NULL) {
-			findarg(root->cdr, key);
+			findarg(root->cdr, arg_name);
 		}
 		break;
 	case STR:
-		if (strcmp(root->cvalue, key) == 0) {
-			root->type = ARG;
+		search_name = arg_name;
+		while (search_name != NULL) {
+			if (strcmp(root->cvalue, search_name->cvalue) == 0) {
+				root->type = ARG;
+				root->ivalue = arg_number;
+				break;
+			}
+			search_name = search_name->cdr;
+			arg_number++;
 		}
 		if (root->cdr != NULL) {
-			findarg(root->cdr, key);
+			findarg(root->cdr, arg_name);
 		}
 		break;
 	default:
 		if (root->cdr != NULL) {
-			findarg(root->cdr, key);
+			findarg(root->cdr, arg_name);
 		}
 	}
 }
+
+void set_arg(cons_t *arg_value,int layer)
+{
+	int arg_number = 0;
+	while (arg_value != NULL) {
+		g_arga[layer + 1][arg_number] = getvalue(arg_value);
+		arg_number++;
+		arg_value = arg_value->cdr;
+	}
+}
+
+
 int getvalue(cons_t *next)
 {
-
 	switch (next->type) {
 	case L_K:
 		if (next->car != NULL) {
@@ -87,11 +112,11 @@ int getvalue(cons_t *next)
 			return eval(next->cdr);
 		}		
 	case ARG:
-		return g_arga[g_argl];
+		return g_arga[g_argl][next->ivalue];
 	case INT:
 		return next->ivalue;
 	case STR:
-		return getmap(next->cvalue);
+		return g_qa[getmap(next->cvalue)].value;
 	default:
 		return 0;
 	}
@@ -288,73 +313,77 @@ int egt(cons_t *next)
 
 int setq(cons_t *next)
 {
+	int count;
 	next = next->cdr;
-	g_qa[g_qc].key = next->cvalue;
+	count = getmap(next->cvalue);
+	if (g_qa[count].key == NULL) {
+		g_qa[count].key = (char*)malloc(strlen(next->cvalue) + 1);
+		strcpy(g_qa[count].key, next->cvalue);
+	}
 	next = next->cdr;
-	g_qa[g_qc].value = getvalue(next);
-	printf("%s = ", g_qa[g_qc].key);
-	g_qc++;
-	return getvalue(next);
+	g_qa[count].value = getvalue(next);
+	printf("%s = %d\n", g_qa[count].key, g_qa[count].value);
+	return 0;
 }
 
 int def(cons_t *next)
 {
+	int count;
 	cons_t *now = NULL;
+	now = next->cdr;
+	count = getfunc(now->cvalue);
+	if (g_fa[count].key == NULL) {
+		g_fa[count].key = (char*)malloc(strlen(now->cvalue) + 1);
+		strcpy(g_fa[count].key, now->cvalue);
+	}
+	next = now;
+	now = now->cdr;
+	g_fa[count].exp = now->cdr;
+	findfunc(now->cdr, next->cvalue, count);
+	next = now->car;
+
+	findarg(now->cdr, next);
 	
-	now = next->cdr;
-	g_fa[g_fc].key = now->cvalue;
-
-	next = now->cdr;
-	g_fa[g_fc].exp = next->cdr;
-	findfunc(next->cdr, now->cvalue);
- 
-	now = next->cdr;
-	next = next->car;
-	g_fa[g_fc].arg = next->cvalue;
-	findarg(now, next->cvalue);
 	now->cdr = NULL;
-
-	g_fc++;
+	printf("define %s\n",g_fa[count].key);
 	return 0;
 }
 
 int lfunc(cons_t *next)
 {
 	cons_t *now;
-	int nextarg;
-	
 	now = next;
-	next = next->cdr;
+	int fc;
 
-	nextarg = getvalue(next);
+	fc = getfunc(next->cvalue);
+	if (g_fa[fc].key == NULL) {
+		printf("syntax error\n");
+		return 0;
+	} else {	
+		next = next->cdr;
+		set_arg(next, g_argl);
 
-	g_funcl++;
-	g_argl++;
+		g_funcl++;
+		g_argl++;
 
-	g_arga[g_argl] = nextarg;
+		now->result[g_funcl-1] = eval(g_fa[fc].exp);
 
-	now->result[g_funcl-1] = eval(getfunc(now->cvalue).exp);
+		g_argl--;	
+		g_funcl--;
 
-	g_argl--;	
-	g_funcl--;
-
-	return now->result[g_funcl];
+		return now->result[g_funcl];
+	}
 }
 
 int rfunc(cons_t *next)
 {
 	cons_t *now;
-	int nextarg;
-	
 	now = next;
 	next = next->cdr;
-
-	nextarg = getvalue(next);
+	set_arg(next, g_argl);
 
 	g_funcl++;
 	g_argl++;
-
-	g_arga[g_argl] = nextarg;
 
 	now->result[g_funcl-1] = eval(g_fa[now->ivalue].exp);
 
@@ -367,12 +396,38 @@ int rfunc(cons_t *next)
 
 int froot(cons_t *next)
 {
-	return eval(next->cdr);
+	if (next->cdr != NULL) {
+		return eval(next->cdr);
+	} else {
+		return eval(next->car);
+	}
 }
 
 int fl_k(cons_t *next)
 {
-	return eval(next->car);
+	if (next->car != NULL) {
+		return eval(next->car);
+	} else {
+		return eval(next->cdr);
+	}
+}
+
+int error(cons_t *next)
+{
+	printf("syntax error\n");
+	return 0;
+}
+
+int fstr(cons_t *next)
+{
+	int count;
+	count =	getmap(next->cvalue);
+	if (g_qa[count].key == NULL) {
+		printf("syntax error\n");
+	} else {
+		printf("%s = %d\n",g_qa[count].key, g_qa[count].value);
+	}
+	return 0;
 }
 
 int eval(cons_t *root)
@@ -380,5 +435,10 @@ int eval(cons_t *root)
   cons_t *next;
   next = root;
 
-  return (*func_p[next->type]) (next);
+  if (root == NULL) {
+	  printf("syntax error\n");
+	  return 0;
+  } else {
+	  return (*func_p[next->type]) (next);
+  }
 }

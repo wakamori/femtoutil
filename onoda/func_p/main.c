@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 	  return 0;
 	}
 
-	while ( fgets(input, 64, fp) != NULL) {
+	while ( fgets(input, 128, fp) != NULL) {
 	  
 	  printf("input\n%s\n", input);
 	  
@@ -28,7 +28,10 @@ int main(int argc, char *argv[])
 	  
 	  int answer;
 	  answer = eval(root);
-	  printf("answer=%d\n", answer);
+	  printf("answer = %d\n", answer);
+
+	  free_tree(root);
+	  free_token(token);
 	}
 
 	fclose(fp);
@@ -60,6 +63,8 @@ int main(int argc, char *argv[])
 	  answer = eval(root);
 	  printf("answer = %d\n", answer);
 
+	  free_tree(root);
+	  free_token(token);
 	}
   }
   return 0;

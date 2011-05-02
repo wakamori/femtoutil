@@ -69,6 +69,10 @@ int GetTok (void)
             } else {
                 return tok_setq;
             }
+        } else if (strcmp(TokStr,"T") == 0){
+            return tok_T;
+        } else if (strcmp(TokStr,"nil") == 0){
+            return tok_nil;
         }
         if (*CurrentChar != '(' && *CurrentChar != ')' && *CurrentChar != ' ' && (*CurrentChar) != '\n'){
             ERROR
@@ -91,7 +95,7 @@ int GetTok (void)
     } else if (*CurrentChar == '<' && *(CurrentChar + 1) == '=' && (*(CurrentChar + 2) == '(' || *(CurrentChar + 2) == ' ')){
         CurrentChar += 2;
         return tok_gte;
-    } else if (*CurrentChar == '>' && *(CurrentChar + 1) == '=' && (*(CurrentChar + 1) == '(' || *(CurrentChar + 1) == ' ')){
+    } else if (*CurrentChar == '>' && *(CurrentChar + 1) == '=' && (*(CurrentChar + 2) == '(' || *(CurrentChar + 2) == ' ')){
         CurrentChar += 2;
         return tok_lte;
     } else if (*CurrentChar == '=' && (*(CurrentChar + 1) == '(' || *(CurrentChar + 1) == ' ')){
@@ -151,7 +155,7 @@ AST* ParseArgument (void)
 
 AST* ParseIf (void)
 {
-    getNextToken(); //eat '('
+    getNextToken(); //eat '(' or number
     AST* ret = (AST*)malloc(sizeof(AST));
     ret->type = tok_if;
     ret->COND = ParseExpression();
@@ -248,11 +252,30 @@ AST* ParseVariable (void)
 
 AST* ParseNumber (void)
 {
+    //printf("parsenumber %d\n",TokNum);
     AST* ret;
     ret = (AST*)malloc(sizeof(AST));
     ret->type = tok_number;
     //printf("%d ",TokNum);
     ret->u.i = TokNum;
+    ret->LHS = ret->RHS = NULL;
+    return ret;
+}
+
+AST* ParseT (void)
+{
+    AST* ret;
+    ret = (AST*)malloc(sizeof(AST));
+    ret->type = tok_T;
+    ret->LHS = ret->RHS = NULL;
+    return ret;
+}
+
+AST* ParseNil (void)
+{
+    AST* ret;
+    ret = (AST*)malloc(sizeof(AST));
+    ret->type = tok_nil;
     ret->LHS = ret->RHS = NULL;
     return ret;
 }
@@ -330,21 +353,14 @@ AST* ParseOperation (int Tok,AST* pRHS)
         }
         getNextToken();
         LHS = ParseExpression();
-        char* temp = CurrentChar;
         getNextToken();
         if (CurTok == tok_close){
-            RHS = (AST*)malloc(sizeof(AST));
-            RHS->type = tok_number;
-            if (OpType == tok_plus || OpType == tok_minus){
-                RHS->u.i = 0;
-            } else {
-                RHS->u.i = 1;
-            }
-            RHS->LHS = RHS->RHS = NULL;
-            CurrentChar = temp;
-        } else {
-            RHS = ParseExpression();
+            ret->type = OpType;
+            ret->LHS = LHS;
+            ret->RHS = NULL;
+            return ret;
         }
+        RHS = ParseExpression();
 
     } else {
         OpType = Tok;
@@ -398,7 +414,13 @@ AST* ParseExpression (void)
         ret = ParseNumber();
         if (ret == NULL){ PERROR }
         return ret;
-    } else if (CurTok == tok_str){
+    } else if (CurTok == tok_T){
+        ret = ParseT();
+        return ret;
+    } else if (CurTok == tok_nil){
+        ret = ParseNil();
+        return ret;
+    }else if (CurTok == tok_str){
         ret = ParseVariable();
         if (ret == NULL){ PERROR }
         return ret;
@@ -445,7 +467,13 @@ AST* ParseBlock (void)
     } else if (CurTok == tok_number){
         ret = ParseNumber();
         return ret;
-    } else if (CurTok == tok_str){
+    } else if (CurTok == tok_T){
+        ret = ParseT();
+        return ret;
+    } else if (CurTok == tok_nil){
+        ret = ParseNil();
+        return ret;
+    }else if (CurTok == tok_str){
         ret = ParseVariable();
         return ret;
     }else {

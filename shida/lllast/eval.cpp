@@ -1,29 +1,6 @@
 #include <stdio.h>
 #include"main.h"
 
-void printAns (value_t* v)
-{
-    char ret[40];
-    switch (v->type){
-        case NUM:
-            sprintf(ret,"%d\n",v->i);
-            break;
-
-        case T:
-            sprintf(ret,"T\n");
-            break;
-
-        case nil:
-            sprintf(ret,"nil\n");
-            break;
-
-        default :
-            break;
-
-    }
-    printf("%s",ret);
-}
-
 void** eval (int i )
 {
     static void *table [] = {
@@ -104,7 +81,7 @@ funcdef:
 
 end:
     if (i == 2){
-        printAns(stack_value);
+        printf("%d\n",stack_value[0].i);
     }
     return NULL;
 
