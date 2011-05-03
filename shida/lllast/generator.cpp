@@ -1,216 +1,208 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include"main.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-void Generate (AST* ast, int i, char* str);
+IRBuilder<> Builder(getGlobalContext());
+
+Value* Generate (AST* ast, int i, char* str);
 int TempIndex;
 char* null = NULL;
 
 
-void GenerateOperation(AST* ast, int i)
+Value* GenerateOperation(AST* ast, int i)
 {
-    Generate(ast->LHS, i, null);
+    Value* LHS = Generate(ast->LHS, i, null);
+    Value* RHS = NULL;
     if (ast->RHS == NULL){
-
-    } else if (ast->RHS->type == tok_number){
-        //printf("push\noperation\n");
-        memory[NextIndex].instruction = ast->type + 9;
-        memory[NextIndex].op[0].i = ast->RHS->u.i;
-        memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-        NextIndex++;
+        return LHS;
     } else {
-        Generate(ast->RHS, i, null);
-        //printf("operation\n");
-        memory[NextIndex].instruction = ast->type;
-        memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-        NextIndex++;
-    }
-}
+        RHS = Generate(ast->RHS, i, null);
+        switch (ast->type){
+            case tok_plus: return Builder.CreateAdd(LHS, RHS, "addtmp"); break;
+            case tok_minus: return Builder.CreateSub(LHS, RHS, "subtmp");break;
+            case tok_mul: return Builder.CreateMul(LHS, RHS, "multmp");break;
+                          //case tok_div: return Builder.CreateDiv(LHS, RHS, "divtmp");
+            case tok_gt:
+                          LHS = Builder.CreateICmpULT(LHS, RHS, "cmptmp");
+                          return Builder.CreateUIToFP(LHS, Type::getDoubleTy(getGlobalContext()),"booltmp");
+                          break;
 
-void GenerateNumber (AST* ast)
-{
-    memory[NextIndex].instruction = PUSH;
-    memory[NextIndex].op[0].i = ast->u.i;
-    memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-    NextIndex++;
-}
 
-void GenerateIf (AST* ast, int i, char* str)
-{
-    Function_Data_t* p;
-    Generate(ast->COND, i, str);
-    TempIndex = NextIndex;
-    //printf("jmp\n");
-    memory[NextIndex].instruction = JMP;
-    memory[NextIndex].op[0].adr = &memory[NextIndex + 1];
-    memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-    NextIndex++;
-    Generate(ast->LHS , i, str);
-    //printf("return or end\n");
-    if (i != 1){
-        memory[NextIndex].instruction = END;
-    } else {
-        p = searchF(str);
-        if (p->value <= 1){
-            memory[NextIndex].instruction = RETURN;
-        } else {
-            memory[NextIndex].instruction = NRETURN;
-            memory[NextIndex].op[0].i = p->value;
         }
     }
-    memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-    NextIndex++;
-    memory[TempIndex].op[1].adr = &memory[NextIndex];
-    Generate(ast->RHS, i, str);
+    return NULL;
 }
 
-void GenerateSetq (AST* ast,int i){
-    Variable_Data_t* p;
-    p = setV (ast->u.s);
+
+Value* GenerateNumber (AST* ast){
+    return ConstantInt::get(Type::getInt32Ty(getGlobalContext()), ast->u.i);
+}
+Value* GenerateIf (AST* ast, int i, char* str){
+    Value* CondV = Generate(ast->COND, i, str);
+    CondV = Builder.CreateFCmpONE(CondV, 
+            ConstantFP::get(getGlobalContext(),APFloat(0.0)),
+            "ifcond");
+
+    Function *TheFunction = Builder.GetInsertBlock()->getParent();
+    BasicBlock *ThenBB = BasicBlock::Create(getGlobalContext(), "then", TheFunction);
+    BasicBlock *ElseBB = BasicBlock::Create(getGlobalContext(), "else");
+    BasicBlock *MergeBB = BasicBlock::Create(getGlobalContext(), "ifcont");
+    Builder.CreateCondBr(CondV, ThenBB, ElseBB);
+
+    Builder.SetInsertPoint(ThenBB);
+
+    Value *ThenV = Generate(ast->LHS, i, str);
+
+    Builder.CreateBr(MergeBB);
+    ThenBB = Builder.GetInsertBlock();
+
+    TheFunction->getBasicBlockList().push_back(ElseBB);
+    Builder.SetInsertPoint(ElseBB);
+
+    Value* ElseV = Generate(ast->RHS, i, str);
+
+    Builder.CreateBr(MergeBB);
+    ElseBB = Builder.GetInsertBlock();
+
+    TheFunction->getBasicBlockList().push_back(MergeBB);
+    Builder.SetInsertPoint(MergeBB);
+    PHINode *PN = Builder.CreatePHI(Type::getInt32Ty(getGlobalContext()), 
+            "iftmp");
+
+    PN->addIncoming(ThenV, ThenBB);
+    PN->addIncoming(ElseV, ElseBB);
+    return PN;
+
+
+
+}
+Value* GenerateSetq (AST* ast,int i){
+    Variable_Data_t* p = NULL;
     Generate (ast->LHS, i, null);
-    //printf("setq\n");
     memory[NextIndex].instruction = SETQ;
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
     memory[NextIndex].op[0].adr = (cons_t*)p;
     NextIndex++;
+    return NULL;
 }
 
-void GenerateVariable (AST* ast)
+Value* GenerateVariable (AST* ast)
 {
-    //printf("variable\n");
-    memory[NextIndex].instruction = PUSH;
-    memory[NextIndex].op[0].i = searchV(ast->u.s)->value;
-    memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-    NextIndex++;
+    printf("%s", ast->u.s);
+    Value *V = NamedValues[ast->u.s];
+    return V;
 }
 
-void GenerateDefun (AST* ast)
+Value* GenerateDefun (AST* ast)
 {
-    memory[NextIndex].instruction = DEFUN;
-    memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-    NextIndex++;
-    Function_Data_t* p = setF (ast->u.s, ast->LHS->u.i, &memory[NextIndex]);
-    memory[NextIndex - 1].op[0].c = p->name;
-    free(ast->LHS);
-    Generate (ast->RHS, 1,ast->u.s );
-    //printf("return\n");
-    if (p->value <= 1){
-        memory[NextIndex].instruction = RETURN;
-        memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-    } else {
-        memory[NextIndex].instruction = NRETURN;
-        memory[NextIndex].op[0].i = p->value;
-        memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
+    std::vector<const Type*> Arguments(ast->Args.size(),Type::getInt32Ty(getGlobalContext()));
+    FunctionType *FT = FunctionType::get(Type::getInt32Ty(getGlobalContext()),Arguments, false);
+    Function *F = Function::Create(FT, Function::ExternalLinkage, ast->u.s, TheModule);
+
+    unsigned Idx = 0;
+    for (Function::arg_iterator AI = F->arg_begin(); Idx != ast->Args.size(); ++AI, ++Idx) {
+        AI->setName(ast->Args[Idx]);
+
+        NamedValues[ast->Args[Idx]] = AI;
     }
-    NextIndex++;
+    BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", F);
+    Builder.SetInsertPoint(BB);
+    Value *RetVal = Generate(ast->RHS, 0, null);
+    NamedValues.clear();
+    Builder.CreateRet(RetVal);
+    verifyFunction(*F);
+    TheFPM->run(*F);
+    //F->dump();
+    return NULL;
 }
 
-void GenerateArg (AST* ast)
+
+Value* GenerateArg (AST* ast)
 {
-    if (ast->u.i == 0){
-        memory[NextIndex].instruction = ARG;
-        memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-        NextIndex++;
-    } else {
-        memory[NextIndex].instruction = NARG;
-        memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-        memory[NextIndex].op[0].i = ast->u.i + 1;
-        NextIndex++;
-    }
+    //printf("%s\n", ast->u.s);
+    Value* V = NamedValues[ast->u.s];
+    return V;
 }
 
-void GenerateFunc (AST* ast, int i)
+Value* GenerateFunc (AST* ast, int i)
 {
-    AST* temp = ast;
-    Function_Data_t* p = searchF(ast->u.s);
-    int count = p->value;
-    while (1){
-        if (count == 0){
-            memory[NextIndex].instruction = PUSH;
-            memory[NextIndex].op[0].i = 0;
-            memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-            NextIndex++;
-            //printf("goto\n");
-            memory[NextIndex].instruction = GOTO;
-            memory[NextIndex].op[0].adr = p->adr;
-            memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-            NextIndex++;
-            break;
-        } else if (count == 1){
-            Generate(temp->RHS, i, null);
-            //printf("goto\n");
-            memory[NextIndex].instruction = GOTO;
-            memory[NextIndex].op[0].adr = p->adr;
-            memory[NextIndex].op[1].i = p->value;
-            memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-            NextIndex++;
-            break;
-        } else if (count == 2){
-            Generate(temp->LHS, i, null);
-            Generate(temp->RHS, i, null);
-            memory[NextIndex].instruction = NGOTO;
-            memory[NextIndex].op[0].adr = p->adr;
-            memory[NextIndex].op[1].i = p->value;
-            memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-            NextIndex++;
-            break;
-        } else {
-            Generate(temp->LHS, i, null);
-            temp = temp->RHS;
-            count--;
-        }
+    Function *CalleeF = TheModule->getFunction(ast->u.s);
+    if (CalleeF == 0 || CalleeF->arg_size() != ast->args->size()){
+        printf("error\n");
+        return NULL;
     }
-
+    std::vector<Value*> ArgsV;
+    Value* temp;
+    for(unsigned count = 0, e = ast->args->size(); count != e; ++count){
+        temp = Generate(ast->args->at(count),i,null);
+        ArgsV.push_back(temp);
+    }
+    return Builder.CreateCall(CalleeF, ArgsV.begin(), ArgsV.end(), "calltmp");
 }
 
-void Generate (AST* ast, int i,char* str)
+Value* Generate (AST* ast, int i,char* str)
 {
     switch(ast->type){
         case tok_plus:case tok_mul:case tok_minus:case tok_div:
         case tok_gt:case tok_gte:case tok_lt:case tok_lte:
         case tok_eq:
-            GenerateOperation(ast, i);
+            return GenerateOperation(ast, i);
             break;
 
         case tok_number:
-            GenerateNumber(ast);
+            return GenerateNumber(ast);
             break;
 
         case tok_if:
-            GenerateIf (ast, i, str);
+            return GenerateIf (ast, i, str);
             break;
 
         case tok_setq:
-            GenerateSetq (ast, i);
+            return GenerateSetq (ast, i);
             break;
 
         case tok_valiable:
-            GenerateVariable (ast);
+            return GenerateVariable (ast);
             break;
 
         case tok_defun:
-            GenerateDefun (ast);
+            return GenerateDefun (ast);
             break;
 
         case tok_arg:
-            GenerateArg (ast);
+            return GenerateArg (ast);
             break;
         case tok_func:
-            GenerateFunc (ast, i);
+            return GenerateFunc (ast, i);
             break;
 
         default:
             break;
     }
-    free(ast);
+    return NULL;
 }
 
 void GenerateProgram (AST* ast)
 {
-    Generate(ast, 0, null);
-    //printf("return or end\n");
-    memory[NextIndex].instruction = END;
-    memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-    NextIndex++;
+    Function *F;
+
+    const char* c = "";
+
+    std::vector<const Type*> Arguments(0,Type::getInt32Ty(getGlobalContext()));
+    FunctionType *FT = FunctionType::get(Type::getInt32Ty(getGlobalContext()),Arguments, false);
+    F = Function::Create(FT, Function::ExternalLinkage, c, TheModule);
+    BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", F);
+    Builder.SetInsertPoint(BB);
+
+
+    Value *RetVal = Generate(ast, 0, null);
+    if (RetVal != NULL){
+    Builder.CreateRet(RetVal);
+    verifyFunction(*F);
+    TheFPM->run(*F);
+    void *FPtr = TheExecutionEngine->getPointerToFunction(F);
+    int (*FP)() = (int (*)())(intptr_t)FPtr;
+    //F->dump();
+    printf("%d\n",FP());
+    }
 }

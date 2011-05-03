@@ -9,21 +9,33 @@ cons_t memory[INSTSIZE];
 int CurrentIndex, NextIndex;
 char str[200];
 void** table;
+Module* TheModule;
+ExecutionEngine *TheExecutionEngine;
+FunctionPassManager *TheFPM;
 
 
 int main (int argc, char* args[])
 {
     FILE* file = NULL;
-    table = eval(1);
-   if (argc == 2){
+    if (argc == 2){
         file = fopen(args[1],"r");
     }
     CurrentIndex = NextIndex = 0;
-    int i;
-    for (i = 0; i < (signed int)(sizeof(Function_Data)/sizeof(Function_Data[0])); i++) {
-        Function_Data[i].name[0] = '\0';
-        Variable_Data[i].name[0] = '\0';
-    }
+    InitializeNativeTarget();
+    LLVMContext &Context = getGlobalContext();
+    TheModule = new Module("a",Context);
+    std::string ErrStr;
+    TheExecutionEngine = EngineBuilder(TheModule).setErrorStr(&ErrStr).create();
+    FunctionPassManager OurFPM(TheModule);
+    OurFPM.add(new TargetData(*TheExecutionEngine->getTargetData()));
+    OurFPM.add(createBasicAliasAnalysisPass());
+    OurFPM.add(createInstructionCombiningPass());
+    OurFPM.add(createReassociatePass());
+    OurFPM.add(createGVNPass());
+    OurFPM.add(createCFGSimplificationPass());
+    OurFPM.doInitialization();
+
+    TheFPM  = &OurFPM;
     while (1){
         CurrentIndex = NextIndex;
         if (argc == 2){
@@ -33,19 +45,22 @@ int main (int argc, char* args[])
             }
         } else {
             printf(">>>");
-            fgets(str,sizeof(str),stdin);
-            if (strcmp(str,"bye\n") == 0){
-                printf("bye\n");
-                exit(0);
+            if (fgets(str,sizeof(str),stdin) != NULL){
+                if (strcmp(str,"bye\n") == 0){
+                    printf("bye\n");
+                    exit(0);
+                }
             }
         }
         if (ParseProgram() == 0){
-            eval(argc+1);
+            //eval(argc+1);
         } else {
             argc = 1;
         }
     }
 
 }
+
+
 
 
