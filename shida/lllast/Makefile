@@ -1,4 +1,4 @@
-CFLAGS=  -O2 -g3
+CFLAGS=  -O2 -g
 LDFLAGS=`llvm-config --libs core jit native --cxxflags --ldflags`
 
 CC=g++
@@ -9,7 +9,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 main.o : main.cpp 
-	$(CC) $(CFLAGS)  -c main.cpp $(LDFLAGS)
+	$(CC) $(CFLAGS) -c main.cpp $(LDFLAGS)
 
 parser.o : parser.cpp
 	$(CC) $(CFLAGS) -c parser.cpp $(LDFLAGS)

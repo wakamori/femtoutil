@@ -5,13 +5,13 @@
 
 Function_Data_t Function_Data[100];
 Variable_Data_t Variable_Data[100];
-cons_t memory[INSTSIZE];
 int CurrentIndex, NextIndex;
 char str[200];
 void** table;
 Module* TheModule;
 ExecutionEngine *TheExecutionEngine;
 FunctionPassManager *TheFPM;
+std::map<std::string,std::string> FunctionMap;
 
 
 int main (int argc, char* args[])

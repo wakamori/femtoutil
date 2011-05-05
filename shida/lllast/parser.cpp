@@ -12,15 +12,15 @@ AST* ParseExpression (void);
 AST* ParseBlock (void);
 static int CurTok;
 static char* CurrentChar;
-static char TokStr[200];
+static std::string TokStr;
 static int TokNum;
 static int ArgIndex;
 static char Args[ARGSIZE][20];
+
 int GetTok (void)
 {
     int ALT = 1;
     TokNum = 0;
-    int TokSize = 0;
     if (*CurrentChar == '\0' || *CurrentChar == '\n'){
         return tok_eof;
     }
@@ -44,34 +44,33 @@ int GetTok (void)
         }
     }
     if (isalpha(*CurrentChar)){
+        std::string temp;
         while (isalnum(*CurrentChar)){
-            TokStr[TokSize] = *CurrentChar;
-            TokSize++;
+            temp += *CurrentChar;
             CurrentChar++;
         }
-
-        TokStr[TokSize] = '\0';
-        if (strcmp(TokStr,"defun") == 0){
+        TokStr = temp;
+        if (TokStr == "defun"){
             if(*CurrentChar != ' '){
                 ERROR
             } else {
                 return tok_defun;
             }
-        } else if (strcmp(TokStr,"if") == 0){
+        } else if (TokStr == "if"){
             if (*CurrentChar != ' '){
                 ERROR
             } else {
                 return tok_if;
             }
-        } else if (strcmp(TokStr,"setq") == 0){
+        } else if (TokStr == "setq"){
             if (*CurrentChar != ' '){
                 ERROR
             } else {
                 return tok_setq;
             }
-        } else if (strcmp(TokStr,"T") == 0){
+        } else if (TokStr == "T"){
             return tok_T;
-        } else if (strcmp(TokStr,"nil") == 0){
+        } else if (TokStr == "nil"){
             return tok_nil;
         }
         if (*CurrentChar != '(' && *CurrentChar != ')' && *CurrentChar != ' ' && (*CurrentChar) != '\n'){
@@ -120,7 +119,7 @@ int GetTok (void)
     }
     ERROR
 
-} 
+}  
 
 void getNextToken (void)
 {
@@ -166,23 +165,32 @@ AST* ParseIf (void)
 
 AST* ParseDefun (void)
 {
+    static std::string FCount = "a";
     int i = 0;
     AST* ret = new AST();
     ret->type = tok_defun;
+
     getNextToken();
     if (CurTok == tok_str){
-        strcpy(ret->u.s,TokStr);
+        FCount += "a";
+        FunctionMap[TokStr] = FCount;
+        ret->s = FunctionMap[TokStr];
     } else {
         printf("error in defun1\n");
         return NULL;
     }
+
     getNextToken();
     ret->Args = ParseArgument();
     if (CurTok != tok_close){
         printf("error in defun2\n");
         return NULL;
     }
-    
+    std::vector<const Type*> Arguments(ret->Args.size(),Type::getInt32Ty(getGlobalContext()));
+    FunctionType *FT = FunctionType::get(Type::getInt32Ty(getGlobalContext()),Arguments, false);
+    Function::Create(FT, Function::ExternalLinkage, ret->s, TheModule);
+
+
     ret->RHS = ParseBlock();
     if (ret->RHS == NULL)
         //p->name[0] = '\0';
@@ -192,6 +200,7 @@ AST* ParseDefun (void)
         for (i = 0; i < ARGSIZE; i++){
             Args[i][0] = '\0';
         }
+
         return ret;
     }
     //p->name[0] = '\0';
@@ -204,7 +213,7 @@ AST* ParseSetq (void)
     ret->type = tok_setq;
     getNextToken();
     if (CurTok == tok_str){
-        strcpy(ret->u.s, TokStr);
+        ret->s = TokStr;
     } else {
         printf("error in setq\n");
         return NULL;
@@ -221,7 +230,7 @@ AST* ParseSetq (void)
 AST* ParseVariable (void)
 {
     AST* ret = new AST();
-    strcpy(ret->u.s, TokStr);
+    ret->s = TokStr;
     ret->type = tok_arg;
     return ret;
 }
@@ -271,11 +280,14 @@ AST* ParseOperation (int Tok,AST* pRHS)
         if (CurTok == tok_str && (*CurrentChar == ' ' || *CurrentChar == ')')){
             //Function *CalleeF = TheModule->getFunction(TokStr);
             /*if (CalleeF == 0){
-                printf("Unknown function referenced\n");
-                return NULL;
-            }*/
+              printf("Unknown function referenced\n");
+              return NULL;
+              }*/
             ret->type = tok_func;
-            strcpy(ret->u.s,TokStr);
+
+            std::map<std::string, std::string>::iterator itr;
+            ret->s = FunctionMap[TokStr];
+
             getNextToken();
             ret->args = new std::vector<AST*>();
             while (CurTok != tok_close){
@@ -286,10 +298,20 @@ AST* ParseOperation (int Tok,AST* pRHS)
                 ret->args->push_back(LHS);
                 getNextToken();
             }
-            /*if (CalleeF->arg_size() != ret->AST.size()){
-                printf("Incorrect arguments passed");
+
+            Function *CalleeF = TheModule->getFunction(ret->s);
+            if (CalleeF == 0 || CalleeF->arg_size() != ret->args->size()){
+                if (CalleeF == 0)
+                    std::cerr << "Function not fount" << std::endl;
+                else
+                    std::cerr << "Argument size not match" << std::endl;
                 return NULL;
-            }*/
+            }
+
+            /*if (CalleeF->arg_size() != ret->AST.size()){
+              printf("Incorrect arguments passed");
+              return NULL;
+              }*/
             return ret;
 
         }

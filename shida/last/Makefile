@@ -1,4 +1,4 @@
-CFLAGS= -O2 -W -Wall
+CFLAGS= -O2 -g -W -Wall
 CC=g++
 TARGET=a
 OBJS=main.o eval.o parser.o generator.o hash.o

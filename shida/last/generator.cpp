@@ -19,6 +19,7 @@ void GenerateOperation(AST* ast, int i)
         memory[NextIndex].op[0].i = ast->RHS->u.i;
         memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
         NextIndex++;
+        free(ast->RHS);
     } else {
         Generate(ast->RHS, i, null);
         //printf("operation\n");
@@ -67,7 +68,8 @@ void GenerateIf (AST* ast, int i, char* str)
 
 void GenerateSetq (AST* ast,int i){
     Variable_Data_t* p;
-    p = setV (ast->u.s);
+    p = searchV (ast->u.s);
+    free(ast->u.s);
     Generate (ast->LHS, i, null);
     //printf("setq\n");
     memory[NextIndex].instruction = SETQ;
@@ -81,6 +83,7 @@ void GenerateVariable (AST* ast)
     //printf("variable\n");
     memory[NextIndex].instruction = PUSH;
     memory[NextIndex].op[0].i = searchV(ast->u.s)->value;
+    free(ast->u.s);
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
     NextIndex++;
 }
@@ -90,10 +93,12 @@ void GenerateDefun (AST* ast)
     memory[NextIndex].instruction = DEFUN;
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
     NextIndex++;
-    Function_Data_t* p = setF (ast->u.s, ast->LHS->u.i, &memory[NextIndex]);
-    memory[NextIndex - 1].op[0].c = p->name;
+    Function_Data_t* p = setF (ast->u.s, ast->LHS->u.i, &memory[NextIndex],0);
+    //printf("%s/n",p->name);
+    memory[NextIndex - 1].op[1].c = p->name;
     free(ast->LHS);
     Generate (ast->RHS, 1,ast->u.s );
+    free(ast->u.s);
     //printf("return\n");
     if (p->value <= 1){
         memory[NextIndex].instruction = RETURN;
@@ -123,7 +128,9 @@ void GenerateArg (AST* ast)
 void GenerateFunc (AST* ast, int i)
 {
     AST* temp = ast;
+    AST* temp1 = NULL;
     Function_Data_t* p = searchF(ast->u.s);
+    free(ast->u.s);
     int count = p->value;
     while (1){
         if (count == 0){
@@ -157,7 +164,10 @@ void GenerateFunc (AST* ast, int i)
             break;
         } else {
             Generate(temp->LHS, i, null);
+            temp1 = temp;
             temp = temp->RHS;
+            if (temp != ast)
+                free(temp);
             count--;
         }
     }
@@ -201,6 +211,7 @@ void Generate (AST* ast, int i,char* str)
             break;
 
         default:
+            printf("default\n");
             break;
     }
     free(ast);

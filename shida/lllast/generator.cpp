@@ -23,10 +23,25 @@ Value* GenerateOperation(AST* ast, int i)
             case tok_mul: return Builder.CreateMul(LHS, RHS, "multmp");break;
                           //case tok_div: return Builder.CreateDiv(LHS, RHS, "divtmp");
             case tok_gt:
-                          LHS = Builder.CreateICmpULT(LHS, RHS, "cmptmp");
+                          LHS = Builder.CreateICmpSLT(LHS, RHS, "cmptmp");
                           return Builder.CreateUIToFP(LHS, Type::getDoubleTy(getGlobalContext()),"booltmp");
                           break;
-
+            case tok_gte:
+                          LHS = Builder.CreateICmpSLE(LHS, RHS, "cmptmp");
+                          return Builder.CreateUIToFP(LHS, Type::getDoubleTy(getGlobalContext()),"booltmp");
+                          break;
+            case tok_lt:
+                          LHS = Builder.CreateICmpSGT(LHS, RHS, "cmptmp");
+                          return Builder.CreateUIToFP(LHS, Type::getDoubleTy(getGlobalContext()),"booltmp");
+                          break;
+            case tok_lte:
+                          LHS = Builder.CreateICmpSGE(LHS, RHS, "cmptmp");
+                          return Builder.CreateUIToFP(LHS, Type::getDoubleTy(getGlobalContext()),"booltmp");
+                          break;
+            case tok_eq:
+                          LHS = Builder.CreateICmpEQ(LHS, RHS, "cmptmp");
+                          return Builder.CreateUIToFP(LHS, Type::getDoubleTy(getGlobalContext()),"booltmp");
+                          break;
 
         }
     }
@@ -71,34 +86,25 @@ Value* GenerateIf (AST* ast, int i, char* str){
 
     PN->addIncoming(ThenV, ThenBB);
     PN->addIncoming(ElseV, ElseBB);
+    
     return PN;
 
 
 
 }
 Value* GenerateSetq (AST* ast,int i){
-    Variable_Data_t* p = NULL;
-    Generate (ast->LHS, i, null);
-    memory[NextIndex].instruction = SETQ;
-    memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-    memory[NextIndex].op[0].adr = (cons_t*)p;
-    NextIndex++;
     return NULL;
 }
 
 Value* GenerateVariable (AST* ast)
 {
-    printf("%s", ast->u.s);
-    Value *V = NamedValues[ast->u.s];
-    return V;
+    return NULL;
 }
 
 Value* GenerateDefun (AST* ast)
 {
-    std::vector<const Type*> Arguments(ast->Args.size(),Type::getInt32Ty(getGlobalContext()));
-    FunctionType *FT = FunctionType::get(Type::getInt32Ty(getGlobalContext()),Arguments, false);
-    Function *F = Function::Create(FT, Function::ExternalLinkage, ast->u.s, TheModule);
 
+    Function *F = TheModule->getFunction(ast->s);
     unsigned Idx = 0;
     for (Function::arg_iterator AI = F->arg_begin(); Idx != ast->Args.size(); ++AI, ++Idx) {
         AI->setName(ast->Args[Idx]);
@@ -112,25 +118,22 @@ Value* GenerateDefun (AST* ast)
     Builder.CreateRet(RetVal);
     verifyFunction(*F);
     TheFPM->run(*F);
-    //F->dump();
-    return NULL;
+    F->dump();
+    return 0;
 }
 
 
 Value* GenerateArg (AST* ast)
 {
     //printf("%s\n", ast->u.s);
-    Value* V = NamedValues[ast->u.s];
+    Value* V = NamedValues[ast->s];
     return V;
 }
 
 Value* GenerateFunc (AST* ast, int i)
 {
-    Function *CalleeF = TheModule->getFunction(ast->u.s);
-    if (CalleeF == 0 || CalleeF->arg_size() != ast->args->size()){
-        printf("error\n");
-        return NULL;
-    }
+    Function *CalleeF = TheModule->getFunction(ast->s);
+    
     std::vector<Value*> ArgsV;
     Value* temp;
     for(unsigned count = 0, e = ast->args->size(); count != e; ++count){
@@ -194,15 +197,14 @@ void GenerateProgram (AST* ast)
     BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", F);
     Builder.SetInsertPoint(BB);
 
-
     Value *RetVal = Generate(ast, 0, null);
     if (RetVal != NULL){
-    Builder.CreateRet(RetVal);
-    verifyFunction(*F);
-    TheFPM->run(*F);
-    void *FPtr = TheExecutionEngine->getPointerToFunction(F);
-    int (*FP)() = (int (*)())(intptr_t)FPtr;
-    //F->dump();
-    printf("%d\n",FP());
+        Builder.CreateRet(RetVal);
+        verifyFunction(*F);
+        TheFPM->run(*F);
+        void *FPtr = TheExecutionEngine->getPointerToFunction(F);
+        int (*FP)() = (int (*)())(intptr_t)FPtr;
+        //F->dump();
+        printf("%d\n",FP());
     }
 }

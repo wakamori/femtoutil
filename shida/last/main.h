@@ -1,7 +1,7 @@
 #ifndef MAIN
 #define MAIN
 #define STACKSIZE 1000
-#define INSTSIZE 1000
+#define INSTSIZE 30000
 
 
 enum TokType {  tok_number, tok_plus, tok_minus, tok_mul, tok_div, tok_gt, tok_gte, tok_lt, tok_lte, tok_eq, tok_if, tok_defun, tok_str, tok_eof, tok_setq, tok_valiable, tok_func, tok_arg, tok_open, tok_close, tok_error, tok_nil, tok_T };
@@ -28,19 +28,19 @@ typedef struct AST{
     int type;
     union{
         int i;
-        char s[20];
+        char* s;
     }u;
     struct AST *LHS,*RHS,*COND;
 }AST;
 
 typedef struct Variable_Data_t{
-    char name[40];
+    char* name;
     struct Variable_Data_t* next;
     int value;
 }Variable_Data_t;
 
 typedef struct Function_Data_t{
-    char name[40];
+    char* name;
     struct Function_Data_t* next;
     int value;
     cons_t* adr;
@@ -50,12 +50,12 @@ extern Function_Data_t Function_Data[100];
 extern Variable_Data_t Variable_Data[100];
 extern cons_t memory[INSTSIZE];
 extern int CurrentIndex, NextIndex;
-extern char str[200];
+extern char* str;
 extern void** table;
 
 /*hash.h*/
-struct Function_Data_t* setF (char* str, int i , void* adr);
-struct Variable_Data_t* setV (char* str);
+struct Function_Data_t* setF (char* str, int i , void* adr, int LengthRatio);
+struct Variable_Data_t* setV (char* str, int LengthRatio);
 struct Variable_Data_t* searchV (char* str);
 struct Function_Data_t* searchF (char* str);
 /*generator.h*/
