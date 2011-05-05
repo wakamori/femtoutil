@@ -76,13 +76,13 @@ div:
 
 funcdef:
     //printf("%s:",pc->op[1].c);
-    //if (i == 2)
+    if (i == 2)
     std::cerr << pc->op[1].c << std::endl;
     return NULL;
 
 end:
     //printf("%d\n",stack_value[0].i);
-    //if (i == 2) 
+    if (i == 2) 
     std::cerr << stack_value[0].i << std::endl;
     return NULL;
 

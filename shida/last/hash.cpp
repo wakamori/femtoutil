@@ -28,7 +28,7 @@ struct Variable_Data_t* searchV (char* str)
 {
     struct Variable_Data_t* p = &Variable_Data[(str[0] * str[1]) % (sizeof(Variable_Data) / sizeof(Variable_Data[0]))];
     while (1){
-        if (strcmp (p->name, str) == 0){
+        if (p->name != NULL && strcmp (p->name, str) == 0){
             return p;
         } else if (p->next != NULL){
             p = p->next;
