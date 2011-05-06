@@ -1,5 +1,7 @@
 CC = gcc
-CFLAGS= -O2 -g3 -Wall
+CFLAGS= -O2 -Wall
+#CFLAGS= -g3 -Wall
+#CFLAGS= -pg
 LDLIBS= -lreadline -lm
 
 target = liso

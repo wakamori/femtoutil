@@ -11,8 +11,8 @@ typedef enum cons_type {L_K, R_K, ADD, SUB, MUL, DEV, STR, INT, ROOT, IF, EQU,\
 #define FALSE 0
 #define FPA_SIZE 32
 #define MAP_SIZE 16
-#define FUNC_SIZE 16
-#define ARG_SIZE 16
+#define FUNC_SIZE 128
+#define ARG_SIZE 128
 #define LAYER 1024
 
 typedef struct cons_t{
@@ -23,7 +23,7 @@ typedef struct cons_t{
 		char *cvalue;
 	};
 	struct cons_t *cdr;
-	int result[LAYER];
+	int result;
 } cons_t;
 
 typedef struct map{
@@ -44,7 +44,7 @@ func g_fa[FUNC_SIZE];
 int g_arga[LAYER][ARG_SIZE];
 int g_argl;
 
-int g_funcl;
+int g_ans;
  
 void findfunc(cons_t *root, char *key, int count);
 void findarg(cons_t *root, cons_t *arg_name);

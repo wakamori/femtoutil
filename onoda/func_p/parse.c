@@ -235,7 +235,13 @@ void dump_tree(cons_t *root)
 
 void free_tree(cons_t *root)
 {
-	if (root->type == ROOT || root->type == L_K) {
+	if (root->type == INT || root->type == STR || root->type == FUNC) {
+		if (root->cdr != NULL) {
+			free_tree(root->cdr);
+		}
+		free (root);
+		root = NULL;
+	} else {
 		if (root->car != NULL)	{
 			free_tree(root->car);
 		}
@@ -244,11 +250,6 @@ void free_tree(cons_t *root)
 		}
 		free (root);
 		root = NULL;
-	} else {
-		if (root->cdr != NULL) {
-			free_tree(root->cdr);
-		}
-		free (root);
-		root = NULL;
+
 	}
 }

@@ -22,11 +22,13 @@ char **tokenizer(char *line)
 			break;
 		case ' ':
 			break;
+		case ',':
+			break;
 		default:
 			next = &line[lc];
 			do{
 				lc++;
-			} while (line[lc] != '(' && line[lc] != ')' && line[lc] != ' ' && line[lc] != 0);
+			} while (line[lc] != '(' && line[lc] != ')' && line[lc] != ' ' && line[lc] != 0 && line[lc] != ',');
 			switch (line[lc]) {
 			case '(': 
 				token[tc + 1] = (char*)malloc(sizeof(char) + 1);
@@ -45,6 +47,12 @@ char **tokenizer(char *line)
 				tc = tc +2;
 				break;
 			case ' ':
+				line[lc] = '\0';
+				token[tc] = (char*)malloc(strlen(next) + 1);
+				strcpy(token[tc], next);
+				tc++;
+				break;
+			case ',':
 				line[lc] = '\0';
 				token[tc] = (char*)malloc(strlen(next) + 1);
 				strcpy(token[tc], next);
