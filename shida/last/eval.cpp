@@ -1,4 +1,3 @@
-#include <iostream>
 #include <stdio.h>
 #include"main.h"
 void** eval (int i )
@@ -75,15 +74,13 @@ div:
     goto *((++pc)->instruction_ptr);
 
 funcdef:
-    //printf("%s:",pc->op[1].c);
-    if (i == 2)
-    std::cerr << pc->op[1].c << std::endl;
+    //if (i == 2)
+        printf("%s\n",pc->op[1].c);
     return NULL;
 
 end:
-    //printf("%d\n",stack_value[0].i);
-    if (i == 2) 
-    std::cerr << stack_value[0].i << std::endl;
+    //if (i == 2) 
+        printf("%d\n",stack_value[0].i);
     return NULL;
 
 push:

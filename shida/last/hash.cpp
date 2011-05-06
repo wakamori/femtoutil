@@ -42,7 +42,7 @@ struct Function_Data_t* searchF (char* str)
 {
     struct Function_Data_t* p = &Function_Data[(str[0] * str[1]) % (sizeof(Function_Data) / sizeof(Function_Data[0]))];
     while (1){
-        if (strcmp (p->name, str) == 0){
+        if (p->name != NULL && strcmp (p->name, str) == 0){
             return p;
         } else if (p->next != NULL){
             p = p->next;
@@ -60,7 +60,7 @@ struct Function_Data_t* setF (char* str,int i, void* adr, int LengthRatio)
         if (p->name == NULL || strcmp(p->name,str) == 0){
             if (p->name == NULL){
                 p->name = (char*)malloc(LengthRatio);
-                strcpy (p->name, str);
+                strncpy (p->name, str, LengthRatio);
             }
             p->value = i;
             p->adr = (cons_t*)adr;

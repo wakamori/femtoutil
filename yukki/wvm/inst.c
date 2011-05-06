@@ -22,7 +22,6 @@ void exe_code(Code *c_arg){
 			&&I_MUL, &&I_MOV_V,
 			&&I_DIV, &&I_DIV_V,
 			&&I_MOD, &&I_MOD_V,
-		
 			&&I_LT, &&I_LE, &&I_GT, &&I_GE, &&I_EQ,
 			&&I_LT_V,
 			&&I_CMP, &&I_JMP,
@@ -34,17 +33,19 @@ void exe_code(Code *c_arg){
 		return;
 	}
 
-	int r_arg = 0;
-	int arg = 0;
-	int flag = 0;
 	long reg[REG_MAX] = {0};
 	static int	stack[STACK_MAX] = {0};
 	static Code *codestack[64] = {0};
 	register int *stackptr = stack;
 	register Code **codeptr = codestack;
 	register Code *c = c_arg;
+	int r_arg = 0;
+	int arg = 0;
+	int flag = 0;
 
 	time_t t1, t2;
+
+	PROF_START();
 
 	goto *c->instp;
 
@@ -198,8 +199,6 @@ I_MOD_V:
 	reg[c->op0] %= c->op1;
 	c++;
 	goto *c->instp;
-
-
 
 I_END:
 	PROF_STOP();
