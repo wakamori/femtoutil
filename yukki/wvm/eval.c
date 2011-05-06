@@ -100,11 +100,13 @@ void compile(cons_t *c){
 		c = c->cdr;
 
 		// add RET
-		add_code(RET, 0, 0);
+		int jmp_i = code_index;
+		Code *jmp = add_code(JMP, 0, 0);
 
 		// false case
 		cmp->op1 = code_index - cmp_i;
 		compile(c);
+		jmp->op0 = code_index - jmp_i;
 		break;
 
 	case TYPE_DEFUN:

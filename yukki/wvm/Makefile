@@ -1,8 +1,8 @@
-CC = cc
+CC = gcc
 TARGET = lisp
 OBJS = lisp.o parser.o eval.o memory.o inst.o func.o
 #OBJS = inst.o fibtest.o
-CFLAGS ?= -O2
+CFLAGS ?= -O2 -g3
 #CFLAGS ?= -g3 -O0 -pg
 
 $(TARGET) : $(OBJS)
