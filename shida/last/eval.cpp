@@ -74,14 +74,13 @@ div:
     goto *((++pc)->instruction_ptr);
 
 funcdef:
-    if (i == 2)
-        printf("%s\n",pc->op[0].c);
+    //if (i == 2)
+        printf("%s\n",pc->op[1].c);
     return NULL;
 
 end:
-    if (i == 2){
+    //if (i == 2) 
         printf("%d\n",stack_value[0].i);
-    }
     return NULL;
 
 push:

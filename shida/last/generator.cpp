@@ -16,9 +16,10 @@ void GenerateOperation(AST* ast, int i)
     } else if (ast->RHS->type == tok_number){
         //printf("push\noperation\n");
         memory[NextIndex].instruction = ast->type + 9;
-        memory[NextIndex].op[0].i = ast->RHS->u.i;
+        memory[NextIndex].op[0].i = ast->RHS->i;
         memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
         NextIndex++;
+        free(ast->RHS);
     } else {
         Generate(ast->RHS, i, null);
         //printf("operation\n");
@@ -31,7 +32,7 @@ void GenerateOperation(AST* ast, int i)
 void GenerateNumber (AST* ast)
 {
     memory[NextIndex].instruction = PUSH;
-    memory[NextIndex].op[0].i = ast->u.i;
+    memory[NextIndex].op[0].i = ast->i;
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
     NextIndex++;
 }
@@ -65,9 +66,11 @@ void GenerateIf (AST* ast, int i, char* str)
     Generate(ast->RHS, i, str);
 }
 
-void GenerateSetq (AST* ast,int i){
+void GenerateSetq (AST* ast,int i)
+{
     Variable_Data_t* p;
-    p = setV (ast->u.s);
+    p = searchV (ast->s);
+    free(ast->s);
     Generate (ast->LHS, i, null);
     //printf("setq\n");
     memory[NextIndex].instruction = SETQ;
@@ -80,7 +83,8 @@ void GenerateVariable (AST* ast)
 {
     //printf("variable\n");
     memory[NextIndex].instruction = PUSH;
-    memory[NextIndex].op[0].i = searchV(ast->u.s)->value;
+    memory[NextIndex].op[0].i = searchV(ast->s)->value;
+    free(ast->s);
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
     NextIndex++;
 }
@@ -90,10 +94,12 @@ void GenerateDefun (AST* ast)
     memory[NextIndex].instruction = DEFUN;
     memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
     NextIndex++;
-    Function_Data_t* p = setF (ast->u.s, ast->LHS->u.i, &memory[NextIndex]);
-    memory[NextIndex - 1].op[0].c = p->name;
+    Function_Data_t* p = setF (ast->s, ast->LHS->i, &memory[NextIndex],0);
+    //printf("%s/n",p->name);
+    memory[NextIndex - 1].op[1].c = p->name;
     free(ast->LHS);
-    Generate (ast->RHS, 1,ast->u.s );
+    Generate (ast->RHS, 1,ast->s );
+    free(ast->s);
     //printf("return\n");
     if (p->value <= 1){
         memory[NextIndex].instruction = RETURN;
@@ -108,14 +114,14 @@ void GenerateDefun (AST* ast)
 
 void GenerateArg (AST* ast)
 {
-    if (ast->u.i == 0){
+    if (ast->i == 0){
         memory[NextIndex].instruction = ARG;
         memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
         NextIndex++;
     } else {
         memory[NextIndex].instruction = NARG;
         memory[NextIndex].instruction_ptr = table[memory[NextIndex].instruction];
-        memory[NextIndex].op[0].i = ast->u.i + 1;
+        memory[NextIndex].op[0].i = ast->i + 1;
         NextIndex++;
     }
 }
@@ -123,7 +129,9 @@ void GenerateArg (AST* ast)
 void GenerateFunc (AST* ast, int i)
 {
     AST* temp = ast;
-    Function_Data_t* p = searchF(ast->u.s);
+    AST* temp1 = NULL;
+    Function_Data_t* p = searchF(ast->s);
+    free(ast->s);
     int count = p->value;
     while (1){
         if (count == 0){
@@ -157,7 +165,10 @@ void GenerateFunc (AST* ast, int i)
             break;
         } else {
             Generate(temp->LHS, i, null);
+            temp1 = temp;
             temp = temp->RHS;
+            if (temp != ast)
+                free(temp);
             count--;
         }
     }
@@ -201,6 +212,7 @@ void Generate (AST* ast, int i,char* str)
             break;
 
         default:
+            printf("default\n");
             break;
     }
     free(ast);

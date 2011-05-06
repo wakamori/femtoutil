@@ -1,6 +1,6 @@
 #include "liso.h"
 
-int (*func_p[FPA_SIZE]) (cons_t *p) = {fl_k, NULL, add, sub, mul, dev, fstr, \
+int (*eval_fp[FPA_SIZE]) (cons_t *p) = {fl_k, NULL, add, sub, mul, dev, fstr, \
 									   error, froot, lif, equ, lt, gt, elt, \
 									   egt, setq, def, lfunc, error, rfunc};
 
@@ -131,8 +131,8 @@ int add(cons_t *next)
 		next = next->cdr;
 		answer += getvalue(next);
 	} while (next->cdr != NULL);
-	now->result[g_funcl] = answer;	
-	return now->result[g_funcl];
+	now->result = answer;	
+	return now->result;
 }
 
 int mul(cons_t *next)
@@ -144,8 +144,8 @@ int mul(cons_t *next)
 		next = next->cdr;
 		answer *= getvalue(next);
 	} while (next->cdr != NULL);
-	now->result[g_funcl] = answer;
-	return now->result[g_funcl];
+	now->result = answer;
+	return now->result;
 }
 
 int sub(cons_t *next)
@@ -158,8 +158,8 @@ int sub(cons_t *next)
 		next = next->cdr;
 		answer -= getvalue(next);
 	} while(next->cdr != NULL);	
-	now->result[g_funcl] = answer;
-	return now->result[g_funcl];
+	now->result = answer;
+	return now->result;
 }
 
 int dev(cons_t *next)
@@ -172,8 +172,8 @@ int dev(cons_t *next)
 		next = next->cdr;
 		answer /= getvalue(next);
 	} while(next->cdr != NULL);	
-	now->result[g_funcl] = answer;
-	return now->result[g_funcl];
+	now->result = answer;
+	return now->result;
 }
 
 int lif(cons_t *next)
@@ -186,13 +186,13 @@ int lif(cons_t *next)
 	
 	if (v != 0) {
 		next = next->cdr;
-		now->result[g_funcl] = getvalue(next);
-		return now->result[g_funcl];
+		now->result = getvalue(next);
+		return now->result;
 	} else {
 		next = next->cdr;
 		next = next->cdr;
-		now->result[g_funcl] = getvalue(next);
-		return now->result[g_funcl];
+		now->result = getvalue(next);
+		return now->result;
 	}
 }
 
@@ -207,18 +207,18 @@ int equ(cons_t *next)
 		first = second;
 		second = first->cdr;
 
-		first->result[g_funcl] = getvalue(first);
-		second->result[g_funcl] = getvalue(second);
+		first->result = getvalue(first);
+		second->result = getvalue(second);
 
-		if (first->result[g_funcl] == second->result[g_funcl]) {
-			now->result[g_funcl] = TRUE;
+		if (first->result == second->result) {
+			now->result = TRUE;
 		} else {
-			now->result[g_funcl] = FALSE;
-			return now->result[g_funcl];
+			now->result = FALSE;
+			return now->result;
 		}
 	} while (second->cdr != NULL);
 	
-	return now->result[g_funcl];
+	return now->result;
 }
 
 
@@ -234,13 +234,13 @@ int lt(cons_t *next)
 		if (getvalue(first) < getvalue(second)) {
 			;
 		} else {
-			now->result[g_funcl] = FALSE;
-			return now->result[g_funcl];
+			now->result = FALSE;
+			return now->result;
 		}
     } while (second->cdr != NULL);
 
-	now->result[g_funcl] = TRUE;	
-	return now->result[g_funcl];
+	now->result = TRUE;	
+	return now->result;
 }
 
 int gt(cons_t *next)
@@ -253,17 +253,17 @@ int gt(cons_t *next)
 	do{
 		first = second;
 		second = first->cdr;
-		first->result[g_funcl] = getvalue(first);
-		second->result[g_funcl] = getvalue(second);
-		if (first->result[g_funcl] > second->result[g_funcl]) {
-			now->result[g_funcl] = TRUE;
+		first->result = getvalue(first);
+		second->result = getvalue(second);
+		if (first->result > second->result) {
+			now->result = TRUE;
 		} else {
-			now->result[g_funcl] = FALSE;
-			return now->result[g_funcl];
+			now->result = FALSE;
+			return now->result;
 		}
     } while (second->cdr != NULL);
 
-	return now->result[g_funcl];  
+	return now->result;  
 }
 
 int elt(cons_t *next)
@@ -276,16 +276,16 @@ int elt(cons_t *next)
 	do {
 		first = second;
 		second = first->cdr;
-		first->result[g_funcl] = getvalue(first);
-		second->result[g_funcl] = getvalue(second);
-		if (first->result[g_funcl] <= second->result[g_funcl]) {
-			now->result[g_funcl] = TRUE;
+		first->result = getvalue(first);
+		second->result = getvalue(second);
+		if (first->result <= second->result) {
+			now->result = TRUE;
 		} else {
 			return 0;
 		}
     } while (second->cdr != 0);
 	
-	return now->result[g_funcl];
+	return now->result;
 }
 
 int egt(cons_t *next)
@@ -298,17 +298,17 @@ int egt(cons_t *next)
 	do {
 		first = second;
 		second = first->cdr;
-		first->result[g_funcl] = getvalue(first);
-		second->result[g_funcl] = getvalue(second);
-		if (first->result[g_funcl] > second->result[g_funcl]) {
-			now->result[g_funcl] = TRUE;
+		first->result = getvalue(first);
+		second->result = getvalue(second);
+		if (first->result > second->result) {
+			now->result = TRUE;
 		} else {
-			now->result[g_funcl] = FALSE;
-			return now->result[g_funcl];
+			now->result = FALSE;
+			return now->result;
 		}
     } while (second->cdr != NULL);
 
-	return now->result[g_funcl];
+	return now->result;
 }
 
 int setq(cons_t *next)
@@ -363,15 +363,13 @@ int lfunc(cons_t *next)
 		next = next->cdr;
 		set_arg(next, g_argl);
 
-		g_funcl++;
 		g_argl++;
 
-		now->result[g_funcl-1] = eval(g_fa[fc].exp);
+		now->result = eval(g_fa[fc].exp);
 
 		g_argl--;	
-		g_funcl--;
 
-		return now->result[g_funcl];
+		return now->result;
 	}
 }
 
@@ -382,15 +380,13 @@ int rfunc(cons_t *next)
 	next = next->cdr;
 	set_arg(next, g_argl);
 
-	g_funcl++;
 	g_argl++;
 
-	now->result[g_funcl-1] = eval(g_fa[now->ivalue].exp);
+	now->result = eval(g_fa[now->ivalue].exp);
 
 	g_argl--;	
-	g_funcl--;
 
-	return now->result[g_funcl];
+	return now->result;
 
 }
 
@@ -439,6 +435,6 @@ int eval(cons_t *root)
 	  printf("syntax error\n");
 	  return 0;
   } else {
-	  return (*func_p[next->type]) (next);
+	  return (*eval_fp[next->type]) (next);
   }
 }

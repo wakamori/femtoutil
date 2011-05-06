@@ -1,25 +1,22 @@
-CFLAGS= -O2 -g -W -Wall
+CFLAGS=  -O2 -g
+LDFLAGS=`llvm-config --libs core jit native --cxxflags --ldflags`
+
 CC=g++
 TARGET=a
-OBJS=main.o eval.o parser.o generator.o hash.o
+OBJS=main.o parser.o generator.o
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-main.o : main.cpp
-	$(CC) $(CFLAGS) -c main.cpp
-
-eval.o : eval.cpp
-	$(CC) $(CFLAGS) -c eval.cpp
+main.o : main.cpp 
+	$(CC) $(CFLAGS) -c main.cpp $(LDFLAGS)
 
 parser.o : parser.cpp
-	$(CC) $(CFLAGS) -c parser.cpp
+	$(CC) $(CFLAGS) -c parser.cpp $(LDFLAGS)
 
 generator.o : generator.cpp
-	$(CC) $(CFLAGS) -c generator.cpp
+	$(CC) $(CFLAGS) -c generator.cpp $(LDFLAGS)
 
-hash.o : hash.cpp
-	$(CC) $(CFLAGS) -c hash.cpp
 
 .PHONY:clean
 clean:
