@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <math.h>
 #include"main.h"
-#define ERROR printf("Error In Tokenizer\n"); return tok_error;
+#define ERROR /*printf("Error In Tokenizer\n");*/ return tok_error;
 #define ARGERROR if (ArgCount[ArgIndex] > p->value)printf("Too many "); else printf("Too few "); printf("arguments given to function\n");  return NULL;
 #define PERROR FreeAST(ret);return NULL;
 #define AR 3
@@ -17,7 +17,7 @@ static char* CurrentChar;
 static char* TokStr;
 static int TokNum;
 static int ArgIndex;
-static int LengthRatio = LR;
+static unsigned int LengthRatio;
 static int ArgsRatio = AR;
 static char** Args;
 int GetTok (void)
@@ -25,7 +25,7 @@ int GetTok (void)
     char* TokTemp = NULL;
     int ALT = 1;
     TokNum = 0;
-    int TokSize = 0;
+    unsigned int TokSize = 0;
     if (*CurrentChar == '\0' || *CurrentChar == '\n'){
         return tok_eof;
     }
@@ -55,15 +55,14 @@ int GetTok (void)
             CurrentChar++;
             if (TokSize >= LengthRatio - 1){
                 LengthRatio *= 2;
-                TokTemp = (char*)malloc(LengthRatio);
-                strncpy(TokTemp,TokStr,LengthRatio / 2);
+                TokTemp = (char*)calloc(LengthRatio,sizeof(char));
+                strncpy(TokTemp,TokStr,LengthRatio);
                 free(TokStr);
                 TokStr = TokTemp;
             }
         }
 
         TokStr[TokSize] = '\0';
-        //printf("%s",TokStr);
         if (strcmp(TokStr,"defun") == 0){
             if(*CurrentChar != ' '){
                 ERROR
@@ -146,18 +145,18 @@ AST* ParseArgument (void)
     int count = 0, count1 = 0;
     AST* ret = (AST*)malloc(sizeof(AST));
     ret->LHS = ret->RHS = ret->COND = NULL;
-    ret->u.s = NULL;
+    ret->s = NULL;
     getNextToken(); //eat '('
     if (CurTok != tok_open){
-        printf("error in defun\n");
-        ret->type = -1;
-        return ret;
+        printf("wrong prototype\n");
+        FreeAST(ret);
+        return NULL;
     }
     getNextToken();
     while (CurTok != tok_close){
         if (CurTok != tok_str){
-            ret->type = -1;
-            return ret;
+            FreeAST(ret);
+            return NULL;
         }
         if (count == ArgsRatio){
             ArgsRatio *= 2;
@@ -174,7 +173,7 @@ AST* ParseArgument (void)
         getNextToken();
     }
     ret->type = tok_arg;
-    ret->u.i = count;
+    ret->i = count;
     return ret;
 
 }
@@ -184,7 +183,7 @@ AST* ParseIf (void)
     getNextToken(); //eat '(' or number
     AST* ret = (AST*)malloc(sizeof(AST));
     ret->LHS = ret->RHS = ret->COND = NULL;
-    ret->u.s = NULL;
+    ret->s = NULL;
     ret->type = tok_if;
     ret->COND = ParseExpression();
     ret->LHS = ParseBlock();
@@ -205,27 +204,25 @@ AST* ParseDefun (void)
     int i = 0;
     AST* ret = (AST*)malloc(sizeof(AST));
     ret->LHS = ret->RHS = ret->COND = NULL;
-    ret->u.s = NULL;
-        ret->type = tok_defun;
+    ret->s = NULL;
+    ret->type = tok_defun;
     getNextToken();
     if (CurTok == tok_str){
-        ret->u.s = (char*)malloc(LengthRatio);
-        strncpy(ret->u.s,TokStr,LengthRatio);
+        ret->s = (char*)malloc(sizeof(char) * LengthRatio);
+        strncpy(ret->s,TokStr,LengthRatio);
     } else {
-        printf("error in defun\n");
+        printf("Error in defun\n");
         FreeAST(ret);
         return NULL;
     }
     ret->LHS = ParseArgument();
-    p = setF(ret->u.s, ret->LHS->u.i, NULL, LengthRatio);
-    if ((signed int)ret->LHS->type == -1){
+    if (ret->LHS == NULL){
         FreeAST(ret);
-        //p->name[0] = '\0';
         return NULL;
     }
+    p = setF(ret->s, ret->LHS->i, NULL, LengthRatio);
     ret->RHS = ParseBlock();
     if (ret->RHS == NULL){
-        //p->name[0] = '\0';
         FreeAST(ret);
         return NULL;
     }
@@ -233,10 +230,10 @@ AST* ParseDefun (void)
     if (CurTok == tok_close){
         for (i = 0; i < ArgsRatio; i++){
             free(Args[i]);
+            Args[i] = NULL;
         }
         return ret;
     }
-    //p->name[0] = '\0';
     PERROR
 }
 
@@ -244,12 +241,12 @@ AST* ParseSetq (void)
 {
     AST* ret = (AST*)malloc(sizeof(AST));
     ret->LHS = ret->RHS = ret->COND = NULL;
-    ret->u.s = NULL;
+    ret->s = NULL;
     ret->type = tok_setq;
     getNextToken();
     if (CurTok == tok_str){
-        ret->u.s = (char*)malloc(LengthRatio);
-        strncpy(ret->u.s, TokStr, LengthRatio);
+        ret->s = (char*)malloc(LengthRatio);
+        strncpy(ret->s, TokStr, LengthRatio);
     } else {
         printf("error in setq\n");
         FreeAST(ret);
@@ -262,7 +259,7 @@ AST* ParseSetq (void)
         FreeAST(ret);
         return NULL;
     }
-    setV(ret->u.s,LengthRatio);
+    setV(ret->s,LengthRatio);
     return ret;
 }
 
@@ -274,19 +271,19 @@ AST* ParseVariable (void)
         if (Args[i] != NULL && strcmp(Args[i],TokStr) == 0){
             ret = (AST*)malloc(sizeof(AST));
             ret->LHS = ret->RHS = ret->COND = NULL;
-            ret->u.s = NULL;
+            ret->s = NULL;
             ret->type = tok_arg;
-            ret->u.i = i;
+            ret->i = i;
             return ret;
         }
     }
     if (searchV(TokStr) != NULL){
         ret = (AST*)malloc(sizeof(AST));
         ret->LHS = ret->RHS = ret->COND = NULL;
-        ret->u.s = NULL;
+        ret->s = NULL;
         ret->type = tok_valiable;
-        ret->u.s = (char*)malloc(LengthRatio);
-        strncpy(ret->u.s, TokStr, LengthRatio);
+        ret->s = (char*)malloc(LengthRatio);
+        strncpy(ret->s, TokStr, LengthRatio);
         return ret;
     } else {
         printf("valiable not found\n");
@@ -300,9 +297,9 @@ AST* ParseNumber (void)
     AST* ret = NULL;
     ret = (AST*)malloc(sizeof(AST));
     ret->LHS = ret->RHS = ret->COND = NULL;
-    ret->u.s = NULL;
+    ret->s = NULL;
     ret->type = tok_number;
-    ret->u.i = TokNum;
+    ret->i = TokNum;
     ret->LHS = ret->RHS = NULL;
     return ret;
 }
@@ -312,7 +309,7 @@ AST* ParseT (void)
     AST* ret = NULL;
     ret = (AST*)malloc(sizeof(AST));
     ret->LHS = ret->RHS = ret->COND = NULL;
-    ret->u.s = NULL;
+    ret->s = NULL;
     ret->type = tok_T;
     ret->LHS = ret->RHS = NULL;
     return ret;
@@ -323,7 +320,7 @@ AST* ParseNil (void)
     AST* ret = NULL;
     ret = (AST*)malloc(sizeof(AST));
     ret->RHS = ret->LHS = ret->COND = NULL;
-    ret->u.s = NULL;
+    ret->s = NULL;
     ret->type = tok_nil;
     ret->LHS = ret->RHS = NULL;
     return ret;
@@ -335,7 +332,7 @@ AST* ParseOperation (int Tok,AST* pRHS)
     char* fname;
     AST* ret = (AST*)malloc(sizeof(AST));
     ret->LHS = ret->RHS = ret->COND = NULL;
-    ret->u.s = NULL;
+    ret->s = NULL;
     AST *LHS,*RHS;
     Function_Data_t* p;
     int OpType;
@@ -351,7 +348,7 @@ AST* ParseOperation (int Tok,AST* pRHS)
                 strncpy(fname, TokStr,LengthRatio);
                 ret->type = tok_func;
                 if ( p->value == 0){
-                    ret->u.s = fname;
+                    ret->s = fname;
                     ret->LHS = NULL;
                     ret->RHS = NULL;
                     getNextToken(); // eat ')'
@@ -363,7 +360,7 @@ AST* ParseOperation (int Tok,AST* pRHS)
                     }
                 } else if (p->value == 1){
                     getNextToken();
-                    ret->u.s = fname;
+                    ret->s = fname;
                     ret->RHS = ParseExpression();
                     ret->LHS = NULL;
                     getNextToken(); //eat ')'
@@ -390,8 +387,8 @@ AST* ParseOperation (int Tok,AST* pRHS)
                         RHS->type = tok_func;
                         if (RHS != NULL){
                             if (ArgCount[ArgIndex] == p->value){
-                                RHS->u.s = fname;
-                                    return RHS;
+                                RHS->s = fname;
+                                return RHS;
                             } else {
                                 free(fname);
                                 ARGERROR
@@ -553,7 +550,7 @@ int ParseProgram (void)
     ArgsRatio = AR;
     LengthRatio = LR;
     Args = (char**)calloc(ArgsRatio,sizeof(char*));
-    TokStr = (char*)malloc(LengthRatio);
+    TokStr = (char*)calloc(LengthRatio,sizeof(char*));
     AST* ret = NULL;
     CurrentChar = str;
 
@@ -565,9 +562,14 @@ int ParseProgram (void)
     CurrentChar = str;
     ret = ParseBlock();
 
-    free(TokStr);
+    int i = 0;
+    for (; i < ArgsRatio; i++) {
+        free(Args[i]);
+        Args[i] = NULL;
+    }
     free(Args);
     getNextToken();
+    free(TokStr);
     if (ret != NULL && CurTok == tok_eof ){
         GenerateProgram(ret);
         return 0;
@@ -581,12 +583,19 @@ void FreeAST (AST* ast)
     if (ast == NULL){
         return;
     }
-    FreeAST(ast->LHS);
-    ast->LHS = NULL;
-    FreeAST(ast->COND);
-    ast->COND = NULL;
-    FreeAST(ast->RHS);
-    ast->RHS = NULL;
-    free(ast->u.s);
+    if (ast->LHS != NULL){
+        FreeAST(ast->LHS);
+        ast->LHS = NULL;
+    }
+    if (ast->COND != NULL){
+        FreeAST(ast->COND);
+        ast->COND = NULL;
+    }
+    if (ast->RHS != NULL){
+        FreeAST(ast->RHS);
+        ast->RHS = NULL;
+    }
+    free(ast->s);
+    ast->s = NULL;
     free(ast);
 }

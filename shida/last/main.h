@@ -8,7 +8,6 @@ enum TokType {  tok_number, tok_plus, tok_minus, tok_mul, tok_div, tok_gt, tok_g
 enum eINSTRUCTION { PUSH, PLUS, MINUS, MUL, DIV, GT, GTE, LT, LTE, EQ, PLUS2, MUNUS2, MUL2, DIV2, GT2, GTE2, LT2, LTE2, EQ2, END, JMP, GOTO, NGOTO, RETURN, NRETURN,  ARG, NARG, DEFUN, SETQ };
 enum eTYPE { T = 0, nil = 1, NUM = 0, VAL };
 typedef struct cons_t{
-    //enum eINSTRUCTION instruction;
     int instruction;
     void* instruction_ptr;
     union{
@@ -24,12 +23,9 @@ typedef struct value_t{
 }value_t;
 
 typedef struct AST{
-    //enum TokType type;
     int type;
-    union{
-        int i;
-        char* s;
-    }u;
+    int i;
+    char* s;
     struct AST *LHS,*RHS,*COND;
 }AST;
 
@@ -61,8 +57,6 @@ struct Function_Data_t* searchF (char* str);
 /*generator.h*/
 void GenerateProgram (AST*);
 /*parser.h*/
-#define defun 1
-#define normal 0
 int ParseProgram();
 /*eval.h*/
 void** eval (int);

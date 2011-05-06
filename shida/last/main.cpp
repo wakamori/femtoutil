@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include"main.h"
-#define STRLEN 10
+#define STRLEN 50
 Function_Data_t Function_Data[100];
 Variable_Data_t Variable_Data[100];
 cons_t memory[INSTSIZE];
@@ -11,13 +11,13 @@ int CurrentIndex, NextIndex;
 char* strtmp;
 char* str;
 void** table;
-void Exit (void);
+void Clean (void);
 
 
 int main (int argc, char* args[])
 {
     FILE* file = NULL;
-    int StrSize = 1;
+    int StrSize = STRLEN;
     int StrIndex = 0;
     table = eval(1);
     mtrace();
@@ -28,10 +28,13 @@ int main (int argc, char* args[])
     int i;
     for (i = 0; i < (signed int)(sizeof(Function_Data)/sizeof(Function_Data[0])); i++) {
         Function_Data[i].name = NULL;
+        Function_Data[i].next = NULL;
         Variable_Data[i].name = NULL;
+        Variable_Data[i].next = NULL;
     }
     while (1){
-        str = (char*)malloc(STRLEN * StrSize);
+        StrSize = STRLEN;
+        str = (char*)malloc(StrSize);
         StrIndex = 0;
         CurrentIndex = NextIndex;
         if (argc == 2){
@@ -39,12 +42,13 @@ int main (int argc, char* args[])
                 if ((str[StrIndex] = fgetc(file)) == EOF){
                     fclose(file);
                     free(str);
-                    Exit();
+                    Clean();
+                    exit(0);
                 }
-                if (StrIndex == STRLEN * StrSize - 1){
+                if (StrIndex == StrSize - 1){
                     StrSize *= 2;
-                    strtmp = (char*)malloc(STRLEN * StrSize);
-                    strncpy(strtmp, str, STRLEN * StrSize);
+                    strtmp = (char*)malloc(StrSize);
+                    strncpy(strtmp, str, StrSize);
                     free(str);
                     str = strtmp;
                 }
@@ -59,14 +63,11 @@ int main (int argc, char* args[])
         } else {
             printf(">>>");
             while (1) {
-                if ((str[StrIndex] = fgetc(stdin)) == EOF){
-                    fclose(file);
-                    Exit();
-                }
-                if (StrIndex == STRLEN * StrSize - 1){
+                str[StrIndex] = fgetc(stdin);
+                if (StrIndex == StrSize - 1){
                     StrSize *= 2;
-                    strtmp = (char*)malloc(STRLEN * StrSize);
-                    strncpy(strtmp, str, (STRLEN * StrSize / 2));
+                    strtmp = (char*)malloc(StrSize);
+                    strncpy(strtmp, str, (StrSize / 2));
                     free(str);
                     str = strtmp;
                 }
@@ -81,7 +82,8 @@ int main (int argc, char* args[])
         if (strcmp(str,"bye\n") == 0){
             printf("bye\n");
             free(str);
-            Exit();
+            Clean();
+            exit(0);
         }
         if (ParseProgram() == 0){
             eval(argc + 1);
@@ -94,7 +96,7 @@ int main (int argc, char* args[])
 }
 
 
-void Exit (void)
+void Clean (void)
 {
     Function_Data_t *tempF, *currentF;
     Variable_Data_t *tempV, *currentV;
@@ -128,6 +130,5 @@ void Exit (void)
         }
     }
 
-    exit(0);
 }
 
