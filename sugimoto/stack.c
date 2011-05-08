@@ -1,28 +1,29 @@
 #include "lisugimoto.h"
 
-void a_push(cons_t *cell){
-	int i = 0;
-	while(cell != NULL) {
-		arg_stack[i][stack_num] = sgmt_eval(cell).ivalue;
-		cell = cell->cdr;
-		i ++;
+void argset(cons_t *cell){
+	int i;
+	cons_t *tmp;
+	tmp = cell;
+	while (tmp != NULL){
+		argsize ++;
+		tmp = tmp->cdr;
 	}
+	printf ("argsize = %d\n",argsize);
+	arg_s = (int **)malloc(sizeof(int*)*argsize);
+	for(i = 0;i<argsize ;i ++ ){
+		arg_s[i]=(int *)malloc(sizeof(int)*AS_SIZE);
+	}
+}
+
+void a_push(cons_t *cell){
+	int i;
+	for(i = 0; i < argsize ;i ++){
+		arg_s[i][stack_num] = sgmt_eval(cell).ivalue;
+		cell = cell->cdr;
+		}
 	stack_num ++;
 }
 
 void a_pop(){
 	stack_num --;
-}
-
-int a_get(int argcount){
-	return arg_stack[argcount][stack_num - 1];
-}
-
-int get_arg_count(cons_t *cell){
-	int i;
-	for(i = 0;i < ARG_SIZE;i++){
-		if(arg_a2[i][0] != NULL && strncmp(cell->symbol, arg_a2[i][0], sizeof(arg_a2[i][0])) == 0)
-			return i;
-	}
-	return 2142144;
 }

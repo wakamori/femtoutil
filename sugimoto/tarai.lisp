@@ -1,2 +1,2 @@
-(defun tarai ( x y z ) (if (<= x y) y (tarai (tarai (- 1 x) y z) (tarai (- 1 y) z x) (tarai (- 1 z) x y))))
-(tarai 192 96 0)
+(defun tarai ( x y z ) (if (<= x y) y (tarai (tarai (- x 1) y z) (tarai (- y 1) z x) (tarai (- z 1) x y))))
+(tarai 12 6 0)

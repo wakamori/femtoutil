@@ -8,9 +8,11 @@ OBJS = \
 	print.o\
 	vhash.o\
 	fhash.o\
-	stack.o
+	stack.o\
+	error.o
 CC = gcc
-CFLAGS = -g3 -Wall -O0 
+#CFLAGS =  -g0 -Wall -O2
+CFLAGS =  -g3 -Wall -O0
 LDLIBS = -lreadline
 
 .PHONY: all
@@ -36,6 +38,9 @@ fhash.o: fhash.c
 	$(CC) $(CFLAGS) -c $<
 
 stack.o: stack.c
+	$(CC) $(CFLAGS) -c $<
+
+error.o: error.c
 	$(CC) $(CFLAGS) -c $<
 
 .PHONY: clean
