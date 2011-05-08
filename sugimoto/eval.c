@@ -1,13 +1,22 @@
 #include "lisugimoto.h"
 void setarg(cons_t *cell);
+inline cons_t func_eval(cons_t *cell,cons_t result);
+inline cons_t if_eval(cons_t *cell,cons_t result);
+cons_t setq_eval(cons_t *cell,cons_t result);
+cons_t defun_eval(cons_t *cell,cons_t result);
+int a_get(int argcount){
+	//printf("%s=%d", arg_a2[argcount][0], arg_stack[argcount][stack_num - 1]);$
+	return arg_s[argcount][stack_num - 1];
+}
+char *func_name_tmp;
 cons_t sgmt_eval(cons_t *cell)
 {
 	cons_t result = {0, {NULL}, NULL};
 	switch (cell->type) {
 		case START:
-					if(cell->car->type == SYMBOL && cell->car->type != DEFUN && cell->car->type != IF && cell->car->type != SETQ){
-						cell->car->type = FUNC;
-					}
+			if (cell->car->type == SYMBOL) {
+				cell->car->type = FUNC;
+			}
 			result = sgmt_eval(cell->car);
 			break;
 		case INT:
@@ -17,12 +26,11 @@ cons_t sgmt_eval(cons_t *cell)
 			result.type=T;
 		case NIL:
 			result.type=NIL;
-		case FUNC:{
-				cons_t *func_arg_tmp = cell->cdr;
-					a_push(func_arg_tmp);
-					result=sgmt_eval(ftable[hash(cell->symbol)]->oroot);
-					a_pop();
-					}
+		case IF:
+			result = if_eval(cell,result);
+			break;
+		case FUNC:
+			result = func_eval(cell,result);
 			break;
 		case ARG:
 			result.ivalue=a_get(get_arg_count(cell));
@@ -129,72 +137,98 @@ cons_t sgmt_eval(cons_t *cell)
 			if(result.type != NIL)
 				result.type = T;
 			break;
-		case IF:
-			cell=cell->cdr;
-			if(sgmt_eval(cell).type == T){
-				result=sgmt_eval(cell->cdr);
-			} else if(sgmt_eval(cell).type == NIL) {
-				result=sgmt_eval(cell->cdr->cdr);
-			}
-			break;
 		case SETQ:
-				vhash(cell);
-				result.type = SETQ;
-				result.ivalue = vtable[hash(cell->cdr->symbol)]->data;;
+			result = setq_eval(cell,result);
 			break;
 		case SYMBOL:
-					result.ivalue = vtable[hash(cell->symbol)]->data;
+			result.ivalue = vtable[hash(cell->symbol)]->data;
 			break;
-		case DEFUN:{
-				int i = 0;
-				cons_t *tmp = cell;
-				cons_t *tmp_o;
-				result.type = DEFUN;
-				cell = cell->cdr;
-				result.symbol=cell->symbol;
-				cell = cell->cdr;
-				cons_t *tmp_a = cell->car;
-				tmp_o = cell->cdr;
-						while (tmp_a != NULL) {
-					arg_a2[i][0] = tmp_a->symbol;
-					tmp_a = tmp_a->cdr;
-					i++;
-				}
-				setarg(tmp_o);
-				fhash(tmp);
+		case DEFUN:
+			result = defun_eval(cell,result);
 			break;
-						}
 		case END:
 			break;
 	}
+	// printf("%d\n", result.ivalue);
 	return result;
 }
 
+//char *arg_name_tmp = NULL;
 void setarg(cons_t *cell){
 	int i= 0;
 	if (cell == NULL) return;
 	switch (cell->type){
 		case START :
-			if(cell->car->type == SYMBOL && cell->car->type != DEFUN && cell->car->type != IF && cell->car->type != SETQ){
+			if(cell->car->type == SYMBOL){
 				cell->car->type = FUNC;
 			}
 			setarg(cell->car);
 			setarg(cell->cdr);
 			break;
 		case SYMBOL :
-			for(i = 0;i < ARG_SIZE ; i ++ ){
-						if(arg_a2[i][0] != NULL && strncmp(cell->symbol, arg_a2[i][0], sizeof(arg_a2[i][0])) == 0) {
-							cell->type = ARG;
-						printf("argument is %s\n",arg_a2[i][0]);
-						}
-					}
-				setarg(cell->cdr);
-				break;
-		case END :
-				break;
+			for(i = 0;i < argsize ; i ++ ){
+				if(ftable[hash(func_name_tmp)]->arg_name[i] != '\0' && strncmp(cell->symbol, ftable[hash(func_name_tmp)]->arg_name[i], sizeof(cell->symbol)) == 0) {
+					cell->type = ARG;
+					printf("setarg OK !!\n");
+				}
+			}
+			setarg(cell->cdr);
+			break;
 		default:
-				setarg(cell->cdr);
-				break;
+			setarg(cell->cdr);
+			break;
 	}
 }
 
+
+
+cons_t func_eval(cons_t *cell,cons_t result) {
+	count ++;
+	cons_t *func_arg_tmp = cell->cdr;
+	a_push(func_arg_tmp);
+	result=sgmt_eval(ftable[hash(cell->symbol)]->oroot);
+	a_pop();
+	return result;
+}
+
+cons_t if_eval(cons_t *cell,cons_t result){
+	cell=cell->cdr;
+	cons_t tmp = sgmt_eval(cell);
+	if(tmp.type == T){
+		result=sgmt_eval(cell->cdr);
+	} else if(tmp.type == NIL) {
+		result=sgmt_eval(cell->cdr->cdr);
+	}
+	return result;
+}
+
+cons_t setq_eval(cons_t *cell,cons_t result){
+	vhash(cell);
+	result.type = SETQ;
+	result.ivalue = vtable[hash(cell->cdr->symbol)]->data;
+	return result;
+}
+
+int get_arg_count(cons_t *cell){
+	int i = 0;
+	for (i = 0;i < argsize;i ++ ) {
+		if (ftable[hash(func_name_tmp)]->arg_name[i] != '\0' && strncmp(cell->symbol, ftable[hash(func_name_tmp)]->arg_name[i], sizeof(ftable[hash(func_name_tmp)]->arg_name[i])) == 0)
+			return i;
+	}
+	return argsize + 1;
+}
+
+cons_t defun_eval(cons_t *cell,cons_t result){
+	cons_t *tmp = cell;
+	cons_t *tmp_o;
+	result.type = DEFUN;
+	cell = cell->cdr;
+	func_name_tmp = cell->symbol;
+	result.symbol = cell->symbol;
+	cell = cell->cdr;
+	argset(cell->car);
+	tmp_o = cell->cdr;
+	fhash(tmp);
+	setarg(tmp_o);
+	return result;
+}
