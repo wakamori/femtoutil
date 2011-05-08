@@ -93,9 +93,7 @@ int main(int argc, char *argv[])
 
 			free_tree(root);
 			free_token(token);
-			free(input);
 		}
-		clear_history();
 	}
 
 	int d = 0;
@@ -104,7 +102,7 @@ int main(int argc, char *argv[])
 		free(g_fa[d].exp);
 		d++;
 	}
- 
+
 	muntrace();
 	return 0;
 }
