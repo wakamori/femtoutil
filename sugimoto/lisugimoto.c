@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
 			argsize = 0;
 			//parse_tree_free(root);
 		}
+		free(str);
 		//vclear();
 		//fclear();
 	}
