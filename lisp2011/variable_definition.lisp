@@ -10,3 +10,9 @@
 (+ x2 x)
 (setq y (+ 1 2))
 (+ x y)
+(setq fib 36)
+(defun fib(n)(+ 1 1))
+(fib 3);error
+(defun f(fib)(if (< fib 3) 1 (+ (fib(- fib 2)) (fib(- fib 1)))))
+(f 36)
+
