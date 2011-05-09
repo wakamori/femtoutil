@@ -4,13 +4,14 @@
 
 //#define PRINT_INST
 
-extern Code codelist[CODE_MAX];
+extern Code *codelist;
 extern int code_index;
 extern int code_type;
+extern int code_size;
 extern void **g_jtable;
 
 #ifdef PRINT_INST
-static char *inst_names[] = {
+static const char *inst_names[] = {
 		"MOV_V", "MOV_R", "MOV_S", "MOV_FLAG",
 		"ADD", "ADD_V",
 		"SUB", "SUB_V",	"SUB_V_R0", "SUB_V_R1",
@@ -33,8 +34,13 @@ Code *add_code(int inst, int v1, int v2)
 		}
 	}
 
+	if(code_index == code_size){
+		code_size += 1024;
+		codelist = (Code *)realloc(codelist, sizeof(Code) * code_size);
+	}
+	
 #ifdef PRINT_INST
-	printf("%s %d, %d\n", inst_names[inst], v1, v2);
+	printf("%d:%s %d, %d\n", code_index, inst_names[inst], v1, v2);
 #endif
 	Code *c = &codelist[code_index];
 	codelist[code_index].instp = g_jtable[inst];

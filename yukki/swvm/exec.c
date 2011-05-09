@@ -9,9 +9,10 @@
 #define STACK_MAX 1024
 #define CODESTACK_MAX 64
 
-Code codelist[CODE_MAX];
+Code *codelist = NULL;
 int code_index = 0;
 int code_type = 0;
+int code_size = 0;
 void **g_jtable = NULL;
 
 void exec(Code *c_arg){
