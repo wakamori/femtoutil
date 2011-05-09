@@ -1,17 +1,22 @@
 #include "lisp.h"
 #include "memory.h"
 
-#define FILE_MAX (256 * 1024)
+#define FILE_MAX (1024 * 1024)
 
 typedef int (*func_t)();
 
 Module *module;
 static ExecutionEngine *engine;
+FunctionPassManager *TheFPM;
 
 void exec(cons_t *cons)
 {
 	static int count = 0;
 	const Type *type = Type::getInt32Ty(getGlobalContext());
+
+	if(cons->type == TYPE_CAR){
+		cons = cons->v.car;
+	}
 
 	if(cons->type == TYPE_DEFUN){
 		cons = cons->cdr;
@@ -44,7 +49,9 @@ void exec(cons_t *cons)
 
 		Value *ret_v = compile(builder, cons);
 		builder->CreateRet(ret_v);
-
+		
+		verifyFunction(*func);
+		TheFPM->run(*func);
 		// show dump
 		func->dump();
 	}else if(cons->type == TYPE_SETQ){
@@ -61,6 +68,8 @@ void exec(cons_t *cons)
 		Value *ret_v = get_value(builder, cons);
 		builder->CreateRet(ret_v);
 
+		verifyFunction(*func);
+		TheFPM->run(*func);
 		// exec
 		func_t f = (func_t)engine->getPointerToFunction(func);
 		int r = (*f)();	
@@ -83,6 +92,8 @@ void exec(cons_t *cons)
 		Value *v = compile(builder, cons);
 		builder->CreateRet(v);
 
+		verifyFunction(*func);
+		TheFPM->run(*func);
 		// show dump
 		func->dump();
 
@@ -131,7 +142,6 @@ void open_file(char *name){
 	exe_lisp(buffer);
 	free(buffer);
 }
-
 int main(int argc, char *argv[]){
 	char input[256];
 	int i;
@@ -140,7 +150,17 @@ int main(int argc, char *argv[]){
 	InitializeNativeTarget();
 	module = new Module("lllvm_module", getGlobalContext());
 	engine = EngineBuilder(module).setEngineKind(EngineKind::JIT).create();
+    FunctionPassManager OurFPM(module);
+    OurFPM.add(new TargetData(*engine->getTargetData()));
+    OurFPM.add(createBasicAliasAnalysisPass());
+    OurFPM.add(createInstructionCombiningPass());
+    OurFPM.add(createReassociatePass());
+    OurFPM.add(createGVNPass());
+    OurFPM.add(createCFGSimplificationPass());
+    OurFPM.doInitialization();
 
+    TheFPM  = &OurFPM;
+ 
 	puts("WELCOME TO LOW(Lisp Of Wakamatsu) VM Version !!");
 
 	for(i=1; i<argc; i++){

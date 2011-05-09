@@ -11,8 +11,7 @@ OBJS = \
 	stack.o\
 	error.o
 CC = gcc
-#CFLAGS =  -g0 -Wall -O2
-CFLAGS =  -g3 -Wall -O0
+CFLAGS =  -g3 -Wall 
 LDLIBS = -lreadline
 
 .PHONY: all

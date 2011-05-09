@@ -37,8 +37,10 @@ void open_file(char *name){
 	exe_lisp(buffer);
 	free(buffer);
 }
-
+#include "mcheck.h"
 int main(int argc, char *argv[]){
+	mtrace();
+	
 	char input[256];
 	int i;
 	puts("WELCOME TO LOW(Lisp Of Wakamatsu) VM Version !!");

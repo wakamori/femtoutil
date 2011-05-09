@@ -1,9 +1,7 @@
-#include <string.h>
 #include <ctype.h>
 #include "lisp.h"
 #include "memory.h"
-
-static int depth = 0;
+#include "inst.h"
 
 int next_token(Token *token){
 	char *in = token->input;
@@ -35,34 +33,28 @@ int next_token(Token *token){
 		}
 		*s = '\0';
 	}else{
-		token->type = TOKEN_OPERATE;
 		int v = *in++;
+		token->type = TOKEN_OPERATE;
 		switch(v){
-		case '+': token->num = OP_ADD; break;
-		case '-': token->num = OP_SUB; break;
-		case '*': token->num = OP_MUL; break;
-		case '/': token->num = OP_DIV; break;
-		case '%': token->num = OP_MOD; break;
-		case '=':
-			token->type = TOKEN_COMPARE;
-			token->num = OP_EQ;
-			break;
+		case '+': token->num = TYPE_ADD; break;
+		case '-': token->num = TYPE_SUB; break;
+		case '*': token->num = TYPE_MUL; break;
+		case '/': token->num = TYPE_DIV; break;
+		case '=': token->num = TYPE_EQ; break;
 		case '<':
-			token->type = TOKEN_COMPARE;
 			if(*in == '='){
 				in++;
-				token->num = OP_LE;
+				token->num = TYPE_LE;
 			}else{
-				token->num = OP_LT;
+				token->num = TYPE_LT;
 			}
 			break;
 		case '>':
-			token->type = TOKEN_COMPARE;
 			if(*in == '='){
 				in++;
-				token->num = OP_GE;
+				token->num = TYPE_GE;
 			}else{
-				token->num = OP_GT;
+				token->num = TYPE_GT;
 			}
 			break;
 		case '(':
@@ -101,9 +93,11 @@ cons_t *add_list(cons_t *l, int type, consvalue_t v){
 }
 
 
-cons_t *create_list(Token *token){
+cons_t *create_list(Token *token)
+{
 	cons_t *list = NULL;
 	consvalue_t value;
+	value.i = 0;
 
 	while(next_token(token)){
 		switch(token->type){
@@ -138,13 +132,7 @@ cons_t *create_list(Token *token){
 			break;
 
 		case TOKEN_OPERATE:
-			value.i = token->num;
-			list = add_list(list, TYPE_OPERATE, value);
-			break;
-
-		case TOKEN_COMPARE:
-			value.i = token->num;
-			list = add_list(list, TYPE_COMPARE, value);
+			list = add_list(list, token->num, value);
 			break;
 
 		case TOKEN_BRACE_CLOSE:
@@ -157,5 +145,17 @@ cons_t *create_list(Token *token){
 	}
 end:
 	return list;
+}
+
+void free_cons(cons_t *c)
+{
+	if(c != NULL){
+		if(c->type == TYPE_CAR){
+			free_cons(c->v.car);
+		}
+		if(c->type != TYPE_STR){
+			low_free(c);
+		}
+	}
 }
 

@@ -179,9 +179,9 @@ void compile(cons_t *c){
 		}
 		break;
 
-
 	default:
 		printf("error type %d\n", c->type);
 	}
+	//low_free(c, 0);
 }
 

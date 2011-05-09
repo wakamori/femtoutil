@@ -16,7 +16,6 @@ Value *get_value(IRBuilder<> *builder, cons_t *cons)
 		const Type *t = Type::getInt1Ty(getGlobalContext());
 		return ConstantInt::get(t, 0);
 	}else if(cons->type == TYPE_STR){
-		//printf("%s\n", cons->v.str);
 		// local variable ?
 		Function *func = builder->GetInsertBlock()->getParent();
 		int i = 0;

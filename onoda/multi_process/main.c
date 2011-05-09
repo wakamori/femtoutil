@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 			int answer;
 			answer = eval(root);
 
-			printf("answer = %d\n", answer);
+			printf("%d\n", answer);
 
 			free_tree(root);
 			free_token(token);
@@ -74,9 +74,12 @@ int main(int argc, char *argv[])
 
 //			printf("readline\n%s\n", input);
 
-			if (strncmp(input,"quit", sizeof("quit")) == 0 ||
+
+			if (strncmp(input, "quit", sizeof("quit")) == 0 ||
 					strncmp(input, "exit", sizeof("exit")) == 0) {
 				break;
+			} else if (strcmp(input, "") == 0) {
+				continue;
 			}
 
 			token = tokenizer(input);
@@ -93,9 +96,7 @@ int main(int argc, char *argv[])
 
 			free_tree(root);
 			free_token(token);
-			free(input);
 		}
-		clear_history();
 	}
 
 	int d = 0;
@@ -104,7 +105,7 @@ int main(int argc, char *argv[])
 		free(g_fa[d].exp);
 		d++;
 	}
- 
+
 	muntrace();
 	return 0;
 }
