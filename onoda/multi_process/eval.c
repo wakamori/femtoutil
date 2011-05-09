@@ -92,13 +92,14 @@ void find_arg(cons_t *root, cons_t *arg_name)
 	}
 }
 
-void set_arg(cons_t *arg_value,int layer)
+void set_arg(cons_t *arg_value,int layer, int arg_num)
 {
-	int arg_number = 0;
-	while (arg_value != NULL) {
-		g_arga[layer + 1][arg_number] = get_value(arg_value);
-		arg_number++;
-		arg_value = arg_value->cdr;
+	int ans;
+	if (arg_value != NULL) {
+		ans = get_value(arg_value);
+		arg_num++;
+		set_arg(arg_value->cdr, layer, arg_num);
+		g_arga[layer + 1][arg_num - 1] = ans;
 	}
 }
 
@@ -363,27 +364,18 @@ int lfunc(cons_t *next)
 		return 0;
 	} else {	
 		next = next->cdr;
-		set_arg(next, g_argl);
+		set_arg(next, g_argl, 0);
 
 		int rec = g_fa[fc].rec_num;
-		if (rec >= 2) {
 
 			g_argl++;
 
-			rec_cal(fc);
-			now->result = eval(g_fa[fc].exp);
-
-
-
-			g_argl--;
-
-		} else {
-			g_argl++;
-
+			if (rec >= 2) {
+				rec_cal(fc);
+			}
 			now->result = eval(g_fa[fc].exp);
 
 			g_argl--;
-		}	
 
 		return now->result;
 	}
@@ -394,7 +386,7 @@ int rfunc(cons_t *next)
 	cons_t *now;
 	now = next;
 	next = next->cdr;
-	set_arg(next, g_argl);
+	set_arg(next, g_argl, 0);
 
 	g_argl++;
 
