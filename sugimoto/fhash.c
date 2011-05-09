@@ -1,31 +1,40 @@
 #include"lisugimoto.h"
-void f_add(int key,cons_t *aroot,cons_t *oroot);
+void f_add(int key,cons_t *argcell,cons_t *oroot);
 void clear2(void);
 
 /*------Function Hash-------*/
 void fhash(cons_t *cell){
 	char *fname;
-	cons_t *aroot;
 	cons_t *oroot;
-	fname=cell->cdr->symbol;
-	aroot = cell->cdr->cdr->car;
-	oroot = cell->cdr->cdr->cdr;
-	f_add(hash(fname),aroot,oroot);
+	cell = cell->cdr;
+	fname = cell->symbol;
+	cell = cell->cdr;
+	oroot = cell->cdr;
+	f_add(hash(fname),cell->car,oroot);
 }
 /*-----Add Function Data------*/
-void f_add(int key, cons_t *aroot,cons_t *oroot)
+void f_add(int key, cons_t *argcell,cons_t *oroot)
 {
-	struct flist *p;
+	int i = 0;
+	struct flist *p = NULL;
 	if (search(key) != NULL) {
 		p = ftable[key];
-		p->aroot = aroot;
+		for(i = 0;i < argsize;i ++){
+		p->arg_name[i] = argcell->symbol;
+		argcell = argcell->cdr;
+		}
 		p->oroot = oroot;
 	}
 	else{
-		p =malloc(sizeof(struct flist));
-		p->key = key;
-		p->aroot = aroot;
+		p =malloc(sizeof(struct flist)+argsize);
+		p->arg_name = (char **)malloc(argsize);
+		for(i = 0;i < argsize ;i ++){
+		p->arg_name[i] = (char *)malloc(sizeof(argcell->symbol));
+		p->arg_name[i] = argcell->symbol;
+		argcell = argcell->cdr;
+		}
 		p->oroot = oroot;
+		p->key = key;
 		p->next =ftable[key];
 		ftable[key] = p;
 	}
@@ -38,12 +47,12 @@ void clear2(void)
 	int i;
 	for( i=0; i<T_SIZE; ++i )
 	{
-	  p = ftable[i];
-	  while( p != NULL ){
-		  q = p;
-		  p = p->next;
-		  free( q );
-	  }
-	  ftable[i] = NULL;
-  }
+	p = ftable[i];
+	while( p != NULL ){
+		q = p;
+		p = p->next;
+		free( q );
+	}
+	ftable[i] = NULL;
+	}
 }

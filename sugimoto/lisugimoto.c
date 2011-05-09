@@ -1,7 +1,9 @@
 #include "lisugimoto.h"
 
+//int count = 0;
 int main(int argc, char *argv[])
 {
+	count =0;
 	const char *prompt = ">>> ";
 	const char *quit = "(quit)";
 	char *line = NULL;
@@ -15,10 +17,12 @@ int main(int argc, char *argv[])
 			return 0;
 			}
 			int pos = 0;
+			if (sgmt_error(line, &pos) != 1){
 			root = sgmt_read(line, &pos);
 			dump(root,0);
 			result = sgmt_eval(root);
 			sgmt_print(&result);
+		}
 		}
 		clear_history();
 	} else {
@@ -30,10 +34,13 @@ int main(int argc, char *argv[])
 			str[strlen(str) - 1] = '\0';
 			line=str;
 			int pos = 0;
+			if (sgmt_error(line,&pos) != 1){
 			root = sgmt_read(line, &pos);
 			dump(root,0);
 			result = sgmt_eval(root);
 			sgmt_print(&result);
+			printf("number of calling function %d\n",count);
+		}
 		}
 	}
 	return 0;

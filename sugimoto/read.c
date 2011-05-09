@@ -1,6 +1,6 @@
 #include "lisugimoto.h"
 void p_indent(char *ope,int depth);
-void set_symbol(char *line, int *pos,cons_t *cell);
+inline void set_symbol(char *line, int *pos,cons_t *cell);
 cons_t *sgmt_read(char *line, int *pos)
 {
 	cons_t *cell = NULL;
@@ -79,27 +79,37 @@ cons_t *sgmt_read(char *line, int *pos)
 			break;
 			//----------Parse'if'-------------
 		case 'i':
-			if(line[*pos+1] == 'f'){
+			if(line[*pos+1] == 'f' && line[*pos + 2] == ' '){
 				cell->type=IF;
-				(*pos)++;
+				(*pos) = (*pos) + 2;
 			}
 			else{
 				set_symbol(line,pos,cell);
 			}
 			break;
 		case 'T':
+			if(line[*pos + 1] == ' '){
 			cell->type=T;
+			(*pos) ++;
+			}
+			else {
+				set_symbol(line,pos,cell);
+			}
 			break;
 		case 'N':
-			if(line[*pos+1]=='I' && line[*pos+2]=='L')
+			if(line[*pos+1] == 'I' && line[*pos+2] == 'L' && line[*pos +3] == ' ') {
 				cell->type=NIL;
-			(*pos)=(*pos)+2;
+			(*pos)=(*pos) + 3;
+			}
+			else{
+				set_symbol(line,pos,cell);
+			}
 			break;
 			//-----------Parse'setq'-----------
 		case 's':
-			if(line[*pos+1]=='e' && line[*pos+2]=='t' && line[*pos+3]=='q'){
+			if(line[*pos+1] == 'e' && line[*pos+2] == 't' && line[*pos+3] == 'q' && line[*pos + 4] == ' '){
 				cell->type=SETQ;
-				(*pos)=(*pos)+3;
+				(*pos)=(*pos) + 4;
 			}
 			else{
 				set_symbol(line,pos,cell);
@@ -107,9 +117,9 @@ cons_t *sgmt_read(char *line, int *pos)
 			break;
 			//------------Parse'defun'---------
 		case'd':{
-				if(line[*pos+1]=='e' && line[*pos+2]=='f' && line[*pos+3]=='u' && line[*pos+4]=='n'){
+				if(line[*pos + 1] == 'e' && line[*pos + 2] == 'f' && line[*pos + 3] == 'u' && line[*pos + 4] == 'n' && line[*pos + 5] == ' '){
 					cell->type=DEFUN;
-					(*pos)=(*pos)+4;
+					(*pos)=(*pos) + 5;
 				}
 				else{
 					set_symbol(line,pos,cell);
@@ -207,9 +217,9 @@ void dump(cons_t *cell,int depth){
 }
 
 
-void error(){
-	printf("parsing error !!\n");
-}
+//void error(){
+//	printf("parsing error !!\n");
+//}
 
 void p_indent(char *ope,int depth){
 	int i;
