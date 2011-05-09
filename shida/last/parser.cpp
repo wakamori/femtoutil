@@ -29,7 +29,7 @@ int GetTok (void)
     if (*CurrentChar == '\0' || *CurrentChar == '\n'){
         return tok_eof;
     }
-    while (isspace(*CurrentChar)){
+    while (isspace(*CurrentChar) || *CurrentChar == ','){
         CurrentChar++;
     }
     if (isdigit(*CurrentChar) || (*CurrentChar == '-' && isdigit(*(CurrentChar + 1)))){
@@ -42,7 +42,7 @@ int GetTok (void)
             CurrentChar++;
         }
         TokNum *= ALT;
-        if ((*CurrentChar) != '(' && (*CurrentChar) != ')' && (*CurrentChar) != ' ' && (*CurrentChar) != '\n'){
+        if ((*CurrentChar) != '(' && (*CurrentChar) != ')' && (*CurrentChar) != ' ' && (*CurrentChar) != '\n' && *CurrentChar != ','){
             ERROR
         } else {
             return tok_number;
@@ -86,7 +86,7 @@ int GetTok (void)
         } else if (strcmp(TokStr,"nil") == 0){
             return tok_nil;
         }
-        if (*CurrentChar != '(' && *CurrentChar != ')' && *CurrentChar != ' ' && (*CurrentChar) != '\n'){
+        if (*CurrentChar != '(' && *CurrentChar != ')' && *CurrentChar != ' ' && (*CurrentChar) != '\n' && *CurrentChar != ','){
             ERROR
         } else {
             return tok_str;
@@ -340,7 +340,7 @@ AST* ParseOperation (int Tok,AST* pRHS)
         //printf("plus ");
         getNextToken(); // eat operator
         OpType = CurTok;
-        if (CurTok == tok_str && (*CurrentChar == ' ' || *CurrentChar == ')')){
+        if (CurTok == tok_str && (*CurrentChar == ' ' || *CurrentChar == ')' || *CurrentChar == ',')){
             p = searchF(TokStr);
             if (p != NULL){
                 ArgCount[ArgIndex] = 0;

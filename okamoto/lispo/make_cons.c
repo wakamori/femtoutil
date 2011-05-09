@@ -31,9 +31,21 @@ void make_cons(cons_t* p, FILE* fp)
 	while(b_counter != 0){ 
 		if(b_counter == -1)
 			b_counter++;
-		if(line[i] == space || line[i] == LF){
+		if(line[i] == '\0'){
+			if(fp != NULL){
+				if((fgets(line1, 100, fp)) == NULL)
+					exit(0);
+				line = strndup(line1, strlen(line1));
+			}
+			else{
+				line = readline("    ");
+				i = 0;
+			}
+			continue;
+		}
+		else if(line[i] == SPACE){
 			if(minus_flag == 1){
-				p->type = sub;
+				p->type = SUB;
 				cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 				p->cdr = temp;
 				p = temp;
@@ -44,8 +56,8 @@ void make_cons(cons_t* p, FILE* fp)
 			i++;
 			continue;
 		}
-		else if(line[i] == s_bracket){
-			p->type = s_bracket;
+		else if(line[i] == S_BRACKET){
+			p->type = S_BRACKET;
 			b_counter++;
 			
 			s_b_stack* s_b_s_temp = (s_b_stack*)malloc(sizeof(s_b_stack));
@@ -59,7 +71,11 @@ void make_cons(cons_t* p, FILE* fp)
 			i++;
 			continue;
 		}
-		else if(line[i] == e_bracket){
+		else if(line[i] == E_BRACKET){
+			if(b_counter == 0){
+				printf("syntax error!!\n");
+				exit(0);
+			}
 			if(e_b_flag == 1){
 				line_temp = &line[i + 1];
 				line[i] = '\0';
@@ -68,17 +84,17 @@ void make_cons(cons_t* p, FILE* fp)
 				if(strncmp(p->value, "if", 2) == 0)
 					p->type = IF;
 				else if(strncmp(p->value, "defun", 5) == 0)
-					p->type = def;
+					p->type = DEF;
 				else if(strncmp(p->value, "setq", 4) == 0)
-					p->type = setq;
+					p->type = SETQ;
 				else
-					p->type = string;
+					p->type = STRING;
 				line = line_temp;
 				cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 				p->cdr = temp;
 				p = temp;
 			}
-			p->type = e_bracket;
+			p->type = E_BRACKET;
 			b_counter--;
 			
 			if(b_counter == 0)
@@ -93,8 +109,12 @@ void make_cons(cons_t* p, FILE* fp)
 			e_b_flag = 0;
 			continue;
 		}
-		else if(line[i] == add){
-			p->type = add;
+		else if(line[i] == ADD){
+			if(b_counter == 0){
+				printf("syntax error!!\n");
+				exit(0);
+			}
+			p->type = ADD;
 			
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
@@ -102,12 +122,20 @@ void make_cons(cons_t* p, FILE* fp)
 			i++;
 			continue;
 		}
-		else if(line[i] == sub){
+		else if(line[i] == SUB){
+			if(b_counter == 0){
+				printf("syntax error!!\n");
+				exit(0);
+			}
 			minus_flag = 1;
 			i++;
 			}
-		else if(line[i] == mult){
-			p->type = mult;
+		else if(line[i] == MULT){
+			if(b_counter == 0){
+				printf("syntax error!!\n");
+				exit(0);
+			}
+			p->type = MULT;
 			
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
@@ -115,8 +143,12 @@ void make_cons(cons_t* p, FILE* fp)
 			i++;
 			continue;
 		}
-		else if(line[i] == dev){
-			p->type = dev;
+		else if(line[i] == DEV){
+			if(b_counter == 0){
+				printf("syntax error!!\n");
+				exit(0);
+			}
+			p->type = DEV;
 			
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
@@ -124,8 +156,12 @@ void make_cons(cons_t* p, FILE* fp)
 			i++;
 			continue;
 		}
-		else if(line[i] == l_than){
-			p->type = l_than;
+		else if(line[i] == L_THAN){
+			if(b_counter == 0){
+				printf("syntax error!!\n");
+				exit(0);
+			}
+			p->type = L_THAN;
 			
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
@@ -133,8 +169,12 @@ void make_cons(cons_t* p, FILE* fp)
 			i++;
 			continue;
 		}
-		else if(line[i] == m_than){
-			p->type = m_than;
+		else if(line[i] == M_THAN){
+			if(b_counter == 0){
+				printf("syntax error!!\n");
+				exit(0);
+			}
+			p->type = M_THAN;
 			
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
@@ -143,6 +183,10 @@ void make_cons(cons_t* p, FILE* fp)
 			continue;
 		}
 		else if('0' <= line[i] && line[i] <= '9'){
+				if(b_counter == 0){
+				printf("syntax error!!\n");
+				exit(0);
+			}
 			while('0' <= line[i] && line[i] <= '9'){
 				if(minus_flag == 1)
 					x = x * 10 - decode(line[i]);
@@ -151,7 +195,7 @@ void make_cons(cons_t* p, FILE* fp)
 				i++;
 			}
 			
-			p->type = number; 
+			p->type = NUMBER; 
 			p->ivalue = x;
 			x = 0;
 
@@ -161,26 +205,30 @@ void make_cons(cons_t* p, FILE* fp)
 			continue;
 		}
 		else{
+			if(b_counter == 0){
+				printf("syntax error!!\n");
+				exit(0);
+			}
 			line = &line[i];
 			i = 0;
-			while(line[i] != space && line[i] != e_bracket)
+			while(line[i] != SPACE && line[i] != COMMA && line[i] != E_BRACKET)
 				i++;
-			if(line[i] == space){
+			if(line[i] == SPACE || line[i] == COMMA){
 				line_temp = &line[i + 1];
 				line[i] = '\0';
 				p->value = line;
 				if(strncmp(p->value, "if", 2) == 0)
 					p->type = IF;
 				else if(strncmp(p->value, "defun", 5) == 0)
-					p->type = def;
+					p->type = DEF;
 				else if(strncmp(p->value, "setq", 4) == 0)
-					p->type = setq;
+					p->type = SETQ;
 				else
-					p->type = string;
+					p->type = STRING;
 				line = line_temp;
 				i = 0;
 			}
-			else if(line[i] == e_bracket){
+			else if(line[i] == E_BRACKET){
 				e_b_flag = 1;
 				continue;
 			}	
