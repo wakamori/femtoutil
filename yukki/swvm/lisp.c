@@ -10,6 +10,7 @@ extern int code_type;
 extern Code *codelist;
 extern int code_index;
 extern int code_size;
+int print_inst = 0;
 
 void exe_lisp(char *input){
 	Token token;
@@ -90,8 +91,11 @@ int main(int argc, char *argv[]){
 	codelist = (Code *)malloc(sizeof(Code) * code_size);
 	// read file
 	for(i=1; i<argc; i++){
-		open_file(argv[i]);
-		return 0;
+		if(strcmp(argv[i], "-i") == 0) print_inst = 1;
+		else{
+			open_file(argv[i]);
+			return 0;
+		}
 	}
 	// interactive mode
 	while(1){

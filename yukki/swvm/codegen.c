@@ -9,8 +9,8 @@ extern int code_index;
 extern int code_type;
 extern int code_size;
 extern void **g_jtable;
+extern int print_inst;
 
-#ifdef PRINT_INST
 static const char *inst_names[] = {
 		"MOV_V", "MOV_R", "MOV_S", "MOV_FLAG",
 		"ADD", "ADD_V",
@@ -22,7 +22,6 @@ static const char *inst_names[] = {
 		"CMP", "JMP", "PUSH", "POP", "CALL", "RET",
 		"PRINT_I", "PRINT_TNIL", "END"
 };
-#endif
 
 Code *add_code(int inst, int v1, int v2)
 {
@@ -38,10 +37,9 @@ Code *add_code(int inst, int v1, int v2)
 		code_size += 1024;
 		codelist = (Code *)realloc(codelist, sizeof(Code) * code_size);
 	}
-	
-#ifdef PRINT_INST
-	printf("%d:%s %d, %d\n", code_index, inst_names[inst], v1, v2);
-#endif
+	if(print_inst){
+		printf("%d:%s %d, %d\n", code_index, inst_names[inst], v1, v2);
+	}
 	Code *c = &codelist[code_index];
 	codelist[code_index].instp = g_jtable[inst];
 	codelist[code_index].op0 = v1;

@@ -43,8 +43,8 @@ void exec(Code *c_arg){
 	static Code *codestack[CODESTACK_MAX] = {0};
 	register Code *c = c_arg;
 	register int *stackptr = stack + STACK_MAX;
-	register Code **codeptr = codestack;
 	int reg[REG_MAX] = {0};
+	register Code **codeptr = codestack;
 	int flag = 0;
 
 	goto *c->instp;
