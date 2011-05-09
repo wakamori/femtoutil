@@ -74,9 +74,12 @@ int main(int argc, char *argv[])
 
 //			printf("readline\n%s\n", input);
 
-			if (strncmp(input,"quit", sizeof("quit")) == 0 ||
+
+			if (strncmp(input, "quit", sizeof("quit")) == 0 ||
 					strncmp(input, "exit", sizeof("exit")) == 0) {
 				break;
+			} else if (strcmp(input, "") == 0) {
+				continue;
 			}
 
 			token = tokenizer(input);

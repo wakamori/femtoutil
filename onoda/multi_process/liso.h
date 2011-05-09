@@ -51,12 +51,11 @@ func g_fa[FUNC_SIZE];
 int g_arga[LAYER][ARG_SIZE];
 int g_argl;
 
-void findfunc(cons_t *root, char *key, int count);
-void findarg(cons_t *root, cons_t *arg_name);
-void clean(cons_t *root, int layer);
-int getvalue(cons_t *next);
-int getmap(char *key);
-int getfunc(char *key);
+void find_func(cons_t *root, char *key, int count);
+void find_arg(cons_t *root, cons_t *arg_name);
+int get_value(cons_t *next);
+int get_map(char *key);
+int get_func(char *key);
 int eval(cons_t *root);
 char **tokenizer(char *line);
 void dump_token(char **token);
