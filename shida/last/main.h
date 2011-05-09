@@ -1,7 +1,7 @@
 #ifndef MAIN
 #define MAIN
 #define STACKSIZE 1000
-#define INSTSIZE 30000
+#define INSTSIZE 100000
 
 
 enum TokType {  tok_number, tok_plus, tok_minus, tok_mul, tok_div, tok_gt, tok_gte, tok_lt, tok_lte, tok_eq, tok_if, tok_defun, tok_str, tok_eof, tok_setq, tok_valiable, tok_func, tok_arg, tok_open, tok_close, tok_error, tok_nil, tok_T };
