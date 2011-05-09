@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 typedef enum cons_type {L_K, R_K, ADD, SUB, MUL, DEV, STR, INT, ROOT, IF, EQU,\
