@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 			int answer;
 			answer = eval(root);
 
-			printf("answer = %d\n", answer);
+			printf("%d\n", answer);
 
 			free_tree(root);
 			free_token(token);
