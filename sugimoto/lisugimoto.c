@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 		fseek(fp,0,SEEK_END);
 		c_len = ftell(fp);
 		fseek(fp,0,SEEK_SET);
-		printf("The number of letter = %d\n",c_len);
+		//printf("The number of letter = %d\n",c_len);
 		str = (char *)malloc(c_len + 1);
 		if (str == NULL)
 			return 0;

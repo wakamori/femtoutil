@@ -3,21 +3,21 @@
 void sgmt_print(cons_t *result)
 {
 	switch(result->type){
-		case T:
+		/*case T:
 			printf("T");
-			break;
-		case NIL:
+			break;*/
+		/*case NIL:
 			printf("NIL");
-			break;
+			break;*/
 		case INT:
 			printf("%d",result->ivalue);
 			break;
-		case SETQ:
+		/*case SETQ:
 			printf("%d",result->ivalue);
-			break;
-		case DEFUN:
+			break;*/
+		/*case DEFUN:
 			printf("%s",result->symbol);
-			break;
+			break;*/
 	}
 	printf("\n");
 }

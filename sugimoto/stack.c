@@ -8,7 +8,7 @@ void argset(cons_t *cell){
 		argsize ++;
 		tmp = tmp->cdr;
 	}
-	printf ("argsize = %d\n",argsize);
+	//printf ("argsize = %d\n",argsize);
 	arg_s = (int **)malloc(sizeof(int*)*argsize);
 	for(i = 0;i<argsize ;i ++ ){
 		arg_s[i] = (int *)malloc(sizeof(int)*AS_SIZE);
