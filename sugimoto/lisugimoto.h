@@ -26,8 +26,8 @@
 #define END 5  // )
 #define T 6
 #define NIL 7
-#define T_SIZE 50 //Size of Table
-#define AS_SIZE 256
+#define T_SIZE 128 //Size of Table
+#define AS_SIZE 128
 #define ARG 111
 int count ;
 /*----Parsing Cons Cell----*/
@@ -52,6 +52,7 @@ struct vlist *vtable[T_SIZE];
 struct flist{
 	int key;
 	char **arg_name;
+	int argsize;
 	cons_t *oroot;
 	struct flist *next;
 };
@@ -71,11 +72,11 @@ void dump(cons_t *root,int depth);
 void vhash(cons_t *cell);
 void v_add(int key,int data);
 void fhash(cons_t *cell);
-//void ahash(cons_t *cell,char *fname);
 void argset(cons_t *cell);
 void a_push(cons_t *cell);
 void a_pop();
 int a_get(int argcount);
 int get_arg_count(cons_t *cell);
 int main (int argc ,char *argv[]);
-
+void vclear(void);
+void fclear(void);
