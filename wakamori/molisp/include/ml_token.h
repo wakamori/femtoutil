@@ -1,7 +1,0 @@
-#define TK_BRACKET_OPEN		'('
-#define TK_BRACKET_CLOSE	')'
-#define TK_ADD	'+'
-#define TK_SUB	'-'
-#define TK_MUL	'*'
-#define TK_DIV	'/'
-#define TK_LF	'\n'

@@ -1,5 +1,15 @@
 #include <assert.h>
-#define DBG1(str) \
-	fprintf(stderr, "[%s:%d]\n" str "\n", __FILE__, __LINE__)
-#define DBG2(fmt, ...) \
-	fprintf(stderr, "[%s:%d]\n" fmt "\n", __FILE__, __LINE__, __VA_ARGS__)
+
+#define ml_print(...)\
+	fprintf(stderr, __VA_ARGS__)
+
+#ifdef MODE_DEBUG
+#define DBG(...)\
+	do {\
+	ml_print("[%s:%d]\n", __FILE__, __LINE__);\
+	ml_print(__VA_ARGS__);\
+	ml_print("\n");\
+	} while (0)
+#else
+#define DBG(...)
+#endif
