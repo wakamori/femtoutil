@@ -11,16 +11,18 @@ void argset(cons_t *cell){
 	printf ("argsize = %d\n",argsize);
 	arg_s = (int **)malloc(sizeof(int*)*argsize);
 	for(i = 0;i<argsize ;i ++ ){
-		arg_s[i]=(int *)malloc(sizeof(int)*AS_SIZE);
+		arg_s[i] = (int *)malloc(sizeof(int)*AS_SIZE);
 	}
 }
 
 void a_push(cons_t *cell){
 	int i;
-	for(i = 0; i < argsize ;i ++){
+	int arg_tmp = ftable[hash(cell->symbol)]->argsize;
+	cell = cell->cdr;
+	for(i = 0; i < arg_tmp;i ++){
 		arg_s[i][stack_num] = sgmt_eval(cell).ivalue;
 		cell = cell->cdr;
-		}
+	}
 	stack_num ++;
 }
 

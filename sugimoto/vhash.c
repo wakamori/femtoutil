@@ -1,6 +1,5 @@
 #include"lisugimoto.h"
 void add(int key,int data);
-void clear(void);
 
 void vhash(cons_t *cell){
 				char *vname;
@@ -48,7 +47,7 @@ int *search(int key)
 	return NULL;
 }
 /*-------Clear Hash Table----*/
-void clear(void)
+void vclear(void)
 {
 	struct vlist *p;
 	struct vlist *q;

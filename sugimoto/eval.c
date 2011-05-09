@@ -4,10 +4,6 @@ inline cons_t func_eval(cons_t *cell,cons_t result);
 inline cons_t if_eval(cons_t *cell,cons_t result);
 cons_t setq_eval(cons_t *cell,cons_t result);
 cons_t defun_eval(cons_t *cell,cons_t result);
-int a_get(int argcount){
-	//printf("%s=%d", arg_a2[argcount][0], arg_stack[argcount][stack_num - 1]);$
-	return arg_s[argcount][stack_num - 1];
-}
 char *func_name_tmp;
 cons_t sgmt_eval(cons_t *cell)
 {
@@ -32,9 +28,19 @@ cons_t sgmt_eval(cons_t *cell)
 		case FUNC:
 			result = func_eval(cell,result);
 			break;
-		case ARG:
-			result.ivalue=a_get(get_arg_count(cell));
+		case ARG:{
+			//printf("cell->symbol = %s\n",cell->symbol);
+			//printf("ftable[hash(func_name_tmp)]->arg_name[0] = %s\n",ftable[hash(func_name_tmp)]->arg_name[0]);
+			int i = 0;
+			int tmp_arg = ftable[hash(func_name_tmp)]->argsize ;
+			for(i = 0;i  < tmp_arg ;i ++) {
+			if (ftable[hash(func_name_tmp)]->arg_name[i] != '\0' && strncmp(cell->symbol, ftable[hash(func_name_tmp)]->arg_name[i], sizeof(cell->symbol)) == 0){
+				//printf("Comparing is OK \n");
+			result.ivalue=arg_s[i][stack_num - 1];
+			}
+			}
 			break;
+			}
 		case PLUS:
 			while (cell->cdr != NULL) {
 				result.ivalue += sgmt_eval(cell->cdr).ivalue;
@@ -149,11 +155,9 @@ cons_t sgmt_eval(cons_t *cell)
 		case END:
 			break;
 	}
-	// printf("%d\n", result.ivalue);
 	return result;
 }
 
-//char *arg_name_tmp = NULL;
 void setarg(cons_t *cell){
 	int i= 0;
 	if (cell == NULL) return;
@@ -169,7 +173,7 @@ void setarg(cons_t *cell){
 			for(i = 0;i < argsize ; i ++ ){
 				if(ftable[hash(func_name_tmp)]->arg_name[i] != '\0' && strncmp(cell->symbol, ftable[hash(func_name_tmp)]->arg_name[i], sizeof(cell->symbol)) == 0) {
 					cell->type = ARG;
-					printf("setarg OK !!\n");
+					//printf("setarg OK !!\n");
 				}
 			}
 			setarg(cell->cdr);
@@ -184,7 +188,8 @@ void setarg(cons_t *cell){
 
 cons_t func_eval(cons_t *cell,cons_t result) {
 	count ++;
-	cons_t *func_arg_tmp = cell->cdr;
+	cons_t *func_arg_tmp = cell;
+	func_name_tmp = cell->symbol;
 	a_push(func_arg_tmp);
 	result=sgmt_eval(ftable[hash(cell->symbol)]->oroot);
 	a_pop();
@@ -207,15 +212,6 @@ cons_t setq_eval(cons_t *cell,cons_t result){
 	result.type = SETQ;
 	result.ivalue = vtable[hash(cell->cdr->symbol)]->data;
 	return result;
-}
-
-int get_arg_count(cons_t *cell){
-	int i = 0;
-	for (i = 0;i < argsize;i ++ ) {
-		if (ftable[hash(func_name_tmp)]->arg_name[i] != '\0' && strncmp(cell->symbol, ftable[hash(func_name_tmp)]->arg_name[i], sizeof(ftable[hash(func_name_tmp)]->arg_name[i])) == 0)
-			return i;
-	}
-	return argsize + 1;
 }
 
 cons_t defun_eval(cons_t *cell,cons_t result){

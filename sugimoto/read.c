@@ -5,12 +5,14 @@ cons_t *sgmt_read(char *line, int *pos)
 {
 	cons_t *cell = NULL;
 	//-----------check space------------
-	while(line[*pos]==' '){
+	while(line[*pos] == ' ' || line[*pos] == ','){
 		(*pos)++;
 	}
 	//-----------check parse end--------
 	if(line[*pos]=='\0' || line[*pos]==')') return NULL;
 	cell =(cons_t *)malloc(sizeof(cons_t));
+	if(cell == NULL)
+		return NULL;
 	switch (line[*pos]) {
 		//-----------parse'('---------------
 		case '(':
@@ -206,6 +208,10 @@ void dump(cons_t *cell,int depth){
 			dump(cell->cdr,depth+1);
 			p_indent(cell->symbol,depth);
 			break;
+		case ARG:
+			dump(cell->cdr,depth+1);
+			p_indent("ARG",depth);
+			break;
 		case DEFUN:
 			dump(cell->cdr,depth+1);
 			p_indent("defun",depth);
@@ -215,11 +221,6 @@ void dump(cons_t *cell,int depth){
 	}
 	printf("\n");
 }
-
-
-//void error(){
-//	printf("parsing error !!\n");
-//}
 
 void p_indent(char *ope,int depth){
 	int i;
@@ -231,8 +232,8 @@ void p_indent(char *ope,int depth){
 
 void set_symbol(char *line,int *pos,cons_t *cell){
 	int len = 0;
-		while(line[*pos+len] !=' ' && line[*pos+len]!=')')len++;
-		cell->symbol=strndup((line+*pos),len);
-		cell->type=SYMBOL;
-		(*pos)=(*pos)+len-1;
+		while(line[*pos + len] !=' ' && line[*pos + len] != ')' && line[*pos + len] != ',')len++;
+		cell->symbol = strndup((line + *pos),len);
+		cell->type = SYMBOL;
+		(*pos) = (*pos) + len - 1;
 }
