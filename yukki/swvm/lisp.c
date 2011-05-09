@@ -7,14 +7,17 @@
 #define MAX_HISTORY 10
 
 extern int code_type;
-extern Code codelist[CODE_MAX];
+extern Code *codelist;
 extern int code_index;
+extern int code_size;
+int print_inst = 0;
 
 void exe_lisp(char *input){
 	Token token;
 	cons_t *c;
 	token.input = input;
 	while((c = create_list(&token)) != NULL){
+		int i = code_index;
 		Code *begin = &codelist[code_index];
 		if(compile(c, NULL, 0, 0)){
 			printf("CodeGen Error\n");
@@ -28,6 +31,8 @@ void exe_lisp(char *input){
 			}
 			add_code(END, 0, 0);
 			exec(begin);
+
+			code_index = i;
 		}
 		free_cons(c);
 	}
@@ -81,10 +86,16 @@ int main(int argc, char *argv[]){
 	puts("WELCOME TO LOW(Lisp Of Wakamatsu) VM Version !!");
 	// get g_jtable
 	exec(NULL);
+	// init codelist
+	code_size = 15000;
+	codelist = (Code *)malloc(sizeof(Code) * code_size);
 	// read file
 	for(i=1; i<argc; i++){
-		open_file(argv[i]);
-		return 0;
+		if(strcmp(argv[i], "-i") == 0) print_inst = 1;
+		else{
+			open_file(argv[i]);
+			return 0;
+		}
 	}
 	// interactive mode
 	while(1){

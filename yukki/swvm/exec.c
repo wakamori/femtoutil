@@ -9,9 +9,10 @@
 #define STACK_MAX 1024
 #define CODESTACK_MAX 64
 
-Code codelist[CODE_MAX];
+Code *codelist = NULL;
 int code_index = 0;
 int code_type = 0;
+int code_size = 0;
 void **g_jtable = NULL;
 
 void exec(Code *c_arg){
@@ -42,8 +43,8 @@ void exec(Code *c_arg){
 	static Code *codestack[CODESTACK_MAX] = {0};
 	register Code *c = c_arg;
 	register int *stackptr = stack + STACK_MAX;
-	register Code **codeptr = codestack;
 	int reg[REG_MAX] = {0};
+	register Code **codeptr = codestack;
 	int flag = 0;
 
 	goto *c->instp;
