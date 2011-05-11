@@ -10,40 +10,41 @@ int eval(cons_t* p, ans_stack* ans_head)
 		int x, y; 
 		char_flag = 0;
 		setq_flag = 0;
+		name_stack* n_s_temp;
 
 		switch(p->type){
-				case s_bracket:
+				case S_BRACKET:
 						ans_head = search_s_bracket(p, ans_head);
 						x = ans_head->ans;
 						ans_head = ans_free(ans_head);
 						break;
 
-				case string:
+				case STRING:
 						ans_head = search_name(p, ans_head);
 						x = ans_head->ans;
 						ans_head = ans_free(ans_head);
 						break;
 
-				case add:
+				case ADD:
 						p = p->cdr;
-						if(p->type == number)
+						if(p->type == NUMBER)
 								x = p->ivalue;
 						else{
-								if(p->type == s_bracket)
+								if(p->type == S_BRACKET)
 										ans_head = search_s_bracket(p, ans_head);
-								else if(p->type == string)
+								else if(p->type == STRING)
 										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
 								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
-						while(p->type != e_bracket){
-								if(p->type == number)
+						while(p->type != E_BRACKET){
+								if(p->type == NUMBER)
 										x = x + p->ivalue;
 								else{
-										if(p->type == s_bracket)
+										if(p->type == S_BRACKET)
 												ans_head = search_s_bracket(p, ans_head);
-										else if(p->type == string)
+										else if(p->type == STRING)
 												ans_head = search_name(p, ans_head);
 										x = x + ans_head->ans;
 										ans_head = ans_free(ans_head);
@@ -52,26 +53,26 @@ int eval(cons_t* p, ans_stack* ans_head)
 						}	
 						break;
 
-				case sub:
+				case SUB:
 						p = p->cdr;
-						if(p->type == number)
+						if(p->type == NUMBER)
 								x = p->ivalue;
 						else{
-								if(p->type == s_bracket)
+								if(p->type == S_BRACKET)
 										ans_head = search_s_bracket(p, ans_head);
-								else if(p->type == string)
+								else if(p->type == STRING)
 										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
 								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
-						while(p->type != e_bracket){
-								if(p->type == number)
+						while(p->type != E_BRACKET){
+								if(p->type == NUMBER)
 										x = x - p->ivalue;
 								else{
-										if(p->type == s_bracket)
+										if(p->type == S_BRACKET)
 												ans_head = search_s_bracket(p, ans_head);
-										else if(p->type == string)
+										else if(p->type == STRING)
 												ans_head = search_name(p, ans_head);
 										x = x - ans_head->ans;
 										ans_head = ans_free(ans_head);
@@ -80,26 +81,26 @@ int eval(cons_t* p, ans_stack* ans_head)
 						}
 						break;	
 
-				case mult:
+				case MULT:
 						p = p->cdr;
-						if(p->type == number)
+						if(p->type == NUMBER)
 								x = p->ivalue;
 						else{
-								if(p->type == s_bracket)
+								if(p->type == S_BRACKET)
 										ans_head = search_s_bracket(p, ans_head);
-								else if(p->type == string)
+								else if(p->type == STRING)
 										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
 								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
-						while(p->type != e_bracket){
-								if(p->type == number)
+						while(p->type != E_BRACKET){
+								if(p->type == NUMBER)
 										x = x * p->ivalue;
 								else{
-										if(p->type == s_bracket)
+										if(p->type == S_BRACKET)
 												ans_head = search_s_bracket(p, ans_head);
-										else if(p->type == string)
+										else if(p->type == STRING)
 												ans_head = search_name(p, ans_head);
 										x = x * ans_head->ans;
 										ans_head = ans_free(ans_head);
@@ -108,26 +109,26 @@ int eval(cons_t* p, ans_stack* ans_head)
 						}	
 						break;
 
-				case dev:
+				case DEV:
 						p = p->cdr;
-						if(p->type == number)
+						if(p->type == NUMBER)
 								x = p->ivalue;
 						else{
-								if(p->type == s_bracket)
+								if(p->type == S_BRACKET)
 										ans_head = search_s_bracket(p, ans_head);
-								else if(p->type == string)
+								else if(p->type == STRING)
 										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
 								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
-						while(p->type != e_bracket){
-								if(p->type == number)
+						while(p->type != E_BRACKET){
+								if(p->type == NUMBER)
 										x = x / p->ivalue;
 								else{
-										if(p->type == s_bracket)
+										if(p->type == S_BRACKET)
 												ans_head = search_s_bracket(p, ans_head);
-										else if(p->type == string)
+										else if(p->type == STRING)
 												ans_head = search_name(p, ans_head);
 										x = x / ans_head->ans;
 										ans_head = ans_free(ans_head);
@@ -136,26 +137,26 @@ int eval(cons_t* p, ans_stack* ans_head)
 						}
 						break;	
 
-				case l_than:
+				case L_THAN:
 						char_flag = 1;
 						p = p->cdr;
-						if(p->type == number)
+						if(p->type == NUMBER)
 								x = p->ivalue;
 						else{
-								if(p->type == s_bracket)
+								if(p->type == S_BRACKET)
 										ans_head = search_s_bracket(p, ans_head);
-								else if(p->type == string)
+								else if(p->type == STRING)
 										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
 								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
-						if(p->type == number)
+						if(p->type == NUMBER)
 								y = p->ivalue;
 						else{
-								if(p->type == s_bracket)
+								if(p->type == S_BRACKET)
 										ans_head = search_s_bracket(p, ans_head);
-								else if(p->type == string)
+								else if(p->type == STRING)
 										ans_head = search_name(p, ans_head);
 								y = ans_head->ans;
 								ans_head = ans_free(ans_head);
@@ -166,26 +167,26 @@ int eval(cons_t* p, ans_stack* ans_head)
 								x = 'F';	
 						break;
 
-				case m_than:
+				case M_THAN:
 						char_flag = 1;
 						p = p->cdr;
-						if(p->type == number)
+						if(p->type == NUMBER)
 								x = p->ivalue;
 						else{
-								if(p->type == s_bracket)
+								if(p->type == S_BRACKET)
 										ans_head = search_s_bracket(p, ans_head);
-								else if(p->type == string)
+								else if(p->type == STRING)
 										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
 								ans_head = ans_free(ans_head);
 						}
 						p = p->cdr;
-						if(p->type == number)
+						if(p->type == NUMBER)
 								y = p->ivalue;
 						else{
-								if(p->type == s_bracket)
+								if(p->type == S_BRACKET)
 										ans_head = search_s_bracket(p, ans_head);
-								else if(p->type == string)
+								else if(p->type == STRING)
 										ans_head = search_name(p, ans_head);
 								y = ans_head->ans;
 								ans_head = ans_free(ans_head);
@@ -204,12 +205,12 @@ int eval(cons_t* p, ans_stack* ans_head)
 						ans_head = ans_free(ans_head);
 						if(x == 'T'){
 								p = p->cdr;
-								if(p->type == number)
+								if(p->type == NUMBER)
 										x = p->ivalue;
 								else{
-										if(p->type == s_bracket)
+										if(p->type == S_BRACKET)
 												ans_head = search_s_bracket(p, ans_head);
-										else if(p->type == string)
+										else if(p->type == STRING)
 												ans_head = search_name(p, ans_head);
 										x = ans_head->ans;
 										ans_head = ans_free(ans_head);
@@ -219,12 +220,12 @@ int eval(cons_t* p, ans_stack* ans_head)
 						else{
 								p = p->cdr;
 								p = p->cdr;
-								if(p->type == number)
+								if(p->type == NUMBER)
 										x = p->ivalue;
 								else{
-										if(p->type == s_bracket)
+										if(p->type == S_BRACKET)
 												ans_head = search_s_bracket(p, ans_head);
-										else if(p->type == string)
+										else if(p->type == STRING)
 												ans_head = search_name(p, ans_head);
 										x = ans_head->ans;
 										ans_head = ans_free(ans_head);
@@ -232,51 +233,49 @@ int eval(cons_t* p, ans_stack* ans_head)
 								break;
 						}
 
-				case setq:
+				case SETQ:
+					{
 						p = p->cdr;
-						name_stack* n_s_temp = (name_stack*)malloc(sizeof(name_stack));
-						n_s_temp->type = variable;
+						n_s_temp = (name_stack*)malloc(sizeof(name_stack));
+						n_s_temp->type = VARIABLE;
 						n_s_temp->name = p->value;
 						p = p->cdr;
-						if(p->type == number)
+						if(p->type == NUMBER)
 								x = p->ivalue;
 						else{
-								if(p->type == s_bracket)
+								if(p->type == S_BRACKET)
 										ans_head = search_s_bracket(p, ans_head);
-								else if(p->type == string)
+								else if(p->type == STRING)
 										ans_head = search_name(p, ans_head);
 								x = ans_head->ans;
 								ans_head = ans_free(ans_head);
 						}
 						n_s_temp->ivalue = x;
-						n_s_temp->next = n_s_head;
-						n_s_head = n_s_temp;
-						name_temp = n_s_head->name;
+						n_s_t_hold->next = n_s_temp;
+						n_s_t_hold = n_s_temp;
+						name_temp = n_s_t_hold->name;
 						setq_flag = 1;
-						n_s_h_hold = n_s_head;
 						break;
+					}
 
-				case def:
+				case DEF:
+					{
+						func_key_hold++;
 						p = p->cdr;
-						name_stack* n_s_temp1 = (name_stack*)malloc(sizeof(name_stack));
-						n_s_temp1->type = func;
-						n_s_temp1->name = p->value;
+						n_s_temp = (name_stack*)malloc(sizeof(name_stack));
+						n_s_temp->type = FUNC;
+						n_s_temp->name = p->value;
+						n_s_temp->func_key = func_key_hold;
 						name_temp = p->value;
 						defun_flag = 1;
 						p = p->cdr;
-						name_stack* n_s_temp2 = (name_stack*)malloc(sizeof(name_stack));
-						n_s_temp2->type = argument;
-						n_s_temp2->name = p->car->value;
-						n_s_temp2->arg_head = NULL;
-						p = p->cdr;
-						n_s_temp1->func_head = p->car;
-						n_s_temp2->next = n_s_head;
-						n_s_head = n_s_temp2;
-						n_s_temp1->next = n_s_head;
-						n_s_head = n_s_temp1;
-						n_s_h_hold = n_s_head;
+						n_s_temp->func_head = p->cdr->car;
+						n_s_t_hold->next = n_s_temp;
+						n_s_t_hold = n_s_temp;
+						define_defun_info(p);
 						x = 0;
 						break;
+					}
 		}
 		return x;
 }

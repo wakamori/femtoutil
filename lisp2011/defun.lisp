@@ -1,0 +1,13 @@
+(defun f(n)(+ n 2))
+(f 3)
+(defun g(m)(* m m))
+(g 3)
+(defun h(n)(- (g n) (f n)))
+(h 4)
+(defun v()(+ 1 2))
+(v)
+(defun fact(n)(if (< n 1) 1 (* n (- n 1))))
+(fact 5)
+(defun fib(n)(+ 1 1))
+(fib 36)
+
