@@ -28,6 +28,7 @@ void FileRead::lineLoad()
 	QString fileName = edit->text();
 	QFile file(fileName);
 	if (!fileName.isEmpty()) {
+//file not found
 		return;
 	} else {
 		if(!file.open(QIODevice::ReadOnly)) {
