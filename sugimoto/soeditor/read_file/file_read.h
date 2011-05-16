@@ -10,20 +10,23 @@
 
 #define LINE_SIZE 64
 
+extern QString g_linebuffer;
+
 class FileRead : public QWidget
 {
 	Q_OBJECT
 
 public:
-	QString retInput();
 	FileRead();
-
 private slots:
-	void getString();
+	void lineLoad();
+	void buttonSave();
+	void buttonLoad();
 
 private:
 	QLineEdit *edit;
-	QString *input;
+	QPushButton *load_button;
+	QPushButton *save_button;
 };
 
 

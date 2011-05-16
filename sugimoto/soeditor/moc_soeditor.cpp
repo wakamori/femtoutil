@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'soeditor.h'
 **
-** Created: Wed May 11 13:44:15 2011
+** Created: Mon May 16 21:11:24 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.2)
 **
 ** WARNING! All changes made in this file will be lost!

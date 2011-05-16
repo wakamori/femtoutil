@@ -2,37 +2,77 @@
 
 FileRead::FileRead()
 {
+	QLabel *fileLabel = new QLabel(tr("File:"));
+
 	edit = new QLineEdit;
 	edit->setMaxLength(LINE_SIZE);
+	connect(edit, SIGNAL(returnPressed()), this, SLOT(lineLoad()));
 
-	input = new QString;
-	
-	connect(edit, SIGNAL(returnPressed()), this, SLOT(getString()));
+	save_button = new QPushButton("&Save");
+	save_button->setToolTip(tr("Save to file"));
+	load_button = new QPushButton("&Load");
+	load_button->setToolTip(tr("Load file"));
+	connect(save_button, SIGNAL(clicked()), this, SLOT(buttonSave()));
+	connect(load_button, SIGNAL(clicked()), this, SLOT(buttonLoad()));
 
-	QVBoxLayout *layout = new QVBoxLayout;
+	QHBoxLayout *layout = new QHBoxLayout;
+	layout->addWidget(fileLabel);
 	layout->addWidget(edit);
+	layout->addWidget(save_button);
+	layout->addWidget(load_button);
 	setLayout(layout);
 }
   
-void FileRead::getString()
+void FileRead::lineLoad()
 {
-	*input = edit->text();
-	std::cout << (qPrintable(*input)) << std::endl; /*for debug*/
-
-	std::ifstream ReadFile(qPrintable(*input));
-
-	if (ReadFile.fail()) {
-		std::cout << "file not found" << std::endl;
+	QString fileName = edit->text();
+	QFile file(fileName);
+	if (!fileName.isEmpty()) {
+		return;
 	} else {
-		std::string temp;
-		while(getline(ReadFile, temp)) {
-			std::cout << temp << std::endl;
+		if(!file.open(QIODevice::ReadOnly)) {
+			QMessageBox::information(this, tr("Unable to open file"), file.errorString());
+			return;
 		}
 	}
+	QDataStream in(&file);
+	in >> g_linebuffer;
 }
 
-QString FileRead::retInput()
-{ 
-	return *input;
+
+void FileRead::buttonSave()
+{
+	QString fileName = QFileDialog::getSaveFileName(this,
+													tr("Save File"), "",
+													tr("all (*)"));
+	QFile file(fileName);
+	if (fileName.isEmpty()) {
+		return;
+	} else {
+		if (!file.open(QIODevice::WriteOnly)) {
+			QMessageBox::information(this, tr("Unable to open file"),file.errorString());
+			return;
+		}
+	}
+	QDataStream out(&file);
+	out << g_linebuffer;
 }
 
+
+void FileRead::buttonLoad()
+{
+	QString fileName = QFileDialog::getOpenFileName(this,
+													tr("Load File"), "",
+													tr("all (*)"));
+	QFile file(fileName);
+	if (!fileName.isEmpty()) {
+		return;
+	} else {
+		if(!file.open(QIODevice::ReadOnly)) {
+			QMessageBox::information(this, tr("Unable to open file"), file.errorString());
+			return;
+		}
+	}
+	QDataStream in(&file);
+	in >> g_linebuffer;
+}
