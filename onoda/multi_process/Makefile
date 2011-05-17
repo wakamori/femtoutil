@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS= -O2 -Wall
-#CFLAGS= -g3 -Wall
+#CFLAGS= -O2 -Wall
+CFLAGS= -g3 -Wall -O0 -W
 #CFLAGS= -pg
 LDLIBS= -lreadline -lm
 
