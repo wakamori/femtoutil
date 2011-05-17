@@ -1,6 +1,7 @@
 #include "Widget.h"
+#include "Window.h"
 #include <QtGui>
-	Widget::Widget(QWidget * iParent, Qt::WindowFlags iFlags)
+Widget::Widget(QWidget * iParent, Qt::WindowFlags iFlags)
 : QWidget(iParent, iFlags)
 {
 	makeWidgets();
@@ -40,17 +41,14 @@ void Widget::makeWidgets()
 	connect(m_AddTabButton, SIGNAL(clicked()), this, SLOT(newTab(void)));
 	connect(m_Tab, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
 	newTab();
-	newTab();
-	newTab();
-	newTab();
 	setAcceptDrops(false);
-}
-
+} 
 void Widget::newTab()
 {
 	QString title = tr("new text field") + QString::number(++countTab);
 	QTextEdit *text = new QTextEdit();
 	text->setPlainText(tr("Hello World !!"));
+	//connect(text, SIGNAL(textChanged()), this, SLOT(textChecker()));
 	m_Tab->addTab(text, title);
 	m_Tab->setCurrentIndex(m_Tab->count() - 1);
 	printf("debug\n");
@@ -58,5 +56,15 @@ void Widget::newTab()
 
 void Widget::closeTab(int index)
 {
-m_Tab->removeTab(index);
+	m_Tab->removeTab(index);
 }
+
+//void Widget::textChecker()
+//{
+//	statusMessage = tr("Tab No.") + QString::number(countTab) +tr("is Changed");
+//}
+
+//void Widget::createStatus(const QString message)
+//{
+//	statusBar()->showMessage(message, 0);
+//}

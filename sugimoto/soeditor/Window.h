@@ -24,7 +24,6 @@ class MainWindow : public QMainWindow
 		QMenu *m_ViewMenu;
 
 		void createStatusBar();
-
 		Widget *m_Widget;
 };
 #endif 

@@ -5,9 +5,8 @@
 MainWindow::MainWindow(QWidget * iParent, Qt::WindowFlags iFlags) : QMainWindow(iParent, iFlags)
 {
 	m_Widget = new Widget(this);
-
 	createActions();
-	createMenus();
+	//createMenus();
 	createStatusBar();
 
 	setCentralWidget(m_Widget);
@@ -23,12 +22,6 @@ void MainWindow::createActions()
 	m_QuitAction->setStatusTip(tr("Quit the application"));
 	connect(m_QuitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-	//Widget *aaa = new Widget();
-	//addTabAction = new QAction(this);
-	//addTabAction->setShortcut(tr("Ctrl+J"));
-	//addTabAction->setStatusTip(tr("New Tab is added"));
-	//connect(addTabAction, SIGNAL(triggered()), aaa, SLOT(newTab()));
-
 }
 void MainWindow::createMenus()
 {
@@ -40,5 +33,5 @@ void MainWindow::createMenus()
 
 void MainWindow::createStatusBar()
 {
-	statusBar()->showMessage(tr("Ready"));
+	statusBar()->showMessage(tr("Ready !"));
 }

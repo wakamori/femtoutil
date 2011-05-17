@@ -11,6 +11,8 @@ class QTextEdit;
 class QPushButton;
 class QTabWidget;
 class QAction;
+class QListWidget;
+
 class Widget : public QWidget
 {
 	Q_OBJECT
@@ -20,7 +22,7 @@ class Widget : public QWidget
 	protected slots :
 		void newTab();
 		void closeTab(int index);
-
+		//void textChecker();
 	private:
 		void makeWidgets();
 		int countTab;
