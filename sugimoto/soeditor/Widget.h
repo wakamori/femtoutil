@@ -11,20 +11,20 @@ class QTextEdit;
 class QPushButton;
 class QTabWidget;
 class QAction;
-//int countTab;
-class Widget : public QWidget {
+class Widget : public QWidget
+{
 	Q_OBJECT
-
 	public:
 		Widget(QWidget * iParent = 0, Qt::WindowFlags iFlags = 0);
-	public slots :
-		void newTab(int countTab);
+
+	protected slots :
+		void newTab();
+		void closeTab(int index);
+
 	private:
 		void makeWidgets();
-		void newTextField();
-		void closeTab();
-		void createAddTabAction();
-		
+		int countTab;
+
 		QHBoxLayout *m_h_StatusLayout;
 		QHBoxLayout *m_c_TextLayout;
 		QVBoxLayout *m_v_WholeLayout;
@@ -32,6 +32,7 @@ class Widget : public QWidget {
 		QLabel *m_FileLabel;
 
 		QPushButton *m_FileOpenButton;
+		QPushButton *m_AddTabButton;
 
 		QTabWidget *m_Tab;
 		QTextEdit *m_TextField;

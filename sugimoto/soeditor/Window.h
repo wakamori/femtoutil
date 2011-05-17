@@ -17,7 +17,7 @@ class MainWindow : public QMainWindow
 	private:
 		void createActions();
 		QAction *m_QuitAction;
-		QAction *m_TabAction;
+		QAction *addTabAction;
 
 		void createMenus();
 		QMenu *m_FileMenu;

@@ -22,6 +22,13 @@ void MainWindow::createActions()
 	m_QuitAction->setShortcut(tr("Ctrl+Q"));
 	m_QuitAction->setStatusTip(tr("Quit the application"));
 	connect(m_QuitAction, SIGNAL(triggered()), this, SLOT(close()));
+
+	//Widget *aaa = new Widget();
+	//addTabAction = new QAction(this);
+	//addTabAction->setShortcut(tr("Ctrl+J"));
+	//addTabAction->setStatusTip(tr("New Tab is added"));
+	//connect(addTabAction, SIGNAL(triggered()), aaa, SLOT(newTab()));
+
 }
 void MainWindow::createMenus()
 {

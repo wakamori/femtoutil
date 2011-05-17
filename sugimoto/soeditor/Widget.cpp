@@ -8,12 +8,13 @@
 
 void Widget::makeWidgets()
 {
-	int countTab = 0;
+	countTab = 0;
 	m_FileLabel = new QLabel(tr("File : "));
 
 	m_FileLineEdit = new QLineEdit;
 
-	m_FileOpenButton = new QPushButton("Add");
+	m_FileOpenButton = new QPushButton("Open");
+	m_AddTabButton = new QPushButton("Add Tab");
 
 	m_Tab = new QTabWidget(this);
 	m_Tab->setUsesScrollButtons(true);
@@ -25,6 +26,7 @@ void Widget::makeWidgets()
 	m_h_StatusLayout->addWidget(m_FileLabel);
 	m_h_StatusLayout->addWidget(m_FileLineEdit);
 	m_h_StatusLayout->addWidget(m_FileOpenButton);
+	m_h_StatusLayout->addWidget(m_AddTabButton);
 	m_c_TextLayout = new QHBoxLayout();
 	m_c_TextLayout->addWidget(m_Tab);
 
@@ -34,32 +36,27 @@ void Widget::makeWidgets()
 
 	setLayout(m_v_WholeLayout);
 
-	newTab(countTab);
-	newTab(countTab);
-	newTab(countTab);
-	createAddTabAction();
-	connect(m_Tab, SIGNAL(tabCloseRequested(int)), this, SLOT(deleteWidget(int)));
+
+	connect(m_AddTabButton, SIGNAL(clicked()), this, SLOT(newTab(void)));
+	connect(m_Tab, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
+	newTab();
+	newTab();
+	newTab();
+	newTab();
 	setAcceptDrops(false);
 }
 
-//void Widget::newTextField(int countTab)
-//{
-//
-//}
-void Widget::newTab(int countTab)
+void Widget::newTab()
 {
 	QString title = tr("new text field") + QString::number(++countTab);
 	QTextEdit *text = new QTextEdit();
 	text->setPlainText(tr("Hello World !!"));
 	m_Tab->addTab(text, title);
 	m_Tab->setCurrentIndex(m_Tab->count() - 1);
-	countTab ++;
+	printf("debug\n");
 }
 
-void Widget::createAddTabAction()
+void Widget::closeTab(int index)
 {
-m_AddTabAction = new QAction(this);
-m_AddTabAction->setShortcut(tr("Ctrl+J"));
-m_AddTabAction->setStatusTip(tr(""));
-connect(m_AddTabAction, SIGNAL(triggered()), this, SLOT(newTab()));
+m_Tab->removeTab(index);
 }
