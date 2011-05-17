@@ -1,0 +1,6 @@
+(defun fact ( n ) (if (< n 3) 1 (+  (fact (- n 1)) (fact (- n 2)) )))
+(fact 1)
+(fact 2)
+(fact 3)
+(fact 4)
+(fact 30)
