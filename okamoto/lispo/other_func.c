@@ -15,7 +15,7 @@ int decode(int n)
 ans_stack* ans_alloc(ans_stack* ans_head)
 {
 	ans_stack* temp;
-	
+
 	if(ans_counter < 1024){
 		ans_list[ans_counter].next = ans_head;
 		ans_head = &ans_list[ans_counter];
@@ -44,7 +44,7 @@ ans_stack* ans_free(ans_stack* ans_head)
 arg_list* arg_alloc(arg_list* arg_head)
 {
 	arg_list* temp;
-	
+
 	if(arg_counter < 1024){
 		arg_pool[arg_counter].next = arg_head;
 		arg_head = &arg_pool[arg_counter];
@@ -73,13 +73,13 @@ arg_list* arg_free(arg_list* arg_head)
 void define_defun_info(cons_t* p)
 {
 	cons_t* temp;
-	temp = p->car;
+	temp = p->u.car;
 	while(temp->type == STRING){
 		name_stack* n_s_temp = (name_stack*)malloc(sizeof(name_stack));
 		n_s_temp->type = ARGUMENT;
-		n_s_temp->name = temp->value;
+		n_s_temp->name = temp->u.value;
 		n_s_temp->func_key = func_key_hold;
-		n_s_temp->arg_head = NULL;
+		n_s_temp->u.arg_head = NULL;
 		temp = temp->cdr;
 		n_s_t_hold->next = n_s_temp;
 		n_s_t_hold = n_s_temp;
@@ -105,7 +105,7 @@ void print(int x)
 		defun_flag = 0;
 	}
 	else
-		printf("%d\n", x); 
+		printf("%d\n", x);
 	return;
 }
 

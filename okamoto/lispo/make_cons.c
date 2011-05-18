@@ -15,7 +15,7 @@ void make_cons(cons_t* p, FILE* fp)
 	char* line_temp;
 	char* line;
 	char line1[100];
-	
+
 	if(fp != NULL){
 		if((fgets(line1, 100, fp)) == NULL)
 			exit(0);
@@ -23,12 +23,12 @@ void make_cons(cons_t* p, FILE* fp)
 	}
 	else
 		line = readline(">>> ");
-	
+
 	if(strncmp(line, "quit", 4) == 0){
 		printf("\n");
 		exit(0);
 	}
-	while(b_counter != 0){ 
+	while(b_counter != 0){
 		if(b_counter == -1)
 			b_counter++;
 		if(line[i] == '\0'){
@@ -59,14 +59,14 @@ void make_cons(cons_t* p, FILE* fp)
 		else if(line[i] == S_BRACKET){
 			p->type = S_BRACKET;
 			b_counter++;
-			
+
 			s_b_stack* s_b_s_temp = (s_b_stack*)malloc(sizeof(s_b_stack));
 			s_b_s_temp->ps = p;
 			s_b_s_temp->next = s_b_s_head;
 			s_b_s_head = s_b_s_temp;
 
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
-			p->car = temp;
+			p->u.car = temp;
 			p = temp;
 			i++;
 			continue;
@@ -80,12 +80,12 @@ void make_cons(cons_t* p, FILE* fp)
 				line_temp = &line[i + 1];
 				line[i] = '\0';
 				i = 0;
-				p->value = line;
-				if(strncmp(p->value, "if", 2) == 0)
+				p->u.value = line;
+				if(strncmp(p->u.value, "if", 2) == 0)
 					p->type = IF;
-				else if(strncmp(p->value, "defun", 5) == 0)
+				else if(strncmp(p->u.value, "defun", 5) == 0)
 					p->type = DEF;
-				else if(strncmp(p->value, "setq", 4) == 0)
+				else if(strncmp(p->u.value, "setq", 4) == 0)
 					p->type = SETQ;
 				else
 					p->type = STRING;
@@ -96,7 +96,7 @@ void make_cons(cons_t* p, FILE* fp)
 			}
 			p->type = E_BRACKET;
 			b_counter--;
-			
+
 			if(b_counter == 0)
 				break;
 
@@ -115,7 +115,7 @@ void make_cons(cons_t* p, FILE* fp)
 				exit(0);
 			}
 			p->type = ADD;
-			
+
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
 			p = temp;
@@ -136,7 +136,7 @@ void make_cons(cons_t* p, FILE* fp)
 				exit(0);
 			}
 			p->type = MULT;
-			
+
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
 			p = temp;
@@ -149,7 +149,7 @@ void make_cons(cons_t* p, FILE* fp)
 				exit(0);
 			}
 			p->type = DEV;
-			
+
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
 			p = temp;
@@ -162,7 +162,7 @@ void make_cons(cons_t* p, FILE* fp)
 				exit(0);
 			}
 			p->type = L_THAN;
-			
+
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
 			p = temp;
@@ -175,7 +175,7 @@ void make_cons(cons_t* p, FILE* fp)
 				exit(0);
 			}
 			p->type = M_THAN;
-			
+
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
 			p = temp;
@@ -194,9 +194,9 @@ void make_cons(cons_t* p, FILE* fp)
 					x = x * 10 + decode(line[i]);
 				i++;
 			}
-			
-			p->type = NUMBER; 
-			p->ivalue = x;
+
+			p->type = NUMBER;
+			p->u.ivalue = x;
 			x = 0;
 
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
@@ -216,12 +216,12 @@ void make_cons(cons_t* p, FILE* fp)
 			if(line[i] == SPACE || line[i] == COMMA){
 				line_temp = &line[i + 1];
 				line[i] = '\0';
-				p->value = line;
-				if(strncmp(p->value, "if", 2) == 0)
+				p->u.value = line;
+				if(strncmp(p->u.value, "if", 2) == 0)
 					p->type = IF;
-				else if(strncmp(p->value, "defun", 5) == 0)
+				else if(strncmp(p->u.value, "defun", 5) == 0)
 					p->type = DEF;
-				else if(strncmp(p->value, "setq", 4) == 0)
+				else if(strncmp(p->u.value, "setq", 4) == 0)
 					p->type = SETQ;
 				else
 					p->type = STRING;
@@ -231,7 +231,7 @@ void make_cons(cons_t* p, FILE* fp)
 			else if(line[i] == E_BRACKET){
 				e_b_flag = 1;
 				continue;
-			}	
+			}
 			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
 			p->cdr = temp;
 			p = temp;

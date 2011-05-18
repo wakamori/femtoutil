@@ -6,7 +6,7 @@
 #include"lispo.h"
 
 int main(int argc, char* argv[])
-{	
+{
 	setq_flag = 0;
 	defun_flag = 0;
 	char_flag = 0;
