@@ -20,12 +20,13 @@ void make_cons(cons_t* p, FILE* fp)
 		if((fgets(line1, 100, fp)) == NULL)
 			exit(0);
 		line = strndup(line1, strlen(line1));
-	}
-	else
+	} else {
 		line = readline(">>> ");
+	}
 
 	if(strncmp(line, "quit", 4) == 0){
 		printf("\n");
+		free(heap);
 		exit(0);
 	}
 	while(b_counter != 0){
@@ -36,8 +37,7 @@ void make_cons(cons_t* p, FILE* fp)
 				if((fgets(line1, 100, fp)) == NULL)
 					exit(0);
 				line = strndup(line1, strlen(line1));
-			}
-			else{
+			} else {
 				line = readline("    ");
 				i = 0;
 			}
@@ -46,7 +46,8 @@ void make_cons(cons_t* p, FILE* fp)
 		else if(line[i] == SPACE){
 			if(minus_flag == 1){
 				p->type = SUB;
-				cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+				cons_t* temp = allocate(sizeof(cons_t));
+				format_cons_t(temp);
 				p->cdr = temp;
 				p = temp;
 				i++;
@@ -60,12 +61,14 @@ void make_cons(cons_t* p, FILE* fp)
 			p->type = S_BRACKET;
 			b_counter++;
 
-			s_b_stack* s_b_s_temp = (s_b_stack*)malloc(sizeof(s_b_stack));
+			s_b_stack* s_b_s_temp = allocate(sizeof(s_b_stack));
+			format_s_b_stack(s_b_s_temp);
 			s_b_s_temp->ps = p;
 			s_b_s_temp->next = s_b_s_head;
 			s_b_s_head = s_b_s_temp;
 
-			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			cons_t* temp = allocate(sizeof(cons_t));
+			format_cons_t(temp);
 			p->u.car = temp;
 			p = temp;
 			i++;
@@ -90,7 +93,8 @@ void make_cons(cons_t* p, FILE* fp)
 				else
 					p->type = STRING;
 				line = line_temp;
-				cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+				cons_t* temp = allocate(sizeof(cons_t));
+				format_cons_t(temp);
 				p->cdr = temp;
 				p = temp;
 			}
@@ -100,7 +104,8 @@ void make_cons(cons_t* p, FILE* fp)
 			if(b_counter == 0)
 				break;
 
-			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			cons_t* temp = allocate(sizeof(cons_t));
+			format_cons_t(temp);
 			s_b_s_head->ps->cdr = temp;
 			s_b_s_head = s_b_s_head->next;
 			p = temp;
@@ -116,7 +121,8 @@ void make_cons(cons_t* p, FILE* fp)
 			}
 			p->type = ADD;
 
-			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			cons_t* temp = allocate(sizeof(cons_t));
+			format_cons_t(temp);
 			p->cdr = temp;
 			p = temp;
 			i++;
@@ -137,7 +143,8 @@ void make_cons(cons_t* p, FILE* fp)
 			}
 			p->type = MULT;
 
-			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			cons_t* temp = allocate(sizeof(cons_t));
+			format_cons_t(temp);
 			p->cdr = temp;
 			p = temp;
 			i++;
@@ -150,7 +157,8 @@ void make_cons(cons_t* p, FILE* fp)
 			}
 			p->type = DEV;
 
-			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			cons_t* temp = allocate(sizeof(cons_t));
+			format_cons_t(temp);
 			p->cdr = temp;
 			p = temp;
 			i++;
@@ -163,7 +171,8 @@ void make_cons(cons_t* p, FILE* fp)
 			}
 			p->type = L_THAN;
 
-			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			cons_t* temp = allocate(sizeof(cons_t));
+			format_cons_t(temp);
 			p->cdr = temp;
 			p = temp;
 			i++;
@@ -176,7 +185,8 @@ void make_cons(cons_t* p, FILE* fp)
 			}
 			p->type = M_THAN;
 
-			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			cons_t* temp = allocate(sizeof(cons_t));
+			format_cons_t(temp);
 			p->cdr = temp;
 			p = temp;
 			i++;
@@ -199,7 +209,8 @@ void make_cons(cons_t* p, FILE* fp)
 			p->u.ivalue = x;
 			x = 0;
 
-			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			cons_t* temp = allocate(sizeof(cons_t));
+			format_cons_t(temp);
 			p->cdr = temp;
 			p = temp;
 			continue;
@@ -232,7 +243,8 @@ void make_cons(cons_t* p, FILE* fp)
 				e_b_flag = 1;
 				continue;
 			}
-			cons_t* temp = (cons_t*)malloc(sizeof(cons_t));
+			cons_t* temp = allocate(sizeof(cons_t));
+			format_cons_t(temp);
 			p->cdr = temp;
 			p = temp;
 			continue;

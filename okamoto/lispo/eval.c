@@ -237,6 +237,7 @@ int eval(cons_t* p, ans_stack* ans_head)
 					{
 						p = p->cdr;
 						n_s_temp = allocate(sizeof(name_stack));
+						format_name_stack(n_s_temp);
 						n_s_temp->type = VARIABLE;
 						n_s_temp->name = p->u.value;
 						p = p->cdr;
@@ -263,6 +264,7 @@ int eval(cons_t* p, ans_stack* ans_head)
 						func_key_hold++;
 						p = p->cdr;
 						n_s_temp = allocate(sizeof(name_stack));
+						format_name_stack(n_s_temp);
 						n_s_temp->type = FUNC;
 						n_s_temp->name = p->u.value;
 						n_s_temp->func_key = func_key_hold;

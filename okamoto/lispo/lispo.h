@@ -1,6 +1,6 @@
 #include<stdio.h>
 
-#define HEAP_SIZE 16384
+#define HEAP_SIZE 512
 #define S_BRACKET '('
 #define E_BRACKET ')'
 #define SPACE ' '
@@ -67,7 +67,6 @@ typedef struct ans_stack{
 	struct ans_stack* next;
 }ans_stack;
 
-s_b_stack* s_b_pointer;
 s_b_stack* s_b_s_head;
 name_stack* n_s_head;
 name_stack* n_s_h_hold;
@@ -75,7 +74,8 @@ name_stack* n_s_t_hold;
 
 char *name_temp;
 void *heap;
-int heap_counter;
+int from_heap_counter;
+int to_heap_counter;
 int setq_flag;
 int defun_flag;
 int char_flag;
@@ -83,7 +83,17 @@ int func_key;
 int func_key_hold;
 
 void *allocate(long unsigned int size);
-void GC(void);
+void format_cons_t(cons_t *p);
+void format_s_b_stack(s_b_stack *s);
+void format_arg_list(arg_list *arg);
+void format_name_stack(name_stack *n);
+void format_ans_stack(ans_stack *ans);
+void copy_cons_t(cons_t *p);
+void copy_s_b_stack(s_b_stack *s);
+void copy_arg_list(arg_list *arg);
+void copy_name_stack(name_stack *n);
+void copy_ans_stack(ans_stack *ans);
+void gc(void);
 int decode(int x);
 void make_cons(cons_t* p, FILE* fp);
 ans_stack*  search_s_bracket(cons_t* p, ans_stack* ans_head);
