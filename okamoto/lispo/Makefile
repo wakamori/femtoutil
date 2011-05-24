@@ -5,7 +5,8 @@ OBJS=\
 	 make_cons.o\
 	 search.o\
 	 other_func.o\
-	 eval.o
+	 eval.o\
+	 GC.o
 CFLAGS=-g3 -O2
 LDLIBS=-lreadline -lcurses
 
@@ -40,6 +41,11 @@ eval.o: eval.c
 
 eval.o: lispo.h
 
+GC.o: GC.c
+	$(CC) $(CFLAGS) -c $^
+
+GC.o: lispo.h
+
 .PHONY: clean
 clean:
-	$(RM) $(TARGET) $(OBJS) *~ *.gch gmon.* 
+	$(RM) $(TARGET) $(OBJS) *~ *.gch gmon.*
