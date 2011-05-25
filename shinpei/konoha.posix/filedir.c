@@ -32,7 +32,6 @@
 
 /* ************************************************************************ */
 
-/*
 #include<konoha1.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -41,7 +40,6 @@
 extern "C" {
 #endif
 
-*/
 /* ======================================================================== */
 /* ConstData */
 /*
@@ -242,7 +240,6 @@ METHOD System_unlink(CTX ctx, knh_sfp_t *sfp _RIX)
 	const char *path = String_to(const char *, sfp[1]);
 	RETURNi_(unlink(path));
 }
-/*
 #ifdef _SETUP
 
 EXPORTAPI(const knh_PackageDef_t*) init(CTX ctx)
@@ -254,9 +251,9 @@ return &pkgdef;
 EXPORTAPI(void) SystemCONST(CTX ctx, const knh_PackageLoaderAPI_t *kapi, knh_NameSpace_t *ns)
 {
 if(ns == NULL) {
-kapi->loadIntData(ctx, ns, IntConstData);
+kapi->loadStringData(ctx, ns, StringConstData);
 }
 }
 
-#endif*/ /* _SETUP */
+#endif /* _SETUP */
 

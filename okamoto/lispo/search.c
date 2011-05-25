@@ -4,7 +4,6 @@
 #include<readline/history.h>
 #include<string.h>
 #include"lispo.h"
-
 ans_stack* search_s_bracket(cons_t* p, ans_stack* ans_head)
 {
 	ans_stack *temp = allocate(sizeof(ans_stack));
@@ -48,14 +47,15 @@ ans_stack* search_name(cons_t* p, ans_stack* ans_head)
 									ans_head = search_s_bracket(temp, ans_head);
 								if(temp->type == STRING)
 									ans_head = search_name(temp, ans_head);
-							arg_temp->arg = ans_head->ans;
-							ans_head = ans_head->next;
+								arg_temp->arg = ans_head->ans;
+								ans_head = ans_head->next;
 							}
 							arg_temp->next = n_s_temp->u.arg_head;
 							n_s_temp->u.arg_head = arg_temp;
 							temp = temp->cdr;
 							n_s_temp = n_s_temp->next;
 						}
+						temp->u.ivalue = FUNC;
 						temp->cdr = func_name->u.func_head;
 						ans_temp = allocate(sizeof(ans_stack));
 						format_ans_stack(ans_temp);
@@ -71,7 +71,7 @@ ans_stack* search_name(cons_t* p, ans_stack* ans_head)
 					}
 
 				case ARGUMENT:
-				 	if(n_s_head->func_key != func_key){
+					if(n_s_head->func_key != func_key){
 						arg_match_flag = 1;
 						break;
 					}

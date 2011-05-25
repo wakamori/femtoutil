@@ -7,7 +7,7 @@ OBJS=\
 	 other_func.o\
 	 eval.o\
 	 GC.o
-CFLAGS=-g3 -O2
+CFLAGS=-g3 -O0
 LDLIBS=-lreadline -lcurses
 
 .PHONY: all
