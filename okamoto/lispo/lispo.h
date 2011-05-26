@@ -1,6 +1,6 @@
 #include<stdio.h>
 
-#define HEAP_SIZE 512
+#define HEAP_SIZE sizeof(cons_t) * 128
 #define S_BRACKET '('
 #define E_BRACKET ')'
 #define SPACE ' '
@@ -83,6 +83,7 @@ int func_key;
 int func_key_hold;
 
 void *allocate(long unsigned int size);
+void copy_string(char *str);
 void format_cons_t(cons_t *p);
 void format_s_b_stack(s_b_stack *s);
 void format_arg_list(arg_list *arg);
