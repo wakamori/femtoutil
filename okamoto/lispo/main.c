@@ -11,6 +11,7 @@ int main(int argc, char* argv[])
 	defun_flag = 0;
 	char_flag = 0;
 	func_key_hold = 0;
+	object_counter = 0;
 	heap = (void *)malloc(HEAP_SIZE);
 	n_s_head = allocate(sizeof(name_stack));
 	format_name_stack(n_s_head);
