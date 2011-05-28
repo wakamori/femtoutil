@@ -13,7 +13,6 @@ void make_cons(cons_t* p, FILE* fp)
 	int minus_flag = 0;
 	int e_b_flag = 0;
 	char* line_temp;
-	char* line;
 	char line1[100];
 
 	if(fp != NULL){
@@ -22,7 +21,8 @@ void make_cons(cons_t* p, FILE* fp)
 			fclose(fp);
 			exit(0);
 		}
-		line = strndup(line1, strlen(line1));
+		line = allocate(strlen(line1) + 1);
+		memcpy(line, line1, strlen(line1) + 1);
 	} else {
 		line = readline(">>> ");
 	}
@@ -39,11 +39,11 @@ void make_cons(cons_t* p, FILE* fp)
 			if(fp != NULL){
 				if((fgets(line1, 100, fp)) == NULL) {
 					free(heap);
-					if(fp != NULL)
-						fclose(fp);
+					fclose(fp);
 					exit(0);
 				}
-				line = strndup(line1, strlen(line1));
+				line = allocate(strlen(line1) + 1);
+				memcpy(line, line1, strlen(line1) + 1);
 			} else {
 				line = readline("    ");
 				i = 0;
@@ -85,8 +85,9 @@ void make_cons(cons_t* p, FILE* fp)
 			if(b_counter == 0){
 				printf("syntax error!!\n");
 				free(heap);
-				if (fp != NULL)
+				if (fp != NULL) {
 					fclose(fp);
+				}
 				exit(0);
 			}
 			if(e_b_flag == 1){
@@ -111,8 +112,9 @@ void make_cons(cons_t* p, FILE* fp)
 			p->type = E_BRACKET;
 			b_counter--;
 
-			if(b_counter == 0)
+			if(b_counter == 0) {
 				break;
+			}
 
 			cons_t* temp = allocate(sizeof(cons_t));
 			format_cons_t(temp);
@@ -128,8 +130,9 @@ void make_cons(cons_t* p, FILE* fp)
 			if(b_counter == 0){
 				printf("syntax error!!\n");
 				free(heap);
-				if (fp != NULL)
+				if (fp != NULL) {
 					fclose(fp);
+				}
 				exit(0);
 			}
 			p->type = ADD;
@@ -145,8 +148,9 @@ void make_cons(cons_t* p, FILE* fp)
 			if(b_counter == 0){
 				printf("syntax error!!\n");
 				free(heap);
-				if (fp != NULL)
+				if (fp != NULL) {
 					fclose(fp);
+				}
 				exit(0);
 			}
 			minus_flag = 1;
@@ -156,8 +160,9 @@ void make_cons(cons_t* p, FILE* fp)
 			if(b_counter == 0){
 				printf("syntax error!!\n");
 				free(heap);
-				if (fp != NULL)
+				if (fp != NULL) {
 					fclose(fp);
+				}
 				exit(0);
 			}
 			p->type = MULT;
@@ -173,8 +178,9 @@ void make_cons(cons_t* p, FILE* fp)
 			if(b_counter == 0){
 				printf("syntax error!!\n");
 				free(heap);
-				if (fp != NULL)
+				if (fp != NULL) {
 					fclose(fp);
+				}
 				exit(0);
 			}
 			p->type = DEV;
@@ -189,8 +195,9 @@ void make_cons(cons_t* p, FILE* fp)
 		else if(line[i] == L_THAN){
 			if(b_counter == 0){
 				free(heap);
-				if (fp != NULL)
+				if (fp != NULL) {
 					fclose(fp);
+				}
 				printf("syntax error!!\n");
 				exit(0);
 			}
@@ -207,8 +214,9 @@ void make_cons(cons_t* p, FILE* fp)
 			if(b_counter == 0){
 				printf("syntax error!!\n");
 				free(heap);
-				if (fp != NULL)
+				if (fp != NULL) {
 					fclose(fp);
+				}
 				exit(0);
 			}
 			p->type = M_THAN;
@@ -224,8 +232,9 @@ void make_cons(cons_t* p, FILE* fp)
 			if(b_counter == 0){
 				printf("syntax error!!\n");
 				free(heap);
-				if (fp != NULL)
+				if (fp != NULL) {
 					fclose(fp);
+				}
 				exit(0);
 			}
 			while('0' <= line[i] && line[i] <= '9'){
@@ -250,8 +259,9 @@ void make_cons(cons_t* p, FILE* fp)
 			if(b_counter == 0){
 				printf("syntax error!!\n");
 				free(heap);
-				if (fp != NULL)
+				if (fp != NULL) {
 					fclose(fp);
+				}
 				exit(0);
 			}
 			line = &line[i];
