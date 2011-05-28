@@ -1,0 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+'''
+提供された情報を表示する
+'''
+import cgi
+print cgi.test()
