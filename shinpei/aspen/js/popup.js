@@ -39,7 +39,7 @@ if (!Popup) Popup = {};
         onMouseUp(e);
     }
 
-    pp.create = function(id, inner, x, y) {
+    pp.create = function(id, inner, w, h) {
         var elem = document.createElement("div");
         elem.setAttribute("id", id);
         elem.setAttribute("class", "popup");
@@ -58,14 +58,20 @@ if (!Popup) Popup = {};
         document.onmousemove = onMouseMove;
         document.onmouseup = onMouseUp;
         document.body.appendChild(elem);
-        elem.style.left = (x) ? x+"px" : ((window.innerWidth - elem.offsetWidth)/2)+"px";
-        elem.style.top = (y) ? y+"px" : ((window.innerHeight - elem.offsetHeight)/2)+"px";
+        var width = (w) ? parseInt(w) : elem.offsetWidth;
+        var height = (h) ? parseInt(h) : elem.offsetHeight;
+        if (w) elem.style.width = width;
+        if (h) elem.style.height = height;
+        elem.style.left = ((window.innerWidth - width)/2)+"px";
+        elem.style.top = ((window.innerHeight - height)/2)+"px";
     };
 
     pp.remove = function(id) {
-        var e = document.getElementById(id);
-        if (e.getAttribute("class") == "popup") {
-            document.body.removeChild(e);
+        var elem = document.getElementById(id);
+        if (elem) {
+            if (elem.getAttribute("class") == "popup") {
+                document.body.removeChild(elem);
+            }
         }
     };
 
