@@ -33,7 +33,7 @@ function escapeAll(text) {
                     res.addClass("codemirror");
                     res.innerText = xhr.responseText;
                     var txt = document.createElement("span");
-                    txt.innerText = "Press Enter";
+                    txt.innerText = "Enterキーを押してください";
                     res.appendChild(txt);
                     Popup.create("result"+ Aspen.resnum(), res, window.outerWidth/3, window.outerHeight/3);
                 }
@@ -90,6 +90,8 @@ window.onload = function() {
             if (text.length > 0) {
                 Aspen.postScript(text);
             }
+        } else {
+            alert("hoge");
         }
     };
 };

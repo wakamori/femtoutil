@@ -21,7 +21,7 @@ if method == "GET":
 
 <!DOCTYPE html>
 <html lang="ja">
-
+<meta charset="UTF-8">
 <script src='../aspen/js/mootools-core-1.3.2-full-compat.js'></script>
 <script src='../aspen/js/codemirror.js'></script>
 <link rel='stylesheet' href='../aspen/css/codemirror.css'>
@@ -37,13 +37,12 @@ if method == "GET":
 <body>
 <!-- modified by wakamori -->
 <form><textarea id="code" name="code"></textarea></form>
-<input type="button" id="eval" value="eval"/>
+<input type="button" id="eval" name="eval" value="eval"/>
 </body>
 </html>'''
 
 elif method == 'POST':
-	print '''Content-Type: text/html
-
+	print '''Content-Type: text/plain
 '''
 	# get access time
 	mon,day,hour,min,sec = time.localtime()[1:6]
