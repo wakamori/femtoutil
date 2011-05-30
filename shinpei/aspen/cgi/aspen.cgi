@@ -30,14 +30,13 @@ if method == "GET":
 <link rel='stylesheet' href='../aspen/mode/konoha/konoha.css'>
 
 <script src="../aspen/js/aspen.js"></script>
-<script src="../aspen/js/popup.js"></script>
-<link rel="stylesheet" href="../aspen/css/popup.css">
 
 <head>
 <body>
 <!-- modified by wakamori -->
 <form><textarea id="code" name="code"></textarea></form>
 <input type="button" id="eval" name="eval" value="eval"/>
+<div id="result"></div>
 </body>
 </html>'''
 
@@ -84,13 +83,13 @@ elif method == 'POST':
 	if len(outlines) > 0:
 		print '実行結果'
 		for line in outlines:
-			print line
+			print line,
 
 	errlines = p.stderr.readlines()
 	if len(errlines) > 0:
 		print 'エラー'
 		for line in errlines:
-			print line
+			print line,
 
 	# check if process was killed with signal
 	r = p.wait()
