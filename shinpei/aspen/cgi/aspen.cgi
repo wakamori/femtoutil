@@ -2,7 +2,12 @@
 # -*- coding: utf-8 -*-
 
 '''
-提供された情報を表示する
+ aspen.cgi : small script for invoking konoha
+  shinpei_NKT, chen_ji, utrhira (C)2011
+
+ version:
+  0.0.2 : show result with textfile. (utr)
+  0.0.1 : first commit.(shinpei_NKT)
 '''
 
 import cgi
