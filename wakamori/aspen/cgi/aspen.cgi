@@ -17,29 +17,31 @@ import os
 import sys
 import time
 
-#cgitb.enable() for debug
+cgitb.enable()
 
 method = os.environ['REQUEST_METHOD']
 if method == "GET":
 	# output page content
 	print '''Content-type: text/html
 
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="ja">
-<meta charset="UTF-8">
-<script src='../aspen/js/mootools-core-1.3.2-full-compat.js'></script>
-<script src='../aspen/js/codemirror.js'></script>
-<link rel='stylesheet' href='../aspen/css/codemirror.css'>
-
-<script src='../aspen/mode/konoha/konoha.js'></script>
-<link rel='stylesheet' href='../aspen/mode/konoha/konoha.css'>
-
-<script src="../aspen/js/aspen.js"></script>
-
 <head>
+<title>Aspen - An online KonohaScript editor</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<script type="text/javascript" src='../aspen/js/mootools-core-1.3.2-full-compat.js'></script>
+<script type="text/javascript" src='../aspen/js/codemirror.js'></script>
+<script type="text/javascript" src='../aspen/mode/konoha/konoha.js'></script>
+<script type="text/javascript" src="../aspen/js/aspen.js"></script>
+<link rel='stylesheet' href='../aspen/css/codemirror.css'>
+<link rel='stylesheet' href='../aspen/mode/konoha/konoha.css'>
+</head>
 <body>
-<!-- modified by wakamori -->
-<form><textarea id="code" name="code"></textarea></form>
+<form action="../cgi-bin/aspen.cgi">
+<textarea id="code" name="code" rows="30" cols="80">
+</textarea>
+</form>
 <input type="button" id="eval" name="eval" value="eval"/>
 <div id="result"></div>
 </body>
