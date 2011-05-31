@@ -12,7 +12,7 @@ CodeMirror.defineMode("konoha", function(config, parserConfig) {
     return {
       "if": A, "while": A, "for": A, "foreach": A,
       "do": B, "else": B, "finally": B, "try": B,
-      "assert": C, "break": C, "continue": C, "new": C, "return": C, "throw": C,
+      "assert": C, "break": C, "continue": C, "new": C, "return": C, "throw": C, "print": C,
       "const": D, "final": D, "private": D, "public": D, "register": D, "static": D,
       "import": E, "include": E, "using": E,
       "and": O, "exists": O, "instanceof": O, "not": O, "or": O, "typeof": O,

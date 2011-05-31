@@ -62,9 +62,9 @@ elif method == 'POST':
 	# settle script filename
 	filename = foldername + '/' + 'us_' + '%02d%02d%02d' % (hour, min, sec)
 	suffix = 0
-	while os.path.exists(filename + '.k'):
-		filename = filename + '-' + str(suffix)
+	while os.path.exists(filename + '-' + str(suffix) + '.k'):
 		suffix += 1
+	filename = filename + '-' + str(suffix)
 
 	# get kscript from posted content
 	kscript = ""
@@ -72,31 +72,29 @@ elif method == 'POST':
 	content = cgi.parse_qs(sys.stdin.read(content_length))
 	if 'kscript' in content:
 		kscript = content['kscript'][0]
-	
+
 	# create script file
 	filename = filename + '.k'
 	userscript = open(filename, 'w')
 	userscript.write(kscript)
 	userscript.close()
-	
+
 	# exec konoha as subprocess
 	command = "/usr/local/bin/konoha " + filename
 	p = subprocess.Popen(command, shell=True,
-			     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-			     stderr=subprocess.PIPE, close_fds=True)
-	
+			stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE, close_fds=True)
+
 	# output result
 	outlines = p.stdout.readlines()
 	if len(outlines) > 0:
-		print '実行結果'
 		for line in outlines:
-			print line,
+			print line
 
 	errlines = p.stderr.readlines()
 	if len(errlines) > 0:
-		print 'エラー'
 		for line in errlines:
-			print line,
+			print line
 
 	# check if process was killed with signal
 	r = p.wait()
