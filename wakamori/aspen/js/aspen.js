@@ -3,10 +3,6 @@
 var Aspen;
 if (!Aspen) Aspen = {};
 
-function escapeAll(text) {
-	return escape(text).replace(new RegExp( "\\+", "g" ),"%2B");
-}
-
 (function() {
 	var requestflag = true;
 	var resnum = 0;
@@ -23,20 +19,24 @@ function escapeAll(text) {
 		return resnum++;
 	};
 	Aspen.postScript = function(text) {
-		var xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState == 4) {
-				if (xhr.status == 200) {
-					var rtexts = xhr.responseText.split("\\\n");
-					document.getElementById("stdout").innerText = rtexts[0];
-					document.getElementById("stderr").innerText = rtexts[1];
-					document.getElementById("message").innerText = rtexts[2];
+		$("#result").text("Evaluating...");
+		$.ajax({
+			type: "POST",
+			url: "./cgi/aspen.cgi",
+			data: {
+				"kscript": text
+			},
+			success: function(data) {
+				$("#result").empty();
+				json = JSON.parse(data);
+				for (var i = 0; i < json.length; i++) {
+					var key = json[i].key;
+					var val = json[i].value;
+					$("<span/>").attr("class", key).append(val).appendTo("#result");
+					$("#result").append("<br />");
 				}
 			}
-		};
-		xhr.open("POST", location.href, true); // async
-		xhr.setRequestHeader("Content-Type", "text/plain");
-		xhr.send("kscript=" + escapeAll(text));
+		});
 		Aspen.denyRequest();
 	}
 })();

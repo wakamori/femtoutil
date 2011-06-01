@@ -6,8 +6,9 @@
   shinpei_NKT, chen_ji, utrhira (C)2011
 
  version:
+  0.0.3 : added jQuery and index.html. (chen_ji)
   0.0.2 : show result with textfile. (utr)
-  0.0.1 : first commit.(shinpei_NKT)
+  0.0.1 : first commit. (shinpei_NKT)
 '''
 
 import cgi
@@ -16,43 +17,15 @@ import subprocess
 import os
 import sys
 import time
+import json
 
+# enable debug
 cgitb.enable()
 
+# get request method
 method = os.environ['REQUEST_METHOD']
-if method == "GET":
-	# output page content
-	print '''Content-Type: text/html
 
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
-<head>
-<title>Aspen - An online KonohaScript editor</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="Content-Script-Type" content="text/javascript" />
-<script type="text/javascript" src='../aspen/js/mootools-core-1.3.2-full-compat.js'></script>
-<script type="text/javascript" src='../aspen/js/codemirror.js'></script>
-<script type="text/javascript" src='../aspen/mode/konoha/konoha.js'></script>
-<script type="text/javascript" src="../aspen/js/aspen.js"></script>
-<link rel='stylesheet' href='../aspen/css/codemirror.css' />
-<link rel='stylesheet' href='../aspen/css/aspen.css' />
-<link rel='stylesheet' href='../aspen/mode/konoha/konoha.css' />
-</head>
-<body>
-<form action="../cgi-bin/aspen.cgi">
-<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
-</form>
-<input type="button" id="eval" name="eval" value="eval" />
-<div id="result">
-<span id="stdout" class="stdout"><br /></span>
-<span id="stderr" class="stderr"><br /></span>
-<span id="message" class="message"><br /></span>
-</div>
-</body>
-</html>'''
-
-elif method == 'POST':
+if method == 'POST':
 	print 'Content-Type: text/plain\n'
 	# get access time
 	mon,day,hour,min,sec = time.localtime()[1:6]
@@ -91,28 +64,24 @@ elif method == 'POST':
 
 	# output result
 	outlines = p.stdout.readlines()
+	out = ''
 	if len(outlines) > 0:
 		for line in outlines:
-			if len(line) > 0:
-				print line
-
-	# separator
-	print '\\'
+			out = out + line
 
 	errlines = p.stderr.readlines()
+	err = ''
 	if len(errlines) > 0:
 		for line in errlines:
-			print line
-
-	# separator
-	print '\\'
+			err = err + line
 
 	# check if process was killed with signal
 	r = p.wait()
+	msg = ''
 	if r == 0:
-		print 'Program exited normally.'
+		msg = 'Program exited normally.'
 	elif r == -11:
-		print 'Program exited unexpectedly. This script will be reported as \
+		msg = 'Program exited unexpectedly. This script will be reported as \
 		a bug. Sorry.'
 		# copy script to 'bugs' dir
 		import shutil
@@ -121,3 +90,9 @@ elif method == 'POST':
 		if not os.path.exists(bugfoldername):
 			os.makedirs(bugfoldername)
 		shutil.copy(filename, bugfoldername)
+
+	print json.dumps([
+		{'key': 'stdout', 'value': out},
+		{'key': 'stderr', 'value': err},
+		{'key': 'message', 'value': msg}
+		])
