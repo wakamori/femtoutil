@@ -1,0 +1,12 @@
+/* aspen style */
+
+.stdout {
+	color: green;
+}
+
+.stderr {
+	color: red;
+}
+
+.message {
+}

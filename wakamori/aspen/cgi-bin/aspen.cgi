@@ -22,34 +22,38 @@ cgitb.enable()
 method = os.environ['REQUEST_METHOD']
 if method == "GET":
 	# output page content
-	print '''Content-type: text/html
+	print '''Content-Type: text/html
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html lang="ja">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
 <head>
 <title>Aspen - An online KonohaScript editor</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="Content-Script-Type" content="text/javascript">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
 <script type="text/javascript" src='../aspen/js/mootools-core-1.3.2-full-compat.js'></script>
 <script type="text/javascript" src='../aspen/js/codemirror.js'></script>
 <script type="text/javascript" src='../aspen/mode/konoha/konoha.js'></script>
 <script type="text/javascript" src="../aspen/js/aspen.js"></script>
-<link rel='stylesheet' href='../aspen/css/codemirror.css'>
-<link rel='stylesheet' href='../aspen/mode/konoha/konoha.css'>
+<link rel='stylesheet' href='../aspen/css/codemirror.css' />
+<link rel='stylesheet' href='../aspen/css/aspen.css' />
+<link rel='stylesheet' href='../aspen/mode/konoha/konoha.css' />
 </head>
 <body>
 <form action="../cgi-bin/aspen.cgi">
-<textarea id="code" name="code" rows="30" cols="80">
-</textarea>
+<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
 </form>
-<input type="button" id="eval" name="eval" value="eval"/>
-<div id="result"></div>
+<input type="button" id="eval" name="eval" value="eval" />
+<div id="result">
+<span id="stdout" class="stdout"><br /></span>
+<span id="stderr" class="stderr"><br /></span>
+<span id="message" class="message"><br /></span>
+</div>
 </body>
 </html>'''
 
 elif method == 'POST':
-	print '''Content-Type: text/plain
-'''
+	print 'Content-Type: text/plain\n'
 	# get access time
 	mon,day,hour,min,sec = time.localtime()[1:6]
 
@@ -67,7 +71,7 @@ elif method == 'POST':
 	filename = filename + '-' + str(suffix)
 
 	# get kscript from posted content
-	kscript = ""
+	kscript = ''
 	content_length = int(os.environ['CONTENT_LENGTH'])
 	content = cgi.parse_qs(sys.stdin.read(content_length))
 	if 'kscript' in content:
@@ -80,7 +84,7 @@ elif method == 'POST':
 	userscript.close()
 
 	# exec konoha as subprocess
-	command = "/usr/local/bin/konoha " + filename
+	command = '/usr/local/bin/konoha ' + filename
 	p = subprocess.Popen(command, shell=True,
 			stdin=subprocess.PIPE, stdout=subprocess.PIPE,
 			stderr=subprocess.PIPE, close_fds=True)
@@ -89,19 +93,27 @@ elif method == 'POST':
 	outlines = p.stdout.readlines()
 	if len(outlines) > 0:
 		for line in outlines:
-			print line
+			if len(line) > 0:
+				print line
+
+	# separator
+	print '\\'
 
 	errlines = p.stderr.readlines()
 	if len(errlines) > 0:
 		for line in errlines:
 			print line
 
+	# separator
+	print '\\'
+
 	# check if process was killed with signal
 	r = p.wait()
 	if r == 0:
-		print 'プログラムは正常終了しました。'
+		print 'Program exited normally.'
 	elif r == -11:
-		print 'プログラムは異常終了しました。エラー情報は報告されます。'
+		print 'Program exited unexpectedly. This script will be reported as \
+		a bug. Sorry.'
 		# copy script to 'bugs' dir
 		import shutil
 		bugdir = 'bugs'

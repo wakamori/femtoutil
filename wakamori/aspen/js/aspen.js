@@ -23,12 +23,14 @@ function escapeAll(text) {
 		return resnum++;
 	};
 	Aspen.postScript = function(text) {
-		var view = document.getElementById("result");
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4) {
 				if (xhr.status == 200) {
-					view.innerText = xhr.responseText;
+					var rtexts = xhr.responseText.split("\\\n");
+					document.getElementById("stdout").innerText = rtexts[0];
+					document.getElementById("stderr").innerText = rtexts[1];
+					document.getElementById("message").innerText = rtexts[2];
 				}
 			}
 		};
