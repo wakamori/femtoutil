@@ -1,5 +1,9 @@
 /* aspen style */
 
+body {
+	/*background-color: black;*/
+}
+
 .stdout {
 	color: green;
 }
@@ -9,4 +13,5 @@
 }
 
 .message {
+	color: gray;
 }

@@ -13,11 +13,12 @@
 
 import cgi
 import cgitb
-import subprocess
+import json
 import os
+import shutil
+import subprocess
 import sys
 import time
-import json
 
 # enable debug
 cgitb.enable()
@@ -28,7 +29,7 @@ method = os.environ['REQUEST_METHOD']
 if method == 'POST':
 	print 'Content-Type: text/plain\n'
 	# get access time
-	mon,day,hour,min,sec = time.localtime()[1:6]
+	mon, day, hour, min, sec = time.localtime()[1:6]
 
 	# create script dir
 	scrdir = 'scripts'
@@ -65,34 +66,32 @@ if method == 'POST':
 	# output result
 	outlines = p.stdout.readlines()
 	out = ''
-	if len(outlines) > 0:
-		for line in outlines:
-			out = out + line
+	for line in outlines:
+		out = out + line + '<br />'
 
 	errlines = p.stderr.readlines()
 	err = ''
-	if len(errlines) > 0:
-		for line in errlines:
-			err = err + line
+	for line in errlines:
+		err = err + line + '<br />'
 
 	# check if process was killed with signal
 	r = p.wait()
 	msg = ''
 	if r == 0:
-		msg = 'Program exited normally.'
+		msg = 'Konoha exited normally.'
 	elif r == -11:
-		msg = 'Program exited unexpectedly. This script will be reported as \
+		msg = 'Konoha exited unexpectedly. This script will be reported as \
 		a bug. Sorry.'
 		# copy script to 'bugs' dir
-		import shutil
 		bugdir = 'bugs'
 		bugfoldername = bugdir + '/' + '%02d%02d' % (mon, day)
 		if not os.path.exists(bugfoldername):
 			os.makedirs(bugfoldername)
 		shutil.copy(filename, bugfoldername)
 
+	# return values as a json object
 	print json.dumps([
 		{'key': 'stdout', 'value': out},
 		{'key': 'stderr', 'value': err},
-		{'key': 'message', 'value': msg}
+		{'key': 'message', 'value': msg},
 		])
