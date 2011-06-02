@@ -5,15 +5,72 @@ var Aspen;
 if (!Aspen) Aspen = {};
 
 (function() {
-	var requestflag = true;
+	var requestflag;
+	var myCodeMirror;
+	Aspen.start = function() {
+		myCodeMirror = CodeMirror.fromTextArea($("#code")[0], {
+			lineNumbers: true,
+			matchBrackets: true,
+			mode: "text/konoha",
+			onKeyEvent: function(editor, key) {
+				//// Hook into ctrl-space
+				//if (key.keyCode == 32 && (key.ctrlKey || key.metaKey) && !key.altKey) {
+				//	key.stop();
+				//	return AutoCompletion.startComplete(myCodeMirror);
+				//}
+				// Hook into Shift-Enter
+				if (key.type == "keydown") {
+					if (key.keyCode == 13) {
+						if (key.shiftKey) {
+							if (Aspen.requestAllowed()) {
+								var text = editor.getValue();
+								if (text.length > 0) {
+									Aspen.postScript(text);
+								}
+							}
+							key.returnValue = false;
+						} else {
+							Aspen.allowRequest();
+						}
+					} else if (!key.shiftKey) {
+						Aspen.allowRequest();
+					}
+				}
+			}
+		});
+		Aspen.loadCookie();
+		Aspen.allowRequest();
+		$("#eval")[0].onclick = function() {
+			if (Aspen.requestAllowed()) {
+				var text = myCodeMirror.getValue();
+				if (text.length > 0) {
+					Aspen.postScript(text);
+				}
+			}
+		};
+	};
 	Aspen.allowRequest = function() {
 		requestflag = true;
 	};
 	Aspen.denyRequest = function() {
 		requestflag = false;
-	}
+	};
 	Aspen.requestAllowed = function() {
 		return requestflag;
+	};
+	Aspen.loadCookie = function() {
+		if ($.cookie("code")) {
+			myCodeMirror.setValue($.cookie("code"));
+		}
+	};
+	Aspen.saveCookie = function() {
+		$.cookie("code", null);
+		var date = new Date();
+		date.setTime(date.getTime() + (30 * 60 * 1000)); // 30 minutes
+		$.cookie("code", myCodeMirror.getValue(), {
+			expires: date,
+			path: "/"
+		});
 	};
 	Aspen.postScript = function(text) {
 		$("#result").text("Evaluating...");
@@ -37,46 +94,10 @@ if (!Aspen) Aspen = {};
 			}
 		});
 		Aspen.denyRequest();
-	}
+		Aspen.saveCookie();
+	};
 })();
 
 $(function() {
-	var myCodeMirror = CodeMirror.fromTextArea($("#code")[0], {
-		lineNumbers: true,
-		matchBrackets: true,
-		mode: "text/konoha",
-		onKeyEvent: function(editor, key) {
-			//// Hook into ctrl-space
-			//if (key.keyCode == 32 && (key.ctrlKey || key.metaKey) && !key.altKey) {
-			//	key.stop();
-			//	return AutoCompletion.startComplete(myCodeMirror);
-			//}
-			// Hook into Shift-Enter
-			if (key.type == "keydown") {
-				if (key.keyCode == 13) {
-					if (key.shiftKey) {
-						if (Aspen.requestAllowed()) {
-							var text = editor.getValue();
-							if (text.length > 0) {
-								Aspen.postScript(text);
-							}
-						}
-						key.returnValue = false;
-					} else {
-						Aspen.allowRequest();
-					}
-				} else if (!key.shiftKey) {
-					Aspen.allowRequest();
-				}
-			}
-		}
-	});
-	$("#eval")[0].onclick = function() {
-		if (Aspen.requestAllowed()) {
-			var text = myCodeMirror.getValue();
-			if (text.length > 0) {
-				Aspen.postScript(text);
-			}
-		}
-	};
+	Aspen.start();
 });
