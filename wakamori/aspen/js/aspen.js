@@ -121,4 +121,13 @@ $(function() {
 			return "Script is not saved. Exit anyway?";
 		}
 	}
+//	$("#login").click(function(e) {
+//		$("#user").lightbox_me({
+//			centered: true,
+//			onLoad: function() {
+//				$("#user").find("input:first").focus();
+//			}
+//		});
+//		e.preventDefault();
+//	});
 });
