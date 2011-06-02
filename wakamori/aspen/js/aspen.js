@@ -40,6 +40,7 @@ if (!Aspen) Aspen = {};
 			onKeyEvent: keyevent
 		});
 		Aspen.loadCookie();
+		Aspen.saveCookie();
 		Aspen.allowRequest();
 		$("#eval")[0].onclick = function() {
 			if (Aspen.requestAllowed()) {
