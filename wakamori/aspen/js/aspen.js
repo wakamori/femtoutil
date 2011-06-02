@@ -48,6 +48,16 @@ if (!Aspen) Aspen = {};
 				}
 			}
 		};
+		$("#save")[0].onclick = function() {
+		};
+		$("#file")[0].onchange = function() {
+			var fileList = $("#file")[0].files;
+			var reader = new FileReader();
+			reader.readAsText(fileList[0], "utf-8");
+			reader.onload = function(e) {
+				myCodeMirror.setValue(e.target.result);
+			};
+		};
 	};
 	Aspen.allowRequest = function() {
 		requestflag = true;
