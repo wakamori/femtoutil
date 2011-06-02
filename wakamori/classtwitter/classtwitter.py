@@ -1,8 +1,9 @@
-#!/c/cygwin/bin/python
+#!/usr/bin/env python
 # -*- encoding:utf-8 -*-
 
 import ssh
 import os
+import re
 import time
 import twitter
 import ConfigParser
@@ -43,12 +44,12 @@ class ClassTwitter:
 		count = 0
 		newlist = self.s.execute(self.cmd)[1:]
 		for line in newlist:
-			s = line.split(' ')
-			key = s[9][:-1]
+			s = re.split(' +', line)
+			key = s[8][:-1]
 			if not key in self.newstudents.keys():
 				if not key in self.oldstudents.keys():
 					count = count + 1
-					self.newstudents[key] = s[8]
+					self.newstudents[key] = s[7]
 		print 'newcount=', count, 'stackcount=', len(self.newstudents)
 
 	def run(self, interval=10):
@@ -69,7 +70,7 @@ class ClassTwitter:
 				break
 		print 'send ' + message.decode('utf-8')
 		try:
-			self.api.PostUpdate(message.decode('utf-8'))
+			#self.api.PostUpdate(message.decode('utf-8'))
 			self.write()
 		except:
 			print 'can\'t update'
