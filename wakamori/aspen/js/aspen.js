@@ -40,31 +40,36 @@ if (!Aspen) Aspen = {};
 	}
 })();
 
-CodeMirror.defaults.onKeyEvent = function(editor, key) {
-	if (key.type == "keydown") {
-		if (key.keyCode == 13) {
-			if (key.shiftKey) {
-				if (Aspen.requestAllowed()) {
-					var text = editor.getValue();
-					if (text.length > 0) {
-						Aspen.postScript(text);
-					}
-				}
-				key.returnValue = false;
-			} else {
-				Aspen.allowRequest();
-			}
-		} else if (!key.shiftKey) {
-			Aspen.allowRequest();
-		}
-	}
-};
-
 $(function() {
 	var myCodeMirror = CodeMirror.fromTextArea($("#code")[0], {
 		lineNumbers: true,
 		matchBrackets: true,
-		mode: "text/konoha"
+		mode: "text/konoha",
+		onKeyEvent: function(editor, key) {
+			//// Hook into ctrl-space
+			//if (key.keyCode == 32 && (key.ctrlKey || key.metaKey) && !key.altKey) {
+			//	key.stop();
+			//	return AutoCompletion.startComplete(myCodeMirror);
+			//}
+			// Hook into Shift-Enter
+			if (key.type == "keydown") {
+				if (key.keyCode == 13) {
+					if (key.shiftKey) {
+						if (Aspen.requestAllowed()) {
+							var text = editor.getValue();
+							if (text.length > 0) {
+								Aspen.postScript(text);
+							}
+						}
+						key.returnValue = false;
+					} else {
+						Aspen.allowRequest();
+					}
+				} else if (!key.shiftKey) {
+					Aspen.allowRequest();
+				}
+			}
+		}
 	});
 	$("#eval")[0].onclick = function() {
 		if (Aspen.requestAllowed()) {
