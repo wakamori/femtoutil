@@ -7,36 +7,37 @@ if (!Aspen) Aspen = {};
 (function() {
 	var requestflag;
 	var myCodeMirror;
+	var keyevent = function(editor, key) {
+		//// Hook into ctrl-space
+		//if (key.keyCode == 32 && (key.ctrlKey || key.metaKey) && !key.altKey) {
+		//	key.stop();
+		//	return AutoCompletion.startComplete(myCodeMirror);
+		//}
+		// Hook into Shift-Enter
+		if (key.type == "keydown") {
+			if (key.keyCode == 13) {
+				if (key.shiftKey) {
+					if (Aspen.requestAllowed()) {
+						var text = editor.getValue();
+						if (text.length > 0) {
+							Aspen.postScript(text);
+						}
+					}
+					key.returnValue = false;
+				} else {
+					Aspen.allowRequest();
+				}
+			} else if (!key.shiftKey) {
+				Aspen.allowRequest();
+			}
+		}
+	};
 	Aspen.start = function() {
 		myCodeMirror = CodeMirror.fromTextArea($("#code")[0], {
 			lineNumbers: true,
 			matchBrackets: true,
 			mode: "text/konoha",
-			onKeyEvent: function(editor, key) {
-				//// Hook into ctrl-space
-				//if (key.keyCode == 32 && (key.ctrlKey || key.metaKey) && !key.altKey) {
-				//	key.stop();
-				//	return AutoCompletion.startComplete(myCodeMirror);
-				//}
-				// Hook into Shift-Enter
-				if (key.type == "keydown") {
-					if (key.keyCode == 13) {
-						if (key.shiftKey) {
-							if (Aspen.requestAllowed()) {
-								var text = editor.getValue();
-								if (text.length > 0) {
-									Aspen.postScript(text);
-								}
-							}
-							key.returnValue = false;
-						} else {
-							Aspen.allowRequest();
-						}
-					} else if (!key.shiftKey) {
-						Aspen.allowRequest();
-					}
-				}
-			}
+			onKeyEvent: keyevent
 		});
 		Aspen.loadCookie();
 		Aspen.allowRequest();
@@ -57,6 +58,7 @@ if (!Aspen) Aspen = {};
 			reader.onload = function(e) {
 				myCodeMirror.setValue(e.target.result);
 			};
+			Aspen.saveCookie();
 		};
 	};
 	Aspen.allowRequest = function() {
@@ -67,6 +69,9 @@ if (!Aspen) Aspen = {};
 	};
 	Aspen.requestAllowed = function() {
 		return requestflag;
+	};
+	Aspen.getText = function() {
+		return myCodeMirror.getValue();
 	};
 	Aspen.loadCookie = function() {
 		if ($.cookie("code")) {
@@ -110,4 +115,9 @@ if (!Aspen) Aspen = {};
 
 $(function() {
 	Aspen.start();
+	window.onbeforeunload = function() {
+		if ($.cookie("code") != Aspen.getText()) {
+			return "Script is not saved. Exit anyway?";
+		}
+	}
 });
