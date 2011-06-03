@@ -20,8 +20,7 @@ if (!Aspen) Aspen = {};
 					if (Aspen.requestAllowed()) {
 						var text = editor.getValue();
 						if (text.length > 0) {
-							var mode = 0; // eval
-							Aspen.postScript(text, mode);
+							Aspen.postScript(text);
 						}
 					}
 					key.returnValue = false;
@@ -47,19 +46,17 @@ if (!Aspen) Aspen = {};
 			if (Aspen.requestAllowed()) {
 				var text = myCodeMirror.getValue();
 				if (text.length > 0) {
-					var mode = 0; // eval
-					Aspen.postScript(text, mode);
+					Aspen.postScript(text);
 				}
 			}
 		};
 		$("#save")[0].onclick = function() {
-			if (Aspen.requestAllowed()) {
-				var text = myCodeMirror.getValue();
-				if (text.length > 0) {
-					var mode = 1; // save
-					Aspen.postScript(text, mode);
-				}
-			}
+			//if (Aspen.requestAllowed()) {
+			//	var text = myCodeMirror.getValue();
+			//	if (text.length > 0) {
+			//		Aspen.postScript(text);
+			//	}
+			//}
 		};
 		$("#file")[0].onchange = function() {
 			var fileList = $("#file")[0].files;
@@ -90,26 +87,25 @@ if (!Aspen) Aspen = {};
 	};
 	Aspen.saveCookie = function() {
 		$.cookie("code", null);
+		$.cookie("name", null);
 		var date = new Date();
 		date.setTime(date.getTime() + (30 * 60 * 1000)); // 30 minutes
 		$.cookie("code", myCodeMirror.getValue(), {
 			expires: date,
 			path: "/"
 		});
+		$.cookie("name", date.getTime());
 	};
-	Aspen.postScript = function(text, pmode) {
-		if (pmode == 0) { // eval
-			$("#result").text("Evaluating...");
-		}
+	Aspen.postScript = function(text) {
+		$("#result").text("Evaluating...");
 		$.ajax({
 			type: "POST",
 			url: "./cgi/aspen.cgi",
-			mode: pmode,
 			data: {
 				"kscript": text
 			},
 			success: function(data) {
-				$("#result").empty();
+				$("#result").empty()
 				var json = JSON.parse(data);
 				for (var i = 0; i < json.length; i++) {
 					var key = json[i].key;
@@ -121,8 +117,19 @@ if (!Aspen) Aspen = {};
 				}
 			}
 		});
-		Aspen.denyRequest();
-		Aspen.saveCookie();
+		$.ajax({
+			type: "POST",
+			url: "./cgi/aspen.cgi",
+			data: {
+				"kscript": text,
+			},
+			success: function(data) {
+				clearTimeout(PeriodicalTimer);
+				var json = JSON.parse(data);
+				$("<span/>").attr("class", json[0].key).append(json[0].value).appendTo("#result");
+				$("#result").append("<br />");
+			}
+		});
 	};
 })();
 
@@ -133,10 +140,6 @@ $(function() {
 			return "Script is not saved. Exit anyway?";
 		}
 	}
-	$("#cancel").click( function() {
-			document.location = "http://www.ubicg.ynu.ac.jp/lab"
-		}
-	);
 	$("#sign_up").lightbox_me({
 		centered: true,
 		closeClick: false,
@@ -145,6 +148,10 @@ $(function() {
 			$("#sign_up").find("input:first").focus();
 		}
 	});
+	$("#cancel").click( function() {
+			document.location = "http://www.ubicg.ynu.ac.jp/lab"
+		}
+	);
 });
 
 
