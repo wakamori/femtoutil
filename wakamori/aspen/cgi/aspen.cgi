@@ -19,6 +19,7 @@ import shutil
 import subprocess
 import sys
 import time
+import aspendb
 
 # enable debug
 cgitb.enable()
@@ -27,6 +28,28 @@ cgitb.enable()
 method = os.environ['REQUEST_METHOD']
 
 if method == 'POST':
+
+	# get contents from posted query
+	content_length = int(os.environ['CONTENT_LENGTH'])
+	contents = cgi.parse_qs(sys.stdin.read(content_length))
+
+	# switch by method type
+	if 'method' in content:
+		mtype = content['method'][0]
+	if mtype == 'login':
+		login(content['username'][0], content['password'][0])
+	elif mtype == 'eval':
+		evalScript(content['kscript'][0])
+
+def login(username, password):
+	print 'Content-Type: text/plain\n'
+	asession = new AspenSession(username, password)
+	astorage = new AspenStorage()
+	if (astorage.authenticate(asession)):
+		print "Authentication successed."
+	print "Authentication Failed."
+
+def evalScript():
 	print 'Content-Type: text/plain\n'
 	# get access time
 	mon, day, hour, min, sec = time.localtime()[1:6]
@@ -50,6 +73,10 @@ if method == 'POST':
 	content = cgi.parse_qs(sys.stdin.read(content_length))
 	if 'kscript' in content:
 		kscript = content['kscript'][0]
+
+	# get method type from posted content
+	if 'method' in content:
+		mtype = content['method'][0]
 
 	# create script file
 	filename = filename + '.k'
@@ -93,5 +120,5 @@ if method == 'POST':
 	print json.dumps([
 		{'key': 'stdout', 'value': out},
 		{'key': 'stderr', 'value': err},
-		{'key': 'message', 'value': msg},
+		{'key': 'message', 'value': msg}
 		])

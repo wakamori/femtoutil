@@ -102,39 +102,48 @@ if (!Aspen) Aspen = {};
 		Aspen.saveCookie();
 		var nowdate = new Date();
 		//var filepath = String.format("%02d%02d", nowdate.getMonth(), nowdate.getDate()) + "/" + $.cookie("name");
-		$.PeriodicalUpdater(
-			"./cgi/reader.cgi",
-			{
-				method: "GET",
-				minTimeout: 100
-			},
-			function(data) {
-				$("#result").empty()
-				var json = JSON.parse(data);
-				for (var i = 0; i < json.length; i++) {
-					var key = json[i].key;
-					var val = json[i].value;
-					if (val.length > 0) {
-						$("<span/>").attr("class", key).append(val).appendTo("#result");
-						$("#result").append("<br />");
-					}
-				}
-				$("#result").append(data);
-			}
-		);
+//		$.PeriodicalUpdater(
+//			"./cgi/reader.cgi",
+//			{
+//				method: "GET",
+//				minTimeout: 100
+//			},
+//			function(data) {
+//				$("#result").empty()
+//				var json = JSON.parse(data);
+//				for (var i = 0; i < json.length; i++) {
+//					var key = json[i].key;
+//					var val = json[i].value;
+//					if (val.length > 0) {
+//						$("<span/>").attr("class", key).append(val).appendTo("#result");
+//						$("#result").append("<br />");
+//					}
+//				}
+//				$("#result").append(data);
+//			}
+//		);
 		$.ajax({
-			type: "POST",
-			url: "./cgi/aspen.cgi",
-			data: {
-				"kscript": text,
-			},
+			url: "./test.txt",
+			type: "GET",
+			dataType: "txt",
+			timeout: 1000,
 			success: function(data) {
-				clearTimeout(PeriodicalTimer);
-				var json = JSON.parse(data);
-				$("<span/>").attr("class", json[0].key).append(json[0].value).appendTo("#result");
-				$("#result").append("<br />");
+				$("#result").append(data + '<br />');
 			}
 		});
+//		$.ajax({
+//			type: "POST",
+//			url: "./cgi/aspen.cgi",
+//			data: {
+//				"kscript": text,
+//			},
+//			success: function(data) {
+//				clearTimeout(PeriodicalTimer);
+//				var json = JSON.parse(data);
+//				$("<span/>").attr("class", json[0].key).append(json[0].value).appendTo("#result");
+//				$("#result").append("<br />");
+//			}
+//		});
 	};
 })();
 
@@ -145,16 +154,16 @@ $(function() {
 			return "Script is not saved. Exit anyway?";
 		}
 	}
-	$("#sign_up").lightbox_me({
+	$("#username.sprited").focus(function() {
+		$(this).val("");
+	});
+	$("#loginform").lightbox_me({
 		centered: true,
 		closeClick: false,
-		closeEsc: false,
-		onLoad: function() {
-			$("#sign_up").find("input:first").focus();
-		}
+		closeEsc: false
 	});
-	$("#cancel").click( function() {
-			document.location = "http://www.ubicg.ynu.ac.jp/lab"
-		}
-	);
+	$("#cancel").click(function() {
+		$("#username").val("");
+		$("#password").val("");
+	});
 });

@@ -27,17 +27,15 @@
 		<div id="result">
 			<span class="message">Result will be displayed here.</span>
 		</div>
-		<div id="sign_up">
-			<h3 id="see_id" class="sprited" >Welcome to Aspen.</h3>
-			<span>Please sign in using the form below</span>
-			<div id="sign_up_form">
-				<label><strong>Username:</strong> <input class="sprited"/></label>
-				<label><strong>Password:</strong> <input class="sprited"/></label>
-				<div id="actions">
-					<a class="form_button sprited" id="log_in" href="#">Sign in</a>
-					<a class="close form_button sprited" id="cancel" href="#">Back to Kuramitsu Lab</a>
-				</div>
-			</div>
-		</div>
+		<form id="loginform" name="loginform" action="./cgi/aspen.cgi" method="post">
+			<table summary="Login dialog.">
+				<tr><th colspan="2">Welcome to Aspen.</th></tr>
+				<tr><td colspan="2">Please sign in using the form below</td></tr>
+				<tr><th>username</th><td><input type="text" class="sprited" id="username" value="name" /></td></tr>
+				<tr><th>password</th><td><input type="password" class="sprited" id="password" name="password" /></td></tr>
+			</table>
+			<input class="loginbutton" type="submit" id="signin" value="Sign in" />
+			<input class="loginbutton" type="button" id="cancel" name="cancel" value="Cancel" />
+		</form>
 	</body>
-</html> 
+</html>
