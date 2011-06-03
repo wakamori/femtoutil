@@ -51,6 +51,12 @@ if (!Aspen) Aspen = {};
 			}
 		};
 		$("#save")[0].onclick = function() {
+			//if (Aspen.requestAllowed()) {
+			//	var text = myCodeMirror.getValue();
+			//	if (text.length > 0) {
+			//		Aspen.postScript(text);
+			//	}
+			//}
 		};
 		$("#file")[0].onchange = function() {
 			var fileList = $("#file")[0].files;
@@ -94,6 +100,8 @@ if (!Aspen) Aspen = {};
 		$("#result").text("Evaluating...");
 		Aspen.denyRequest();
 		Aspen.saveCookie();
+		var nowdate = new Date();
+		//var filepath = String.format("%02d%02d", nowdate.getMonth(), nowdate.getDate()) + "/" + $.cookie("name");
 		$.PeriodicalUpdater(
 			"./cgi/reader.cgi",
 			{
@@ -111,6 +119,7 @@ if (!Aspen) Aspen = {};
 						$("#result").append("<br />");
 					}
 				}
+				$("#result").append(data);
 			}
 		);
 		$.ajax({
@@ -136,13 +145,16 @@ $(function() {
 			return "Script is not saved. Exit anyway?";
 		}
 	}
-//	$("#login").click(function(e) {
-//		$("#user").lightbox_me({
-//			centered: true,
-//			onLoad: function() {
-//				$("#user").find("input:first").focus();
-//			}
-//		});
-//		e.preventDefault();
-//	});
+	$("#sign_up").lightbox_me({
+		centered: true,
+		closeClick: false,
+		closeEsc: false,
+		onLoad: function() {
+			$("#sign_up").find("input:first").focus();
+		}
+	});
+	$("#cancel").click( function() {
+			document.location = "http://www.ubicg.ynu.ac.jp/lab"
+		}
+	);
 });
