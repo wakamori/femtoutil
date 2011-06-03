@@ -7,38 +7,40 @@ if (!Aspen) Aspen = {};
 (function() {
 	var requestflag;
 	var myCodeMirror;
+	var keyevent = function(editor, key) {
+		//// Hook into ctrl-space
+		//if (key.keyCode == 32 && (key.ctrlKey || key.metaKey) && !key.altKey) {
+		//	key.stop();
+		//	return AutoCompletion.startComplete(myCodeMirror);
+		//}
+		// Hook into Shift-Enter
+		if (key.type == "keydown") {
+			if (key.keyCode == 13) {
+				if (key.shiftKey) {
+					if (Aspen.requestAllowed()) {
+						var text = editor.getValue();
+						if (text.length > 0) {
+							Aspen.postScript(text);
+						}
+					}
+					key.returnValue = false;
+				} else {
+					Aspen.allowRequest();
+				}
+			} else if (!key.shiftKey) {
+				Aspen.allowRequest();
+			}
+		}
+	};
 	Aspen.start = function() {
 		myCodeMirror = CodeMirror.fromTextArea($("#code")[0], {
 			lineNumbers: true,
 			matchBrackets: true,
 			mode: "text/konoha",
-			onKeyEvent: function(editor, key) {
-				//// Hook into ctrl-space
-				//if (key.keyCode == 32 && (key.ctrlKey || key.metaKey) && !key.altKey) {
-				//	key.stop();
-				//	return AutoCompletion.startComplete(myCodeMirror);
-				//}
-				// Hook into Shift-Enter
-				if (key.type == "keydown") {
-					if (key.keyCode == 13) {
-						if (key.shiftKey) {
-							if (Aspen.requestAllowed()) {
-								var text = editor.getValue();
-								if (text.length > 0) {
-									Aspen.postScript(text);
-								}
-							}
-							key.returnValue = false;
-						} else {
-							Aspen.allowRequest();
-						}
-					} else if (!key.shiftKey) {
-						Aspen.allowRequest();
-					}
-				}
-			}
+			onKeyEvent: keyevent
 		});
 		Aspen.loadCookie();
+		Aspen.saveCookie();
 		Aspen.allowRequest();
 		$("#eval")[0].onclick = function() {
 			if (Aspen.requestAllowed()) {
@@ -57,6 +59,7 @@ if (!Aspen) Aspen = {};
 			reader.onload = function(e) {
 				myCodeMirror.setValue(e.target.result);
 			};
+			Aspen.saveCookie();
 		};
 	};
 	Aspen.allowRequest = function() {
@@ -68,6 +71,9 @@ if (!Aspen) Aspen = {};
 	Aspen.requestAllowed = function() {
 		return requestflag;
 	};
+	Aspen.getText = function() {
+		return myCodeMirror.getValue();
+	};
 	Aspen.loadCookie = function() {
 		if ($.cookie("code")) {
 			myCodeMirror.setValue($.cookie("code"));
@@ -75,23 +81,27 @@ if (!Aspen) Aspen = {};
 	};
 	Aspen.saveCookie = function() {
 		$.cookie("code", null);
+		$.cookie("name", null);
 		var date = new Date();
 		date.setTime(date.getTime() + (30 * 60 * 1000)); // 30 minutes
 		$.cookie("code", myCodeMirror.getValue(), {
 			expires: date,
 			path: "/"
 		});
+		$.cookie("name", date.getTime());
 	};
 	Aspen.postScript = function(text) {
 		$("#result").text("Evaluating...");
-		$.ajax({
-			type: "POST",
-			url: "./cgi/aspen.cgi",
-			data: {
-				"kscript": text
+		Aspen.denyRequest();
+		Aspen.saveCookie();
+		$.PeriodicalUpdater(
+			"./cgi/reader.cgi",
+			{
+				method: "GET",
+				minTimeout: 100
 			},
-			success: function(data) {
-				$("#result").empty();
+			function(data) {
+				$("#result").empty()
 				var json = JSON.parse(data);
 				for (var i = 0; i < json.length; i++) {
 					var key = json[i].key;
@@ -102,12 +112,37 @@ if (!Aspen) Aspen = {};
 					}
 				}
 			}
+		);
+		$.ajax({
+			type: "POST",
+			url: "./cgi/aspen.cgi",
+			data: {
+				"kscript": text,
+			},
+			success: function(data) {
+				clearTimeout(PeriodicalTimer);
+				var json = JSON.parse(data);
+				$("<span/>").attr("class", json[0].key).append(json[0].value).appendTo("#result");
+				$("#result").append("<br />");
+			}
 		});
-		Aspen.denyRequest();
-		Aspen.saveCookie();
 	};
 })();
 
 $(function() {
 	Aspen.start();
+	window.onbeforeunload = function() {
+		if ($.cookie("code") != Aspen.getText()) {
+			return "Script is not saved. Exit anyway?";
+		}
+	}
+//	$("#login").click(function(e) {
+//		$("#user").lightbox_me({
+//			centered: true,
+//			onLoad: function() {
+//				$("#user").find("input:first").focus();
+//			}
+//		});
+//		e.preventDefault();
+//	});
 });
