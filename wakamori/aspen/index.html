@@ -7,9 +7,11 @@
 		<meta http-equiv="Content-Script-Type" content="text/javascript" />
 		<script type="text/javascript" src="./js/jquery-1.6.1.min.js"></script>
 		<script type="text/javascript" src="./js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="./js/jquery.lightbox_me.js"></script>
 		<script type="text/javascript" src="./js/codemirror.js"></script>
 		<script type="text/javascript" src="./js/autocompletion.js"></script>
 		<script type="text/javascript" src="./js/jquery.lightbox_me.js"></script>
+		<script type="text/javascript" src="./js/jquery.periodicalupdater.js"></script>
 		<script type="text/javascript" src="./js/aspen.js"></script>
 		<script type="text/javascript" src="./js/mootools-core-1.3.2-full-compat.js"></script>
 		<script type="text/javascript" src="./mode/konoha/konoha.js"></script>
@@ -25,5 +27,17 @@
 		<div id="result">
 			<span class="message">Result will be displayed here.</span>
 		</div>
+		<div id="sign_up">
+			<h3 id="see_id" class="sprited" >Welcome to Aspen.</h3>
+			<span>Please sign in using the form below</span>
+			<div id="sign_up_form">
+				<label><strong>Username:</strong> <input class="sprited"/></label>
+				<label><strong>Password:</strong> <input class="sprited"/></label>
+				<div id="actions">
+					<a class="form_button sprited" id="log_in" href="#">Sign in</a>
+					<a class="close form_button sprited" id="cancel" href="#">Back to Kuramitsu Lab</a>
+				</div>
+			</div>
+		</div>
 	</body>
-</html>
+</html> 
