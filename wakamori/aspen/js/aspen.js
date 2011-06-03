@@ -94,23 +94,26 @@ if (!Aspen) Aspen = {};
 		$("#result").text("Evaluating...");
 		Aspen.denyRequest();
 		Aspen.saveCookie();
+		var nowdate = new Date();
+		var filepath = String.format("%02d%02d", nowdate.getMonth(), nowdate.getDate()) + "/" + $.cookie("name");
 		$.PeriodicalUpdater(
-			"./cgi/reader.cgi",
+			filepath,
 			{
 				method: "GET",
 				minTimeout: 100
 			},
 			function(data) {
-				$("#result").empty()
-				var json = JSON.parse(data);
-				for (var i = 0; i < json.length; i++) {
-					var key = json[i].key;
-					var val = json[i].value;
-					if (val.length > 0) {
-						$("<span/>").attr("class", key).append(val).appendTo("#result");
-						$("#result").append("<br />");
-					}
-				}
+//				$("#result").empty()
+//				var json = JSON.parse(data);
+//				for (var i = 0; i < json.length; i++) {
+//					var key = json[i].key;
+//					var val = json[i].value;
+//					if (val.length > 0) {
+//						$("<span/>").attr("class", key).append(val).appendTo("#result");
+//						$("#result").append("<br />");
+//					}
+//				}
+				$("#result").append(data);
 			}
 		);
 		$.ajax({
