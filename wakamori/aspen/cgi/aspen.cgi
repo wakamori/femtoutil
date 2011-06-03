@@ -30,20 +30,20 @@ if method == 'POST':
 	print 'Content-Type: text/plain\n'
 	# get access time
 	mon, day, hour, min, sec = time.localtime()[1:6]
-
+	
 	# create script dir
 	scrdir = 'scripts'
 	foldername = scrdir + '/' + '%02d%02d' % (mon, day)
 	if not os.path.exists(foldername):
 		os.makedirs(foldername)
-
+	
 	# settle script filename
 	filename = foldername + '/' + 'us_' + '%02d%02d%02d' % (hour, min, sec)
 	suffix = 0
 	while os.path.exists(filename + '-' + str(suffix) + '.k'):
 		suffix += 1
 	filename = filename + '-' + str(suffix)
-
+	
 	# get kscript from posted content
 	kscript = ''
 	content_length = int(os.environ['CONTENT_LENGTH'])
@@ -51,29 +51,35 @@ if method == 'POST':
 	if 'kscript' in content:
 		kscript = content['kscript'][0]
 
+	if 'HTTP_COOKIE' in os.environ:
+		name = cgi.parse_qs(os.environ['HTTP_COOKIE'])['name'][0]
+
 	# create script file
 	filename = filename + '.k'
 	userscript = open(filename, 'w')
 	userscript.write(kscript)
 	userscript.close()
-
+	
 	# exec konoha as subprocess
 	command = '/usr/local/bin/konoha ' + filename
 	p = subprocess.Popen(command, shell=True,
 			stdin=subprocess.PIPE, stdout=subprocess.PIPE,
 			stderr=subprocess.PIPE, close_fds=True)
-
+	
 	# output result
-	outlines = p.stdout.readlines()
-	out = ''
-	for line in outlines:
-		out = out + line + '<br />'
+	outfile = open(foldername + '/' + name + '.out', 'w')
+	while p.poll() == None:
+		outfile.write(p.stdout.readline())
+		outfile.flush()
 
-	errlines = p.stderr.readlines()
-	err = ''
-	for line in errlines:
-		err = err + line + '<br />'
+	errfile = open(foldername + '/' + name + '.err', 'w')
+	while p.poll() == None:
+		errfile.write(p.stderr.readline())
+		errfile.flush()
 
+	outfile.close()
+	errfile.close()
+	
 	# check if process was killed with signal
 	r = p.wait()
 	msg = ''
@@ -88,10 +94,8 @@ if method == 'POST':
 		if not os.path.exists(bugfoldername):
 			os.makedirs(bugfoldername)
 		shutil.copy(filename, bugfoldername)
-
+	
 	# return values as a json object
 	print json.dumps([
-		{'key': 'stdout', 'value': out},
-		{'key': 'stderr', 'value': err},
-		{'key': 'message', 'value': msg},
-		])
+		{'key': 'message', 'value': msg}
+	])
