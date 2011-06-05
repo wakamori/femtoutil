@@ -87,63 +87,61 @@ if (!Aspen) Aspen = {};
 	};
 	Aspen.saveCookie = function() {
 		$.cookie("code", null);
-		$.cookie("name", null);
 		var date = new Date();
 		date.setTime(date.getTime() + (30 * 60 * 1000)); // 30 minutes
 		$.cookie("code", myCodeMirror.getValue(), {
 			expires: date,
 			path: "/"
 		});
-		$.cookie("name", date.getTime());
 	};
 	Aspen.postScript = function(text) {
-		$("#result").text("Evaluating...");
+		$(".message").text("Evaluating...");
 		Aspen.denyRequest();
 		Aspen.saveCookie();
-		var nowdate = new Date();
-		//var filepath = String.format("%02d%02d", nowdate.getMonth(), nowdate.getDate()) + "/" + $.cookie("name");
-//		$.PeriodicalUpdater(
-//			"./cgi/reader.cgi",
-//			{
-//				method: "GET",
-//				minTimeout: 100
-//			},
-//			function(data) {
-//				$("#result").empty()
-//				var json = JSON.parse(data);
-//				for (var i = 0; i < json.length; i++) {
-//					var key = json[i].key;
-//					var val = json[i].value;
-//					if (val.length > 0) {
-//						$("<span/>").attr("class", key).append(val).appendTo("#result");
-//						$("#result").append("<br />");
-//					}
-//				}
-//				$("#result").append(data);
-//			}
-//		);
+		$.PeriodicalUpdater(
+			"./scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".out",
+			{
+				method: "GET",
+				frequency: 1
+			},
+			function(data) {
+				$(".message").empty();
+				$(".stdout").empty();
+				$("<span/>").attr("class", "stdout").append(data).appendTo("#result");
+			}
+		);
+		$.PeriodicalUpdater(
+			"./scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".err",
+			{
+				method: "GET",
+				frequency: 1
+			},
+			function(data) {
+				$(".message").empty();
+				$(".stderr").empty();
+				$("<span/>").attr("class", "stderr").append(data).appendTo("#result");
+			}
+		);
 		$.ajax({
-			url: "./test.txt",
-			type: "GET",
-			dataType: "txt",
-			timeout: 1000,
+			type: "POST",
+			url: "./aspen.cgi?method=eval",
+			data: {
+				"kscript": text
+			},
 			success: function(data) {
-				$("#result").append(data + '<br />');
+				clearTimeout(PeriodicalTimer);
+				$("#result").empty();
+				var json = JSON.parse(data);
+				for (var i = 0; i < json.length; i++) {
+					var key = json[i].key;
+					var val = json[i].value;
+					if (val.length > 0) {
+						$("<span/>").attr("class", json[i].key).append(json[i].value).appendTo("#result");
+						$("#result").append("<br />");
+					}
+				}
 			}
 		});
-//		$.ajax({
-//			type: "POST",
-//			url: "./cgi/aspen.cgi",
-//			data: {
-//				"kscript": text,
-//			},
-//			success: function(data) {
-//				clearTimeout(PeriodicalTimer);
-//				var json = JSON.parse(data);
-//				$("<span/>").attr("class", json[0].key).append(json[0].value).appendTo("#result");
-//				$("#result").append("<br />");
-//			}
-//		});
 	};
 })();
 
@@ -154,16 +152,4 @@ $(function() {
 			return "Script is not saved. Exit anyway?";
 		}
 	}
-	$("#username.sprited").focus(function() {
-		$(this).val("");
-	});
-	$("#loginform").lightbox_me({
-		centered: true,
-		closeClick: false,
-		closeEsc: false
-	});
-	$("#cancel").click(function() {
-		$("#username").val("");
-		$("#password").val("");
-	});
 });

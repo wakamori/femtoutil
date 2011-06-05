@@ -29,6 +29,10 @@ body {
 	display: none;
 }
 
+#username.sprited {
+	color: gray;
+}
+
 .loginbutton {
 	float: right;
 	width: 70px; height: 31px;
