@@ -3,8 +3,8 @@
 
 """
 AspenStorage:
-  for storing user datas
-
+  for storing user data
+  shinpei(c)2011
 """
 
 from sqlite3 import dbapi2 as sqlite
