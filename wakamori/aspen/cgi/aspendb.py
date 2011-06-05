@@ -82,6 +82,11 @@ class AspenStorage:
             return ""
         return passwd
 
+
+
+    # commitSession is write session into the Database
+    # it invoked after the authentication.
+    # this method is internal use only.
     def commitSession (self, session):
         if session.getSID() != "" :
             query = "insert into " + session_tbl_name + " values(";
@@ -119,15 +124,45 @@ class AspenStorage:
         return filename;
 
 
+    def getFilesOfUser(self, uid):
+        query = "select sid, filename from " + sessions_tbl_name;
+        query = query + ' where uid="' + uid + '";';
+        self.cur.execute(query);
+        ret = [];
+        for row in self.cur:
+            ret.add(row[0],row[1]);
+        return ret;
+
+    # show methods
+    #  - these methods are only printing information.
+    #  - used only for debug use
+ 
+    # show users
+    def showAllUsers(self):
+        query = "select uid, passwd from " + personal_tbl_name;
+        self.cur.execute(query);
+        for row in self.cur:
+            print row[0] + "," + row[1]
+    
+    # show files for a single user
+    def showFilesOfUser(self, uid):
+        query = "select sid, filename from " + sessions_tbl_name;
+        query = query + ' where uid="' + uid + '";';
+        self.cur.execute(query);
+        for row in self.cur:
+            print row[0] + "," + row[1]
+
+
 
 if __name__ == '__main__':
     ast = AspenStorage();
-    passwd = ast.addUserRetPasswd("d09sd107");
-    print passwd;
+    # passwd = ast.addUserRetPasswd("d09sd107");
+    # print passwd;
     ses = AspenSession("d09sd107", "konoha");
     if ast.authenticate(ses) == True:
-        ast.commitSession(ses);
-        ast.nameSID(ses, "Hello world");
+        # ast.commitSession(ses);
+        # ast.nameSID(ses, "Hello world");
+        ast.showAllUsers();
         print "authenticate done!"
     else :
         print "authentication failed"
