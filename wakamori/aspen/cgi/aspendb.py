@@ -43,7 +43,6 @@ class AspenSession:
     def getPasswd(self):
         return self.__passwd;
 
-    def regenerateNewSession(self, oldsession):
         
 
 """
@@ -182,6 +181,7 @@ if __name__ == '__main__':
         # ast.commitSession(ses);
         # ast.nameSID(ses, "Hello world");
         ast.showAllUsers();
+
         print "authenticate done!"
     else :
         print "authentication failed"
