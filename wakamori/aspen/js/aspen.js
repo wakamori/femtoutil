@@ -95,7 +95,8 @@ if (!Aspen) Aspen = {};
 		});
 	};
 	Aspen.postScript = function(text) {
-		$("#result").text("Evaluating...");
+		$("#result").empty();
+		$("<span/>").attr("class", "message").append("Evaluating...").appendTo("#result");
 		Aspen.denyRequest();
 		Aspen.saveCookie();
 		$.PeriodicalUpdater(
