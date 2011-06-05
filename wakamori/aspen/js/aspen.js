@@ -51,12 +51,12 @@ if (!Aspen) Aspen = {};
 			}
 		};
 		$("#save")[0].onclick = function() {
-			//if (Aspen.requestAllowed()) {
-			//	var text = myCodeMirror.getValue();
-			//	if (text.length > 0) {
-			//		Aspen.postScript(text);
-			//	}
-			//}
+			if (Aspen.requestAllowed()) {
+				var text = myCodeMirror.getValue();
+				if (text.length > 0) {
+					Aspen.postScript(text);
+				}
+			}
 		};
 		$("#file")[0].onchange = function() {
 			var fileList = $("#file")[0].files;
@@ -93,6 +93,8 @@ if (!Aspen) Aspen = {};
 			expires: date,
 			path: "/"
 		});
+	};
+	Aspen.dlScript = function(text) {
 	};
 	Aspen.postScript = function(text) {
 		$("#result").empty();
