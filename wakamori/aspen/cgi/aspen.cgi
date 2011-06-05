@@ -14,7 +14,7 @@
 
 import aspendb
 import cgi
-import cgitb; cgitb.enable()
+#import cgitb; cgitb.enable()
 import datetime
 import json
 import os

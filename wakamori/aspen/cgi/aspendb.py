@@ -112,7 +112,7 @@ class AspenStorage:
             query = query + '"' + session.getUID() + '", ';
             query = query + '"' + str(time.mktime(time.localtime())) + '", ';
             query = query + '"Untitled");';
-            print query;
+            #print query;
             self.cur.execute(query);
             self.con.commit();
     def close(self):
@@ -178,9 +178,7 @@ if __name__ == '__main__':
     # print passwd;
     ses = AspenSession("d09sd107", "konoha");
     if ast.authenticate(ses) == True:
-        # ast.commitSession(ses);
-        # ast.nameSID(ses, "Hello world");
-        ast.showAllUsers();
+        ast.nameSID(ses, "Hello world");
 
         print "authenticate done!"
     else :
