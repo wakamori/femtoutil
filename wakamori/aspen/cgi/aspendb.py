@@ -43,6 +43,9 @@ class AspenSession:
     def getPasswd(self):
         return self.__passwd;
 
+    def regenerateNewSession(self, oldsession):
+        
+
 """
 class AspenStorage
 """
@@ -66,6 +69,19 @@ class AspenStorage:
             session.generateSID();
             return True;
         return False;
+
+    # ahthenticate with a pair of uid, and sid
+    def authenticateWithSID (self, uid, sid):
+        # validate uid, sid;
+        query = 'select uid from ' + sessions_tbl_name;
+        query = query + ' where sid="' + sid + '";';
+        self.cur.execute(query);
+        for row in self.cur:
+            luid = row[0];
+            if luid == sid:
+                return AspenSession(uid, "");
+        return None;
+
 
     def addUserRetPasswd(self, uid):
         s = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
