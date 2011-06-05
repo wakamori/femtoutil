@@ -64,8 +64,6 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 		<input type="button" id="save" name="save" value="save" />
 		<input type="file" id="file" name="file" />
 		<div id="result">
-			<span id="stdout"><br /></span>
-			<span id="stderr"><br /></span>
 			<span class="message">Result will be displayed here.</span>
 		</div>
 	</body>

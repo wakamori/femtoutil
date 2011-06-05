@@ -95,7 +95,7 @@ if (!Aspen) Aspen = {};
 		});
 	};
 	Aspen.postScript = function(text) {
-		$(".message").text("Evaluating...");
+		$("#result").text("Evaluating...");
 		Aspen.denyRequest();
 		Aspen.saveCookie();
 		$.PeriodicalUpdater(
@@ -105,8 +105,7 @@ if (!Aspen) Aspen = {};
 				frequency: 1
 			},
 			function(data) {
-				$(".message").empty();
-				$(".stdout").empty();
+				$("#result").empty();
 				$("<span/>").attr("class", "stdout").append(data).appendTo("#result");
 			}
 		);
