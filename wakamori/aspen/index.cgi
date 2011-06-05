@@ -63,7 +63,8 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 		</form>
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
 		<input type="button" id="eval" name="eval" value="eval" />
-		<input type="button" id="save" name="save" value="save" />
+                <input type="button" value="save" onClick="javascript:saveFile()">
+
 		<input type="file" id="file" name="file" />
 		<div id="result">
 			<span class="message">Result will be displayed here.</span>

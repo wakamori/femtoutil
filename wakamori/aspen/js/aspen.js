@@ -4,6 +4,14 @@
 var Aspen;
 if (!Aspen) Aspen = {};
 
+function saveFile() {
+
+	var uid = $.cookie("UID");
+	var sid = $.cookie("SID");
+	var filename = "./cgi/scripts/" + uid + "/us_" + sid + ".k";
+	document.location.href = filename;
+}
+
 (function() {
 	var requestflag;
 	var myCodeMirror;
