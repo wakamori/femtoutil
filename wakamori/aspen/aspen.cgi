@@ -6,6 +6,7 @@
   shinpei_NKT, chen_ji, utrhira (C)2011
 
  version:
+  0.0.4 : divided index.cgi and aspen.cgi. (chen_ji)
   0.0.3 : added jQuery and index.html. (chen_ji)
   0.0.2 : show result with textfile. (utr)
   0.0.1 : first commit. (shinpei_NKT)
