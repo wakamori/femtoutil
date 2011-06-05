@@ -16,7 +16,7 @@ html_login = '''<?xml version="1.0" encoding="UTF-8"?>
 		<script type="text/javascript" src="./js/login.js"></script>
 	</head>
 	<body>
-		<form id="loginform" name="loginform" action="./aspen.cgi?method=login" method="post">
+		<form id="loginform" name="loginform" action="./cgi/aspen.cgi?method=login" method="post">
 			<table summary="Login dialog.">
 				<tr><th colspan="2">Welcome to Aspen</th></tr>
 				<tr><td colspan="2">Please sign in using the form below</td></tr>
@@ -43,6 +43,7 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 		<script type="text/javascript" src="./js/autocompletion.js"></script>
 		<script type="text/javascript" src="./js/jquery.lightbox_me.js"></script>
 		<script type="text/javascript" src="./js/jquery.periodicalupdater.js"></script>
+		<script type="text/javascript" src="./js/prototype.js"></script>
 		<script type="text/javascript" src="./js/aspen.js"></script>
 		<script type="text/javascript" src="./js/mootools-core-1.3.2-full-compat.js"></script>
 		<script type="text/javascript" src="./mode/konoha/konoha.js"></script>
@@ -55,7 +56,7 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 			<span class="user">Hello, %s.</span>
 			<span class="date">Last login: %s</span><br />
 		</div>
-		<form id="logoutform" name="logoutform" action="./aspen.cgi?method=logout" method="post">
+		<form id="logoutform" name="logoutform" action="./cgi/aspen.cgi?method=logout" method="post">
 			<input class="logoutbutton" type="submit" id="logout" value="Log out" />
 		</form>
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
@@ -63,8 +64,8 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 		<input type="button" id="save" name="save" value="save" />
 		<input type="file" id="file" name="file" />
 		<div id="result">
-			<span class="stdout"><br /></span>
-			<span class="stderr"><br /></span>
+			<span id="stdout"><br /></span>
+			<span id="stderr"><br /></span>
 			<span class="message">Result will be displayed here.</span>
 		</div>
 	</body>

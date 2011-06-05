@@ -99,7 +99,7 @@ if (!Aspen) Aspen = {};
 		Aspen.denyRequest();
 		Aspen.saveCookie();
 		$.PeriodicalUpdater(
-			"./scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".out",
+			"./cgi/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".out",
 			{
 				method: "GET",
 				frequency: 1
@@ -110,21 +110,22 @@ if (!Aspen) Aspen = {};
 				$("<span/>").attr("class", "stdout").append(data).appendTo("#result");
 			}
 		);
-		$.PeriodicalUpdater(
-			"./scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".err",
-			{
-				method: "GET",
-				frequency: 1
-			},
-			function(data) {
-				$(".message").empty();
-				$(".stderr").empty();
-				$("<span/>").attr("class", "stderr").append(data).appendTo("#result");
-			}
-		);
+		//$.PeriodicalUpdater(
+		//	"./cgi/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".err",
+		//	{
+		//		method: "GET",
+		//		frequency: 1
+		//	},
+		//	function(data) {
+		//		$(".message").empty();
+		//		$(".stderr").text(data);
+		//		//$(".stderr").empty();
+		//		//$("<span/>").attr("class", "stderr").append(data).appendTo("#result");
+		//	}
+		//);
 		$.ajax({
 			type: "POST",
-			url: "./aspen.cgi?method=eval",
+			url: "./cgi/aspen.cgi?method=eval",
 			data: {
 				"kscript": text
 			},

@@ -25,8 +25,8 @@ import time
 import urllib2
 import Cookie
 
-cktxt = 'Set-Cookie: %s=%s;path="/"'
-cktxt_exp = 'Set-Cookie: %s=%s;expires=%s'
+cktxt = 'Set-Cookie: %s=%s;path=/'
+cktxt_exp = 'Set-Cookie: %s=%s;path=/;expires=%s'
 
 class Aspen:
 
@@ -55,7 +55,7 @@ class Aspen:
 		if (self.astorage.authenticate(self.asession)):
 			# Authentication successed.
 			self.saveCookie(username, self.asession.getSID())
-			print 'Location: ./index.cgi\n'
+			print 'Location: ../index.cgi\n'
 		else:
 			print 'Authentication Failed.'
 
@@ -139,7 +139,7 @@ class Aspen:
 		print cktxt_exp % ('UID', 'logout', exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT'))
 		print cktxt_exp % ('SID', 'logout', exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT'))
 		print cktxt_exp % ('LOGIN_DATE', 'logout', exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT'))
-		print 'Location: ./index.cgi\n'
+		print 'Location: ../index.cgi\n'
 
 	def run(self):
 		if self.method == 'POST':
