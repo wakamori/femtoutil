@@ -9,6 +9,8 @@ AspenStorage:
 
 from sqlite3 import dbapi2 as sqlite
 import uuid, time
+import sys
+import random
 
 """
 globals
@@ -65,6 +67,21 @@ class AspenStorage:
             return True;
         return False;
 
+    def addUserRetPasswd(self, uid):
+        s = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        passwd = "";
+        for i in range(8):
+            passwd += random.choice(s)
+        query = "insert into " + personal_tbl_name + ' values("' + uid + '","", "' + passwd + '");';
+        try:
+            self.cur.execute(query);
+            self.con.commit();
+        except sqlite.IntegrityError, err:
+            sys.stderr.write("ERROR: %s\n" % str(err))
+            sys.stderr.write("'%s' is probably already exists in database.\n" % (uid))
+            return ""
+        return passwd
+
     def commitSession (self, session):
         if session.getSID() != "" :
             query = "insert into " + session_tbl_name + " values(";
@@ -73,8 +90,8 @@ class AspenStorage:
             query = query + '"' + str(time.mktime(time.localtime())) + '", ';
             query = query + '"Untitled");';
             print query;
-            self.cur.execute(query)
-            self.con.commit()
+            self.cur.execute(query);
+            self.con.commit();
     def close(self):
         self.con.close();
         
@@ -93,13 +110,21 @@ class AspenStorage:
 
     # sid --> filename
     def sid2filename(self, sid):
-        return;
+        filename = "";
+        query = 'select filename where sid="';
+        query = query + str(sid) + '";';
+        self.cur.execute(query);
+        for row in self.cur:
+            filename = row[0]
+        return filename;
 
 
 
 if __name__ == '__main__':
     ast = AspenStorage();
-    ses = AspenSession("d11gd186", "konoha");
+    passwd = ast.addUserRetPasswd("d09sd107");
+    print passwd;
+    ses = AspenSession("d09sd107", "konoha");
     if ast.authenticate(ses) == True:
         ast.commitSession(ses);
         ast.nameSID(ses, "Hello world");
