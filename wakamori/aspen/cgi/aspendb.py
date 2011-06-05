@@ -67,6 +67,7 @@ class AspenStorage:
             passwd = row[0]
         if session.getPasswd() == passwd:
             session.generateSID();
+            self.commitSession(session);
             return True;
         return False;
 
@@ -79,7 +80,9 @@ class AspenStorage:
         for row in self.cur:
             luid = row[0];
             if luid == sid:
-                return AspenSession(uid, "");
+                retSession = AspenSession(uid, "");
+                self.commitSession(retSession);
+                return retSession;
         return None;
 
 
