@@ -88,6 +88,7 @@ class Aspen:
 		userscript.close()
 
 		# exec konoha as subprocess
+		starttime = time.time()
 		command = '/usr/local/bin/konoha ' + filename
 		p = subprocess.Popen(command, shell=True,
 				stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -109,11 +110,21 @@ class Aspen:
 
 		# check if process was killed with signal
 		r = p.wait()
-		msg = ''
+		exetime = float((time.time() - starttime))
+
+		command = 'w'
+		p = subprocess.Popen(command, shell=True,
+				stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+				stderr=subprocess.PIPE, close_fds=True)
+
+		loadline = p.stdout.readlines()[0]
+		load = loadline[loadline.index('load'):-1]
+
+		msg = '[time: %s, %s] <br />' % (str(exetime)[0:5], load)
 		if r == 0:
-			msg = 'Konoha exited normally.'
+			msg = msg + 'Konoha exited normally.'
 		elif r == -11:
-			msg = 'Konoha exited unexpectedly. This script will be reported as \
+			msg = msg + 'Konoha exited unexpectedly. This script will be reported as \
 			a bug. Sorry.'
 			# copy script to 'bugs' dir
 			bugdir = 'bugs'
