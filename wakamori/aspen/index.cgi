@@ -43,7 +43,6 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 		<script type="text/javascript" src="./js/autocompletion.js"></script>
 		<script type="text/javascript" src="./js/jquery.lightbox_me.js"></script>
 		<script type="text/javascript" src="./js/jquery.periodicalupdater.js"></script>
-		<script type="text/javascript" src="./js/prototype.js"></script>
 		<script type="text/javascript" src="./js/aspen.js"></script>
 		<script type="text/javascript" src="./js/mootools-core-1.3.2-full-compat.js"></script>
 		<script type="text/javascript" src="./mode/konoha/konoha.js"></script>
@@ -58,6 +57,9 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 		</div>
 		<form id="logoutform" name="logoutform" action="./cgi/aspen.cgi?method=logout" method="post">
 			<input class="logoutbutton" type="submit" id="logout" value="Log out" />
+		</form>
+		<form id="newform" name="newform" action="./cgi/aspen.cgi?method=new" method="post">
+			<input class="newbutton" type="submit" id="new" value="Create a new file" />
 		</form>
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
 		<input type="button" id="eval" name="eval" value="eval" />

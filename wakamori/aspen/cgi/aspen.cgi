@@ -141,6 +141,12 @@ class Aspen:
 		print cktxt_exp % ('LOGIN_DATE', 'logout', exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT'))
 		print 'Location: ../index.cgi\n'
 
+	def new(self):
+		username = self.cookie['UID'].value
+		self.astorage = aspendb.AspenStorage()
+		self.saveCookie(username, self.astorage.generateSession().getSID())
+		print 'Location: ../index.cgi\n'
+
 	def run(self):
 		if self.method == 'POST':
 			mtype = self.field.getvalue('method')
@@ -150,6 +156,8 @@ class Aspen:
 				self.evalScript()
 			elif mtype == 'logout':
 				self.logout()
+			elif mtype == 'new':
+				self.new()
 			else:
 				print 'no such method'
 
