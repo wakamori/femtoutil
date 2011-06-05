@@ -14,7 +14,7 @@
 
 import aspendb
 import cgi
-#import cgitb; cgitb.enable()
+import cgitb; cgitb.enable()
 import datetime
 import json
 import os
@@ -57,6 +57,7 @@ class Aspen:
 			self.saveCookie(username, self.asession.getSID())
 			print 'Location: ../index.cgi\n'
 		else:
+			print 'Content-Type: text/html\n'
 			print 'Authentication Failed.'
 
 	def evalScript(self):
