@@ -51,19 +51,22 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 		<link rel="stylesheet" href="./mode/konoha/konoha.css" />
 	</head>
 	<body>
-		<div id="info">
+<table border=0>
+<tr><td><img src="aspen2.png" width="210" height="70"></td>
+<td>		<div id="info">
 			<span class="user">Hello, %s.</span>
 			<span class="date">Last login: %s</span><br />
 		</div>
-		<form id="logoutform" name="logoutform" action="./cgi/aspen.cgi?method=logout" method="post">
+		<form id="logoutform" name="logoutform" action="./cgi/aspen.cgi?method=logout" method="post" style="display:inline">
 			<input class="logoutbutton" type="submit" id="logout" value="Log out" />
 		</form>
-		<form id="newform" name="newform" action="./cgi/aspen.cgi?method=new" method="post">
+		<form id="newform" name="newform" action="./cgi/aspen.cgi?method=new" method="post" style="display:inline">
 			<input class="newbutton" type="submit" id="new" value="Create a new file" />
 		</form>
+</td></tr></table>
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
-		<input type="button" id="eval" name="eval" value="eval" />
-                <input type="button" value="save" onClick="javascript:saveFile()">
+		<input type="button" class="newbutton" id="eval" style="width:50px"name="eval" value="eval" />
+                <input type="button" value="save" class="newbutton" onClick="javascript:saveFile()" style="width:50px">
 
 		<input type="file" id="file" name="file" />
 		<div id="result">
