@@ -66,6 +66,11 @@ if (!Aspen) Aspen = {};
 			Aspen.saveCookie();
 			Aspen.allowRequest();
 		};
+		$("#new")[0].onclick = function() {
+			$.cookie("CODE", null);
+			myCodeMirror.setValue("");
+			Aspen.saveCookie();
+		}
 	};
 	Aspen.allowRequest = function() {
 		requestflag = true;
@@ -80,15 +85,15 @@ if (!Aspen) Aspen = {};
 		return myCodeMirror.getValue();
 	};
 	Aspen.loadCookie = function() {
-		if ($.cookie("code")) {
-			myCodeMirror.setValue($.cookie("code"));
+		if ($.cookie("CODE")) {
+			myCodeMirror.setValue($.cookie("CODE"));
 		}
 	};
 	Aspen.saveCookie = function() {
-		$.cookie("code", null);
+		$.cookie("CODE", null);
 		var date = new Date();
 		date.setTime(date.getTime() + (30 * 60 * 1000)); // 30 minutes
-		$.cookie("code", myCodeMirror.getValue(), {
+		$.cookie("CODE", myCodeMirror.getValue(), {
 			expires: date,
 			path: "/"
 		});
@@ -150,7 +155,7 @@ if (!Aspen) Aspen = {};
 $(function() {
 	Aspen.start();
 	window.onbeforeunload = function() {
-		if ($.cookie("code") != Aspen.getText()) {
+		if ($.cookie("CODE") != Aspen.getText()) {
 			return "Script is not saved. Exit anyway?";
 		}
 	}

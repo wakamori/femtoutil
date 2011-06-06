@@ -73,13 +73,14 @@ class AspenStorage:
     # ahthenticate with a pair of uid, and sid
     def authenticateWithSID (self, uid, sid):
         # validate uid, sid;
-        query = 'select uid from ' + sessions_tbl_name;
+        query = 'select uid from ' + session_tbl_name;
         query = query + ' where sid="' + sid + '";';
         self.cur.execute(query);
         for row in self.cur:
             luid = row[0];
-            if luid == sid:
+            if luid == uid:
                 retSession = AspenSession(uid, "");
+                retSession.generateSID();
                 self.commitSession(retSession);
                 return retSession;
         return None;
@@ -143,7 +144,7 @@ class AspenStorage:
 
 
     def getFilesOfUser(self, uid):
-        query = "select sid, filename from " + sessions_tbl_name;
+        query = "select sid, filename from " + session_tbl_name;
         query = query + ' where uid="' + uid + '";';
         self.cur.execute(query);
         ret = [];
@@ -164,12 +165,11 @@ class AspenStorage:
     
     # show files for a single user
     def showFilesOfUser(self, uid):
-        query = "select sid, filename from " + sessions_tbl_name;
+        query = "select sid, filename from " + session_tbl_name;
         query = query + ' where uid="' + uid + '";';
         self.cur.execute(query);
         for row in self.cur:
             print row[0] + "," + row[1]
-
 
 
 if __name__ == '__main__':
@@ -177,10 +177,12 @@ if __name__ == '__main__':
     # passwd = ast.addUserRetPasswd("d09sd107");
     # print passwd;
     ses = AspenSession("d09sd107", "konoha");
-    if ast.authenticate(ses) == True:
-        ast.nameSID(ses, "Hello world");
+    if ast.authenticate(ses):
+        sses = ast.authenticateWithSID(str(ses.getUID()), str(ses.getSID()))
+        if not sses == None:
+            print sses
+        else:
+            print "NG"
 
-        print "authenticate done!"
-    else :
-        print "authentication failed"
+
     ast.close()

@@ -39,14 +39,15 @@ class Aspen:
 		self.time = datetime.datetime.now()
 
 	def saveCookie(self, uid, sid):
-		if not self.cookie.has_key('UID'):
-			print cktxt % ('UID', str(uid))
-		if not self.cookie.has_key('SID'):
-			print cktxt % ('SID', str(sid))
-		if not self.cookie.has_key('LOGIN_DATE'):
-			exptime = self.time + datetime.timedelta(days=30)
-			print cktxt % ('LOGIN_DATE',
-					exptime.strftime('%x,%X'))
+		exptime = self.time + datetime.timedelta(minutes=30)
+		exp = exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
+		#if not self.cookie.has_key('UID'):
+		print cktxt_exp % ('UID', str(uid), exp)
+		#if not self.cookie.has_key('SID'):
+		print cktxt_exp % ('SID', str(sid), exp)
+		#if not self.cookie.has_key('LOGIN_DATE'):
+		print cktxt_exp % ('LOGIN_DATE',
+			self.time.strftime('%x,%X'), exp)
 
 	def login(self):
 		username = self.field.getvalue('username')
@@ -155,8 +156,11 @@ class Aspen:
 
 	def new(self):
 		username = self.cookie['UID'].value
+		sid = self.cookie['SID'].value
 		self.astorage = aspendb.AspenStorage()
-		self.saveCookie(username, self.astorage.generateSession().getSID())
+		self.asession = self.astorage.authenticateWithSID(username, sid)
+		if not self.asession == None:
+			self.saveCookie(username, self.asession.getSID())
 		print 'Location: ../index.cgi\n'
 
 	def run(self):
