@@ -46,7 +46,7 @@ class Aspen:
 		if not self.cookie.has_key('LOGIN_DATE'):
 			exptime = self.time + datetime.timedelta(days=30)
 			print cktxt % ('LOGIN_DATE',
-					exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT'))
+					exptime.strftime('%x,%X'))
 
 	def login(self):
 		username = self.field.getvalue('username')
