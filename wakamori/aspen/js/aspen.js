@@ -64,6 +64,7 @@ if (!Aspen) Aspen = {};
 				myCodeMirror.setValue(e.target.result);
 			};
 			Aspen.saveCookie();
+			Aspen.allowRequest();
 		};
 	};
 	Aspen.allowRequest = function() {
@@ -92,8 +93,6 @@ if (!Aspen) Aspen = {};
 			path: "/"
 		});
 	};
-	Aspen.dlScript = function(text) {
-	};
 	Aspen.postScript = function(text) {
 		$("#result").empty();
 		$("<span/>").attr("class", "message").append("Evaluating...").appendTo("#result");
@@ -106,8 +105,10 @@ if (!Aspen) Aspen = {};
 				frequency: 1
 			},
 			function(data) {
-				$("#result").empty();
-				$("<span/>").attr("class", "stdout").append(data).appendTo("#result");
+				if (data.length > 0) {
+					$("#result").empty();
+					$("<span/>").attr("class", "stdout").append(data).appendTo("#result");
+				}
 			}
 		);
 		//$.PeriodicalUpdater(
