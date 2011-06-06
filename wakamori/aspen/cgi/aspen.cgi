@@ -25,9 +25,6 @@ import time
 import urllib2
 import Cookie
 
-cktxt = 'Set-Cookie: %s=%s;path=/'
-cktxt_exp = 'Set-Cookie: %s=%s;path=/;expires=%s'
-
 class Aspen:
 
 	def __init__(self):
@@ -40,14 +37,17 @@ class Aspen:
 
 	def saveCookie(self, uid, sid):
 		exptime = self.time + datetime.timedelta(minutes=30)
-		exp = exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
-		#if not self.cookie.has_key('UID'):
-		print cktxt_exp % ('UID', str(uid), exp)
-		#if not self.cookie.has_key('SID'):
-		print cktxt_exp % ('SID', str(sid), exp)
-		#if not self.cookie.has_key('LOGIN_DATE'):
-		print cktxt_exp % ('LOGIN_DATE',
-			self.time.strftime('%x,%X'), exp)
+		exptxt = exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
+		self.cookie['UID'] = str(uid)
+		self.cookie['UID']['expires'] = exptxt
+		self.cookie['UID']['path'] = '/'
+		self.cookie['SID'] = str(sid)
+		self.cookie['SID']['expires'] = exptxt
+		self.cookie['SID']['path'] = '/'
+		self.cookie['LOGIN_DATE'] = self.time.strftime('%x,%X')
+		self.cookie['LOGIN_DATE']['expires'] = exptxt
+		self.cookie['LOGIN_DATE']['path'] = '/'
+		print self.cookie
 
 	def login(self):
 		username = self.field.getvalue('username')
@@ -149,9 +149,14 @@ class Aspen:
 
 	def logout(self):
 		exptime = self.time + datetime.timedelta(days=-1)
-		print cktxt_exp % ('UID', 'logout', exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT'))
-		print cktxt_exp % ('SID', 'logout', exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT'))
-		print cktxt_exp % ('LOGIN_DATE', 'logout', exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT'))
+		exptxt = exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
+		self.cookie['UID']['expires'] = exptxt
+		self.cookie['UID']['path'] = '/'
+		self.cookie['SID']['expires'] = exptxt
+		self.cookie['SID']['path'] = '/'
+		self.cookie['LOGIN_DATE']['expires'] = exptxt
+		self.cookie['LOGIN_DATE']['path'] = '/'
+		print self.cookie
 		print 'Location: ../index.cgi\n'
 
 	def new(self):

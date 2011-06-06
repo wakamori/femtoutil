@@ -7,6 +7,7 @@ if (!Aspen) Aspen = {};
 (function() {
 	var requestflag;
 	var myCodeMirror;
+	var logouted;
 	var keyevent = function(editor, key) {
 		//// Hook into ctrl-space
 		//if (key.keyCode == 32 && (key.ctrlKey || key.metaKey) && !key.altKey) {
@@ -32,16 +33,13 @@ if (!Aspen) Aspen = {};
 			}
 		}
 	};
-	Aspen.start = function() {
-		myCodeMirror = CodeMirror.fromTextArea($("#code")[0], {
-			lineNumbers: true,
-			matchBrackets: true,
-			mode: "text/konoha",
-			onKeyEvent: keyevent
-		});
-		Aspen.loadCookie();
-		Aspen.saveCookie();
-		Aspen.allowRequest();
+	Aspen.isLogouted = function() {
+		return logouted;
+	};
+	Aspen.setLogout = function(flag) {
+		logouted = flag;
+	}
+	Aspen.defineActions = function() {
 		$("#eval")[0].onclick = function() {
 			if (Aspen.requestAllowed()) {
 				var text = myCodeMirror.getValue();
@@ -61,7 +59,6 @@ if (!Aspen) Aspen = {};
 			var reader = new FileReader();
 			var fsize = fileList[0].size;
 			if (fsize <= 1024 * 16) {
-
 				reader.readAsText(fileList[0], "utf-8");
 				reader.onload = function(e) {
 					myCodeMirror.setValue(e.target.result);
@@ -78,10 +75,26 @@ if (!Aspen) Aspen = {};
 			}
 		};
 		$("#new")[0].onclick = function() {
-			$.cookie("CODE", null);
 			myCodeMirror.setValue("");
 			Aspen.saveCookie();
-		}
+		};
+		$("#logout")[0].onclick = function() {
+			Aspen.setLogout(true);
+			Aspen.deleteCookie();
+		};
+	};
+	Aspen.start = function() {
+		myCodeMirror = CodeMirror.fromTextArea($("#code")[0], {
+			lineNumbers: true,
+			matchBrackets: true,
+			mode: "text/konoha",
+			onKeyEvent: keyevent
+		});
+		Aspen.loadCookie();
+		Aspen.saveCookie();
+		Aspen.allowRequest();
+		Aspen.defineActions();
+		Aspen.setLogout(false);
 	};
 	Aspen.allowRequest = function() {
 		requestflag = true;
@@ -101,11 +114,16 @@ if (!Aspen) Aspen = {};
 		}
 	};
 	Aspen.saveCookie = function() {
-		$.cookie("CODE", null);
 		var date = new Date();
-		date.setTime(date.getTime() + (30 * 60 * 1000)); // 30 minutes
+		date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
 		$.cookie("CODE", myCodeMirror.getValue(), {
 			expires: date,
+			path: "/"
+		});
+	};
+	Aspen.deleteCookie = function() {
+		$.cookie("CODE", "", {
+			expires: -1,
 			path: "/"
 		});
 	};
@@ -166,7 +184,7 @@ if (!Aspen) Aspen = {};
 $(function() {
 	Aspen.start();
 	window.onbeforeunload = function() {
-		if ($.cookie("CODE") != Aspen.getText()) {
+		if (!Aspen.isLogouted() && $.cookie("CODE") != Aspen.getText()) {
 			return "Script is not saved. Exit anyway?";
 		}
 	}
