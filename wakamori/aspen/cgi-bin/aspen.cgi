@@ -19,11 +19,18 @@ import datetime
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import time
 import urllib2
 import Cookie
+
+class Alarm(Exception):
+	pass
+
+def alarm_handler(signum, frame):
+	raise Alarm
 
 class Aspen:
 
@@ -68,9 +75,6 @@ class Aspen:
 
 		# create script dir
 		scrdir = 'scripts'
-		#foldername = scrdir + '/' + self.time.strftime('%m%d')
-		#if not os.path.exists(foldername):
-		#	os.makedirs(foldername)
 
 		foldername = scrdir + '/' + self.cookie['UID'].value
 		if not os.path.exists(foldername):
@@ -78,10 +82,6 @@ class Aspen:
 
 		# settle script filename
 		filename = foldername + '/' + 'us_' + self.cookie['SID'].value
-		#suffix = 0
-		#while os.path.exists(filename + '-' + str(suffix) + '.k'):
-		#	suffix += 1
-		#filename = filename + '-' + str(suffix)
 
 		# create script file
 		filename = filename + '.k'
@@ -96,17 +96,33 @@ class Aspen:
 				stdin=subprocess.PIPE, stdout=subprocess.PIPE,
 				stderr=subprocess.PIPE, close_fds=True)
 
+		outfilename = filename[0:-1] + 'out'
+		errfilename = filename[0:-1] + 'err'
+
 		# output result
-		outfile = open(filename[0:-1] + 'out', 'w')
+		outfile = open(outfilename, 'w')
+		errfile = open(errfilename, 'w')
 
-		while p.poll() == None:
-			outfile.write(p.stdout.readline().replace('\n', '<br />'))
-			outfile.flush()
-		outfile.close()
+		# set timeout
+		signal.signal(signal.SIGALRM, alarm_handler)
+		signal.alarm(3 * 60) # 3 minutes
 
-		errfile = open(filename[0:-1] + 'err', 'w')
-		errfile.write(p.stderr.read().replace('\n', '<br />'))
-		errfile.close()
+		try:
+			while p.poll() == None:
+				outfile.write(p.stdout.readline().replace('\n', '<br />'))
+				outfile.flush()
+			outfile.close()
+			errfile = open(errfilename, 'w')
+			errfile.write(p.stderr.read().replace('\n', '<br />'))
+			errfile.close()
+			signal.alarm(0)
+		except Alarm:
+			# timeout
+			p.terminate()
+			errfile = open(errfilename, 'a')
+			errfile.write('Konoha was terminated because the program was running \
+					too long time (more than 3 minutes).')
+			errfile.close()
 
 		# check if process was killed with signal
 		r = p.wait()
@@ -120,30 +136,36 @@ class Aspen:
 		loadline = p.stdout.readlines()[0]
 		load = loadline[loadline.index('load'):-1]
 
-		msg = '[time: %s, %s] <br />' % (str(exetime)[0:5], load)
+		msg = ''
+
 		if r == 0:
-			msg = msg + 'Konoha exited normally.'
+			msg = 'Konoha exited normally. <br />'
 		elif r == -11:
-			msg = msg + 'Konoha exited unexpectedly. This script will be reported as \
-			a bug. Sorry.'
+			errfile = open(errfilename, 'a')
+			errfile.write('Konoha exited unexpectedly. This script will be reported as \
+			a bug. Sorry.')
+			errfile.close()
 			# copy script to 'bugs' dir
 			bugdir = 'bugs'
-			#bugfoldername = bugdir + '/' + self.time.strftime('%m%d')
-			#if not os.path.exists(bugfoldername):
-			#	os.makedirs(bugfoldername)
 
 			bugfoldername = bugdir + '/' + self.cookie['UID'].value
 			if not os.path.exists(bugfoldername):
 				os.makedirs(bugfoldername)
 
 			shutil.copy(filename, bugfoldername)
+		elif r == -15:
+			pass
 		else:
-			msg = msg + 'Konoha exited unexpectedly with Error code: %d' % r
+			errfile = open(errfilename, 'a')
+			errfile.write('Konoha exited unexpectedly with error code: %d' % r)
+			errfile.close()
+
+		msg += '[time: %s, %s]' % (str(exetime)[0:5], load)
 
 		# return values as a json object
 		print json.dumps([
-			{'key': 'stdout', 'value': open(filename[0:-1] + 'out', 'r').read()},
-			{'key': 'stderr', 'value': open(filename[0:-1] + 'err', 'r').read()},
+			{'key': 'stdout', 'value': open(outfilename, 'r').read()},
+			{'key': 'stderr', 'value': open(errfilename, 'r').read()},
 			{'key': 'message', 'value': msg}
 		])
 
