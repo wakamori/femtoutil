@@ -59,12 +59,23 @@ if (!Aspen) Aspen = {};
 		$("#file")[0].onchange = function() {
 			var fileList = $("#file")[0].files;
 			var reader = new FileReader();
-			reader.readAsText(fileList[0], "utf-8");
-			reader.onload = function(e) {
-				myCodeMirror.setValue(e.target.result);
-			};
-			Aspen.saveCookie();
-			Aspen.allowRequest();
+			var fsize = fileList[0].size;
+			if (fsize <= 1024 * 16) {
+
+				reader.readAsText(fileList[0], "utf-8");
+				reader.onload = function(e) {
+					myCodeMirror.setValue(e.target.result);
+				};
+				Aspen.saveCookie();
+				Aspen.allowRequest();
+				$("#result").empty();
+				$("<span/>").attr("class", "message").append("file opened.").appendTo("#result");
+			} else {
+				$("#result").empty();
+				$("<span/>").attr("class", "stderr").append("file size is too big:").appendTo("#result");
+				$("<span/>").attr("class", "stderr").append(fsize).appendTo("#result");
+				$("<span/>").attr("class", "stderr").append(" bytes, we only accept 16KiB.").appendTo("#result");
+			}
 		};
 		$("#new")[0].onclick = function() {
 			$.cookie("CODE", null);
