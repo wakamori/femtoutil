@@ -138,6 +138,8 @@ class Aspen:
 				os.makedirs(bugfoldername)
 
 			shutil.copy(filename, bugfoldername)
+		else:
+			msg = msg + 'Konoha exited unexpectedly with Error code: %d' % r
 
 		# return values as a json object
 		print json.dumps([
