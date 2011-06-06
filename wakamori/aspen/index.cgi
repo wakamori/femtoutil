@@ -66,7 +66,7 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 </td></tr></table>
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
 		<input type="button" class="newbutton" id="eval" style="width:50px"name="eval" value="eval" />
-                <input type="button" value="save" class="newbutton" onClick="javascript:saveFile()" style="width:50px">
+                <input type="button" id="save" value="save" class="newbutton" style="width:50px">
 
 		<input type="file" id="file" name="file" />
 		<div id="result">

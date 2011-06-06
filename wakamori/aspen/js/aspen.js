@@ -4,14 +4,6 @@
 var Aspen;
 if (!Aspen) Aspen = {};
 
-function saveFile() {
-
-	var uid = $.cookie("UID");
-	var sid = $.cookie("SID");
-	var filename = "./cgi/scripts/" + uid + "/us_" + sid + ".k";
-	document.location.href = filename;
-}
-
 (function() {
 	var requestflag;
 	var myCodeMirror;
@@ -59,12 +51,10 @@ function saveFile() {
 			}
 		};
 		$("#save")[0].onclick = function() {
-			if (Aspen.requestAllowed()) {
-				var text = myCodeMirror.getValue();
-				if (text.length > 0) {
-					Aspen.postScript(text);
-				}
-			}
+			var uid = $.cookie("UID");
+			var sid = $.cookie("SID");
+			var filename = "./cgi/scripts/" + uid + "/us_" + sid + ".k";
+			document.location.href = filename;
 		};
 		$("#file")[0].onchange = function() {
 			var fileList = $("#file")[0].files;
