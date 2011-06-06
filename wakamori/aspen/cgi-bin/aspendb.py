@@ -16,7 +16,7 @@ import random
 globals
 """
 
-db_name = "aspen.sqlite3"
+db_name = "./db/aspen.sqlite3"
 table_name = "aspen"
 personal_tbl_name = "personal"
 session_tbl_name = "sessions"

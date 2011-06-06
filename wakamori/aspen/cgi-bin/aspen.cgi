@@ -56,7 +56,7 @@ class Aspen:
 		if (self.astorage.authenticate(self.asession)):
 			# Authentication successed.
 			self.saveCookie(username, self.asession.getSID())
-			print 'Location: ../index.cgi\n'
+			print 'Location: ../aspen/\n'
 		else:
 			print 'Content-Type: text/html\n'
 			print 'Authentication Failed.'
@@ -157,7 +157,7 @@ class Aspen:
 		self.cookie['LOGIN_DATE']['expires'] = exptxt
 		self.cookie['LOGIN_DATE']['path'] = '/'
 		print self.cookie
-		print 'Location: ../index.cgi\n'
+		print 'Location: ../aspen/\n'
 
 	def new(self):
 		username = self.cookie['UID'].value
@@ -166,7 +166,7 @@ class Aspen:
 		self.asession = self.astorage.authenticateWithSID(username, sid)
 		if not self.asession == None:
 			self.saveCookie(username, self.asession.getSID())
-		print 'Location: ../index.cgi\n'
+		print 'Location: ../aspen/\n'
 
 	def run(self):
 		if self.method == 'POST':

@@ -51,7 +51,7 @@ if (!Aspen) Aspen = {};
 		$("#save")[0].onclick = function() {
 			var uid = $.cookie("UID");
 			var sid = $.cookie("SID");
-			var filename = "./cgi/scripts/" + uid + "/us_" + sid + ".k";
+			var filename = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
 			document.location.href = filename;
 		};
 		$("#file")[0].onchange = function() {
@@ -133,7 +133,7 @@ if (!Aspen) Aspen = {};
 		Aspen.denyRequest();
 		Aspen.saveCookie();
 		$.PeriodicalUpdater(
-			"./cgi/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".out",
+			"../cgi-bin/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".out",
 			{
 				method: "GET",
 				frequency: 1
@@ -146,7 +146,7 @@ if (!Aspen) Aspen = {};
 			}
 		);
 		//$.PeriodicalUpdater(
-		//	"./cgi/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".err",
+		//	"../cgi-bin/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".err",
 		//	{
 		//		method: "GET",
 		//		frequency: 1
@@ -160,7 +160,7 @@ if (!Aspen) Aspen = {};
 		//);
 		$.ajax({
 			type: "POST",
-			url: "./cgi/aspen.cgi?method=eval",
+			url: "../cgi-bin/aspen.cgi?method=eval",
 			data: {
 				"kscript": text
 			},

@@ -16,7 +16,7 @@ html_login = '''<?xml version="1.0" encoding="UTF-8"?>
 		<script type="text/javascript" src="./js/login.js"></script>
 	</head>
 	<body>
-		<form id="loginform" name="loginform" action="./cgi/aspen.cgi?method=login" method="post">
+		<form id="loginform" name="loginform" action="../cgi-bin/aspen.cgi?method=login" method="post">
 			<table summary="Login dialog.">
 				<tr><th colspan="2">Welcome to Aspen</th></tr>
 				<tr><td colspan="2">Please sign in using the form below</td></tr>
@@ -52,15 +52,15 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 	</head>
 	<body>
 <table border=0>
-<tr><td><img src="aspen2.png" width="210" height="70"></td>
+<tr><td><img src="./aspen2.png" width="210" height="70"></td>
 <td>		<div id="info">
 			<span class="user">Hello, %s.</span>
 			<span class="date">Last login: %s</span><br />
 		</div>
-		<form id="logoutform" name="logoutform" action="./cgi/aspen.cgi?method=logout" method="post" style="display:inline">
+		<form id="logoutform" name="logoutform" action="../cgi-bin/aspen.cgi?method=logout" method="post" style="display:inline">
 			<input class="logoutbutton" type="submit" id="logout" value="Log out" />
 		</form>
-		<form id="newform" name="newform" action="./cgi/aspen.cgi?method=new" method="post" style="display:inline">
+		<form id="newform" name="newform" action="../cgi-bin/aspen.cgi?method=new" method="post" style="display:inline">
 			<input class="newbutton" type="submit" id="new" value="Create a new file" />
 		</form>
 </td></tr></table>
