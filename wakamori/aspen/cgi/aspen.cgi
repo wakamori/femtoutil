@@ -97,16 +97,14 @@ class Aspen:
 
 		# output result
 		outfile = open(filename[0:-1] + 'out', 'w')
-		errfile = open(filename[0:-1] + 'err', 'w')
 
 		while p.poll() == None:
 			outfile.write(p.stdout.readline().replace('\n', '<br />'))
 			outfile.flush()
 		outfile.close()
 
-		while p.poll() == None:
-			errfile.write(p.stderr.readline().replace('\n', '<br />'))
-			errfile.flush()
+		errfile = open(filename[0:-1] + 'err', 'w')
+		errfile.write(p.stderr.read().replace('\n', '<br />'))
 		errfile.close()
 
 		# check if process was killed with signal
