@@ -52,7 +52,7 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 	</head>
 	<body>
 <table border=0>
-<tr><td><img src="./aspen2.png" width="210" height="70"></td>
+<tr><td><img src="./konoha_logo.png" width="200" height="100"></td>
 <td>		<div id="info">
 			<span class="user">Hello, %s.</span>
 			<span class="date">Last login: %s</span><br />
