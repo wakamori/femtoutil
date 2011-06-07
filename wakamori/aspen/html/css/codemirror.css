@@ -6,6 +6,9 @@
 	height: 500px;
 	line-height: 1em;
 	font-family: monospace;
+	background-image: url("../aspen2.png");
+	background-repeat: no-repeat;
+	background-position: right bottom;
 }
 
 .CodeMirror-gutter {
