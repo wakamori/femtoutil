@@ -68,6 +68,14 @@ class Aspen:
 			print 'Content-Type: text/html\n'
 			print 'Authentication Failed.'
 
+	def isSignal(self, r, sig):
+		if os.path.isfile('/etc/debian_version'):
+			# debian
+			return r == 128 + sig
+		else:
+			# other linux and mac (ok?)
+			return r == -sig
+
 	def evalScript(self):
 		print 'Content-Type: text/html\n'
 
@@ -140,7 +148,7 @@ class Aspen:
 
 		if r == 0:
 			msg = 'Konoha exited normally. <br />'
-		elif r == -11:
+		elif self.isSignal(r, signal.SIGSEGV):
 			errfile = open(errfilename, 'a')
 			errfile.write('Konoha exited unexpectedly. This script will be reported as \
 			a bug. Sorry.')
@@ -153,11 +161,15 @@ class Aspen:
 				os.makedirs(bugfoldername)
 
 			shutil.copy(filename, bugfoldername)
-		elif r == -15:
+		elif self.isSignal(r, signal.SIGTERM):
 			pass
+		elif self.isSignal(r, signal.SIGABRT):
+			errfile = open(errfilename, 'a')
+			errfile.write('Konoha aborted. Sorry.')
+			errfile.close()
 		else:
 			errfile = open(errfilename, 'a')
-			errfile.write('Konoha exited unexpectedly with error code: %d' % r)
+			errfile.write('Konoha exited unexpectedly with signal: %d. Sorry.' % r)
 			errfile.close()
 
 		msg += '[time: %s, %s]' % (str(exetime)[0:5], load)
