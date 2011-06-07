@@ -66,9 +66,3 @@
 .inlineform {
 	display: inline;
 }
-
-textarea#code {
-	background-image: url("../aspen2.png");
-	background-repeat: no-repeat;
-	background-position: right bottom;
-}
