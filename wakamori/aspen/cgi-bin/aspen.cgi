@@ -36,11 +36,14 @@ class Aspen:
 
 	def __init__(self):
 		self.cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
-		self.asession = None;
-		self.astorage = None;
 		self.field = cgi.FieldStorage()
-		self.method = os.environ['REQUEST_METHOD']
+		self.mtype = self.field.getvalue('method')
 		self.time = datetime.datetime.now()
+		if self.mtype == 'login':
+			self.login()
+		else:
+			self.authWithSID()
+		self.method = os.environ['REQUEST_METHOD']
 
 	def saveCookie(self, uid, sid):
 		exptime = self.time + datetime.timedelta(minutes=30)
@@ -64,9 +67,18 @@ class Aspen:
 			# Authentication successed.
 			self.saveCookie(username, self.asession.getSID())
 			print 'Location: ../aspen/\n'
-		else:
+			return
+		print 'Content-Type: text/html\n'
+		print 'Failed to login.'
+
+	def authWithSID(self):
+		uid = self.cookie['UID'].value
+		sid = self.cookie['SID'].value
+		self.astorage = aspendb.AspenStorage()
+		self.asession = self.astorage.authenticateWithSID(uid, sid)
+		if self.asession == None:
 			print 'Content-Type: text/html\n'
-			print 'Authentication Failed.'
+			print 'Failed to authenticate.'
 
 	def isSignal(self, r, sig):
 		if os.path.isfile('/etc/debian_version'):
@@ -76,30 +88,18 @@ class Aspen:
 			# other linux and mac (ok?)
 			return r == -sig
 
+	# save and evaluate current text
 	def evalScript(self):
-		print 'Content-Type: text/html\n'
-
-		kscript = self.field.getvalue('kscript')
-
-		# create script dir
-		scrdir = 'scripts'
-
-		foldername = scrdir + '/' + self.cookie['UID'].value
-		if not os.path.exists(foldername):
-			os.makedirs(foldername)
-
-		# settle script filename
-		filename = foldername + '/' + 'us_' + self.cookie['SID'].value
-
-		# create script file
-		filename = filename + '.k'
-		userscript = open(filename, 'w')
-		userscript.write(kscript)
-		userscript.close()
+		self.save()
+		foldername = 'scripts/' + self.cookie['UID'].value
+		# copy script file for execution
+		filename = foldername + '/' + 'us_' + self.cookie['SID'].value + '.k'
+		exefilename = foldername + '/aspen.k'
+		shutil.copyfile(filename, exefilename)
 
 		# exec konoha as subprocess
 		starttime = time.time()
-		command = '/usr/local/bin/konoha ' + filename
+		command = '/usr/local/bin/konoha ' + exefilename
 		p = subprocess.Popen(command, shell=True,
 				stdin=subprocess.PIPE, stdout=subprocess.PIPE,
 				stderr=subprocess.PIPE, close_fds=True)
@@ -175,6 +175,7 @@ class Aspen:
 		msg += '[time: %s, %s]' % (str(exetime)[0:5], load)
 
 		# return values as a json object
+		print 'Content-Type: text/html\n'
 		print json.dumps([
 			{'key': 'stdout', 'value': open(outfilename, 'r').read()},
 			{'key': 'stderr', 'value': open(errfilename, 'r').read()},
@@ -194,27 +195,66 @@ class Aspen:
 		print 'Location: ../aspen/\n'
 
 	def new(self):
-		username = self.cookie['UID'].value
-		sid = self.cookie['SID'].value
-		self.astorage = aspendb.AspenStorage()
-		self.asession = self.astorage.authenticateWithSID(username, sid)
-		if not self.asession == None:
-			self.saveCookie(username, self.asession.getSID())
+		self.saveCookie(self.asession.getUID(), self.asession.getSID())
 		print 'Location: ../aspen/\n'
+
+	def name(self):
+		fname = self.field.getvalue('filename')
+		if not self.asession == None:
+			nameSID(self.asession, fname)
+			print 'Location: ../aspen/\n'
+			return
+		print 'Content-Type: text/html\n'
+		print 'Failed to name a file.'
+
+	# save current text as a file (named 'us_SID.k')
+	def save(self):
+		kscript = self.field.getvalue('kscript')
+
+		# create script dir
+		scrdir = 'scripts'
+
+		foldername = scrdir + '/' + self.cookie['UID'].value
+		if not os.path.exists(foldername):
+			os.makedirs(foldername)
+
+		# settle script filename
+		filename = foldername + '/' + 'us_' + self.cookie['SID'].value
+
+		# create script file
+		filename = filename + '.k'
+		userscript = open(filename, 'w')
+		userscript.write(kscript)
+		userscript.close()
+
+	def load(self):
+		print 'TODO'
 
 	def run(self):
 		if self.method == 'POST':
-			mtype = self.field.getvalue('method')
-			if mtype == 'login':
-				self.login()
-			elif mtype == 'eval':
+			if self.mtype == 'eval':
 				self.evalScript()
-			elif mtype == 'logout':
-				self.logout()
-			elif mtype == 'new':
-				self.new()
+			elif self.mtype == 'name':
+				self.name()
+			elif self.mtype == 'save':
+				self.save()
+				print 'Location: ../aspen/\n'
 			else:
-				print 'no such method'
+				print 'Content-Type: text/html\n'
+				print 'No such method in POST.'
+		elif self.method == 'GET':
+			if self.mtype == 'new':
+				self.new()
+			elif self.mtype == 'logout':
+				self.logout()
+			elif self.mtype == 'load':
+				self.load()
+			else:
+				print 'Content-Type: text/html\n'
+				print 'No such method in GET.'
+		else:
+			print 'Content-Type: text/html\n'
+			print 'No such method.'
 
 def main():
 	a = Aspen()

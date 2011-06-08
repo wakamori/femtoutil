@@ -1,9 +1,8 @@
 .CodeMirror {
 	overflow: auto;
-	/*height: 300px;*/
+	height: 500px;
 	background-color: #dddddd;
 	color: #111111;
-	height: 500px;
 	line-height: 1em;
 	font-family: monospace;
 	background-image: url("../aspen2.png");

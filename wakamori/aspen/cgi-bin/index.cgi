@@ -61,18 +61,39 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 						<span class="user">Hello, %s.</span>
 						<span class="date">Last login: %s</span><br />
 					</div>
-					<form id="logoutform" class="inlineform" name="logoutform" action="../cgi-bin/aspen.cgi?method=logout" method="post">
+					<form id="logoutform" class="inlineform" name="logoutform" action="../cgi-bin/aspen.cgi" method="get">
+						<input type="hidden" name="method" value="logout" />
 						<input class="normalbutton" type="submit" id="logout" value="Log out" />
 					</form>
-					<form id="newform" class="inlineform" name="newform" action="../cgi-bin/aspen.cgi?method=new" method="post">
+					<form id="newform" class="inlineform" name="newform" action="../cgi-bin/aspen.cgi" method="get">
+						<input type="hidden" name="method" value="new" />
 						<input class="normalbutton" type="submit" id="new" value="Create a new file" />
 					</form>
-					<input type="button" class="fixedbutton" id="eval" name="eval" value="eval" />
-					<input type="button" class="fixedbutton" id="save" value="save" />
+					<input type="button" class="fixedbutton" id="eval" name="eval" value="Eval" />
+					<input type="button" class="fixedbutton" id="save" value="Save" />
 					<input type="file" id="file" name="file" />
 				</td>
 			</tr>
 		</table>
+		<!-- tabs -->
+		<!--
+		<div id="doclist">
+			<h2>Documents</h2>
+			<ul id="documents">
+				<li><a href="#" rel="Document1" title="This is the content of Document1">Document1</a></li>
+				<li><a href="#" rel="Document2" title="This is the content of Document2">Document2</a></li>
+				<li><a href="#" rel="Document3" title="This is the content of Document3">Document3</a></li>
+				<li><a href="#" rel="Document4" title="This is the content of Document4">Document4</a></li>
+				<li><a href="#" rel="Document5" title="This is the content of Document5">Document5</a></li>
+			</ul>
+		</div>
+		<div id="wrapper">
+			<ul id="tabs">
+			</ul>
+			<div id="content">
+			</div>
+		</div>
+		-->
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
 		<div id="result">
 			<span class="message">Result will be displayed here.</span>

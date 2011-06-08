@@ -49,10 +49,20 @@ if (!Aspen) Aspen = {};
 			}
 		};
 		$("#save")[0].onclick = function() {
-			var uid = $.cookie("UID");
-			var sid = $.cookie("SID");
-			var filename = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
-			document.location.href = filename;
+			Aspen.saveCookie();
+			$.ajax({
+				type: "POST",
+				url: "../cgi-bin/aspen.cgi?method=save",
+				data: {
+					"kscript": myCodeMirror.getValue()
+				},
+				success: function(data) {
+					var uid = $.cookie("UID");
+					var sid = $.cookie("SID");
+					var filename = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
+					document.location.href = filename;
+				}
+			});
 		};
 		$("#file")[0].onchange = function() {
 			var fileList = $("#file")[0].files;
@@ -145,19 +155,6 @@ if (!Aspen) Aspen = {};
 				}
 			}
 		);
-		//$.PeriodicalUpdater(
-		//	"../cgi-bin/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".err",
-		//	{
-		//		method: "GET",
-		//		frequency: 1
-		//	},
-		//	function(data) {
-		//		$(".message").empty();
-		//		$(".stderr").text(data);
-		//		//$(".stderr").empty();
-		//		//$("<span/>").attr("class", "stderr").append(data).appendTo("#result");
-		//	}
-		//);
 		$.ajax({
 			type: "POST",
 			url: "../cgi-bin/aspen.cgi?method=eval",
@@ -187,5 +184,53 @@ $(function() {
 		if (!Aspen.isLogouted() && $.cookie("CODE") != Aspen.getText()) {
 			return "Script is not saved. Exit anyway?";
 		}
+	};
+	/*
+	function addTab(link) {
+		// hide other tabs
+		$("#tabs li").removeClass("current");
+		$("#content p").hide();
+		// add new tab and related content
+		$("#tabs").append("<li class=\"current\"><a class=\"tab\" id=\"" +
+			$(link).attr("rel") + "\" href=\"#\">" + $(link).html() +
+			"</a><a href=\"#\" class=\"remove\">x</a></li>");
+		$("#content").append("<p id=\"" + $(link).attr("rel") +
+			"_content\">" + $(link).attr("title") + "</p>");
+		// set the newly added tab as current
+		$("#" + $(link).attr("rel") + "_content").show();
 	}
+	$("#documents a").click(function() {
+		addTab($(this));
+	});
+	$('#tabs a.tab').live('click', function() {
+		// Get the tab name
+		var contentname = $(this).attr("id") + "_content";
+		// hide all other tabs
+		$("#content p").hide();
+		$("#tabs li").removeClass("current");
+		// show current tab
+		$("#" + contentname).show();
+		$(this).parent().addClass("current");
+	});
+	$('#tabs a.remove').live('click', function() {
+		// Get the tab name
+		var tabid = $(this).parent().find(".tab").attr("id");
+		// remove tab and related content
+		var contentname = tabid + "_content";
+		$("#" + contentname).remove();
+		$(this).parent().remove();
+	});
+	// If tab already exist in the list, return
+	if ($("#" + $(link).attr("rel")).length != 0)
+		return;
+	// if there is no current tab and if there are still tabs left, show the first one
+	if ($("#tabs li.current").length == 0 && $("#tabs li").length > 0) {
+		// find the first tab
+		var firsttab = $("#tabs li:first-child");
+		firsttab.addClass("current");
+		// get its link name and show related content
+		var firsttabid = $(firsttab).find("a.tab").attr("id");
+		$("#" + firsttabid + "_content").show();
+	} 
+	*/
 });
