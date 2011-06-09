@@ -174,13 +174,11 @@ class AspenStorage:
 
 if __name__ == '__main__':
     ast = AspenStorage();
-    # passwd = ast.addUserRetPasswd("d09sd107");
-    # print passwd;
-    ses = AspenSession("d09sd107", "konoha");
+    ses = AspenSession("aspen", "konoha");
     if ast.authenticate(ses):
         sses = ast.authenticateWithSID(str(ses.getUID()), str(ses.getSID()))
         if not sses == None:
-            print sses
+            print "ok!"
         else:
             print "NG"
 

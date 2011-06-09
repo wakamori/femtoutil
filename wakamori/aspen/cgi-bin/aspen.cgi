@@ -79,6 +79,7 @@ class Aspen:
 		if self.asession == None:
 			print 'Content-Type: text/html\n'
 			print 'Failed to authenticate.'
+			
 
 	def isSignal(self, r, sig):
 		if os.path.isfile('/etc/debian_version'):

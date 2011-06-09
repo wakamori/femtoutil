@@ -1,11 +1,13 @@
 .CodeMirror {
 	overflow: auto;
 	height: 300px;
+	width:75%;
 	background-color: #dddddd;
 	color: #111111;
 	line-height: 1em;
+	font-size:12pt;
 	font-family: monospace;
-	background-image: url("../aspen2.png");
+/*	background-image: url("../aspen2.png");*/
 	background-repeat: no-repeat;
 	background-position: right bottom;
 }
