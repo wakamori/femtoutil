@@ -1,4 +1,5 @@
 /* modified by wakamori */
+
 CodeMirror.defineMode("konoha", function(config, parserConfig) {
 	var indentUnit = config.indentUnit, cpp = parserConfig.useCPP;
 	var multiLineStrings = parserConfig.multiLineStrings;
