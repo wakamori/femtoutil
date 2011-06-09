@@ -64,7 +64,8 @@ if (!Aspen) Aspen = {};
 				}
 			});
 		};
-		$("#file")[0].onchange = function() {
+
+/*		$("#file")[0].onchange = function() {
 			var fileList = $("#file")[0].files;
 			var reader = new FileReader();
 			var fsize = fileList[0].size;
@@ -84,15 +85,40 @@ if (!Aspen) Aspen = {};
 				$("<span/>").attr("class", "stderr").append(" bytes, we only accept 16KiB.").appendTo("#result");
 			}
 		};
+
+*/
 		$("#new")[0].onclick = function() {
 			myCodeMirror.setValue("");
 			Aspen.saveCookie();
+		};
+		
+		// shinpei_NKT
+		/*$("#forwad")[0].onclick = function() {
+			
+			
+		};*/
+
+		// shinpei_NKT
+		$("#rewind")[0].onclick = function() {
+			$.ajax({
+				type: "POST",
+				url: "../cgi-bin/aspen.cgi",
+				success: function(data) {
+					console.log(data);
+					var uid = $.cookie("UID");
+					var sid = $.cookie("SID");
+					var url = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
+					myCodeMirror.setValue($.get(url));
+				}
+			});
+
 		};
 		$("#logout")[0].onclick = function() {
 			Aspen.setLogout(true);
 			Aspen.deleteCookie();
 		};
 	};
+
 	Aspen.start = function() {
 		myCodeMirror = CodeMirror.fromTextArea($("#code")[0], {
 			lineNumbers: true,
@@ -106,23 +132,29 @@ if (!Aspen) Aspen = {};
 		Aspen.defineActions();
 		Aspen.setLogout(false);
 	};
+
 	Aspen.allowRequest = function() {
 		requestflag = true;
 	};
+
 	Aspen.denyRequest = function() {
 		requestflag = false;
 	};
+
 	Aspen.requestAllowed = function() {
 		return requestflag;
 	};
+
 	Aspen.getText = function() {
 		return myCodeMirror.getValue();
 	};
+
 	Aspen.loadCookie = function() {
 		if ($.cookie("CODE")) {
 			myCodeMirror.setValue($.cookie("CODE"));
 		}
 	};
+
 	Aspen.saveCookie = function() {
 		var date = new Date();
 		date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
@@ -131,12 +163,14 @@ if (!Aspen) Aspen = {};
 			path: "/"
 		});
 	};
+
 	Aspen.deleteCookie = function() {
 		$.cookie("CODE", "", {
 			expires: -1,
 			path: "/"
 		});
 	};
+
 	Aspen.postScript = function(text) {
 		$("#result").empty();
 		$("<span/>").attr("class", "message").append("Evaluating...").appendTo("#result");
@@ -149,6 +183,7 @@ if (!Aspen) Aspen = {};
 				frequency: 1
 			},
 			function(data) {
+				console.log(data);
 				if (data.length > 0) {
 					$("#result").empty();
 					var inputtxt = $("<span/>").attr("class", "stdout").text(data).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
