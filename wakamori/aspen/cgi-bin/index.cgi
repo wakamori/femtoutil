@@ -78,8 +78,10 @@ html_main = '''
 						<input class="normalbutton" type="submit" id="new" value="New" />
 					</form>
 					<input type="button" class="fixedbutton" id="eval" name="eval" alt="Run!!" value="Run" />
-					<input type="button" class="fixedbutton" id="save" alt="save the current buffer at remote server" value="Save" />
-					<input type="file" id="file" name="file" />
+<!--					<input type="button" class="fixedbutton" id="save" alt="save the current buffer at remote server" value="Save" />
+					<input type="button" class="fixedbutton" id="load" alt="load a script from your server" value="Load" />
+					<input type="button" class="fixedbutton" id="save" alt="open your script" value="Open" onclick='javascript:{ if ($("#file").css("display") == "none") { $("#file").css("display", "inline");} else { $("#file").css("display", "none"); }};' />
+					<input style="display:none" type="file" id="file" name="file" />-->
 				</td>
 			</tr>
 		</table>
@@ -106,6 +108,16 @@ html_main = '''
 		<div id="result">
 			<span class="message">Result will be displayed here.</span>
 		</div>
+<!--<div>
+						<input class="headbutton" type="submit" id="rewind" value=" < " />
+
+
+					<form id="newform" class="inlineform" name="newform" action="./aspen.cgi" method="post">
+						<input type="hidden" name="method" value="forward" />
+						<input class="headbutton" type="submit" id="forward" value=" >" />
+					</form>
+
+</div>-->
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
 	</body>
 </html>'''
@@ -117,8 +129,11 @@ def main():
 		cookie.load(os.environ['HTTP_COOKIE'])
 		if cookie.has_key('UID') and cookie.has_key('LOGIN_DATE'):
 			print html_main % (cookie['UID'].value, cookie['LOGIN_DATE'].value)
-			return
-	print html_login
+			return;
+		else:
+			print html_login;
+	else:
+		print html_login;
 
 if __name__ == '__main__':
 	main()
