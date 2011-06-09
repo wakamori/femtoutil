@@ -55,6 +55,20 @@
 	padding: 2px;
 }
 
+.headbutton {
+	width: 30px;
+	line-height: 8px;
+	height: 20px;
+	text-align: center;
+	color:#111;
+	background-color: #cccccc;
+	border: 1px solid #aaaaaa;
+	-moz-border-radius: 5px;  /* Firefox */
+	-webkit-border-radius: 5px;  /* Safari */
+	border-radius: 5px; /* CSS3 */
+	padding: 2px;
+}
+
 .fixedbutton {
 	width: 50px;
 }

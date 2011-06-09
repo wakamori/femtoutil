@@ -32,17 +32,23 @@ class Alarm(Exception):
 def alarm_handler(signum, frame):
 	raise Alarm
 
+'''
+		if self.mtype == 'login':
+			self.login();
+		elif self.mtype == 'new':
+			self.authWithSIDAndRenewSession();
+		else:
+			self.authWithSID();
+'''
+
+
 class Aspen:
 
 	def __init__(self):
 		self.cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
 		self.field = cgi.FieldStorage()
 		self.mtype = self.field.getvalue('method')
-		self.time = datetime.datetime.now()
-		if self.mtype == 'login':
-			self.login()
-		else:
-			self.authWithSID()
+		self.time = datetime.datetime.now();
 		self.method = os.environ['REQUEST_METHOD']
 
 	def saveCookie(self, uid, sid):
@@ -79,6 +85,15 @@ class Aspen:
 		if self.asession == None:
 			print 'Content-Type: text/html\n'
 			print 'Failed to authenticate.'
+
+	def authWithSIDAndRenewSession(self):
+		uid = self.cookie['UID'].value
+		sid = self.cookie['SID'].value
+		self.astorage = aspendb.AspenStorage()
+		self.asession = self.astorage.authenticateWithSIDAndRenewSession(uid, sid)
+		if self.asession == None:
+			print 'Content-Type: text/html\n'
+			print 'Failed to authenticate and renew.'
 			
 
 	def isSignal(self, r, sig):
@@ -196,6 +211,51 @@ class Aspen:
 		print self.cookie
 		print 'Location: ./index.cgi\n'
 
+	def replyToRewind(self):
+		sid = self.cookie['SID'].value;
+		self.astorage = aspendb.AspenStorage()
+		fromsid = self.astorage.rewindSID(sid);
+		if fromsid is not "":
+			self.cookie['SID'].value = fromsid;
+			# create script dir
+			scrdir = 'scripts'
+			foldername = scrdir + '/' + self.cookie['UID'].value
+			if not os.path.exists(foldername):
+				os.makedirs(foldername)
+			# settle script filename
+			filename = foldername + '/' + 'us_' + fromsid
+			# create script file
+			filename = filename + '.k'
+#			if os.path.exists(filename):
+#				userscript = open(filename, 'r')
+#				self.cookie['CODE'] = userscript.read();
+#				userscript.close()
+			print fromsid;
+			print self.cookie
+		print 'Location: ./index.cgi\n'
+
+	def replyToForward(self):		
+		sid = self.cookie['SID'].value;
+		self.astorage = aspendb.AspenStorage()
+		tosid = self.astorage.forwardSID(sid);
+		if tosid is not "":
+			self.cookie['SID'].value = tosid;
+			# create script dir
+			scrdir = 'scripts'
+			foldername = scrdir + '/' + self.cookie['UID'].value
+			if not os.path.exists(foldername):
+				os.makedirs(foldername)
+			# settle script filename
+			filename = foldername + '/' + 'us_' + tosid
+			# create script file
+			filename = filename + '.k'
+			if os.path.exists(filename):
+				userscript = open(filename, 'r')
+				self.cookie['CODE'] = userscript.read();
+				userscript.close()
+			print self.cookie
+		print 'Location: ./index.cgi\n'
+
 	def new(self):
 		self.saveCookie(self.asession.getUID(), self.asession.getSID())
 		print 'Location: ./index.cgi\n'
@@ -235,10 +295,21 @@ class Aspen:
 	def run(self):
 		if self.method == 'POST':
 			if self.mtype == 'eval':
+				self.authWithSID();
 				self.evalScript()
 			elif self.mtype == 'name':
+				self.authWithSID();
 				self.name()
+			elif self.mtype == 'rewind':
+				self.authWithSID();
+				self.replyToRewind();
+			elif self.mtype == 'login':
+				self.login();
+			elif self.mtype == 'forward':
+				self.authWithSID();
+				self.replyToForward();
 			elif self.mtype == 'save':
+				self.authWithSID();
 				self.save()
 				print 'Location: ./index.cgi\n'
 			else:
@@ -246,10 +317,12 @@ class Aspen:
 				print 'No such method in POST.'
 		elif self.method == 'GET':
 			if self.mtype == 'new':
+				self.authWithSIDAndRenewSession();
 				self.new()
 			elif self.mtype == 'logout':
-				self.logout()
+				self.logout();
 			elif self.mtype == 'load':
+				self.authWithSID();
 				self.load()
 			else:
 				print 'Content-Type: text/html\n'
