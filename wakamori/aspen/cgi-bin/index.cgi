@@ -5,11 +5,12 @@ import Cookie
 import os
 import cgitb; cgitb.enable()
 
-html_login = '''<?xml version="1.0" encoding="UTF-8"?>
+html_login = '''
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
 	<head>
-		<title>Aspen - An online KonohaScript editor</title>
+		<title>アルゴリズムとデータ構造  - try with konoha </title>
 		<link rel="stylesheet" href="../aspen/css/aspen.css" />
 		<script type="text/javascript" src="../aspen/js/jquery-1.6.1.min.js"></script>
 		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
@@ -18,22 +19,28 @@ html_login = '''<?xml version="1.0" encoding="UTF-8"?>
 	<body>
 		<form id="loginform" name="loginform" action="./aspen.cgi?method=login" method="post">
 			<table summary="Login dialog.">
-				<tr><th colspan="2">Welcome to Aspen</th></tr>
-				<tr><td colspan="2">Please sign in using the form below</td></tr>
-				<tr><th>username</th><td><input type="text" class="sprited" id="username" name="username" value="your name" /></td></tr>
-				<tr><th>password</th><td><input type="password" class="sprited" id="password" name="password" /></td></tr>
+				<tr><th colspan="2">アルゴリズムとデータ構造</th></tr>
+				<tr><td colspan="2">学籍番号とパスワードでログインしてください</td></tr>
+				<tr><th>学籍番号</th><td><input type="text" class="sprited" id="username" name="username" value="your name" /></td></tr>
+				<tr><th>パスワード</th><td><input type="password" class="sprited" id="password" name="password" /></td></tr>
 			</table>
-			<input class="loginbutton" type="submit" id="signin" value="Sign in" />
+<div style="text-align:right;">
+			<input class="loginbutton" type="submit" id="signin" value="Log In" />
 			<input class="loginbutton" type="reset" id="cancel" name="cancel" value="Clear" />
+</div>
 		</form>
 	</body>
 </html>'''
 
-html_main = '''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+#<?xml version="1.0" encoding="UTF-8"?>
+#<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+#<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+
+html_main = '''
+<!doctype html>
+<html>
 	<head>
-		<title>Aspen - An online KonohaScript editor</title>
+		<title>アルゴリズムとデータ構造  - try with konoha</title>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 		<meta http-equiv="Content-Script-Type" content="text/javascript" />
 		<script type="text/javascript" src="../aspen/js/jquery-1.6.1.min.js"></script>
@@ -51,10 +58,11 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 		<link rel="stylesheet" href="../aspen/mode/konoha/konoha.css" />
 	</head>
 	<body>
+
 		<table border="0" summary="header">
 			<tr>
-				<td>
-					<a href="./"><img src="../aspen/konoha_logo.png" width="200" height="100" alt="Konoha" /></a>
+				<td width="230">
+					<a href="./"><img src="../aspen/konoha_logo.png" width="213" height="54" alt="Konoha" border=0/></a>
 				</td>
 				<td>
 					<div id="info">
@@ -67,14 +75,15 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 					</form>
 					<form id="newform" class="inlineform" name="newform" action="./aspen.cgi" method="get">
 						<input type="hidden" name="method" value="new" />
-						<input class="normalbutton" type="submit" id="new" value="Create a new file" />
+						<input class="normalbutton" type="submit" id="new" value="New" />
 					</form>
-					<input type="button" class="fixedbutton" id="eval" name="eval" value="Eval" />
-					<input type="button" class="fixedbutton" id="save" value="Save" />
+					<input type="button" class="fixedbutton" id="eval" name="eval" alt="Run!!" value="Run" />
+					<input type="button" class="fixedbutton" id="save" alt="save the current buffer at remote server" value="Save" />
 					<input type="file" id="file" name="file" />
 				</td>
 			</tr>
 		</table>
+
 		<!-- tabs -->
 		<!--
 		<div id="doclist">

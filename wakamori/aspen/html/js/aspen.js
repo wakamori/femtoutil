@@ -165,6 +165,7 @@ if (!Aspen) Aspen = {};
 			success: function(data) {
 				clearTimeout(PeriodicalTimer);
 				$("#result").empty();
+				console.log(data);
 				var json = JSON.parse(data);
 				for (var i = 0; i < json.length; i++) {
 					var key = json[i].key;
