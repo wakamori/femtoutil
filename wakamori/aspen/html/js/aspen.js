@@ -48,6 +48,7 @@ if (!Aspen) Aspen = {};
 				}
 			}
 		};
+		/*
 		$("#save")[0].onclick = function() {
 			Aspen.saveCookie();
 			$.ajax({
@@ -64,6 +65,7 @@ if (!Aspen) Aspen = {};
 				}
 			});
 		};
+		*/
 
 /*		$("#file")[0].onchange = function() {
 			var fileList = $("#file")[0].files;

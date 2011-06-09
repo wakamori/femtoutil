@@ -5,9 +5,8 @@ import Cookie
 import os
 import cgitb; cgitb.enable()
 
-html_login = '''
+html_login = '''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
 	<head>
 		<title>アルゴリズムとデータ構造  - try with konoha </title>
@@ -36,8 +35,7 @@ html_login = '''
 #<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 #<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
 
-html_main = '''
-<!doctype html>
+html_main = '''<!doctype html>
 <html>
 	<head>
 		<title>アルゴリズムとデータ構造  - try with konoha</title>
@@ -123,7 +121,7 @@ html_main = '''
 </html>'''
 
 def main():
-	print 'Content-Type: text/html\n'
+	print 'Content-Type: text/html; charset=UTF-8\n'
 	cookie = Cookie.SimpleCookie()
 	if os.environ.has_key('HTTP_COOKIE'):
 		cookie.load(os.environ['HTTP_COOKIE'])
