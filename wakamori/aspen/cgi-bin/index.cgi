@@ -94,10 +94,10 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 			</div>
 		</div>
 		-->
-		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
 		<div id="result">
 			<span class="message">Result will be displayed here.</span>
 		</div>
+		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
 	</body>
 </html>'''
 
