@@ -10,13 +10,13 @@ html_login = '''<?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
 	<head>
 		<title>Aspen - An online KonohaScript editor</title>
-		<link rel="stylesheet" href="./css/aspen.css" />
-		<script type="text/javascript" src="./js/jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="./js/jquery.lightbox_me.js"></script>
-		<script type="text/javascript" src="./js/login.js"></script>
+		<link rel="stylesheet" href="../aspen/css/aspen.css" />
+		<script type="text/javascript" src="../aspen/js/jquery-1.6.1.min.js"></script>
+		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
+		<script type="text/javascript" src="../aspen/js/login.js"></script>
 	</head>
 	<body>
-		<form id="loginform" name="loginform" action="../cgi-bin/aspen.cgi?method=login" method="post">
+		<form id="loginform" name="loginform" action="./aspen.cgi?method=login" method="post">
 			<table summary="Login dialog.">
 				<tr><th colspan="2">Welcome to Aspen</th></tr>
 				<tr><td colspan="2">Please sign in using the form below</td></tr>
@@ -36,36 +36,36 @@ html_main = '''<?xml version="1.0" encoding="UTF-8"?>
 		<title>Aspen - An online KonohaScript editor</title>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 		<meta http-equiv="Content-Script-Type" content="text/javascript" />
-		<script type="text/javascript" src="./js/jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="./js/jquery.cookie.js"></script>
-		<script type="text/javascript" src="./js/jquery.lightbox_me.js"></script>
-		<script type="text/javascript" src="./js/codemirror.js"></script>
-		<script type="text/javascript" src="./js/autocompletion.js"></script>
-		<script type="text/javascript" src="./js/jquery.lightbox_me.js"></script>
-		<script type="text/javascript" src="./js/jquery.periodicalupdater.js"></script>
-		<script type="text/javascript" src="./js/aspen.js"></script>
-		<script type="text/javascript" src="./js/mootools-core-1.3.2-full-compat.js"></script>
-		<script type="text/javascript" src="./mode/konoha/konoha.js"></script>
-		<link rel="stylesheet" href="./css/aspen.css" />
-		<link rel="stylesheet" href="./css/codemirror.css" />
-		<link rel="stylesheet" href="./mode/konoha/konoha.css" />
+		<script type="text/javascript" src="../aspen/js/jquery-1.6.1.min.js"></script>
+		<script type="text/javascript" src="../aspen/js/jquery.cookie.js"></script>
+		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
+		<script type="text/javascript" src="../aspen/js/codemirror.js"></script>
+		<script type="text/javascript" src="../aspen/js/autocompletion.js"></script>
+		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
+		<script type="text/javascript" src="../aspen/js/jquery.periodicalupdater.js"></script>
+		<script type="text/javascript" src="../aspen/js/aspen.js"></script>
+		<script type="text/javascript" src="../aspen/js/mootools-core-1.3.2-full-compat.js"></script>
+		<script type="text/javascript" src="../aspen/mode/konoha/konoha.js"></script>
+		<link rel="stylesheet" href="../aspen/css/aspen.css" />
+		<link rel="stylesheet" href="../aspen/css/codemirror.css" />
+		<link rel="stylesheet" href="../aspen/mode/konoha/konoha.css" />
 	</head>
 	<body>
 		<table border="0" summary="header">
 			<tr>
 				<td>
-					<a href="./"><img src="./konoha_logo.png" width="200" height="100" alt="Konoha" /></a>
+					<a href="./"><img src="../aspen/konoha_logo.png" width="200" height="100" alt="Konoha" /></a>
 				</td>
 				<td>
 					<div id="info">
 						<span class="user">Hello, %s.</span>
 						<span class="date">Last login: %s</span><br />
 					</div>
-					<form id="logoutform" class="inlineform" name="logoutform" action="../cgi-bin/aspen.cgi" method="get">
+					<form id="logoutform" class="inlineform" name="logoutform" action="./aspen.cgi" method="get">
 						<input type="hidden" name="method" value="logout" />
 						<input class="normalbutton" type="submit" id="logout" value="Log out" />
 					</form>
-					<form id="newform" class="inlineform" name="newform" action="../cgi-bin/aspen.cgi" method="get">
+					<form id="newform" class="inlineform" name="newform" action="./aspen.cgi" method="get">
 						<input type="hidden" name="method" value="new" />
 						<input class="normalbutton" type="submit" id="new" value="Create a new file" />
 					</form>

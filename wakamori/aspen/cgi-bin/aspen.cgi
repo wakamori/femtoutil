@@ -12,7 +12,6 @@
   0.0.1 : first commit. (shinpei_NKT)
 '''
 
-#from xml.sax.saxutils import excape
 import aspendb
 import cgi
 import cgitb; cgitb.enable()
@@ -67,7 +66,7 @@ class Aspen:
 		if (self.astorage.authenticate(self.asession)):
 			# Authentication successed.
 			self.saveCookie(username, self.asession.getSID())
-			print 'Location: ../aspen/\n'
+			print 'Location: ./index.cgi\n'
 			return
 		print 'Content-Type: text/html\n'
 		print 'Failed to login.'
@@ -118,12 +117,11 @@ class Aspen:
 
 		try:
 			while p.poll() == None:
-				outfile.write(cgi.escape(p.stdout.readline()[0:-1]))
-				outfile.write('<br />')
+				outfile.write(p.stdout.readline())
 				outfile.flush()
 			outfile.close()
 			errfile = open(errfilename, 'w')
-			errfile.write(p.stderr.read().replace('\n', '<br />'))
+			errfile.write(p.stderr.read())
 			errfile.close()
 			signal.alarm(0)
 		except Alarm:
@@ -195,17 +193,17 @@ class Aspen:
 		self.cookie['LOGIN_DATE']['expires'] = exptxt
 		self.cookie['LOGIN_DATE']['path'] = '/'
 		print self.cookie
-		print 'Location: ../aspen/\n'
+		print 'Location: ./index.cgi\n'
 
 	def new(self):
 		self.saveCookie(self.asession.getUID(), self.asession.getSID())
-		print 'Location: ../aspen/\n'
+		print 'Location: ./index.cgi\n'
 
 	def name(self):
 		fname = self.field.getvalue('filename')
 		if not self.asession == None:
 			nameSID(self.asession, fname)
-			print 'Location: ../aspen/\n'
+			print 'Location: ./index.cgi\n'
 			return
 		print 'Content-Type: text/html\n'
 		print 'Failed to name a file.'
@@ -241,7 +239,7 @@ class Aspen:
 				self.name()
 			elif self.mtype == 'save':
 				self.save()
-				print 'Location: ../aspen/\n'
+				print 'Location: ./index.cgi\n'
 			else:
 				print 'Content-Type: text/html\n'
 				print 'No such method in POST.'

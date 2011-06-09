@@ -151,7 +151,8 @@ if (!Aspen) Aspen = {};
 			function(data) {
 				if (data.length > 0) {
 					$("#result").empty();
-					$("<span/>").attr("class", "stdout").append(data).appendTo("#result");
+					var inputtxt = $("<span/>").attr("class", "stdout").text(data).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
+					$("#result").append(inputtxt);
 				}
 			}
 		);
@@ -169,7 +170,8 @@ if (!Aspen) Aspen = {};
 					var key = json[i].key;
 					var val = json[i].value;
 					if (val.length > 0) {
-						$("<span/>").attr("class", json[i].key).append(json[i].value).appendTo("#result");
+						var inputtxt = $("<span/>").attr("class", key).text(val).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
+						$("#result").append(inputtxt);
 						$("#result").append("<br />");
 					}
 				}
