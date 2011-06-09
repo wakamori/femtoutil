@@ -101,7 +101,7 @@ if (!Aspen) Aspen = {};
 		};*/
 
 		// shinpei_NKT
-		$("#rewind")[0].onclick = function() {
+		/* $("#rewind")[0].onclick = function() {
 			$.ajax({
 				type: "POST",
 				url: "../cgi-bin/aspen.cgi",
@@ -114,7 +114,7 @@ if (!Aspen) Aspen = {};
 				}
 			});
 
-		};
+		}; */
 		$("#logout")[0].onclick = function() {
 			Aspen.setLogout(true);
 			Aspen.deleteCookie();
