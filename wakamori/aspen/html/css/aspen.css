@@ -1,7 +1,13 @@
 /* aspen style */
 
+#result {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	font-family: 'courier new';
+}
+
 .stdout {
-	color: green;
+	color: black;
 }
 
 .stderr {

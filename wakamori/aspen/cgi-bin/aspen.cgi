@@ -12,6 +12,7 @@
   0.0.1 : first commit. (shinpei_NKT)
 '''
 
+#from xml.sax.saxutils import excape
 import aspendb
 import cgi
 import cgitb; cgitb.enable()
@@ -117,7 +118,8 @@ class Aspen:
 
 		try:
 			while p.poll() == None:
-				outfile.write(p.stdout.readline().replace('\n', '<br />'))
+				outfile.write(cgi.escape(p.stdout.readline()[0:-1]))
+				outfile.write('<br />')
 				outfile.flush()
 			outfile.close()
 			errfile = open(errfilename, 'w')
@@ -147,7 +149,8 @@ class Aspen:
 		msg = ''
 
 		if r == 0:
-			msg = 'Konoha exited normally. <br />'
+			#msg = 'Konoha exited normally. <br />'
+			pass
 		elif self.isSignal(r, signal.SIGSEGV):
 			errfile = open(errfilename, 'a')
 			errfile.write('Konoha exited unexpectedly. This script will be reported as \
@@ -177,8 +180,8 @@ class Aspen:
 		# return values as a json object
 		print 'Content-Type: text/html\n'
 		print json.dumps([
-			{'key': 'stdout', 'value': open(outfilename, 'r').read()},
 			{'key': 'stderr', 'value': open(errfilename, 'r').read()},
+			{'key': 'stdout', 'value': open(outfilename, 'r').read()},
 			{'key': 'message', 'value': msg}
 		])
 
