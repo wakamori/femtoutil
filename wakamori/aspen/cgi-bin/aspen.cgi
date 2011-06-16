@@ -3,9 +3,10 @@
 
 '''
  aspen.cgi : small script for invoking konoha
-  shinpei_NKT, chen_ji, utrhira (C)2011
+   chen_ji, shinpei_NKT, utrhira (C)2011
 
  version:
+  0.0.5 : added git-like history (shinpei_NKT)
   0.0.4 : divided index.cgi and aspen.cgi. (chen_ji)
   0.0.3 : added jQuery and index.html. (chen_ji)
   0.0.2 : show result with textfile. (utr)
@@ -226,12 +227,10 @@ class Aspen:
 			filename = foldername + '/' + 'us_' + fromsid
 			# create script file
 			filename = filename + '.k'
-#			if os.path.exists(filename):
-#				userscript = open(filename, 'r')
-#				self.cookie['CODE'] = userscript.read();
-#				userscript.close()
-			print fromsid;
+			print "Content-type: text/html\n";
+			print '{"sid": "' + fromsid + '"}'
 			print self.cookie
+			return
 		print 'Location: ./index.cgi\n'
 
 	def replyToForward(self):		
@@ -249,12 +248,15 @@ class Aspen:
 			filename = foldername + '/' + 'us_' + tosid
 			# create script file
 			filename = filename + '.k'
-			if os.path.exists(filename):
-				userscript = open(filename, 'r')
-				self.cookie['CODE'] = userscript.read();
-				userscript.close()
-			print self.cookie
-		print 'Location: ./index.cgi\n'
+			print "Content-type: text/html\n";
+			print '{"sid": "' + tosid + '"}';
+			print self.cookie;
+		else:
+			# there is no tosid. put error.
+			print "Content-type: text/html\n";
+			print '{"sid": "none"}';
+			print self.cookie;
+
 
 	def new(self):
 		self.saveCookie(self.asession.getUID(), self.asession.getSID())
@@ -303,11 +305,11 @@ class Aspen:
 			elif self.mtype == 'rewind':
 				self.authWithSID();
 				self.replyToRewind();
-			elif self.mtype == 'login':
-				self.login();
 			elif self.mtype == 'forward':
 				self.authWithSID();
 				self.replyToForward();
+			elif self.mtype == 'login':
+				self.login();
 			elif self.mtype == 'save':
 				self.authWithSID();
 				self.save()
