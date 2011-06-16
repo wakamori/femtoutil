@@ -99,6 +99,7 @@ if (!Aspen) Aspen = {};
 		};
 		
 		$("#forward")[0].onclick = function() {
+			console.log("before ajax:" + $.cookie("SID"))
 			$.ajax({
 				type: "POST",
 				url: "../cgi-bin/aspen.cgi?method=forward",
@@ -111,14 +112,27 @@ if (!Aspen) Aspen = {};
 					var lines = data.split("\n");
 					var obj = JSON.parse(lines[0]);
 					var sid = obj["sid"];
+					console.log("after ajax:" + sid);
 					if (sid == "none") { 
 						$("#result").empty();
 						$("<span/>").attr("class", "message").append("there is no forwarding scripts.").appendTo("#result");
 						return;
 					}
+					/* overwrite current cookie */ 
+					var date = new Date();
+					date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
+					$.cookie("SID", sid, {
+						expires: date,
+						path: "/"
+					});
 					var url = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
 					$.get(url, function(data) {
-						console.log(data);
+						var date = new Date();
+						date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
+						$.cookie("CODE", data, {
+							expires: date,
+							path: "/"
+						});
 						myCodeMirror.setValue(data);
 					});
 				}
@@ -126,6 +140,7 @@ if (!Aspen) Aspen = {};
 		};
 
 		$("#rewind")[0].onclick = function() {
+			console.log("before ajax:" + $.cookie("SID"))
 			$.ajax({
 				type: "POST",
 				url: "../cgi-bin/aspen.cgi?method=rewind",
@@ -138,13 +153,27 @@ if (!Aspen) Aspen = {};
 					var lines = data.split("\n");
 					var obj = JSON.parse(lines[0]);
 					var sid = obj["sid"];
+					console.log("after ajax:" + sid);
 					if (sid == "none") { 
 						$("#result").empty();
 						$("<span/>").attr("class", "message").append("there is no previous scripts.").appendTo("#result");
 						return;
 					}
+					/* overwrite current sid */
+					var date = new Date();
+					date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
+					$.cookie("SID", sid, {
+						expires: date,
+						path: "/"
+					});
 					var url = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
 					$.get(url, function(data) {
+						var date = new Date();
+						date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
+						$.cookie("CODE", data, {
+							expires: date,
+							path: "/"
+						});
 						myCodeMirror.setValue(data);
 					});
 				}
