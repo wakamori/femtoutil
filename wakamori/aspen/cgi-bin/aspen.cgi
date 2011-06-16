@@ -195,8 +195,8 @@ class Aspen:
 		# return values as a json object
 		print 'Content-Type: text/html\n'
 		print json.dumps([
-			{'key': 'stderr', 'value': open(errfilename, 'r').read()},
-			{'key': 'stdout', 'value': open(outfilename, 'r').read()},
+			{'key': 'stderr', 'value': open(errfilename, 'r').read().decode('utf-8', 'replace')},
+			{'key': 'stdout', 'value': open(outfilename, 'r').read().decode('utf-8', 'replace')},
 			{'key': 'message', 'value': msg}
 		])
 

@@ -280,7 +280,7 @@ configuration : this is temporary.
 					var key = json[i].key;
 					var val = json[i].value;
 					if (val.length > 0) {
-						var inputtxt = $("<span />").attr("class", key);
+						var inputtxt = $("<span/>").attr("class", key);
 						inputtext = inputtxt.text(val).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
 						$("#result").append(inputtxt);
 						$("#result").append("<br />");
