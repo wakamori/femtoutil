@@ -5,10 +5,17 @@
   modifed by chen_ji, shinpei_NKT
 */
 
+
+
 var Aspen;
 if (!Aspen) Aspen = {};
 
 (function() {
+/*
+configuration : this is temporary.
+*/
+	var cgiDir = "../cgi-bin";
+
 	var requestflag;
 	var myCodeMirror;
 	var logouted;
@@ -99,10 +106,9 @@ if (!Aspen) Aspen = {};
 		};
 		
 		$("#forward")[0].onclick = function() {
-			console.log("before ajax:" + $.cookie("SID"))
 			$.ajax({
 				type: "POST",
-				url: "../cgi-bin/aspen.cgi?method=forward",
+				url: ""+ cgiDir + "/aspen.cgi?method=forward",
 				data: {
 					"sid": $.cookie("SID"),
 					"uid": $.cookie("UID"),
@@ -125,7 +131,7 @@ if (!Aspen) Aspen = {};
 						expires: date,
 						path: "/"
 					});
-					var url = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
+					var url =  cgiDir + "/scripts/" + uid + "/us_" + sid + ".k";
 					$.get(url, function(data) {
 						var date = new Date();
 						date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
@@ -143,7 +149,7 @@ if (!Aspen) Aspen = {};
 			console.log("before ajax:" + $.cookie("SID"))
 			$.ajax({
 				type: "POST",
-				url: "../cgi-bin/aspen.cgi?method=rewind",
+				url: "" + cgiDir + "/aspen.cgi?method=rewind",
 				data: {
 					"sid": $.cookie("SID"),
 					"uid": $.cookie("UID"),
@@ -166,7 +172,7 @@ if (!Aspen) Aspen = {};
 						expires: date,
 						path: "/"
 					});
-					var url = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
+					var url = cgiDir + "/scripts/" + uid + "/us_" + sid + ".k";
 					$.get(url, function(data) {
 						var date = new Date();
 						date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
@@ -244,7 +250,7 @@ if (!Aspen) Aspen = {};
 		Aspen.denyRequest();
 		Aspen.saveCookie();
 		$.PeriodicalUpdater(
-			"../cgi-bin/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".out",
+			cgiDir + "/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".out",
 			{
 				method: "GET",
 				frequency: 1
@@ -260,7 +266,7 @@ if (!Aspen) Aspen = {};
 		);
 		$.ajax({
 			type: "POST",
-			url: "../cgi-bin/aspen.cgi?method=eval",
+			url: cgiDir + "/aspen.cgi?method=eval",
 			data: {
 				"kscript": text
 			},
