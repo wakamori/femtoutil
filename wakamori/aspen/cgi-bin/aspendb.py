@@ -97,7 +97,6 @@ class AspenStorage:
                 return retSession;
         return None;
 
-
     def addUserRetPasswd(self, uid):
         s = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
         passwd = "";
@@ -113,8 +112,6 @@ class AspenStorage:
             return "none"
         return passwd;
 
-
-
     # commitSession is write session into the Database
     # it invoked after the authentication.
     # this method is internal use only.
@@ -125,7 +122,7 @@ class AspenStorage:
             query = query + '"' + session.getUID() + '", ';
             query = query + '"' + str(time.mktime(time.localtime())) + '", ';
             query = query + '"Untitled");';
-            #print query;
+            # print query;
             self.cur.execute(query);
             self.con.commit();
             
@@ -137,12 +134,9 @@ class AspenStorage:
             query = query + str(session.getSID()) + '");';
             self.cur.execute(query);
             self.con.commit();
-            
-
 
     def close(self):
         self.con.close();
-        
 
     # name SID 
     #  assume that sid is already exists!
@@ -244,12 +238,9 @@ if __name__ == '__main__':
     ast = AspenStorage();
     ses = AspenSession("aspen", "konoha");
     if ast.authenticate(ses):
-        sses = ast.authenticateWithSID(str(ses.getUID()), str(ses.getSID()))
-        if not sses == None:
-            
-            print "ok!"
-        else:
-            print "NG"
-
-
+        sid = ast.getLatestSID(ses.getUID());
+        print sid;
+        rsid = ast.rewindSID(sid);
+        fsid = ast.forwardSID(rsid);
+        print fsid;
     ast.close()
