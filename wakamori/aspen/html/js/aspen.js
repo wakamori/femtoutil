@@ -259,7 +259,8 @@ configuration : this is temporary.
 				console.log(data);
 				if (data.length > 0) {
 					$("#result").empty();
-					var inputtxt = $("<span/>").attr("class", "stdout").text(data).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
+					var inputtxt = $("<span/>").attr("class", "stdout");
+					inputtxt = inputtxt.text(data).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
 					$("#result").append(inputtxt);
 				}
 			}
@@ -279,7 +280,8 @@ configuration : this is temporary.
 					var key = json[i].key;
 					var val = json[i].value;
 					if (val.length > 0) {
-						var inputtxt = $("<span/>").attr("class", key).text(val).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
+						var inputtxt = $("<span />").attr("class", key);
+						inputtext = inputtxt.text(val).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
 						$("#result").append(inputtxt);
 						$("#result").append("<br />");
 					}
