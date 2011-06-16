@@ -1,5 +1,9 @@
-// edited by utrhira
-// modified by chen_ji
+/*
+  aspen.js: Aspen js library
+  
+  started by utrhira
+  modifed by chen_ji, shinpei_NKT
+*/
 
 var Aspen;
 if (!Aspen) Aspen = {};
@@ -94,27 +98,59 @@ if (!Aspen) Aspen = {};
 			Aspen.saveCookie();
 		};
 		
-		// shinpei_NKT
-		/*$("#forwad")[0].onclick = function() {
-			
-			
-		};*/
-
-		// shinpei_NKT
-		/* $("#rewind")[0].onclick = function() {
+		$("#forward")[0].onclick = function() {
 			$.ajax({
 				type: "POST",
-				url: "../cgi-bin/aspen.cgi",
+				url: "../cgi-bin/aspen.cgi?method=forward",
+				data: {
+					"sid": $.cookie("SID"),
+					"uid": $.cookie("UID"),
+				},
 				success: function(data) {
-					console.log(data);
 					var uid = $.cookie("UID");
-					var sid = $.cookie("SID");
+					var lines = data.split("\n");
+					var obj = JSON.parse(lines[0]);
+					var sid = obj["sid"];
+					if (sid == "none") { 
+						$("#result").empty();
+						$("<span/>").attr("class", "message").append("there is no forwarding scripts.").appendTo("#result");
+						return;
+					}
 					var url = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
-					myCodeMirror.setValue($.get(url));
+					$.get(url, function(data) {
+						console.log(data);
+						myCodeMirror.setValue(data);
+					});
 				}
 			});
+		};
 
-		}; */
+		$("#rewind")[0].onclick = function() {
+			$.ajax({
+				type: "POST",
+				url: "../cgi-bin/aspen.cgi?method=rewind",
+				data: {
+					"sid": $.cookie("SID"),
+					"uid": $.cookie("UID"),
+				},
+				success: function(data) {
+					var uid = $.cookie("UID");
+					var lines = data.split("\n");
+					var obj = JSON.parse(lines[0]);
+					var sid = obj["sid"];
+					if (sid == "none") { 
+						$("#result").empty();
+						$("<span/>").attr("class", "message").append("there is no previous scripts.").appendTo("#result");
+						return;
+					}
+					var url = "../cgi-bin/scripts/" + uid + "/us_" + sid + ".k";
+					$.get(url, function(data) {
+						myCodeMirror.setValue(data);
+					});
+				}
+			});
+		};
+
 		$("#logout")[0].onclick = function() {
 			Aspen.setLogout(true);
 			Aspen.deleteCookie();
