@@ -133,14 +133,11 @@ configuration : this is temporary.
 					});
 					var url =  cgiDir + "/scripts/" + uid + "/us_" + sid + ".k";
 					$.get(url, function(data) {
-						var date = new Date();
-						date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
-						$.cookie("CODE", data, {
-							expires: date,
-							path: "/"
-						});
 						myCodeMirror.setValue(data);
+						/* temporary */
+						Aspen.saveCookie();
 					});
+					Aspen.allowRequest();
 				}
 			});
 		};
@@ -174,14 +171,11 @@ configuration : this is temporary.
 					});
 					var url = cgiDir + "/scripts/" + uid + "/us_" + sid + ".k";
 					$.get(url, function(data) {
-						var date = new Date();
-						date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
-						$.cookie("CODE", data, {
-							expires: date,
-							path: "/"
-						});
 						myCodeMirror.setValue(data);
+						/* temporary */
+						Aspen.saveCookie();
 					});
+					Aspen.allowRequest();
 				}
 			});
 		};
@@ -260,7 +254,7 @@ configuration : this is temporary.
 				if (data.length > 0) {
 					$("#result").empty();
 					var inputtxt = $("<span/>").attr("class", "stdout");
-					inputtxt = inputtxt.text(data).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
+					inputtxt = inputtxt.html(data.replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />"));
 					$("#result").append(inputtxt);
 				}
 			}
@@ -281,7 +275,7 @@ configuration : this is temporary.
 					var val = json[i].value;
 					if (val.length > 0) {
 						var inputtxt = $("<span/>").attr("class", key);
-						inputtext = inputtxt.text(val).html().replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />");
+						inputtxt = inputtxt.html(val.replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />"));
 						$("#result").append(inputtxt);
 						$("#result").append("<br />");
 					}
