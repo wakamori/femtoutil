@@ -106,16 +106,10 @@ html_main = '''<!doctype html>
 		<div id="result">
 			<span class="message">Result will be displayed here.</span>
 		</div>
-<!--<div>
+<div>
 						<input class="headbutton" type="submit" id="rewind" value=" < " />
-
-
-					<form id="newform" class="inlineform" name="newform" action="./aspen.cgi" method="post">
-						<input type="hidden" name="method" value="forward" />
-						<input class="headbutton" type="submit" id="forward" value=" >" />
-					</form>
-
-</div>-->
+						<input class="headbutton" type="submit" id="forward" value=" > " />
+</div>
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
 	</body>
 </html>'''
