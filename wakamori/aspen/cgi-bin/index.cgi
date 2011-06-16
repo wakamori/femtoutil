@@ -60,7 +60,7 @@ html_main = '''<!doctype html>
 		<table border="0" summary="header">
 			<tr>
 				<td width="230">
-					<a href="./"><img src="../aspen/konoha_logo.png" width="213" height="54" alt="Konoha" border=0/></a>
+					<a href="./index.cgi"><img src="../aspen/konoha_logo.png" width="213" height="54" alt="Konoha" border=0/></a>
 				</td>
 				<td>
 					<div id="info">
