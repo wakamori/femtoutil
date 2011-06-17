@@ -27,6 +27,7 @@ String CActor.getScriptPath();
 boolean CActor.existsWorkingDir(String dir_name);
 boolean CActor.changeToWorkingDir(String dir_name);
 void CActor.activateActor(String script_name);
+void CActor.sendToScalaActor(String actor_name, String host, int port, int msg);
 
 class Message {
 	ConnectionObject c;
@@ -67,7 +68,7 @@ class Actor {
 		while (true) {
 			Socket s = ss.accept();
 			ins = s.getInputStream();
-			ConnectObject c = ins.readObject(ConnectionObject);
+			ConnectionObject c = ins.readObject(ConnectionObject);
 			//print c.msg;
 			a.addMessageToMailBox(c.mtd_name, c.msg);
 			//a.addMessageToMailBox(c.actor_name, c.mtd_name, c.msg);
@@ -155,5 +156,9 @@ class Actor {
 		writer.close();
 		CActor.activateActor(actor_name);
 		//CActor.activateActor(script_name);
+	}
+
+	void sendToScalaActor(String actor_name, String host, int port, int msg) {
+		CActor.sendToScalaActor(actor_name, host, port, msg);
 	}
 }

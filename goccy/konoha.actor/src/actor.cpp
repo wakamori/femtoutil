@@ -31,6 +31,11 @@
 // **************************************************************************
 
 #include <konoha1.h>
+#include <pthread.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <libmemcached/memcached.h>
+#include <jni.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,22 +73,6 @@ typedef struct _knh_Actor_t {
 	knh_ActorEX_t *b;
 } knh_Actor_t;
 
-static void CActor_init(CTX ctx, knh_RawPtr_t *po)
-{
-
-}
-
-static void CActor_free(CTX ctx, knh_RawPtr_t *po)
-{
-
-}
-
-DEFAPI(void) defCActor(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
-{
-	cdef->name = "CActor";
-	cdef->init = CActor_init;
-	cdef->free = CActor_free;
-}
 
 knh_MailBox_t *knh_MailBox_new(CTX ctx)
 {
@@ -109,7 +98,6 @@ static void knh_Actor_init(CTX ctx, knh_Actor_t *actor)
 	actor->b = b;
 }
 
-#include <pthread.h>
 
 typedef struct _knh_ThreadInfo_t {
 	knh_Func_t *func;
@@ -171,7 +159,6 @@ static void knh_Actor_invokeMethod(CTX ctx, knh_Actor_t *a)
 	}
 }
 
-#include <libmemcached/memcached.h>
 
 static memcached_st *new_memcached(const char *host)
 {
@@ -363,7 +350,7 @@ METHOD CActor_startDeliver(CTX ctx, knh_sfp_t *sfp _RIX)
 	th_info->a = a;
 	th_info->sfp = (knh_sfp_t *)KNH_MALLOC(ctx, sizeof(knh_sfp_t) * ctx->stacksize);
 	knh_sfp_copy(th_info->ctx, th_info->sfp, sfp, th_info->ctx->stacksize);
-	pthread_create(&th, NULL, (void *)delivery_thread_func, (void *)th_info);
+	pthread_create(&th, NULL, (void*(*)(void *))delivery_thread_func, (void *)th_info);
 	pthread_detach(th);
 	RETURNvoid_();
 }
@@ -419,8 +406,7 @@ METHOD CActor_getScriptPath(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURN_(ctx->script->ns->rpath);
 }
 
-#include <dirent.h>
-#include <unistd.h>
+
 METHOD CActor_existsWorkingDir(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	const char *dir_name = String_to(const char *, sfp[1]);
@@ -451,14 +437,92 @@ METHOD CActor_activateActor(CTX ctx, knh_sfp_t *sfp _RIX)
 	}
 }
 
+
+METHOD CActor_sendToScalaActor(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	JNIEnv *jnienv;
+    JavaVM *javavm;
+    JavaVMInitArgs vm_args;
+
+    JavaVMOption options[1];
+    options[0].optionString = "-Djava.class.path=.:/usr/local/scala/lib/scala-library.jar";
+    vm_args.version = JNI_VERSION_1_2;
+    vm_args.options = options;
+    vm_args.nOptions = 1;
+    vm_args.ignoreUnrecognized = true;
+
+    int result = JNI_CreateJavaVM(&javavm, (void **)&jnienv, &vm_args);
+	
+    if (result != 0) {
+        fprintf(stderr, "ERROR : [%d] cannot create JavaVM.\n", result);
+    }
+
+    //fprintf(stderr, "search Class\n");
+    jclass cls = jnienv->FindClass("ScalaActor");
+    if (cls == 0) {
+        fprintf(stderr, "cannot find ScalaActor\n");
+    }
+    //fprintf(stderr, "get Method from Hoge\n");
+    jmethodID mid = jnienv->GetStaticMethodID(cls, "sendInt", "(Ljava/lang/String;Ljava/lang/String;II)V");
+    if (mid == 0) {
+        fprintf(stderr, "cannot find sendInt()\n");
+    }
+    //printf("call Method.\n");
+	const char *actor_name = String_to(const char *, sfp[1]);
+	const char *host_name = String_to(const char *, sfp[2]);
+	int port = Int_to(int, sfp[3]);
+	int msg = Int_to(int, sfp[4]);
+	
+	jstring target = jnienv->NewStringUTF(actor_name);
+	jstring host = jnienv->NewStringUTF(host_name);
+    jnienv->CallStaticVoidMethod(cls, mid, target, host, port, msg);
+	//jobject objResult = jnienv->CallStaticObjectMethod(cls, mid);
+    jthrowable throwResult = jnienv->ExceptionOccurred();
+    if (throwResult != NULL) {
+        fprintf(stderr, "Exception!!\n");
+        jnienv->ExceptionDescribe();
+        jnienv->ExceptionClear();
+    }
+
+	/*
+    if (objResult == NULL) {
+		fprintf(stderr, "ERROR : objResult == NULL\n");
+    } else {
+        jstring strResult = (jstring)objResult;
+        fprintf(stderr, "[%s]\n", jnienv->GetStringUTFChars(strResult, NULL));
+    }
+    */
+    fprintf(stderr, "delete JavaVM\n");
+    result = javavm->DestroyJavaVM();
+    if (result != 0) {
+        fprintf(stderr, "ERROR [%d] : cannot delte JavaVM\n", result);
+    }
+	RETURNvoid_();
+}
+
+static void CActor_init(CTX ctx, knh_RawPtr_t *po)
+{
+
+}
+
+static void CActor_free(CTX ctx, knh_RawPtr_t *po)
+{
+
+}
+
+DEFAPI(void) defCActor(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	cdef->name = "CActor";
+	cdef->init = CActor_init;
+	cdef->free = CActor_free;
+}
+
 DEFAPI(const knh_PackageDef_t*) init(CTX ctx, const knh_PackageLoaderAPI_t *kapi)
 {
 	RETURN_PKGINFO("konoha.actor");
 }
 
-//#endif
-/* ------------------------------------------------------------------------ */
-
 #ifdef __cplusplus
 }
 #endif
+/* ------------------------------------------------------------------------ */
