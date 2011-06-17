@@ -1,6 +1,6 @@
 #include <konoha1.h>
 
-#define MACOSX
+//#define MACOSX
 #include <ffi/ffi.h>
 #include <dlfcn.h>
 
@@ -137,19 +137,23 @@ METHOD Clib_getSymbol(CTX ctx, knh_sfp_t *sfp _RIX)
 METHOD Cfunc_invoke(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_cfunc_t *cfunc = (knh_cfunc_t *)((sfp[0].p)->rawptr);
+  double arg1 = Float_to(double, sfp[1]);
   fprintf(stderr, "fptr:%p, %p, %d, %p, %p\n", 
 		  cfunc->fptr,
 		  &(cfunc->cif), cfunc->argCount,
 		  cfunc->retT, cfunc->argT);
-  double f = Float_to(double, sfp[1]);
-  double(*sin)(double) = (double(*)(double))cfunc->fptr;
-  fprintf(stderr, "sin1.0:%f\n", sin(1.0));
-  (cfunc->argV[0]) = &f;
+  //  double(*sin)(double) = (double(*)(double))cfunc->fptr;
+  //  fprintf(stderr, "sin1.0:%f\n", sin(1.0));
+  (cfunc->argV[0]) = &arg1;
+  double return_f = 0.0;
   if (ffi_prep_cif(&(cfunc->cif), FFI_DEFAULT_ABI, cfunc->argCount,
 				   cfunc->retT, cfunc->argT) == FFI_OK) {
-	ffi_call(&(cfunc->cif), cfunc->fptr, cfunc->retV, cfunc->argV);
+	ffi_call(&(cfunc->cif), cfunc->fptr, &(cfunc->retV), cfunc->argV);
+	return_f = *(double*)(&cfunc->retV);
+	fprintf(stderr, "%f\n", return_f);
   }
-  RETURNf_(*((float*)(cfunc->retV)));
+  
+  RETURNf_(return_f);
 }
 
 
