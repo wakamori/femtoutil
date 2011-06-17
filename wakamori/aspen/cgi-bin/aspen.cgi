@@ -120,12 +120,8 @@ class Aspen:
 	# get current aspen version from git hash
 	def getAspenVersion(self):
 		command = 'git --git-dir=%s log -1 --format="%%h"' % self.gitpath
-		#p = subprocess.Popen(command,
-		#		shell=True,
-		#		stdout=subprocess.PIPE,
-		#		close_fds=True)
-		#return p.stdout.read()
-		return subprocess.check_output(['git', '--git-dir=%s' % self.gitpath, 'log', '-1', '--format="%%h"'], shell=True)
+		p = subprocess.Popen(command, stdout=subprocess.PIPE)
+		return p.communicate()[0]
 
 	# save and evaluate current text
 	def evalScript(self):
