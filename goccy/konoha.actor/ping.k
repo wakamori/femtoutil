@@ -6,6 +6,6 @@ void recv(String msg)
 }
 
 Actor a = new Actor("actor1");
-a.send("actor2", "ping", "hello");
-a.send("actor2", "hoge", 4);
+a.sendToActor("actor2", "ping", "hello");
+a.sendToActor("actor2", "hoge", 4);
 a.act();

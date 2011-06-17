@@ -1,10 +1,14 @@
 include nativelink;
+
+dynamic InputStream.readObject(Class type, NameSpace ns);
+void OutputStream.writeObject(dynamic obj, NameSpace ns);
+
 using konoha.socket.*;
 
-class ConnectObject {
+class ConnectionObject {
 	//String actor_name; // for "sender" keyword
 	String mtd_name;
-	dyn msg;
+	dynamic msg;
 }
 
 class CActor;
@@ -18,9 +22,14 @@ String CActor.getPathByActorName(String actor_name);
 String CActor.getName();
 String CActor.getPath();
 int CActor.getPort();
+String CActor.getOriginalScript(Array<Func<dynamic>> func_list);
+String CActor.getScriptPath();
+boolean CActor.existsWorkingDir(String dir_name);
+boolean CActor.changeToWorkingDir(String dir_name);
+void CActor.activateActor(String script_name);
 
 class Message {
-	ConnectObject c;
+	ConnectionObject c;
 	String target;
 }
 
@@ -31,18 +40,17 @@ class Actor {
 	CActor a;
 
 	Actor(String actor_name) {
-		_actor_name = actor_name;
-		_a = new CActor(actor_name);
-		_a.setMethodInfo();
+		//_actor_name = actor_name;
+		//_a = new CActor(actor_name);
+		//_a.setMethodInfo();
 	}
 
 	void act(String actor_name) {
-		//CActor a = new CActor(actor_name);
-		//print |msgs|;
-		//a.setMethodInfo();
-		//delayedSend();
-		a.startDeliver(delegate(this, deliveryThread));
-		a.startScheduler();
+		_actor_name = actor_name;
+		_a = new CActor(actor_name);
+		_a.setMethodInfo();
+		_a.startDeliver(delegate(this, deliveryThread));
+		_a.startScheduler();
 	}
 
 	void deliveryThread(CActor a) {
@@ -59,8 +67,8 @@ class Actor {
 		while (true) {
 			Socket s = ss.accept();
 			ins = s.getInputStream();
-			ConnectObject c = ins.readObject(ConnectObject);
-			print c.msg;
+			ConnectObject c = ins.readObject(ConnectionObject);
+			//print c.msg;
 			a.addMessageToMailBox(c.mtd_name, c.msg);
 			//a.addMessageToMailBox(c.actor_name, c.mtd_name, c.msg);
 			ins.close();
@@ -99,22 +107,53 @@ class Actor {
 	}
 	*/
 	
-	void send(String target, String mtd_name, dyn msg) {
+	void sendToActor(String target, String mtd_name, dynamic msg) {
 		String actor_path = CActor.getPathByActorName(target);
 		String[] param = actor_path.split(":");
 		String path =  param[0];
 		int port = (int)param[1];
+		//print msg.class;
+		//print msg;
 		OUT <<< "SEND : msg >>> [ name : ";
 		OUT <<< target + ", path : ";
-		OUT <<< path + ", port : " + port + " ]" <<< EOL;
+		OUT <<< path + ", port : " + port;
+		OUT <<< ", mtd(msg): " + mtd_name;
+		//OUT <<< "(" + (String)msg + ")";
+		OUT <<< " ]" <<< EOL;
 		Socket s = new Socket("127.0.0.1", port);
 		OutputStream o = s.getOutputStream();
-		ConnectObject c = new ConnectObject();
+		ConnectionObject c = new ConnectObject();
 		//c.actor_name = _actor_name;//for "sender" keyword
 		c.mtd_name = mtd_name;
 		c.msg = msg;
 		o.writeObject(c);
 		o.close();
 		s.close();
+	}
+	
+	void spawn(String actor_name, Array<Func<dynamic=>void>> func_list) {
+		String path = CActor.getScriptPath();
+		int idx = path.lastIndexOf(".k");
+		String dir = path[0 to idx - 1];
+		if (!CActor.existsWorkingDir(dir)) {
+			print "create dir";
+			System.exec("mkdir " + dir);
+		}
+		if (!CActor.changeToWorkingDir(dir)) {
+			print "ERROR: cannnot change directory";
+		}
+		//print path;
+		print actor_name;
+		String script_name = actor_name + ".k";
+		print script_name;
+		OutputStream writer = new OutputStream(script_name);
+		String script = "using konoha.actor.*;\n";
+		script += CActor.getOriginalScript(func_list);
+		script += "Actor.act(\"" + actor_name + "\");\n";
+		//print script;
+		writer.print(script);
+		writer.close();
+		CActor.activateActor(actor_name);
+		//CActor.activateActor(script_name);
 	}
 }

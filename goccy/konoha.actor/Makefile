@@ -1,7 +1,6 @@
 CC = gcc
-CFLAGS = -O0 -g3 -Wall -fmessage-length=0 -fPIC -DK_USING_THREAD
-ARCH = #-arch i386 -arch x86_64
-LDLIBS = -lkonoha1 -lpthread -lmemcached
+CFLAGS = -O0 -g3 -Wall -fmessage-length=0 -fPIC -I/usr/local/include/
+LDLIBS = -L/usr/local/lib/ -lkonoha1 -lpthread -lmemcached -lmsgpack
 version = 1.0
 LIBVER = -current_version 1.0.0 -compatibility_version $(version)
 pkgname = actor
@@ -10,13 +9,16 @@ library = "$(pkgname).dylib"
 .PHONY: all
 all: $(library)
 
-objs = actor.o
+objs = build/actor.o build/stream.o
 
-actor.o: actor.c
-	$(CC) $(CFLAGS) $(ARCH) -D_SETUP -o $@ -c $^
+build/actor.o: src/actor.c
+	$(CC) $(CFLAGS) -D_SETUP -o $@ -c $^
+
+build/stream.o: src/stream.c
+	$(CC) $(CFLAGS) -D_SETUP -o $@ -c $^
 
 $(library): $(objs)
-	$(CC) $(ARCH) -dynamiclib $(LIBVER) -o $@ $^ $(LDLIBS)
+	$(CC) -dynamiclib $(LIBVER) -o $@ $^ $(LDLIBS)
 
 .PHONY: clean
 clean:
