@@ -24,7 +24,6 @@ import signal
 import subprocess
 import sys
 import time
-import urllib2
 import Cookie
 
 class Alarm(Exception):
@@ -35,21 +34,24 @@ def alarm_handler(signum, frame):
 
 '''
 		if self.mtype == 'login':
-			self.login();
+			self.login()
 		elif self.mtype == 'new':
-			self.authWithSIDAndRenewSession();
+			self.authWithSIDAndRenewSession()
 		else:
-			self.authWithSID();
+			self.authWithSID()
 '''
 
 
 class Aspen:
 
+	konohapath = 'path/to/konoha'
+	gitpath = 'path/to/.git'
+
 	def __init__(self):
 		self.cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
 		self.field = cgi.FieldStorage()
 		self.mtype = self.field.getvalue('method')
-		self.time = datetime.datetime.now();
+		self.time = datetime.datetime.now()
 		self.method = os.environ['REQUEST_METHOD']
 
 	def saveCookie(self, uid, sid):
@@ -104,6 +106,26 @@ class Aspen:
 		else:
 			# other linux and mac (ok?)
 			return r == -sig
+
+	# get current konoha revision
+	# this method treats xml as a string naively
+	def getKonohaRevision(self):
+		command = 'svn info %s --xml' % self.konohapath
+		p = subprocess.Popen(command,
+				shell=True,
+				stdout=subprocess.PIPE,
+				close_fds=True)
+		return p.stdout.readlines()[5].strip()[10:-2]
+
+	# get current aspen version from git hash
+	def getAspenVersion(self):
+		command = 'git --git-dir=%s log -1 --format="%%h"' % self.gitpath
+		#p = subprocess.Popen(command,
+		#		shell=True,
+		#		stdout=subprocess.PIPE,
+		#		close_fds=True)
+		#return p.stdout.read()
+		return subprocess.check_output(['git', '--git-dir=%s' % self.gitpath, 'log', '-1', '--format="%%h"'], shell=True)
 
 	# save and evaluate current text
 	def evalScript(self):
@@ -190,15 +212,18 @@ class Aspen:
 			errfile.write('Konoha exited unexpectedly with signal: %d. Sorry.' % r)
 			errfile.close()
 
-		msg += '[time: %s, %s]' % (str(exetime)[0:5], load)
+		msg += 'time: %s\n' % str(exetime)[0:5]
+		msg += '%s\n' % load
+		msg += 'Konoha revision: %s\n' % self.getKonohaRevision()
+		msg += 'Aspen version hash: %s' % self.getAspenVersion()
 
 		# return values as a json object
-		print 'Content-Type: text/html\n'
-		print json.dumps([
+		print 'Content-Type: application/json;charset=UTF-8\n'
+		print json.dumps({'item': [
 			{'key': 'stderr', 'value': open(errfilename, 'r').read().decode('utf-8', 'replace')},
 			{'key': 'stdout', 'value': open(outfilename, 'r').read().decode('utf-8', 'replace')},
 			{'key': 'message', 'value': msg}
-		])
+		]})
 
 	def logout(self):
 		exptime = self.time + datetime.timedelta(days=-1)
@@ -213,11 +238,11 @@ class Aspen:
 		print 'Location: ./index.cgi\n'
 
 	def replyToRewind(self):
-		sid = self.cookie['SID'].value;
+		sid = self.cookie['SID'].value
 		self.astorage = aspendb.AspenStorage()
-		fromsid = self.astorage.rewindSID(sid);
-		if fromsid is not "":
-			self.cookie['SID'].value = fromsid;
+		fromsid = self.astorage.rewindSID(sid)
+		if fromsid is not '':
+			self.cookie['SID'].value = fromsid
 			# create script dir
 			scrdir = 'scripts'
 			foldername = scrdir + '/' + self.cookie['UID'].value
@@ -227,18 +252,18 @@ class Aspen:
 			filename = foldername + '/' + 'us_' + fromsid
 			# create script file
 			filename = filename + '.k'
-			print "Content-type: text/html\n";
-			print '{"sid": "' + fromsid + '"}'
+			print 'Content-Type: application/json;charset=UTF-8\n'
+			print json.dumps({'sid': fromsid})
 			print self.cookie
 			return
 		print 'Location: ./index.cgi\n'
 
-	def replyToForward(self):		
-		sid = self.cookie['SID'].value;
+	def replyToForward(self):
+		sid = self.cookie['SID'].value
 		self.astorage = aspendb.AspenStorage()
-		tosid = self.astorage.forwardSID(sid);
-		if tosid is not "":
-			self.cookie['SID'].value = tosid;
+		tosid = self.astorage.forwardSID(sid)
+		if tosid is not '':
+			self.cookie['SID'].value = tosid
 			# create script dir
 			scrdir = 'scripts'
 			foldername = scrdir + '/' + self.cookie['UID'].value
@@ -248,14 +273,14 @@ class Aspen:
 			filename = foldername + '/' + 'us_' + tosid
 			# create script file
 			filename = filename + '.k'
-			print "Content-type: text/html\n";
-			print '{"sid": "' + tosid + '"}';
-			print self.cookie;
+			print 'Content-Type: application/json;charset=UTF-8\n'
+			print json.dumps({'sid': tosid})
+			print self.cookie
 		else:
 			# there is no tosid. put error.
-			print "Content-type: text/html\n";
-			print '{"sid": "none"}';
-			print self.cookie;
+			print 'Content-Type: application/json;charset=UTF-8\n'
+			print json.dumps({'sid': 'none'})
+			print self.cookie
 
 
 	def new(self):
@@ -297,21 +322,21 @@ class Aspen:
 	def run(self):
 		if self.method == 'POST':
 			if self.mtype == 'eval':
-				self.authWithSID();
+				self.authWithSID()
 				self.evalScript()
 			elif self.mtype == 'name':
-				self.authWithSID();
+				self.authWithSID()
 				self.name()
 			elif self.mtype == 'rewind':
-				self.authWithSID();
-				self.replyToRewind();
+				self.authWithSID()
+				self.replyToRewind()
 			elif self.mtype == 'forward':
-				self.authWithSID();
-				self.replyToForward();
+				self.authWithSID()
+				self.replyToForward()
 			elif self.mtype == 'login':
-				self.login();
+				self.login()
 			elif self.mtype == 'save':
-				self.authWithSID();
+				self.authWithSID()
 				self.save()
 				print 'Location: ./index.cgi\n'
 			else:
@@ -319,12 +344,12 @@ class Aspen:
 				print 'No such method in POST.'
 		elif self.method == 'GET':
 			if self.mtype == 'new':
-				self.authWithSIDAndRenewSession();
+				self.authWithSIDAndRenewSession()
 				self.new()
 			elif self.mtype == 'logout':
-				self.logout();
+				self.logout()
 			elif self.mtype == 'load':
-				self.authWithSID();
+				self.authWithSID()
 				self.load()
 			else:
 				print 'Content-Type: text/html\n'

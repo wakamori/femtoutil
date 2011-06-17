@@ -111,14 +111,14 @@ configuration : this is temporary.
 				url: ""+ cgiDir + "/aspen.cgi?method=forward",
 				data: {
 					"sid": $.cookie("SID"),
-					"uid": $.cookie("UID"),
+					"uid": $.cookie("UID")
 				},
 				success: function(data) {
 					var uid = $.cookie("UID");
 					var lines = data.split("\n");
 					var obj = JSON.parse(lines[0]);
 					var sid = obj["sid"];
-					console.log("after ajax:" + sid);
+					//console.log("after ajax:" + sid);
 					if (sid == "none") { 
 						$("#result").empty();
 						$("<span/>").attr("class", "message").append("there is no forwarding scripts.").appendTo("#result");
@@ -143,21 +143,21 @@ configuration : this is temporary.
 		};
 
 		$("#rewind")[0].onclick = function() {
-			console.log("before ajax:" + $.cookie("SID"))
+			//console.log("before ajax:" + $.cookie("SID"))
 			$.ajax({
 				type: "POST",
 				url: "" + cgiDir + "/aspen.cgi?method=rewind",
 				data: {
 					"sid": $.cookie("SID"),
-					"uid": $.cookie("UID"),
+					"uid": $.cookie("UID")
 				},
 				success: function(data) {
 					var uid = $.cookie("UID");
 					var lines = data.split("\n");
 					var obj = JSON.parse(lines[0]);
 					var sid = obj["sid"];
-					console.log("after ajax:" + sid);
-					if (sid == "none") { 
+					//console.log("after ajax:" + sid);
+					if (sid == "none") {
 						$("#result").empty();
 						$("<span/>").attr("class", "message").append("there is no previous scripts.").appendTo("#result");
 						return;
@@ -250,7 +250,7 @@ configuration : this is temporary.
 				frequency: 1
 			},
 			function(data) {
-				console.log(data);
+				//console.log(data);
 				if (data.length > 0) {
 					$("#result").empty();
 					var inputtxt = $("<span/>").attr("class", "stdout");
@@ -268,8 +268,8 @@ configuration : this is temporary.
 			success: function(data) {
 				clearTimeout(PeriodicalTimer);
 				$("#result").empty();
-				console.log(data);
-				var json = JSON.parse(data);
+				//console.log(data);
+				var json = data["item"]
 				for (var i = 0; i < json.length; i++) {
 					var key = json[i].key;
 					var val = json[i].value;
