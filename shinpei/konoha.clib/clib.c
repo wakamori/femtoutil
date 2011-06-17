@@ -132,6 +132,32 @@ METHOD Clib_getSymbol(CTX ctx, knh_sfp_t *sfp _RIX)
   fprintf(stderr, "argC:%d\n", altf->argCount);
   RETURN_(po);
 }
+/* @Native var Clib.getFunc(String sym, Class _, Func _); */
+METHOD Clib_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  knh_clib_t *clib = (knh_clib_t*)((sfp[0].p)->rawptr);
+  const char *symstr = String_to(const char *, sfp[1]);
+  knh_Class_t *klass = (knh_Class_t*)sfp[2].o;
+  knh_Func_t *fo = (knh_Func_t *)sfp[3].o;
+  fprintf(stderr, "%s %s\n", CLASS__(O_cid(klass)), CLASS__(klass->cid));
+  knh_ClassTBL_t *tbl = ClassTBL(klass->cid);
+  knh_ParamArray_t *pa = tbl->cparam;
+  int i;
+  fprintf(stderr, "rsize:%d, psize:%d\n", pa->rsize, pa->psize);
+
+  /* return value */
+  if (pa->rsize < 3) {
+	fprintf(stderr, "p1:%s\n", TYPE__(pa->p0.type));
+	if (pa->p0.type == TYPE_Int) {
+	  
+	} else if (pa->p0.type == TYPE_Float) {
+
+	} else {
+	  // TODO!!
+	}
+	
+  RETURN_(fo);
+}
 
 // @Native Float Cfunc.invoke(Float f)
 METHOD Cfunc_invoke(CTX ctx, knh_sfp_t *sfp _RIX)
