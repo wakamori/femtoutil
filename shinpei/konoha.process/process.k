@@ -3,7 +3,7 @@ include nativelink;
 // local glue
 @Native class Process;
 
-@Native class Process.new(String path);
+@Native Process Process.new(String path);
 
 @Native class Lglue;
 @Native Lglue Process.genGlue(Lglue _);

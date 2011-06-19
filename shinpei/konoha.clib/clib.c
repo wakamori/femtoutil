@@ -107,7 +107,7 @@ METHOD Clib_new(CTX ctx, knh_sfp_t *sfp _RIX)
   RETURN_(sfp[0].o);
 }
 
-static METHOD Fmethod_funcRTYPE2(CTX ctx, knh_sfp_t *sfp _RIX)
+static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_type_t rtype = knh_ParamArray_rtype(DP(sfp[K_MTDIDX].mtdNC)->mp);
   knh_Func_t *fo = sfp[0].fo;
@@ -247,7 +247,7 @@ METHOD Dglue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   //cid = knh_class_Generics(ctx, CLASS_Func, pa);
   
   // set wrapper method
-  knh_Method_t *mtd = new_Method(ctx, 0, O_cid(klass), MN_LAMBDA, Fmethod_funcRTYPE2);
+  knh_Method_t *mtd = new_Method(ctx, 0, O_cid(klass), MN_LAMBDA, Fmethod_wrapCLib);
   mtd->b->cfunc = (void*)dg;
   KNH_SETv(ctx, ((mtd)->b)->mp, tbl->cparam);
   KNH_INITv(fo->mtd, mtd);
