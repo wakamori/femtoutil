@@ -115,9 +115,7 @@ configuration : this is temporary.
 				},
 				success: function(data) {
 					var uid = $.cookie("UID");
-					var lines = data.split("\n");
-					var obj = JSON.parse(lines[0]);
-					var sid = obj["sid"];
+					var sid = data["sid"];
 					//console.log("after ajax:" + sid);
 					if (sid == "none") { 
 						$("#result").empty();
@@ -153,9 +151,7 @@ configuration : this is temporary.
 				},
 				success: function(data) {
 					var uid = $.cookie("UID");
-					var lines = data.split("\n");
-					var obj = JSON.parse(lines[0]);
-					var sid = obj["sid"];
+					var sid = data["sid"];
 					//console.log("after ajax:" + sid);
 					if (sid == "none") {
 						$("#result").empty();

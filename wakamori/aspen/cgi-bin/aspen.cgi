@@ -108,19 +108,20 @@ class Aspen:
 			return r == -sig
 
 	# get current konoha revision
-	# this method treats xml as a string naively
 	def getKonohaRevision(self):
-		command = 'svn info %s --xml' % self.konohapath
+		command = 'svnversion %s' % self.konohapath
 		p = subprocess.Popen(command,
 				shell=True,
 				stdout=subprocess.PIPE,
 				close_fds=True)
-		return p.stdout.readlines()[5].strip()[10:-2]
+		return p.communicate()[0:-1]
 
 	# get current aspen version from git hash
 	def getAspenVersion(self):
 		command = 'git --git-dir=%s log -1 --format="%%h"' % self.gitpath
-		p = subprocess.Popen(command, stdout=subprocess.PIPE)
+		p = subprocess.Popen(command,
+				shell=True,
+				stdout=subprocess.PIPE)
 		return p.communicate()[0]
 
 	# save and evaluate current text
@@ -248,9 +249,9 @@ class Aspen:
 			filename = foldername + '/' + 'us_' + fromsid
 			# create script file
 			filename = filename + '.k'
+			print self.cookie
 			print 'Content-Type: application/json;charset=UTF-8\n'
 			print json.dumps({'sid': fromsid})
-			print self.cookie
 			return
 		print 'Location: ./index.cgi\n'
 
@@ -269,9 +270,9 @@ class Aspen:
 			filename = foldername + '/' + 'us_' + tosid
 			# create script file
 			filename = filename + '.k'
+			print self.cookie
 			print 'Content-Type: application/json;charset=UTF-8\n'
 			print json.dumps({'sid': tosid})
-			print self.cookie
 		else:
 			# there is no tosid. put error.
 			print 'Content-Type: application/json;charset=UTF-8\n'
