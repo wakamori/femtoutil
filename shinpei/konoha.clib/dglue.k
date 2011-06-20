@@ -1,4 +1,5 @@
-/* Glue API
+/*
+ * Glue API
  *  shinpei(c)2011
  */
 

@@ -1,10 +1,14 @@
-
+/*
+ * Clib
+ *  C library wrapper generater using libffi
+ */
 include nativelink;
 
 @Native class Clib;
 @Native Clib Clib.new(String libname);
 
-import "dglue.k";
+@Native class Glue;
 
+@Native var Glue.getFunc(String symbol, Class _, Func _);
 @Native Glue Clib.genGlue(Glue _);
-//@Native var Dglue.getFunc(String sym, Class _, Func _);
+
