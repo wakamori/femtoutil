@@ -1,10 +1,19 @@
+/* Glue 
+ *  ffi package, for DEOS
+ *  written by shinpei(c)2011
+ */
+
+#define  USE_B 1
+#define USE_new_bytes 1
+#define USE_cwb 1
+#define USE_cwb_open 1
+
 #include <konoha1.h>
-
-
 
 //#define MACOSX
 #include <ffi/ffi.h>
-#include <dlfcn.h>
+
+#include <unistd.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,6 +58,34 @@ DEFAPI(void) defClib(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 	cdef->name = "Clib";
 	cdef->init = Clib_init;
 	cdef->free = Clib_free;
+}
+
+/* ------------------------------------------------------------------------ */
+/* [Process] */
+
+typedef struct knh_Process_t {
+  char *path;
+  size_t path_size;
+  int pid;
+} knh_Process_t;
+
+static void Process_init(CTX ctx, knh_RawPtr_t *po)
+{
+  po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_Process_t));
+}
+
+static void Process_free(CTX ctx, knh_RawPtr_t *po)
+{
+	if (po->rawptr != NULL) {
+	  po->rawptr = NULL;
+	}
+}
+
+DEFAPI(void) defProcess(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	cdef->name = "Process";
+	cdef->init = Process_init;
+	cdef->free = Process_free;
 }
 
 
@@ -104,15 +141,25 @@ static void ClibGlue_free(CTX ctx, void *ptr)
   }
 }
 
-/*
-DEFAPI(void) defDglue(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
-{
-	cdef->name = "Dglue";
-	cdef->init = Dglue_init;
-	cdef->free = Dglue_free;
-}
-*/
+/* ------------------------------------------------------------------------ */
+/* [Dglue:Local] */
 
+typedef struct knh_ProcessGlue_t {
+  char *path;  
+  size_t path_size;
+} knh_ProcessGlue_t;
+
+static void ProcessGlue_init(CTX ctx, knh_ProcessGlue_t *po)
+{
+  po->path = NULL;
+}
+
+static void ProcessGlue_free(CTX ctx, void *ptr)
+{
+	if (ptr != NULL) {
+	  ptr = NULL;
+	}
+}
 
 /* ------------------------------------------------------------------------ */
 // Clib Clib.new(String libname) 
@@ -179,7 +226,7 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_CLib_t *clib = (knh_CLib_t*)glue->componentInfo;
   if (clib == NULL) {
 	fprintf(stderr, "invalid Dglue\n");
-	RETURN_(sfp[0].o);
+	RETURN_(sfp[3].fo);
   }
   const char *symstr = String_to(const char *, sfp[1]);
   knh_Class_t *klass = (knh_Class_t*)sfp[2].o;
@@ -280,6 +327,154 @@ METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)KNH_MALLOC(ctx, sizeof(knh_ClibGlue_t));
 	ClibGlue_init(ctx, cglue);
 	glue->glueInfo = (void*)cglue;
+	RETURN_(po);
+  }
+  RETURN_(sfp[1].p);
+}
+
+
+/* ------------------------------------------------------------------------ */
+/* [Process] */
+#define PROCESS_PATH_MAX 256
+
+METHOD Process_new(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  knh_RawPtr_t *po = sfp[0].p;
+  knh_Process_t *proc = (knh_Process_t*)po->rawptr;
+  char *pname = String_to(char *, sfp[1]);
+  size_t path_size = knh_strlen(pname);
+  if (pname != NULL && path_size < PROCESS_PATH_MAX) {
+	proc->path = KNH_MALLOC(ctx, path_size * sizeof(char));
+	knh_memcpy(proc->path, pname, path_size+1);
+	proc->path_size = path_size;
+  }
+  RETURN_(po);
+}
+
+
+//#include <crt_externs.h>
+static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  knh_type_t rtype = knh_ParamArray_rtype(DP(sfp[K_MTDIDX].mtdNC)->mp);
+  knh_Func_t *fo = sfp[0].fo;
+  knh_ProcessGlue_t *pglue = (knh_ProcessGlue_t*)(((fo->mtd)->b)->cfunc);
+  //  knh_Process_t *proc = (knh_Process_t*)glue->componentInfo;
+  //const char *arg1 = String_to(const char *, sfp[1]);
+  //  char **args = {proc->path, arg1, NULL};
+  char *args[] = {"ls", "-l", NULL};
+#ifdef K_USING_POSIX_
+  // create pipe
+  int pipe_c2p[2], pipe_p2c[2];
+  int pid;
+  if (pipe(pipe_c2p) < 0) {
+	fprintf(stderr, "POPEN C2P!!\n");
+  }
+  if (pipe(pipe_p2c) < 0) {
+	fprintf(stderr, "POPEN P2C\n");
+	close(pipe_c2p[0]/* R */);
+	close(pipe_c2p[1]/* W */);
+  }
+  if ((pid = fork()) < 0) {
+	close(pipe_c2p[0]);
+	close(pipe_c2p[1]);
+	close(pipe_p2c[0]);
+	close(pipe_p2c[1]);
+  }
+  if (pid == 0) {
+	/* child */
+	close(pipe_p2c[1]); // parent writing in this pipe
+	close(pipe_c2p[0]); // parent reading from this pipe
+	dup2(pipe_p2c[0] , 0); // stdin
+	dup2(pipe_c2p[1], 1); // stdout
+	close(pipe_p2c[0]); // after duplicate, close pipe
+	close(pipe_c2p[1]); // same as above
+	if (execvp(pglue->path, args) < 0) {
+	  perror("execvp");
+	  fprintf(stderr, "execvp error!\n");
+	  exit(1);
+	}
+  } else {
+	int status;
+	close(pipe_p2c[0]);
+	close(pipe_c2p[1]);
+	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
+	char buf[K_PAGESIZE];
+	//	while ((loaded = read(pipe_c2p[0], buf, 1)) != 0) {
+	while(1) {
+	  size_t size = read(pipe_c2p[0], buf, K_PAGESIZE);
+	  //	  fprintf(stderr, "size:%d\n", size);
+	  if (size > 0) {
+		knh_bytes_t t = {{buf}, size};
+		knh_Bytes_write(ctx, cwb->ba, t);
+	  } else {
+		break;
+	  }
+	};
+	wait(&status);
+	RETURN_(knh_cwb_newString(ctx, cwb));
+  }
+
+#endif
+
+  if(rtype != TYPE_void) {
+	if(IS_Tunbox(rtype)) {
+	  RETURNi_(KNH_INT0);
+	} else {
+	  RETURN_(KNH_NULVAL(CLASS_t(rtype)));	  
+	}
+  }
+}
+
+static knh_RawPtr_t *ProcessGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  knh_RawPtr_t *po = sfp[0].p;
+  knh_Glue_t *glue = (knh_Glue_t*)po->rawptr;
+  knh_ProcessGlue_t *pglue = (knh_ProcessGlue_t*)(glue->glueInfo);
+  knh_Process_t *proc = (knh_Process_t*)(glue->componentInfo);
+
+  if (proc == NULL) {
+	fprintf(stderr, "invalid Lglue\n");
+	RETURN_(sfp[3].fo);
+  }
+  //  const char *symbol = String_to(const char*, sfp[1]);
+  knh_Class_t *klass = (knh_Class_t*)sfp[2].o;
+  knh_Func_t *fo = sfp[3].fo;
+
+  fprintf(stderr, "%s\n", CLASS__(O_cid(fo)));
+  const knh_ClassTBL_t *tbl = ClassTBL(klass->cid);
+  //  knh_ParamArray_t *pa = tbl->cparam;
+
+  fo->h.cTBL= tbl;
+  knh_Method_t *mtd = new_Method(ctx, 0, O_cid(klass), MN_LAMBDA, Fmethod_wrapProcess);
+  mtd->b->cfunc = (void*)pglue;
+  KNH_SETv(ctx, ((mtd)->b)->mp, tbl->cparam);
+  KNH_INITv(fo->mtd, mtd);
+  return (knh_RawPtr_t*)fo;
+}
+
+static knh_GlueSPI_t ProcessGlueSPI = {
+  ProcessGlue_getFunc,
+  /*  Process_component_free*/ NULL,
+  ProcessGlue_free
+};
+
+// @Native Glue Clib_genGlue (Glue _)
+METHOD Process_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  knh_Process_t *proc = (knh_Process_t*)((sfp[0].p)->rawptr);
+  knh_RawPtr_t *po = sfp[1].p;
+  if (proc != NULL) {
+	knh_Glue_t *glue = (knh_Glue_t*)po->rawptr;
+	glue->glueType = GLUE_TYPE_LOCAL;
+	glue->gapi = &ProcessGlueSPI;
+	glue->componentInfo = (void*)proc;
+	knh_ProcessGlue_t *pglue = (knh_ProcessGlue_t*)KNH_MALLOC(ctx, sizeof(knh_ProcessGlue_t));
+	ProcessGlue_init(ctx, pglue);
+	DBG_ASSERT(proc->path_size > 0);
+	pglue->path = KNH_MALLOC(ctx, proc->path_size * sizeof(char));
+	knh_memcpy(pglue->path, proc->path, proc->path_size+1);
+	pglue->path_size = proc->path_size;
+	glue->glueInfo = (void*)pglue;
 	RETURN_(po);
   }
   RETURN_(sfp[1].p);
