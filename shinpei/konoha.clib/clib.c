@@ -1,7 +1,5 @@
 #include <konoha1.h>
 
-#include <dglue.h> // for DEOS
-// #include <glue.h>
 
 
 //#define MACOSX
@@ -11,6 +9,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* ------------------------------------------------------------------------ */
+/* [Glue] */
+#include <dglue.h> // for DEOS
+// #include <glue.h>
 
 /* ------------------------------------------------------------------------ */
 /* [Clib] */
@@ -79,10 +82,8 @@ typedef struct knh_ClibGlue_t {
 } knh_DGlue_t;
   */
 
-static void ClibGlue_init(CTX ctx, knh_RawPtr_t *po)
+static void ClibGlue_init(CTX ctx, knh_ClibGlue_t *cglue)
 {
-  po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_ClibGlue_t));
-  knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)po->rawptr;
   int i;
   cglue->fptr = NULL;
   cglue->argCount = 0;
@@ -94,7 +95,7 @@ static void ClibGlue_init(CTX ctx, knh_RawPtr_t *po)
   cglue->retV = NULL;
 }
 
-static void Iglue_free(CTX ctx, void *ptr)
+static void ClibGlue_free(CTX ctx, void *ptr)
 {
   if (ptr != NULL) {
 	knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)ptr;
@@ -171,12 +172,15 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
   }
 }
 
-static void CLibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
+static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_Glue_t *glue = (knh_Glue_t*)((sfp[0].p)->rawptr);
   knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)(glue->glueInfo);
   knh_CLib_t *clib = (knh_CLib_t*)glue->componentInfo;
-  if (clib == NULL) {fprintf(stderr, "invalid Dglue\n"); RETURN_(sfp[0].o);}
+  if (clib == NULL) {
+	fprintf(stderr, "invalid Dglue\n");
+	RETURN_(sfp[0].o);
+  }
   const char *symstr = String_to(const char *, sfp[1]);
   knh_Class_t *klass = (knh_Class_t*)sfp[2].o;
   knh_Func_t *fo = (knh_Func_t *)sfp[3].o;
@@ -252,14 +256,14 @@ static void CLibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   mtd->b->cfunc = (void*)cglue;
   KNH_SETv(ctx, ((mtd)->b)->mp, tbl->cparam);
   KNH_INITv(fo->mtd, mtd);
-  RETURN_(fo);
+  return (knh_RawPtr_t*)fo;
 }
 
 
 static knh_GlueSPI_t CLibGlueSPI = {
-  CLibGlue_getFunc,
-  /*CLib_component_free*/ NULL,
-  /*CLib_glue_free*/ NULL
+  ClibGlue_getFunc,
+  /*  Clib_component_free*/ NULL,
+  ClibGlue_free
 };
 
 
@@ -268,21 +272,18 @@ METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_CLib_t *clib = (knh_CLib_t *)((sfp[0].p)->rawptr);
   knh_RawPtr_t *po = sfp[1].p;
-
   if (clib != NULL) {
 	knh_Glue_t *glue = (knh_Glue_t *)po->rawptr;
+	glue->glueType = GLUE_TYPE_INTERNAL;
 	glue->gapi = &CLibGlueSPI;
 	glue->componentInfo = (void*)clib;
 	knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)KNH_MALLOC(ctx, sizeof(knh_ClibGlue_t));
-	glue->glueInfo = (void*)new_RawPtr(ctx, po, cglue);
+	ClibGlue_init(ctx, cglue);
+	glue->glueInfo = (void*)cglue;
 	RETURN_(po);
   }
   RETURN_(sfp[1].p);
 }
-
-
-
-
 
 /* ------------------------------------------------------------------------ */
 
