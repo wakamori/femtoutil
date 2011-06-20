@@ -97,7 +97,6 @@ class Aspen:
 		if self.asession == None:
 			print 'Content-Type: text/html\n'
 			print 'Failed to authenticate and renew.'
-			
 
 	def isSignal(self, r, sig):
 		if os.path.isfile('/etc/debian_version'):
@@ -114,7 +113,10 @@ class Aspen:
 				shell=True,
 				stdout=subprocess.PIPE,
 				close_fds=True)
-		return p.communicate()[0:-1]
+		if os.path.isfile('/etc/debian_version'):
+			return p.communicate()[0][0:-2]
+		else
+			return p.communicate()[0][0:-1]
 
 	# get current aspen version from git hash
 	def getAspenVersion(self):
