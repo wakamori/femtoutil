@@ -97,9 +97,9 @@ static void ClibGlue_init(CTX ctx, knh_RawPtr_t *po)
 static void Iglue_free(CTX ctx, void *ptr)
 {
   if (ptr != NULL) {
-	knh_ClibGlue_t *ig = (knh_ClibGlue_t*)ptr;
-	KNH_FREE(ctx, ig, sizeof(knh_ClibGlue_t));
-	p = NULL;
+	knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)ptr;
+	KNH_FREE(ctx, cglue, sizeof(knh_ClibGlue_t));
+	ptr = NULL;
   }
 }
 
@@ -127,7 +127,7 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_type_t rtype = knh_ParamArray_rtype(DP(sfp[K_MTDIDX].mtdNC)->mp);
   knh_Func_t *fo = sfp[0].fo;
-  knh_ClibGlue_t *dg = (knh_ClibGlue_t*)(((fo->mtd)->b)->cfunc);
+  knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)(((fo->mtd)->b)->cfunc);
   //  fprintf(stderr, "fptr:%p, %p, %d, %p, %p\n", 
   //		  dg->fptr,
   //		  &(dg->cif), dg->argCount,
@@ -136,29 +136,29 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
   if(rtype != TYPE_void) {
 	if(IS_Tunbox(rtype)) {
 	  int idx = 0;
-	  for (idx = 0; idx < dg->argCount; idx++) {
-		if (dg->argT_isUnboxed[idx] == DGLUE_UNBOXED) {
-		  dg->argV[idx] = &(sfp[idx+1].ndata);
+	  for (idx = 0; idx < cglue->argCount; idx++) {
+		if (cglue->argT_isUnboxed[idx] == DGLUE_UNBOXED) {
+		  cglue->argV[idx] = &(sfp[idx+1].ndata);
 		} else {
-		  dg->argV[idx] = &(sfp[idx+1].o);
+		  cglue->argV[idx] = &(sfp[idx+1].o);
 		}
 	  }
 	  //	  double arg1 = Float_to(double, sfp[1]);
-	  //	  (dg->argV[0]) = &arg1;
+	  //	  (cglue->argV[0]) = &arg1;
 	  if (rtype == TYPE_Int || rtype == TYPE_Boolean) {
 		knh_int_t return_i = 0;
-		if (ffi_prep_cif(&(dg->cif), FFI_DEFAULT_ABI, dg->argCount,
-						 dg->retT, dg->argT) == FFI_OK) {
-		  ffi_call(&(dg->cif), dg->fptr, &(dg->retV), dg->argV);
-		  return_i = *(knh_int_t*)(&dg->retV);
+		if (ffi_prep_cif(&(cglue->cif), FFI_DEFAULT_ABI, cglue->argCount,
+						 cglue->retT, cglue->argT) == FFI_OK) {
+		  ffi_call(&(cglue->cif), cglue->fptr, &(cglue->retV), cglue->argV);
+		  return_i = *(knh_int_t*)(&cglue->retV);
 		}
 		RETURNi_(return_i);
 	  } else if (rtype == TYPE_Float) {
 		double return_f = 0.0;
-		if (ffi_prep_cif(&(dg->cif), FFI_DEFAULT_ABI, dg->argCount,
-						 dg->retT, dg->argT) == FFI_OK) {
-		  ffi_call(&(dg->cif), dg->fptr, &(dg->retV), dg->argV);
-		  return_f = *(double*)(&dg->retV);
+		if (ffi_prep_cif(&(cglue->cif), FFI_DEFAULT_ABI, cglue->argCount,
+						 cglue->retT, cglue->argT) == FFI_OK) {
+		  ffi_call(&(cglue->cif), cglue->fptr, &(cglue->retV), cglue->argV);
+		  return_f = *(double*)(&cglue->retV);
 		} else {
 		  fprintf(stderr, "prep_cif FAILED\n:");
 		}
@@ -171,11 +171,12 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
   }
 }
 
-METHOD ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
+static void CLibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 {
-  knh_ClibGlue_t *dg = (knh_ClibGlue_t*)((sfp[0].p)->rawptr);
-  knh_CLib_t *clib = dg->clib;
-  if (dg->clib == NULL) {fprintf(stderr, "invalid Dglue\n"); RETURN_(sfp[0].o);}
+  knh_Glue_t *glue = (knh_Glue_t*)((sfp[0].p)->rawptr);
+  knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)(glue->glueInfo);
+  knh_CLib_t *clib = (knh_CLib_t*)glue->componentInfo;
+  if (clib == NULL) {fprintf(stderr, "invalid Dglue\n"); RETURN_(sfp[0].o);}
   const char *symstr = String_to(const char *, sfp[1]);
   knh_Class_t *klass = (knh_Class_t*)sfp[2].o;
   knh_Func_t *fo = (knh_Func_t *)sfp[3].o;
@@ -185,19 +186,19 @@ METHOD ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   const knh_ClassTBL_t *tbl = ClassTBL(klass->cid);
   knh_ParamArray_t *pa = tbl->cparam;
 
-  if ((dg->fptr = knh_dlsym(ctx, clib->handler, symstr, 0))== NULL) {
+  if ((cglue->fptr = knh_dlsym(ctx, clib->handler, symstr, 0))== NULL) {
 	fprintf(stderr, "dlsym_ERROR!!!\n");
   }
 
   // type a method from requested type
   // retT
   size_t argCount = pa->rsize;
-  dg->argCount = argCount;
+  cglue->argCount = argCount;
   if (argCount < 3) {
 	if (pa->p0.type == TYPE_Int) {
-	  dg->retT = &ffi_type_uint64;
+	  cglue->retT = &ffi_type_uint64;
 	} else if (pa->p0.type == TYPE_Float) {
-	  dg->retT = &ffi_type_double;
+	  cglue->retT = &ffi_type_double;
 	} else {
 	  TODO();
 	}
@@ -209,31 +210,31 @@ METHOD ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   if (argCount < 3) {
 	if (argCount == 1) {
 	  if (pa->p1.type == TYPE_Int) {
-		dg->argT[0] = &ffi_type_uint64;
-		dg->argT_isUnboxed[0] = DGLUE_UNBOXED;
+		cglue->argT[0] = &ffi_type_uint64;
+		cglue->argT_isUnboxed[0] = DGLUE_UNBOXED;
 	  } else if (pa->p1.type == TYPE_Float) {
-		dg->argT[0] = &ffi_type_double;
-		dg->argT_isUnboxed[0] = DGLUE_UNBOXED;
+		cglue->argT[0] = &ffi_type_double;
+		cglue->argT_isUnboxed[0] = DGLUE_UNBOXED;
 	  } else {
 		TODO();
 	  }
 	} else if (argCount == 2) {
 	  if (pa->p1.type == TYPE_Int) {
-		dg->argT[0] = &ffi_type_uint64;
-		dg->argT_isUnboxed[0] = DGLUE_UNBOXED;
+		cglue->argT[0] = &ffi_type_uint64;
+		cglue->argT_isUnboxed[0] = DGLUE_UNBOXED;
 	  } else if (pa->p1.type == TYPE_Float) {
-		dg->argT[0] = &ffi_type_double;
-		dg->argT_isUnboxed[0] = DGLUE_UNBOXED;
+		cglue->argT[0] = &ffi_type_double;
+		cglue->argT_isUnboxed[0] = DGLUE_UNBOXED;
 	  } else {
 		TODO();
 	  }
 
 	  if (pa->p2.type == TYPE_Int) {
-		dg->argT[1] = &ffi_type_uint64;
-		dg->argT_isUnboxed[1] = DGLUE_UNBOXED;
+		cglue->argT[1] = &ffi_type_uint64;
+		cglue->argT_isUnboxed[1] = DGLUE_UNBOXED;
 	  } else if (pa->p2.type == TYPE_Float) {
-		dg->argT[1] = &ffi_type_double;
-		dg->argT_isUnboxed[1] = DGLUE_UNBOXED;
+		cglue->argT[1] = &ffi_type_double;
+		cglue->argT_isUnboxed[1] = DGLUE_UNBOXED;
 	  } else {
 		TODO();
 	  }
@@ -248,7 +249,7 @@ METHOD ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   
   // set wrapper method
   knh_Method_t *mtd = new_Method(ctx, 0, O_cid(klass), MN_LAMBDA, Fmethod_wrapCLib);
-  mtd->b->cfunc = (void*)dg;
+  mtd->b->cfunc = (void*)cglue;
   KNH_SETv(ctx, ((mtd)->b)->mp, tbl->cparam);
   KNH_INITv(fo->mtd, mtd);
   RETURN_(fo);
@@ -257,8 +258,8 @@ METHOD ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 
 static knh_GlueSPI_t CLibGlueSPI = {
   CLibGlue_getFunc,
-  CLib_component_free,
-  CLib_glue_free
+  /*CLib_component_free*/ NULL,
+  /*CLib_glue_free*/ NULL
 };
 
 
@@ -270,7 +271,7 @@ METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 
   if (clib != NULL) {
 	knh_Glue_t *glue = (knh_Glue_t *)po->rawptr;
-	glue->gapi = &ClibGlueSPI;
+	glue->gapi = &CLibGlueSPI;
 	glue->componentInfo = (void*)clib;
 	knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)KNH_MALLOC(ctx, sizeof(knh_ClibGlue_t));
 	glue->glueInfo = (void*)new_RawPtr(ctx, po, cglue);
