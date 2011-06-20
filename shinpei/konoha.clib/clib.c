@@ -1,5 +1,9 @@
 #include <konoha1.h>
 
+#include <dglue.h> // for DEOS
+// #include <glue.h>
+
+
 //#define MACOSX
 #include <ffi/ffi.h>
 #include <dlfcn.h>
@@ -21,6 +25,8 @@ typedef struct knh_CLib_t {
 static void Clib_init(CTX ctx, knh_RawPtr_t *po)
 {
   po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_CLib_t));
+  knh_CLib_t *clib  = (knh_CLib_t*)po->rawptr;
+  clib->handler = NULL;
 }
 
 static void Clib_free(CTX ctx, knh_RawPtr_t *po)
@@ -28,7 +34,7 @@ static void Clib_free(CTX ctx, knh_RawPtr_t *po)
 	if (po->rawptr != NULL) {
 	  knh_CLib_t *clib = (knh_CLib_t*)po->rawptr;
 	  if (clib->handler != NULL) {
-		dlclose(clib->handler);
+		knh_dlclose(ctx, clib->handler);
 	  }
 	  KNH_FREE(ctx, clib, sizeof(knh_CLib_t));
 	  po->rawptr = NULL;
@@ -49,11 +55,20 @@ DEFAPI(void) defClib(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 #define DGLUE_NOT_UNBOXED 0
 #define DGLUE_UNBOXED 1
 
+typedef struct knh_ClibGlue_t {
+  void *fptr;
+  ffi_cif cif;
+  int argCount;
+  ffi_type *retT;
+  ffi_type *argT[CLIB_ARGMAX];
+  int argT_isUnboxed[CLIB_ARGMAX];
+  void *argV[CLIB_ARGMAX];
+  void *retV;
+} knh_ClibGlue_t;
 
-typedef struct knh_DGlue_t {
+  /*typedef struct knh_DGlue_t {
   knh_CLib_t *clib;
   void *fptr;
-
   ffi_cif cif;
   int argCount;
   ffi_type *retT;
@@ -62,48 +77,49 @@ typedef struct knh_DGlue_t {
   void *argV[CLIB_ARGMAX];
   void *retV;
 } knh_DGlue_t;
+  */
 
-static void Dglue_init(CTX ctx, knh_RawPtr_t *po)
+static void ClibGlue_init(CTX ctx, knh_RawPtr_t *po)
 {
-  po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_DGlue_t));
-  knh_DGlue_t *dg = (knh_DGlue_t*)po->rawptr;
+  po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_ClibGlue_t));
+  knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)po->rawptr;
   int i;
-  dg->clib = NULL;
-  dg->fptr = NULL;
-  dg->argCount = 0;
+  cglue->fptr = NULL;
+  cglue->argCount = 0;
   for (i = 0; i < CLIB_ARGMAX; i++) {
-	dg->argT[i] = NULL;
-	dg->argT_isUnboxed[i] = 0;
-	dg->argV[i] = NULL;
+	cglue->argT[i] = NULL;
+	cglue->argT_isUnboxed[i] = 0;
+	cglue->argV[i] = NULL;
   }
-  dg->retV = NULL;
+  cglue->retV = NULL;
 }
 
-static void Dglue_free(CTX ctx, knh_RawPtr_t *po)
+static void Iglue_free(CTX ctx, void *ptr)
 {
-	if (po->rawptr != NULL) {
-	  knh_DGlue_t *dg = (knh_DGlue_t*)po->rawptr;
-	  if (dg->clib != NULL) Clib_free(ctx, (knh_RawPtr_t*)dg->clib);
-	  po->rawptr = NULL;
-	}
+  if (ptr != NULL) {
+	knh_ClibGlue_t *ig = (knh_ClibGlue_t*)ptr;
+	KNH_FREE(ctx, ig, sizeof(knh_ClibGlue_t));
+	p = NULL;
+  }
 }
 
-
+/*
 DEFAPI(void) defDglue(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 {
 	cdef->name = "Dglue";
 	cdef->init = Dglue_init;
 	cdef->free = Dglue_free;
 }
+*/
+
 
 /* ------------------------------------------------------------------------ */
-
 // Clib Clib.new(String libname) 
 METHOD Clib_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_CLib_t *clib = (knh_CLib_t *)(sfp[0].p->rawptr);
   const char *libname = String_to(const char *, sfp[1]);
-  clib->handler = dlopen(libname, RTLD_LAZY);
+  clib->handler = knh_dlopen(ctx, libname);
   RETURN_(sfp[0].o);
 }
 
@@ -111,7 +127,7 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_type_t rtype = knh_ParamArray_rtype(DP(sfp[K_MTDIDX].mtdNC)->mp);
   knh_Func_t *fo = sfp[0].fo;
-  knh_DGlue_t *dg = (knh_DGlue_t*)(((fo->mtd)->b)->cfunc);
+  knh_ClibGlue_t *dg = (knh_ClibGlue_t*)(((fo->mtd)->b)->cfunc);
   //  fprintf(stderr, "fptr:%p, %p, %d, %p, %p\n", 
   //		  dg->fptr,
   //		  &(dg->cif), dg->argCount,
@@ -155,25 +171,9 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
   }
 }
 
-// @Native Dglue Clib_genDglue (Dglue _)
-METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
+METHOD ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 {
-  knh_CLib_t *clib = (knh_CLib_t *)((sfp[0].p)->rawptr);
-  knh_RawPtr_t *po = sfp[1].p;
-
-  if (clib != NULL) {
-	knh_DGlue_t *dg = (knh_DGlue_t*)po->rawptr;
-	dg->clib = clib;
-	RETURN_(po);
-  }
-  RETURN_(sfp[1].p);
-}
-
-
-/* @Native var Dglue.getFunc(String sym, Class _, Func _); */
-METHOD Dglue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
-{
-  knh_DGlue_t *dg = (knh_DGlue_t*)((sfp[0].p)->rawptr);
+  knh_ClibGlue_t *dg = (knh_ClibGlue_t*)((sfp[0].p)->rawptr);
   knh_CLib_t *clib = dg->clib;
   if (dg->clib == NULL) {fprintf(stderr, "invalid Dglue\n"); RETURN_(sfp[0].o);}
   const char *symstr = String_to(const char *, sfp[1]);
@@ -185,7 +185,7 @@ METHOD Dglue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   const knh_ClassTBL_t *tbl = ClassTBL(klass->cid);
   knh_ParamArray_t *pa = tbl->cparam;
 
-  if ((dg->fptr = dlsym(clib->handler, symstr))== NULL) {
+  if ((dg->fptr = knh_dlsym(ctx, clib->handler, symstr, 0))== NULL) {
 	fprintf(stderr, "dlsym_ERROR!!!\n");
   }
 
@@ -199,7 +199,7 @@ METHOD Dglue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 	} else if (pa->p0.type == TYPE_Float) {
 	  dg->retT = &ffi_type_double;
 	} else {
-	  // TODO!!
+	  TODO();
 	}
   } else {
 	TODO();
@@ -255,17 +255,54 @@ METHOD Dglue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 }
 
 
+static knh_GlueSPI_t CLibGlueSPI = {
+  CLibGlue_getFunc,
+  CLib_component_free,
+  CLib_glue_free
+};
+
+
+// @Native Glue Clib_genGlue (Glue _)
+METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  knh_CLib_t *clib = (knh_CLib_t *)((sfp[0].p)->rawptr);
+  knh_RawPtr_t *po = sfp[1].p;
+
+  if (clib != NULL) {
+	knh_Glue_t *glue = (knh_Glue_t *)po->rawptr;
+	glue->gapi = &ClibGlueSPI;
+	glue->componentInfo = (void*)clib;
+	knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)KNH_MALLOC(ctx, sizeof(knh_ClibGlue_t));
+	glue->glueInfo = (void*)new_RawPtr(ctx, po, cglue);
+	RETURN_(po);
+  }
+  RETURN_(sfp[1].p);
+}
+
+
+
+
 
 /* ------------------------------------------------------------------------ */
 
 
 #ifdef _SETUP
+
 DEFAPI(const knh_PackageDef_t*) init(CTX ctx, const knh_PackageLoaderAPI_t *kapi)
 {
 	kapi->setPackageProperty(ctx, "name", "clib");
-	kapi->setPackageProperty(ctx, "version", "0.0");
+	kapi->setPackageProperty(ctx, "version", "0.1");
 	RETURN_PKGINFO("konoha.clib");
+	
 }
+
+  /*DEFAPI(const knh_PackageDef_t*) init(CTX ctx, const knh_PackageLoaderAPI_t *kapi)
+{
+	kapi->setPackageProperty(ctx, "name", "dffi");
+	kapi->setPackageProperty(ctx, "version", "0.1");
+	RETURN_PKGINFO("konoha.dffi");
+}
+  */
 #endif /* _SETUP */
 
 #ifdef __cplusplus
