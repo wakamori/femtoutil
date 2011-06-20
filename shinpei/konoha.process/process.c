@@ -6,7 +6,6 @@
 #include <konoha1.h>
 
 #include <unistd.h>
-#include <spawn.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,9 +40,6 @@ DEFAPI(void) defProcess(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 
 /* ------------------------------------------------------------------------ */
 /* [Dglue:Local] */
-
-#define DGLUE_NOT_UNBOXED 0
-#define DGLUE_UNBOXED 1
 
 typedef struct knh_LGlue_t {
   knh_Process_t *proc;
