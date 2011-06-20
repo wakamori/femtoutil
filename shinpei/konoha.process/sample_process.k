@@ -1,4 +1,4 @@
-using konoha.process.*;
+using konoha.clib.*;
 
 Process p = new Process("ls");
 Lglue l = p.genGlue();
