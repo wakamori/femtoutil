@@ -13,7 +13,7 @@ include nativelink;
 //@Native Openapi Openapi.new(String url);
 
 @Native class Glue;
-@Native var Glue.getFunc(String symbol, Class _, Func _);
+@Native @Throwable var Glue.getFunc(String symbol, Class _, Func _);
 
 @Native Glue Clib.genGlue(Glue _);
 @Native Glue Process.genGlue(Glue _);
