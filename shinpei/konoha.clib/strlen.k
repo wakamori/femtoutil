@@ -1,9 +1,10 @@
 using konoha.clib.*;
 
 Clib c = new Clib("/usr/lib/libc.dylib");
-Glue d = c.genGlue();
-
-Func<String=>Int> strlen = d.getFunc("strlen"); 
+print c;
+Glue g = c.genGlue();
+print g;
+@Throwable Func<String=>Int> strlen = g.getFunc("strlen"); 
 s = "hello world";
 i = strlen(s);
 print i;

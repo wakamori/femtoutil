@@ -5,9 +5,9 @@
 include nativelink;
 
 @Native class Clib;
-@Native Clib Clib.new(String libname);
+@Native Clib Clib.new(String libname, Clib _);
 @Native class Process;
-@Native Process Process.new(String path);
+@Native Process Process.new(String path, Process _);
 
 //@Native class Openapi;
 //@Native Openapi Openapi.new(String url);
