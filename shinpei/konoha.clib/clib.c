@@ -3,12 +3,14 @@
  *  written by shinpei(c)2011
  */
 
+#include <konoha1.h>
+
+/*
 #define  USE_B 1
 #define USE_new_bytes 1
 #define USE_cwb 1
 #define USE_cwb_open 1
-
-#include <konoha1.h>
+*/
 
 //#define MACOSX
 #include <ffi/ffi.h>
@@ -32,7 +34,6 @@ extern "C" {
 typedef struct knh_CLib_t {
   void *handler;
 } knh_CLib_t;
-
 
 static void Clib_init(CTX ctx, knh_RawPtr_t *po)
 {
@@ -188,22 +189,22 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 		if (cglue->argT_isUnboxed[idx] == DGLUE_UNBOXED) {
 		  cglue->argV[idx] = &(sfp[idx+1].ndata);
 		} else {
-		  if (cglue->argT[idx] == &ffi_type_schar) {
-			fprintf(stderr, "char!\n");
-			cglue->argV[idx] = String_to(char *, sfp[idx+1]);
+		  //TODO:
+		  if (cglue->argT[idx] == &ffi_type_pointer) {
+			cglue->argV[idx] = &((sfp[idx+1].s)->str.text);
 		  } else {
 			cglue->argV[idx] = &(sfp[idx+1].o);
 		  }
 		}
 	  }
-	  //	  double arg1 = Float_to(double, sfp[1]);
-	  //	  (cglue->argV[0]) = &arg1;
 	  if (rtype == TYPE_Int || rtype == TYPE_Boolean) {
 		knh_int_t return_i = 0;
 		if (ffi_prep_cif(&(cglue->cif), FFI_DEFAULT_ABI, cglue->argCount,
 						 cglue->retT, cglue->argT) == FFI_OK) {
 		  ffi_call(&(cglue->cif), cglue->fptr, &(cglue->retV), cglue->argV);
 		  return_i = *(knh_int_t*)(&cglue->retV);
+		} else {
+		  fprintf(stderr, "prep_cif FAILED\n:");
 		}
 		RETURNi_(return_i);
 	  } else if (rtype == TYPE_Float) {
@@ -245,72 +246,39 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   if ((cglue->fptr = knh_dlsym(ctx, clib->handler, symstr, 0))== NULL) {
 	fprintf(stderr, "dlsym_ERROR!!!\n");
   }
-
   // type a method from requested type
-  // retT
-  size_t argCount = pa->rsize;
+  size_t argCount = pa->psize;
   cglue->argCount = argCount;
-  if (argCount < 3) {
-	fprintf(stderr, "arg0, type=%s\n", TYPE__(pa->p0.type));
-	if (pa->p0.type == TYPE_Int) {
-	  cglue->retT = &ffi_type_uint64;
-	} else if (pa->p0.type == TYPE_Float) {
-	  cglue->retT = &ffi_type_double;
-	} else {
-	  TODO();
-	}
+
+  // retT
+  DBG_ASSERT(pa->rsize == 1);
+  knh_param_t *p = knh_ParamArray_rget(pa, 0);
+  if (p->type == TYPE_Int || p->type == TYPE_Boolean) {
+	cglue->retT = &ffi_type_sint64;
+  } else if (p->type == TYPE_Float) {
+	cglue->retT = &ffi_type_double;
   } else {
 	TODO();
   }
 
   //argT
-  if (argCount < 3) {
-	if (argCount == 1) {
-	  fprintf(stderr, "arg1, type=%s\n", TYPE__(pa->p1.type));
-	  if (pa->p1.type == TYPE_Int) {
-		cglue->argT[0] = &ffi_type_uint64;
-		cglue->argT_isUnboxed[0] = DGLUE_UNBOXED;
-	  } else if (pa->p1.type == TYPE_Float) {
-		cglue->argT[0] = &ffi_type_double;
-		cglue->argT_isUnboxed[0] = DGLUE_UNBOXED;
-	  } else if (pa->p1.type == TYPE_String) {
-		fprintf(stderr, "this is string!\n");
-		cglue->argT[0] = &ffi_type_schar;
-		cglue->argT_isUnboxed[0] = DGLUE_NOT_UNBOXED;
-	  } else {
-		TODO();
-	  }
-	} else if (argCount == 2) {
-	  if (pa->p1.type == TYPE_Int) {
-		cglue->argT[0] = &ffi_type_uint64;
-		cglue->argT_isUnboxed[0] = DGLUE_UNBOXED;
-	  } else if (pa->p1.type == TYPE_Float) {
-		cglue->argT[0] = &ffi_type_double;
-		cglue->argT_isUnboxed[0] = DGLUE_UNBOXED;
-	  } else if (pa->p1.type == TYPE_String) {
-		cglue->argT[0] = &ffi_type_schar;
-		cglue->argT_isUnboxed[0] = DGLUE_NOT_UNBOXED;
-	  } else {
-		TODO();
-	  }
-
-	  if (pa->p2.type == TYPE_Int) {
-		cglue->argT[1] = &ffi_type_uint64;
-		cglue->argT_isUnboxed[1] = DGLUE_UNBOXED;
-	  } else if (pa->p2.type == TYPE_Float) {
-		cglue->argT[1] = &ffi_type_double;
-		cglue->argT_isUnboxed[1] = DGLUE_UNBOXED;
-	  } else if (pa->p1.type == TYPE_String) {
-		cglue->argT[1] = &ffi_type_schar;
-		cglue->argT_isUnboxed[1] = DGLUE_NOT_UNBOXED;
-	  } else {
-		TODO();
-	  }
-	} // there are no more... argCount == 0 ?
-  } else {
-	// more than 3 args
-	TODO();
+  size_t idx = 0;
+  for (idx = 0; idx < argCount; idx++) {
+	knh_param_t *p = knh_ParamArray_get(pa, idx);
+	if (p->type == TYPE_Int || p->type == TYPE_Boolean) {
+	  cglue->argT[idx] = &ffi_type_sint64;
+	  cglue->argT_isUnboxed[idx] = DGLUE_UNBOXED;
+	} else if (p->type == TYPE_Float) {
+	  cglue->argT[idx] = &ffi_type_double;
+	  cglue->argT_isUnboxed[idx] = DGLUE_UNBOXED;
+	} else if (p->type == TYPE_String) {
+	  cglue->argT[idx] = &ffi_type_pointer;
+	  cglue->argT_isUnboxed[idx] = DGLUE_NOT_UNBOXED;
+	} else {
+	  TODO();
+	}
   }
+
   // type Func object
   fo->h.cTBL= tbl;
   //cid = knh_class_Generics(ctx, CLASS_Func, pa);
