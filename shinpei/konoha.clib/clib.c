@@ -183,21 +183,23 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
   //		  &(dg->cif), dg->argCount,
   //		  dg->retT, dg->argT);
   
+  int idx = 0;
+  for (idx = 0; idx < cglue->argCount; idx++) {
+	if (cglue->argT_isUnboxed[idx] == DGLUE_UNBOXED) {
+	  cglue->argV[idx] = &(sfp[idx+1].ndata);
+	} else {
+	  //TODO: now, we cannot distinguish object from string
+	  if (cglue->argT[idx] == &ffi_type_pointer) {
+		cglue->argV[idx] = &((sfp[idx+1].s)->str.text);
+	  } else {
+		// TODO? : array? map? char?
+		cglue->argV[idx] = &(sfp[idx+1].o);
+	  }
+	}
+  } /* for loop for argT*/
+
   if(rtype != TYPE_void) {
 	if(IS_Tunbox(rtype)) {
-	  int idx = 0;
-	  for (idx = 0; idx < cglue->argCount; idx++) {
-		if (cglue->argT_isUnboxed[idx] == DGLUE_UNBOXED) {
-		  cglue->argV[idx] = &(sfp[idx+1].ndata);
-		} else {
-		  //TODO:
-		  if (cglue->argT[idx] == &ffi_type_pointer) {
-			cglue->argV[idx] = &((sfp[idx+1].s)->str.text);
-		  } else {
-			cglue->argV[idx] = &(sfp[idx+1].o);
-		  }
-		}
-	  }
 	  if (rtype == TYPE_Int || rtype == TYPE_Boolean) {
 		knh_int_t return_i = 0;
 		if (ffi_prep_cif(&(cglue->cif), FFI_DEFAULT_ABI, cglue->argCount,
@@ -219,11 +221,33 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 		}
 		RETURNf_(return_f);
 	  } 
-	} else {
-	  // its Object
-	  RETURN_(KNH_NULVAL(CLASS_t(rtype)));
-	}
-  }
+	} else { // IS not unbox 
+	  if (rtype == TYPE_String) {
+		// its String
+		char *return_s = NULL;
+		if (ffi_prep_cif(&(cglue->cif), FFI_DEFAULT_ABI, cglue->argCount,
+						 cglue->retT, cglue->argT) == FFI_OK) {
+		  ffi_call(&(cglue->cif), cglue->fptr, &(cglue->retV), cglue->argV);
+		  return_s = *(char**)(&cglue->retV);
+		} else {
+		  fprintf(stderr, "prep_cif FAILED\n:");
+		}
+		RETURN_(new_String(ctx, return_s));
+	  } else {
+		// its Object
+		void *return_ptr = NULL;
+		if (ffi_prep_cif(&(cglue->cif), FFI_DEFAULT_ABI, cglue->argCount,
+						 cglue->retT, cglue->argT) == FFI_OK) {
+		  ffi_call(&(cglue->cif), cglue->fptr, &(cglue->retV), cglue->argV);
+		  return_ptr = *(void**)(&cglue->retV);
+		} else {
+		  fprintf(stderr, "prep_cif FAILED\n:");
+		}
+		RETURN_(new_RawPtr(ctx, (knh_RawPtr_t*)KNH_NULVAL(CLASS_Tvar), return_ptr));
+	  }
+	} // end of IS_Tunbox 
+  } // end of is_VOID
+  RETURNvoid_();
 }
 
 static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -233,7 +257,7 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_CLib_t *clib = (knh_CLib_t*)glue->componentInfo;
   if (clib == NULL) {
 	fprintf(stderr, "invalid Dglue\n");
-	RETURN_(sfp[3].fo);
+	return (knh_RawPtr_t*)(sfp[3].o);
   }
   const char *symstr = String_to(const char *, sfp[1]);
   knh_Class_t *klass = (knh_Class_t*)sfp[2].o;
@@ -250,7 +274,6 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   // type a method from requested type
   size_t argCount = pa->psize;
   cglue->argCount = argCount;
-
   // retT
   DBG_ASSERT(pa->rsize == 1);
   knh_param_t *p = knh_ParamArray_rget(pa, 0);
@@ -259,7 +282,8 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   } else if (p->type == TYPE_Float) {
 	cglue->retT = &ffi_type_double;
   } else {
-	TODO();
+	cglue->retT = &ffi_type_pointer;
+	//	TODO();
   }
 
   //argT
@@ -276,7 +300,9 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 	  cglue->argT[idx] = &ffi_type_pointer;
 	  cglue->argT_isUnboxed[idx] = DGLUE_NOT_UNBOXED;
 	} else {
-	  TODO();
+	  cglue->argT[idx] = &ffi_type_pointer;
+	  cglue->argT_isUnboxed[idx] = DGLUE_NOT_UNBOXED;
+	  //	  TODO();
 	}
   }
 
@@ -303,7 +329,6 @@ static knh_GlueSPI_t CLibGlueSPI = {
 METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_CLib_t *clib = (knh_CLib_t *)((sfp[0].p)->rawptr);
-  knh_RawPtr_t *po = sfp[1].p;
   if (clib != NULL) {
 	knh_Glue_t *glue = new_Glue(ctx);
 	glue->glueType = GLUE_TYPE_INTERNAL;
@@ -343,7 +368,7 @@ static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_type_t rtype = knh_ParamArray_rtype(DP(sfp[K_MTDIDX].mtdNC)->mp);
   knh_Func_t *fo = sfp[0].fo;
   knh_ProcessGlue_t *pglue = (knh_ProcessGlue_t*)(((fo->mtd)->b)->cfunc);
-  const char *arg1 = String_to(const char *, sfp[1]);
+  char *arg1 = String_to(char *, sfp[1]);
   char *args[] = {pglue->path, arg1, NULL};
   //  char *args[] = {pglue->path, arg1};
 #ifdef K_USING_POSIX_
@@ -411,7 +436,7 @@ static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
 #endif
   if(rtype != TYPE_void) {
 	if(IS_Tunbox(rtype)) {
-	  RETURNi_(KNH_INT0);
+	  RETURN_(KNH_INT0);
 	} else {
 	  RETURN_(KNH_NULVAL(CLASS_t(rtype)));	  
 	}
@@ -428,7 +453,7 @@ static knh_RawPtr_t *ProcessGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   if (proc == NULL) {
 	LOGSFPDATA = {__ERRNO__};
 	LIB_Failed("invaid proc", "ContentFail!!");
-	RETURN_(sfp[3].fo);
+	return (knh_RawPtr_t*)(sfp[3].o);
   }
 
   //  const char *symbol = String_to(const char*, sfp[1]);
@@ -456,9 +481,8 @@ static knh_GlueSPI_t ProcessGlueSPI = {
 METHOD Process_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_Process_t *proc = (knh_Process_t*)((sfp[0].p)->rawptr);
-  knh_RawPtr_t *po = sfp[1].p;
   if (proc != NULL) {
-	knh_Glue_t *glue = (knh_Glue_t*)po->rawptr;
+	knh_Glue_t *glue = new_Glue(ctx);
 	glue->glueType = GLUE_TYPE_LOCAL;
 	glue->gapi = &ProcessGlueSPI;
 	glue->componentInfo = (void*)proc;
@@ -469,7 +493,7 @@ METHOD Process_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_memcpy(pglue->path, proc->path, proc->path_size+1);
 	pglue->path_size = proc->path_size;
 	glue->glueInfo = (void*)pglue;
-	RETURN_(po);
+	RETURN_(new_RawPtr(ctx, sfp[1].p, glue));
   }
   RETURN_(sfp[1].p);
 }
@@ -484,7 +508,6 @@ DEFAPI(const knh_PackageDef_t*) init(CTX ctx, const knh_PackageLoaderAPI_t *kapi
 	kapi->setPackageProperty(ctx, "name", "clib");
 	kapi->setPackageProperty(ctx, "version", "0.1");
 	RETURN_PKGINFO("konoha.clib");
-	
 }
 
   /*DEFAPI(const knh_PackageDef_t*) init(CTX ctx, const knh_PackageLoaderAPI_t *kapi)
