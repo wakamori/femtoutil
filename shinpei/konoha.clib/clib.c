@@ -37,9 +37,10 @@ typedef struct knh_CLib_t {
 
 static void Clib_init(CTX ctx, knh_RawPtr_t *po)
 {
-  po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_CLib_t));
-  knh_CLib_t *clib  = (knh_CLib_t*)po->rawptr;
-  clib->handler = NULL;
+  //  po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_CLib_t));
+  //  knh_CLib_t *clib  = (knh_CLib_t*)po->rawptr;
+  //  clib->handler = NULL;
+  po->rawptr = NULL;
 }
 
 static void Clib_free(CTX ctx, knh_RawPtr_t *po)
@@ -72,7 +73,7 @@ typedef struct knh_Process_t {
 
 static void Process_init(CTX ctx, knh_RawPtr_t *po)
 {
-  po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_Process_t));
+  po->rawptr = NULL;
 }
 
 static void Process_free(CTX ctx, knh_RawPtr_t *po)
@@ -88,7 +89,6 @@ DEFAPI(void) defProcess(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 	cdef->init = Process_init;
 	cdef->free = Process_free;
 }
-
 
 /* ------------------------------------------------------------------------ */
 /* [Dglue:internal] */
@@ -163,13 +163,14 @@ static void ProcessGlue_free(CTX ctx, void *ptr)
 }
 
 /* ------------------------------------------------------------------------ */
-// Clib Clib.new(String libname) 
+//@Native Clib Clib.new(String libname, Clib _);
 METHOD Clib_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
-  knh_CLib_t *clib = (knh_CLib_t *)(sfp[0].p->rawptr);
   const char *libname = String_to(const char *, sfp[1]);
+  knh_CLib_t *clib = (knh_CLib_t*)KNH_MALLOC(ctx, sizeof(knh_CLib_t));
   clib->handler = knh_dlopen(ctx, libname);
-  RETURN_(sfp[0].o);
+  knh_RawPtr_t *po = new_RawPtr(ctx, sfp[2].p, clib);
+  RETURN_(po);
 }
 
 static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -298,21 +299,20 @@ static knh_GlueSPI_t CLibGlueSPI = {
   ClibGlue_free
 };
 
-
 // @Native Glue Clib_genGlue (Glue _)
 METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_CLib_t *clib = (knh_CLib_t *)((sfp[0].p)->rawptr);
   knh_RawPtr_t *po = sfp[1].p;
   if (clib != NULL) {
-	knh_Glue_t *glue = (knh_Glue_t *)po->rawptr;
+	knh_Glue_t *glue = new_Glue(ctx);
 	glue->glueType = GLUE_TYPE_INTERNAL;
 	glue->gapi = &CLibGlueSPI;
 	glue->componentInfo = (void*)clib;
 	knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)KNH_MALLOC(ctx, sizeof(knh_ClibGlue_t));
 	ClibGlue_init(ctx, cglue);
 	glue->glueInfo = (void*)cglue;
-	RETURN_(sfp[1].p);
+	RETURN_(new_RawPtr(ctx, sfp[1].p, glue));
   }
   RETURN_(sfp[1].p);
 }
@@ -322,10 +322,10 @@ METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 /* [Process] */
 #define PROCESS_PATH_MAX 256
 
+//@Native Process Process.new(String path, Process _);
 METHOD Process_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
-  knh_RawPtr_t *po = sfp[0].p;
-  knh_Process_t *proc = (knh_Process_t*)po->rawptr;
+  knh_Process_t *proc = (knh_Process_t*)KNH_MALLOC(ctx, sizeof(knh_Process_t));
   char *pname = String_to(char *, sfp[1]);
   size_t path_size = knh_strlen(pname);
   if (pname != NULL && path_size < PROCESS_PATH_MAX) {
@@ -333,7 +333,7 @@ METHOD Process_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_memcpy(proc->path, pname, path_size+1);
 	proc->path_size = path_size;
   }
-  RETURN_(po);
+  RETURN_(new_RawPtr(ctx, sfp[2].p, proc));
 }
 
 
