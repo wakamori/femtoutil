@@ -8,3 +8,6 @@ Func<String=>Dir> opendir = g.getFunc("opendir");
 
 d = opendir("/etc/");
 print d;
+
+Func<Dir=>Int> telldir = g.getFunc("telldir");
+print telldir(d);
