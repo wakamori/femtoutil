@@ -5,31 +5,23 @@
 
 #include <konoha1.h>
 
-
 #include <unistd.h>
-#include <spawn.h>
-
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
 /* ------------------------------------------------------------------------ */
 /* [Process] */
-
-
 
 typedef struct knh_Process_t {
   char *path;
   int pid;
 } knh_Process_t;
 
-
 static void Process_init(CTX ctx, knh_RawPtr_t *po)
 {
   po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_Process_t));
-  fprintf(stderr, "NEW!:%p\n", po);
 }
 
 static void Process_free(CTX ctx, knh_RawPtr_t *po)
@@ -46,13 +38,8 @@ DEFAPI(void) defProcess(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 	cdef->free = Process_free;
 }
 
-
 /* ------------------------------------------------------------------------ */
 /* [Dglue:Local] */
-
-#define DGLUE_NOT_UNBOXED 0
-#define DGLUE_UNBOXED 1
-
 
 typedef struct knh_LGlue_t {
   knh_Process_t *proc;
@@ -70,7 +57,6 @@ static void Lglue_free(CTX ctx, knh_RawPtr_t *po)
 	}
 }
 
-
 DEFAPI(void) defLglue(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 {
 	cdef->name = "Lglue";
@@ -79,22 +65,20 @@ DEFAPI(void) defLglue(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 }
 
 /* ------------------------------------------------------------------------ */
-#define PATH_MAX 256
+#define PROCESS_PATH_MAX 256
 
 METHOD Process_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_RawPtr_t *po = sfp[0].p;
-  fprintf(stderr, "%p\n", po);
   knh_Process_t *proc = (knh_Process_t*)po->rawptr;
   char *pname = String_to(char *, sfp[1]);
   size_t path_size = knh_strlen(pname);
-  if (pname != NULL && path_size < PATH_MAX) {
+  if (pname != NULL && path_size < PROCESS_PATH_MAX) {
 	proc->path = KNH_MALLOC(ctx, path_size * sizeof(char));
 	knh_memcpy(proc->path, pname, path_size+1);
   }
   RETURN_(po);
 }
-
 
 METHOD Process_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -106,8 +90,7 @@ METHOD Process_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
   RETURN_(po2);
 }
 
-  //#include <crt_externs.h>
-
+//#include <crt_externs.h>
 static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_type_t rtype = knh_ParamArray_rtype(DP(sfp[K_MTDIDX].mtdNC)->mp);

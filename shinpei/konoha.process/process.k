@@ -5,7 +5,7 @@ include nativelink;
 
 @Native Process Process.new(String path);
 
-@Native class Lglue;
+//@Native class Lglue;
 @Native Lglue Process.genGlue(Lglue _);
 @Native var Lglue.getFunc(Class _, Func _);
 
