@@ -283,11 +283,13 @@ configuration : this is temporary.
 
 $(function() {
 	Aspen.start();
+	/*
 	window.onbeforeunload = function() {
 		if (!Aspen.isLogouted() && $.cookie("CODE") != Aspen.getText()) {
 			return "Script is not saved. Exit anyway?";
 		}
 	};
+	*/
 	/*
 	function addTab(link) {
 		// hide other tabs

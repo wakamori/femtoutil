@@ -32,16 +32,6 @@ class Alarm(Exception):
 def alarm_handler(signum, frame):
 	raise Alarm
 
-'''
-		if self.mtype == 'login':
-			self.login()
-		elif self.mtype == 'new':
-			self.authWithSIDAndRenewSession()
-		else:
-			self.authWithSID()
-'''
-
-
 class Aspen:
 
 	konohapath = 'path/to/konoha'
@@ -115,7 +105,7 @@ class Aspen:
 				close_fds=True)
 		if os.path.isfile('/etc/debian_version'):
 			return p.communicate()[0][0:-2]
-		else
+		else:
 			return p.communicate()[0][0:-1]
 
 	# get current aspen version from git hash

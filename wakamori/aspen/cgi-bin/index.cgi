@@ -31,16 +31,11 @@ html_login = '''<?xml version="1.0" encoding="UTF-8"?>
 	</body>
 </html>'''
 
-#<?xml version="1.0" encoding="UTF-8"?>
-#<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-#<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
-
 html_main = '''<!doctype html>
 <html>
 	<head>
 		<title>アルゴリズムとデータ構造  - try with konoha</title>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-		<meta http-equiv="Content-Script-Type" content="text/javascript" />
 		<script type="text/javascript" src="../aspen/js/jquery-1.6.1.min.js"></script>
 		<script type="text/javascript" src="../aspen/js/jquery.cookie.js"></script>
 		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
@@ -56,11 +51,10 @@ html_main = '''<!doctype html>
 		<link rel="stylesheet" href="../aspen/mode/konoha/konoha.css" />
 	</head>
 	<body>
-
-		<table border="0" summary="header">
+		<table role="presentation">
 			<tr>
-				<td width="230">
-					<a href="./index.cgi"><img src="../aspen/konoha_logo.png" width="213" height="54" alt="Konoha" border=0/></a>
+				<td class="logo">
+					<a href="./index.cgi"><img class="logo" src="../aspen/konoha_logo.png" alt="Konoha"/></a>
 				</td>
 				<td>
 					<div id="info">
@@ -75,8 +69,8 @@ html_main = '''<!doctype html>
 						<input type="hidden" name="method" value="new" />
 						<input class="normalbutton" type="submit" id="new" value="New" />
 					</form>
-					<input type="button" class="fixedbutton" id="eval" name="eval" alt="Run!!" value="Run" />
-<!--					<input type="button" class="fixedbutton" id="save" alt="save the current buffer at remote server" value="Save" />
+					<input type="button" class="fixedbutton" id="eval" name="eval" value="Run" />
+<!--				<input type="button" class="fixedbutton" id="save" alt="save the current buffer at remote server" value="Save" />
 					<input type="button" class="fixedbutton" id="load" alt="load a script from your server" value="Load" />
 					<input type="button" class="fixedbutton" id="save" alt="open your script" value="Open" onclick='javascript:{ if ($("#file").css("display") == "none") { $("#file").css("display", "inline");} else { $("#file").css("display", "none"); }};' />
 					<input style="display:none" type="file" id="file" name="file" />-->
@@ -111,6 +105,9 @@ html_main = '''<!doctype html>
 						<input class="headbutton" type="submit" id="forward" value=" > " />
 </div>
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
+		<div id="info">
+			<span class="mail">このエディタに関する質問、ご意見は<img src="http://services.nexodyne.com/email/icon/SjxjkrahxqrXUUU%%3D/kuxAxLI%%3D/R01haWw%%3D/0/image.png" alt="wakamori111 at gmail.com"/>までお願いします。</span>
+		</div>
 	</body>
 </html>'''
 
@@ -121,11 +118,11 @@ def main():
 		cookie.load(os.environ['HTTP_COOKIE'])
 		if cookie.has_key('UID') and cookie.has_key('LOGIN_DATE'):
 			print html_main % (cookie['UID'].value, cookie['LOGIN_DATE'].value)
-			return;
+			return
 		else:
-			print html_login;
+			print html_login
 	else:
-		print html_login;
+		print html_login
 
 if __name__ == '__main__':
 	main()
