@@ -23,11 +23,9 @@ typedef struct knh_Glue_t {
   knh_GlueSPI_t *gapi;
 } knh_Glue_t;
 
-
-static void Glue_init(CTX ctx, knh_RawPtr_t *po)
+static knh_Glue_t *new_Glue(CTX ctx)
 {
-  po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_Glue_t));
-  knh_Glue_t *glue = (knh_Glue_t*)po->rawptr;
+  knh_Glue_t *glue = (knh_Glue_t*)KNH_MALLOC(ctx, sizeof(knh_Glue_t));
   glue->glueType = GLUE_TYPE_UNKNOWN;
   // TODO: we need NullObject here
   glue->componentInfo = NULL; 
@@ -37,6 +35,12 @@ static void Glue_init(CTX ctx, knh_RawPtr_t *po)
   gapi->component_free = NULL;
   gapi->glue_free = NULL;
   gapi->getFunc = NULL;
+  return glue;
+}
+
+static void Glue_init(CTX ctx, knh_RawPtr_t *po)
+{
+  po->rawptr = NULL;
 }
 
 static void Glue_free(CTX ctx, knh_RawPtr_t *po)
