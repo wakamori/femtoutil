@@ -241,7 +241,7 @@ class Aspen:
 			filename = foldername + '/' + 'us_' + fromsid
 			# create script file
 			filename = filename + '.k'
-			print self.cookie
+			#print self.cookie
 			print 'Content-Type: application/json;charset=UTF-8\n'
 			print json.dumps({'sid': fromsid})
 			return
@@ -262,14 +262,14 @@ class Aspen:
 			filename = foldername + '/' + 'us_' + tosid
 			# create script file
 			filename = filename + '.k'
-			print self.cookie
+			#print self.cookie
 			print 'Content-Type: application/json;charset=UTF-8\n'
 			print json.dumps({'sid': tosid})
 		else:
 			# there is no tosid. put error.
 			print 'Content-Type: application/json;charset=UTF-8\n'
 			print json.dumps({'sid': 'none'})
-			print self.cookie
+			#print self.cookie
 
 
 	def new(self):
