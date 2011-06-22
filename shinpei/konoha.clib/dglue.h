@@ -87,7 +87,12 @@ METHOD Glue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   default:
 	break;
   }
-  RETURN_(ret);
+  if (ret == NULL) {
+	// getFunc failed. return Func NullObject
+	RETURN_(KNH_NULVAL(CLASS_Func));
+  } else {
+	RETURN_(ret);
+  }
 }
 
 /* ------------------------------------------------------------------------ */

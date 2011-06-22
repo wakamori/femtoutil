@@ -5,15 +5,16 @@
 
 #include <konoha1.h>
 
-/*
-#define  USE_B 1
-#define USE_new_bytes 1
-#define USE_cwb 1
-#define USE_cwb_open 1
-*/
 
 //#define MACOSX
+#if defined(K_USING_MACOSX_)
+#include <signal.h>
 #include <ffi/ffi.h>
+#elif defined(K_USING_LINUX_)
+#include <ffi.h>
+#include <sys/wait.h>
+#include <signal.h>
+#endif
 
 #include <unistd.h>
 
@@ -106,19 +107,6 @@ typedef struct knh_ClibGlue_t {
   void *argV[CLIB_ARGMAX];
   void *retV;
 } knh_ClibGlue_t;
-
-  /*typedef struct knh_DGlue_t {
-  knh_CLib_t *clib;
-  void *fptr;
-  ffi_cif cif;
-  int argCount;
-  ffi_type *retT;
-  ffi_type *argT[CLIB_ARGMAX];
-  int argT_isUnboxed[CLIB_ARGMAX];
-  void *argV[CLIB_ARGMAX];
-  void *retV;
-} knh_DGlue_t;
-  */
 
 static void ClibGlue_init(CTX ctx, knh_ClibGlue_t *cglue)
 {
@@ -361,8 +349,62 @@ METHOD Process_new(CTX ctx, knh_sfp_t *sfp _RIX)
   RETURN_(new_RawPtr(ctx, sfp[2].p, proc));
 }
 
+static
+void SIGCHLD_handler(int signal)
+{
+  pid_t pid_child = 0;
+  do {
+	int status;
+	pid_child = waitpid(-1, &status, WNOHANG);
+	fprintf(stderr, "pid_child:%d\n", pid_child);
+	if (WIFEXITED(status)) {
+	  fprintf(stderr, "normal\n");
+	} else if (WIFSIGNALED(status)) {
+	  fprintf(stderr, "content fail\n");
+	} else {
+	  fprintf(stderr, "stopped!\n");
+	}
+  }  while (pid_child > 0);
+}
 
 //#include <crt_externs.h>
+static METHOD Fmethod_wrapProcessWithoutPipe(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  knh_Func_t *fo = sfp[0].fo;
+  knh_ProcessGlue_t *pglue = (knh_ProcessGlue_t*)(((fo->mtd)->b)->cfunc);
+  char *arg1 = String_to(char *, sfp[1]);
+  char *args[] = {pglue->path, arg1, NULL};
+  //  char *args[] = {pglue->path, arg1};
+#ifdef K_USING_POSIX_
+  // retval is void, we don't need pipe
+  /*  process handling */
+  pid_t pid;
+  struct sigaction act_child;
+  sigemptyset(&act_child.sa_mask);
+  act_child.sa_handler = SIGCHLD_handler;
+  act_child.sa_flags = SA_NOCLDSTOP | SA_RESTART;
+  sigaction(SIGCHLD, &act_child, NULL);
+
+  if ((pid = fork()) < 0) {
+	// ERROR
+	  LOGSFPDATA = {__ERRNO__};
+	  LIB_Failed("fork", "Process!!");
+	  RETURNvoid_();
+  }
+  if (pid == 0) {
+	/* child */
+	if (execvp(pglue->path, args) < 0) {
+	  LOGSFPDATA = {__ERRNO__};
+	  LIB_Failed("execvp", "Process!!");
+	  exit(1);
+	}
+  } else {
+	fprintf(stderr, "pid=%d\n", pid);
+	RETURNvoid_();
+  }
+
+#endif
+}
 static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_type_t rtype = knh_ParamArray_rtype(DP(sfp[K_MTDIDX].mtdNC)->mp);
@@ -372,19 +414,26 @@ static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
   char *args[] = {pglue->path, arg1, NULL};
   //  char *args[] = {pglue->path, arg1};
 #ifdef K_USING_POSIX_
-  // create pipe
+  // create pipe when ret value is string;
   int pipe_c2p[2], pipe_p2c[2];
   int pid;
   if (pipe(pipe_c2p) < 0) {
 	LOGSFPDATA = {__ERRNO__};
-	LIB_Failed("execvp", "ContentFail!!");
+	LIB_Failed("pipe c2p", "ContentFail!!");
   }
   if (pipe(pipe_p2c) < 0) {
 	close(pipe_c2p[0]/* R */);
 	close(pipe_c2p[1]/* W */);
 	LOGSFPDATA = {__ERRNO__};
-	LIB_Failed("execvp", "ContentFail!!");
+	LIB_Failed("pipe p2c", "ContentFail!!");
   }
+  /*  process handling */
+  struct sigaction act_child;
+  sigemptyset(&act_child.sa_mask);
+  act_child.sa_handler = SIGCHLD_handler;
+  act_child.sa_flags = SA_NOCLDSTOP | SA_RESTART;
+  sigaction(SIGCHLD, &act_child, NULL);
+
   if ((pid = fork()) < 0) {
 	close(pipe_c2p[0]);
 	close(pipe_c2p[1]);
@@ -406,7 +455,7 @@ static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
 	  exit(1);
 	}
   } else {
-	int status;
+	int status = 0;
 	close(pipe_p2c[0]);
 	close(pipe_c2p[1]);
 	knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -420,15 +469,20 @@ static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
 		break;
 	  }
 	};
-	wait(&status);
+	fprintf(stderr, "pid=%d\n", pid);
+	//	waitpid(pid, &status, WUNTRACED);
+	//	wait(&status);
 	if (WIFEXITED(status)) {
 	  LOGSFPDATA = {sDATA("path", pglue->path), iDATA("pid", pid)};
+	  fprintf(stderr, "normal\n");
 	  LIB_OK("Process executed");
 	} else if (WIFSIGNALED(status)) {
 	  LOGSFPDATA = {sDATA("path", pglue->path), iDATA("pid", pid)};
+	  fprintf(stderr, "content fail\n");
 	  LIB_Failed("process", "ContentFail!!");
 	} else {
 	  LOGSFPDATA = {sDATA("path", pglue->path), iDATA("pid", pid)};
+	  fprintf(stderr, "stopped!\n");
 	  LIB_Failed("process", "Stopped!!");
 	}
 	RETURN_(knh_cwb_newString(ctx, cwb));
@@ -441,8 +495,10 @@ static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
 	  RETURN_(KNH_NULVAL(CLASS_t(rtype)));	  
 	}
   }
+  
 }
 
+//@Native @Throwable var Glue.getFunc(String symbol, Class _, Func _);
 static knh_RawPtr_t *ProcessGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   knh_RawPtr_t *po = sfp[0].p;
@@ -451,20 +507,32 @@ static knh_RawPtr_t *ProcessGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_Process_t *proc = (knh_Process_t*)(glue->componentInfo);
 
   if (proc == NULL) {
-	LOGSFPDATA = {__ERRNO__};
-	LIB_Failed("invaid proc", "ContentFail!!");
-	return (knh_RawPtr_t*)(sfp[3].o);
+	//	LOGSFPDATA = {__ERRNO__};
+	//	LIB_Failed("invaid proc", "ContentFail!!");
+	return NULL;
   }
 
   //  const char *symbol = String_to(const char*, sfp[1]);
   knh_Class_t *klass = (knh_Class_t*)sfp[2].o;
   knh_Func_t *fo = sfp[3].fo;
-
   const knh_ClassTBL_t *tbl = ClassTBL(klass->cid);
-  //  knh_ParamArray_t *pa = tbl->cparam;
+  knh_ParamArray_t *pa = tbl->cparam;
+
+  // return is void or String
+  knh_param_t *rt = knh_ParamArray_rget(pa, 0);
+  knh_Method_t *mtd;
+  if (rt->type == TYPE_String) {
+	mtd = new_Method(ctx, 0, O_cid(klass), MN_LAMBDA, Fmethod_wrapProcess);
+  } else if (rt->type == TYPE_void) {
+	mtd = new_Method(ctx, 0, O_cid(klass), MN_LAMBDA, Fmethod_wrapProcessWithoutPipe);
+  } else {
+	//	LOGSFPDATA = {__ERRNO__};
+	//	LIB_Failed("Process ret value is only {String|Void}", "ContentFail!!");
+	return NULL;
+  }
 
   fo->h.cTBL= tbl;
-  knh_Method_t *mtd = new_Method(ctx, 0, O_cid(klass), MN_LAMBDA, Fmethod_wrapProcess);
+  //  knh_Method_t *mtd = new_Method(ctx, 0, O_cid(klass), MN_LAMBDA, Fmethod_wrapProcess);
   mtd->b->cfunc = (void*)pglue;
   KNH_SETv(ctx, ((mtd)->b)->mp, tbl->cparam);
   KNH_INITv(fo->mtd, mtd);
@@ -499,7 +567,6 @@ METHOD Process_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 }
 
 /* ------------------------------------------------------------------------ */
-
 
 #ifdef _SETUP
 
