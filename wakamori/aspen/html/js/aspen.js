@@ -281,8 +281,21 @@ configuration : this is temporary.
 	};
 })();
 
+function converter(m) {
+	var str = "";
+	for (var i = 0; i < m.length; i++) {
+		str += String.fromCharCode(m.charCodeAt(i) + 1);
+	}
+	return str;
+}
+
 $(function() {
 	Aspen.start();
+	$("#mail")[0].onclick = function() {
+		eval(String.fromCharCode(108,111,99,97,116,105,111,110,46,104,114,101,102,32,61,32,39,109,97,105,108,116,111,58)
+		+ converter(String.fromCharCode(118,96,106,96,108,110,113,104,48,48,48,63,102,108,96,104,107,45,98,110,108,62,114,116,97,105,100,98,115,60))
+		+ "'");
+	};
 	/*
 	window.onbeforeunload = function() {
 		if (!Aspen.isLogouted() && $.cookie("CODE") != Aspen.getText()) {
