@@ -57,7 +57,7 @@ html_main = '''<!doctype html>
 					<a href="./index.cgi"><img class="logo" src="../aspen/konoha_logo.png" alt="Konoha"/></a>
 				</td>
 				<td>
-					<div id="info">
+					<div class="info">
 						<span class="user">Hello, %s.</span>
 						<span class="date">Last login: %s</span><br />
 					</div>
@@ -105,8 +105,8 @@ html_main = '''<!doctype html>
 						<input class="headbutton" type="submit" id="forward" value=" > " />
 </div>
 		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
-		<div id="info">
-			<span class="mail">このエディタに関する質問、ご意見は<img src="http://services.nexodyne.com/email/icon/SjxjkrahxqrXUUU%%3D/kuxAxLI%%3D/R01haWw%%3D/0/image.png" alt="wakamori111 at gmail.com"/>までお願いします。</span>
+		<div class="info">
+			このエディタに関するご質問、ご意見は<img src="../aspen/gmail.png" id="mail" alt="wakamori111 at gmail.com"/>までお願いします。
 		</div>
 	</body>
 </html>'''
