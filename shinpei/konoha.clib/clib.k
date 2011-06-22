@@ -1,6 +1,7 @@
 /*
- * Clib
- *  C library wrapper generater using libffi
+ * Dependable FFI
+ *  CLib: library wrapper generator using libffi
+ *  Process : process wrapper generator.
  */
 include nativelink;
 
