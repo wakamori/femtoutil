@@ -10,4 +10,4 @@ def hoge(i)
 	puts "actor2 hoge: #{ i.to_i + 3 }"
 end
 
-act('actor2')
+act('actor2', 12346)

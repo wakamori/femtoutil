@@ -11,4 +11,4 @@ def pong(msg)
 	puts "actor1 pong: #{ msg }"
 end
 
-act('actor1')
+act('actor1', 12345)
