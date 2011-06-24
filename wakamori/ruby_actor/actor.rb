@@ -88,9 +88,9 @@ module Actor
 	end
 
 	def deliveryThread()
-		ts = TCPServer.open(TCPSERVER_HOST, @port)
+		@ts = TCPServer.open(TCPSERVER_HOST, @port)
 		while true
-			Thread.new(ts.accept) do |s|
+			Thread.new(@ts.accept) do |s|
 				co = s.readObject(Message)
 				addMessageToMailbox(co)
 				s.close()
@@ -159,7 +159,12 @@ module Actor
 		actorPath = getActorPathFromMemcached(target)
 		path, port = actorPath.split(':')
 		#printSendMessage(target, path, port, mtdName, msg)
-		s = TCPSocket.new(TCPSOCKET_HOST, port)
+		begin
+			s = TCPSocket.new(TCPSOCKET_HOST, port)
+		rescue
+			p port
+			raise
+		end
 		s.writeObject(Message.new('ConnectionObject', mtdName, msg))
 		s.close()
 	end
@@ -179,5 +184,12 @@ module Actor
 			end
 		end
 		Process.detach(pid)
+	end
+
+	def exitActor()
+		unless @ts.nil?
+			p 'close'
+			@ts.close()
+		end
 	end
 end
