@@ -1,0 +1,14 @@
+lring.erl: local ring benchmark
+
+1. $erlc lring.erl      %% Compile scripts.
+2. $erl                 %% Start erlang.
+3. 1> lring:start(N).   %% Start ring benchmark, each actor sends Message N times
+
+rring.erl: remte ring benchmark
+
+1.   $erlc rring.erl                     %% Compile scripts.
+2.1. $erl -sname foo@localhost           %% You must start erlang 3 terminals.(and these are same directory)
+2.2. $erl -sname bar@localhost           %% Don't change option name, 
+2.3. $erl -sname baz@localhost           %% "foo@localhost", "bar@localhost", "baz@localhost".
+3.   (bar@localhost)1> lring:start(N).   %% start ring benchmark, each actor sends Message N times
+
