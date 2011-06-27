@@ -52,6 +52,9 @@ configuration : this is temporary.
 	}
 	Aspen.defineActions = function() {
 		$("#eval")[0].onclick = function() {
+			if ($("#result").css("display") == "none") {
+				$("#result").slideToggle();
+			}
 			if (Aspen.requestAllowed()) {
 				var text = myCodeMirror.getValue();
 				if (text.length > 0) {
