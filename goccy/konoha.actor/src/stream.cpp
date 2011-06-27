@@ -234,6 +234,19 @@ static Object *knh_msgpack_getClassObject(CTX ctx, knh_ClassTBL_t *c, msgpack_ob
 	Object *o = NULL;
 	msgpack_object _value = map->val;
 	const char *class_name = _value.via.raw.ptr;
+	//fprintf(stderr, "class_name = [%s]\n", class_name);
+	//fprintf(stderr, "c->sname->str.text = [%s]\n", S_tochar(c->sname));
+	if (strncmp(class_name, (char *)c->sname->str.text, sizeof(class_name))) {
+		int i = 0;
+		const knh_ClassTBL_t **cts = ctx->share->ClassTBL;
+		for (i = 0; i < ctx->share->sizeClassTBL; i++) {
+			if (!strncmp(class_name, S_tochar(cts[i]->sname), sizeof(class_name))) {
+				c = (knh_ClassTBL_t *)cts[i];
+				break;
+			}
+			
+		}
+	}
 	if (!strncmp(class_name, (char *)c->sname->str.text, sizeof(class_name))) {
 		o = (Object *)new_Object_init2(ctx, c);
 		knh_FieldInfo_t info = {0, 0, 0};
@@ -276,6 +289,7 @@ static Object *knh_msgpack_getClassObject(CTX ctx, knh_ClassTBL_t *c, msgpack_ob
 		}
 	} else {
 		//KNH_THROW(ctx, NULL, LOG_CRIT, "Message !!", "cannnot find class name : \"%s\"", class_name);
+		fprintf(stderr, "cannnot find class name \"%s\"", class_name);
 	}
 	return o;
 }
@@ -309,13 +323,16 @@ static Object *knh_msgpack_getObject(CTX ctx, knh_ClassTBL_t *c, msgpack_unpacke
 		msgpack_object_kv *map_end = obj.via.map.ptr + obj.via.map.size;
 		msgpack_object _key = map->key;
 		const char *key = _key.via.raw.ptr;
-		if (!strncmp(key, "ks:atype", sizeof("ks:atype"))) {
+		//if (!strncmp(key, "ks:atype", sizeof("ks:atype"))) {
 			//Array
-			o = (Object *)knh_msgpack_getArray(ctx, c, map);
-		} else if (!strncmp(key, "ks:class", sizeof("ks:class"))) {
+		if (!strncmp(key, "ks:class", sizeof("ks:class"))) {
 			//Object
 			o = (Object *)knh_msgpack_getClassObject(ctx, c, map, map_end);
 		}
+		break;
+	}
+	case MSGPACK_OBJECT_ARRAY: {
+		//o = (Object *)knh_msgpack_getArray(ctx, c, map);
 		break;
 	}
 	default:

@@ -11,6 +11,15 @@ class ConnectionObject {
 	dynamic msg;
 }
 
+class Person {
+	String name;
+	int age;
+	Person(String name, int age) {
+		_name = name;
+		_age = age;
+	}
+}
+
 class CActor;
 CActor CActor.new(String actor_name);
 CActor CActor.setMethodInfo();
@@ -28,6 +37,9 @@ boolean CActor.existsWorkingDir(String dir_name);
 boolean CActor.changeToWorkingDir(String dir_name);
 void CActor.activateActor(String script_name);
 void CActor.sendToScalaActor(String actor_name, String host, int port, int msg);
+void CActor.readMessage(ConnectionObject c);
+int CActor.fork();
+void CActor.exit();
 
 class Message {
 	ConnectionObject c;
@@ -50,8 +62,9 @@ class Actor {
 		_actor_name = actor_name;
 		_a = new CActor(actor_name);
 		_a.setMethodInfo();
-		_a.startDeliver(delegate(this, deliveryThread));
-		_a.startScheduler();
+		//_a.startDeliver(delegate(this, deliveryThread));
+		//_a.startScheduler();
+		deliveryThread(_a);
 	}
 
 	void deliveryThread(CActor a) {
@@ -66,49 +79,71 @@ class Actor {
 		OUT <<< "===========================================" <<< EOL;
 		ServerSocket ss = new ServerSocket(port, 3);
 		while (true) {
+			print "accept";
 			Socket s = ss.accept();
-			ins = s.getInputStream();
-			ConnectionObject c = ins.readObject(ConnectionObject);
-			//print c.msg;
-			a.addMessageToMailBox(c.mtd_name, c.msg);
-			//a.addMessageToMailBox(c.actor_name, c.mtd_name, c.msg);
-			ins.close();
-			s.close();
+			int pid = CActor.fork();
+			print pid;
+			if (pid == 0) {
+				//child
+				print "child";
+				ins = s.getInputStream();
+				ConnectionObject c = ins.readObject(ConnectionObject);
+				//print c;
+				//print c.mtd_name;
+				//print c.msg;
+				//print a.name;
+				a.readMessage(c);
+				ins.close();
+				a.exit();
+			} else {
+				//parent
+			}
+			s.close();		
 		}
 	}
 	
-	/*
-	void send(String target, String mtd_name, dyn msg) {
-		ConnectObject c = new ConnectObject();
-		c.mtd_name = mtd_name;
-		c.msg = msg;
-		Message m = new Message();
-		m.c = c;
-		m.target = target;
-		msgs.add(m);
+	void invokeMessage(Socket s) {
+		ins = s.getInputStream();
+		ConnectionObject c = ins.readObject(ConnectionObject);
+		print c.msg;
+		//a.addMessageToMailBox(c.mtd_name, c.msg);
+		//a.addMessageToMailBox(c.actor_name, c.mtd_name, c.msg);
+		ins.close();
 	}
 
-	void delayedSend() {
-		for (int i = 0; i < |msgs|; i++) {
-			String target = msgs[i].target;
-			ConnectObject c = msgs[i].c;
-			String actor_path = CActor.getPathByActorName(target);
-			String[] param = actor_path.split(":");
-			String path =  param[0];
-			int port = (int)param[1];
-			OUT <<< "SEND : msg >>> [ name : ";
-			OUT <<< target + ", path : ";
-			OUT <<< path + ", port : " + port + " ]" <<< EOL;
-			Socket s = new Socket("127.0.0.1", port);
-			OutputStream o = s.getOutputStream();
-			o.writeObject(c);
-			o.close();
-			s.close();
-		}
-	}
+	/*
+	  void send(String target, String mtd_name, dyn msg) {
+	  ConnectObject c = new ConnectObject();
+	  c.mtd_name = mtd_name;
+	  c.msg = msg;
+	  Message m = new Message();
+	  m.c = c;
+	  m.target = target;
+	  msgs.add(m);
+	  }
+
+	  void delayedSend() {
+	  for (int i = 0; i < |msgs|; i++) {
+	  String target = msgs[i].target;
+	  ConnectObject c = msgs[i].c;
+	  String actor_path = CActor.getPathByActorName(target);
+	  String[] param = actor_path.split(":");
+	  String path =  param[0];
+	  int port = (int)param[1];
+	  OUT <<< "SEND : msg >>> [ name : ";
+	  OUT <<< target + ", path : ";
+	  OUT <<< path + ", port : " + port + " ]" <<< EOL;
+	  Socket s = new Socket("127.0.0.1", port);
+	  OutputStream o = s.getOutputStream();
+	  o.writeObject(c);
+	  o.close();
+	  s.close();
+	  }
+	  }
 	*/
 	
 	void sendToActor(String target, String mtd_name, dynamic msg) {
+		print msg;
 		String actor_path = CActor.getPathByActorName(target);
 		String[] param = actor_path.split(":");
 		String path =  param[0];
@@ -123,10 +158,13 @@ class Actor {
 		OUT <<< " ]" <<< EOL;
 		Socket s = new Socket("127.0.0.1", port);
 		OutputStream o = s.getOutputStream();
-		ConnectionObject c = new ConnectObject();
+		ConnectionObject c = new ConnectionObject();
 		//c.actor_name = _actor_name;//for "sender" keyword
 		c.mtd_name = mtd_name;
 		c.msg = msg;
+		print msg;
+		print c;
+		print c.msg;
 		o.writeObject(c);
 		o.close();
 		s.close();
@@ -154,8 +192,12 @@ class Actor {
 		//print script;
 		writer.print(script);
 		writer.close();
-		CActor.activateActor(actor_name);
-		//CActor.activateActor(script_name);
+		//CActor.activateActor(actor_name);
+		CActor.activateActor(script_name);
+	}
+	
+	void request() {
+		
 	}
 
 	void sendToScalaActor(String actor_name, String host, int port, int msg) {

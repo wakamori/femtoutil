@@ -1,5 +1,16 @@
 using konoha.actor.*;
 
+int i;
+void start() {
+	i = System.getTime();
+	Actor.sendToActor();
+}
+
+void end() {
+	int j = System.getTime();
+	print j - i;
+}
+
 void receive(Tuple<String,int,int> msg)
 {
 	print "receive!!!";
@@ -10,6 +21,8 @@ void receive(Tuple<String,int,int> msg)
 	if (actor_num == 10) {
 		loop_count--;
 		actor_num = 1;
+	} else if (loop_count == 0) {
+		Actor.sendToActor("actor1", "end", "exit");
 	} else {
 		actor_num++;
 	}
