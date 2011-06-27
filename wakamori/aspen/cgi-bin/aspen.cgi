@@ -103,18 +103,16 @@ class Aspen:
 				shell=True,
 				stdout=subprocess.PIPE,
 				close_fds=True)
-		if os.path.isfile('/etc/debian_version'):
-			return p.communicate()[0][0:-2]
-		else:
-			return p.communicate()[0][0:-1]
+		return p.communicate()[0].rstrip('\n')
 
 	# get current aspen version from git hash
 	def getAspenVersion(self):
 		command = 'git --git-dir=%s log -1 --format="%%h"' % self.gitpath
 		p = subprocess.Popen(command,
 				shell=True,
-				stdout=subprocess.PIPE)
-		return p.communicate()[0]
+				stdout=subprocess.PIPE,
+				close_fds=True)
+		return p.communicate()[0].rstrip('\n')
 
 	# save and evaluate current text
 	def evalScript(self):
@@ -143,10 +141,18 @@ class Aspen:
 		signal.signal(signal.SIGALRM, alarm_handler)
 		signal.alarm(3 * 60) # 3 minutes
 
+		MAX_SIZE = 1024 * 50 # 10KB
+
 		try:
+			size = 0
 			while p.poll() == None:
-				outfile.write(p.stdout.readline())
-				outfile.flush()
+				line = p.stdout.readline()
+				size += len(line)
+				if size < MAX_SIZE:
+					outfile.write(line)
+					outfile.flush()
+				else:
+					raise RuntimeError("too long output")
 			outfile.close()
 			errfile = open(errfilename, 'w')
 			errfile.write(p.stderr.read())
@@ -158,6 +164,12 @@ class Aspen:
 			errfile = open(errfilename, 'a')
 			errfile.write('Konoha was terminated because the program was running \
 					too long time (more than 3 minutes).')
+			errfile.close()
+		except RuntimeError:
+			p.terminate()
+			errfile = open(errfilename, 'a')
+			errfile.write('Konoha was terminated because the output text is \
+					too long (over 50KB).')
 			errfile.close()
 
 		# check if process was killed with signal

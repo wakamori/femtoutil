@@ -1,9 +1,14 @@
 /* aspen style */
 
-#result {
-	padding-top: 20px;
-	padding-bottom: 20px;
+div#result {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	height: 150px;
+	width: 75%;
+	overflow: auto;
 	font-family: 'courier new';
+	border: 1px solid #000000;
+	display: none;
 }
 
 .stdout {
