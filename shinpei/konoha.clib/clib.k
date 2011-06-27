@@ -1,0 +1,21 @@
+/*
+ * Dependable FFI
+ *  CLib: library wrapper generator using libffi
+ *  Process : process wrapper generator.
+ */
+include nativelink;
+
+@Native class Clib;
+@Native Clib Clib.new(String libname, Clib _);
+@Native class Process;
+@Native Process Process.new(String path, Process _);
+
+//@Native class Openapi;
+//@Native Openapi Openapi.new(String url);
+
+@Native class Glue;
+@Native @Throwable var Glue.getFunc(String symbol, Class _, Func _);
+
+@Native Glue Clib.genGlue(Glue _);
+@Native Glue Process.genGlue(Glue _);
+//@Native Glue Openapi.genGlue(Glue _);
