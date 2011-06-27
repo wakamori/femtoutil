@@ -23,7 +23,7 @@ precmd = []
 
 # === erlang-remote ===
 dirname = "erl"
-precmd.push "erlc remotering.erl"
+#precmd.push "erlc remotering.erl"
 #precmd.push "erl -sname foo@localhost &"
 #precmd.push "erl -sname bar@localhost &"
 #precmd.push "erl -sname hoge@localhost &"
@@ -35,6 +35,10 @@ command = "erl -sname bar@localhost -noshell -eval \"remotering:startact1(%s),ha
 #command = "scala -cp class Ring %s %s a"
 
 # === salsa ===
+
+# === konoha ===
+#dirname = "k"
+#command = "konoha ring.k %s %s"
 
 FileUtils.cd(dirname)
 
@@ -50,6 +54,10 @@ Benchmark.bm do |x|
 			x.report("actor=#{ actor_count },loop=#{ count }:") do
 				#system(command % [actor_count, count])
 				system(command % count)
+				#io = IO.popen(command % [actor_count, count])
+				#p io.gets
+				#Process.kill(-9, io.pid)
+				#system("killall konoha")
 			end
 		end
 	end
