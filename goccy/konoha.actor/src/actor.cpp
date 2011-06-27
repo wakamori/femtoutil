@@ -138,19 +138,19 @@ static void knh_MailBox_pushMessage(knh_MailBox_t *box, knh_Message_t *m)
 	box->end++;
 }
 
-static void knh_Actor_invokeMethod(CTX ctx, knh_Actor_t *a)
+static void knh_Actor_invokeMethod(CTX ctx, knh_Actor_t *a, const char *mtd_name, Object *msg)
 {
-	knh_MailBox_t *box = a->mailbox;
-	knh_Message_t *msg = knh_MailBox_popMessage(box);
-	const char *mtd_name = msg->mtd_name;
-	Object *o = msg->msg;
+	//knh_MailBox_t *box = a->mailbox;
+	//knh_Message_t *msg = knh_MailBox_popMessage(box);
+	//const char *mtd_name = msg->mtd_name;
+	//Object *o = msg->msg;
 	knh_MethodInfo_t **info = a->mtd_info;
 	int i = 0;
 	for (i = 0; i < MAX_METHOD_NUM; i++) {
 		if (!strncmp(mtd_name, info[i]->mtd_name, sizeof(mtd_name))) {
 			//fprintf(stderr, "find method!!\n");
 			BEGIN_LOCAL(ctx, lsfp, 5);
-			KNH_SETv(ctx, lsfp[5].o, o);
+			KNH_SETv(ctx, lsfp[5].o, msg);
 			klr_setesp(ctx, lsfp + 6);
 			KNH_SCALL(ctx, lsfp, 0, info[i]->mtd, 2);
 			END_LOCAL_(ctx, lsfp);
@@ -350,8 +350,8 @@ METHOD CActor_startDeliver(CTX ctx, knh_sfp_t *sfp _RIX)
 	th_info->a = a;
 	th_info->sfp = (knh_sfp_t *)KNH_MALLOC(ctx, sizeof(knh_sfp_t) * ctx->stacksize);
 	knh_sfp_copy(th_info->ctx, th_info->sfp, sfp, th_info->ctx->stacksize);
-	pthread_create(&th, NULL, (void*(*)(void *))delivery_thread_func, (void *)th_info);
-	pthread_detach(th);
+	//pthread_create(&th, NULL, (void*(*)(void *))delivery_thread_func, (void *)th_info);
+	//pthread_detach(th);
 	RETURNvoid_();
 }
 
@@ -360,9 +360,35 @@ METHOD CActor_startScheduler(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_Actor_t *a = (knh_Actor_t *)sfp[0].o;
 	while (true) {
 		if (knh_MailBox_existsMessage(a->mailbox)) {
-			knh_Actor_invokeMethod(ctx, a);
+			//knh_Actor_invokeMethod(ctx, a);
 		}
 	}
+}
+
+METHOD CActor_fork(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	RETURNi_(fork());
+}
+
+METHOD CActor_readMessage(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	//asm volatile("int3");
+	//fprintf(stderr, "readMessage\n");
+	knh_Actor_t *a = (knh_Actor_t *)sfp[0].o;
+	knh_Object_t **v = ((knh_ObjectField_t *)sfp[1].o)->fields;
+	knh_String_t *s = (knh_String_t *)v[0];
+	const char *mtd_name = S_tochar(s);
+	//fprintf(stderr, "mtd_name = %s\n", mtd_name);
+	knh_Object_t *msg = v[1];
+	//fprintf(stderr, "msg = %p\n", msg);
+	//fprintf(stderr, "sname = %s\n", S_tochar(msg->h.cTBL->sname));
+	knh_Actor_invokeMethod(ctx, a, mtd_name, msg);
+}
+
+METHOD CActor_exit(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	exit(0);
+	RETURNvoid_();
 }
 
 METHOD CActor_addMessageToMailBox(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -423,6 +449,33 @@ METHOD CActor_changeToWorkingDir(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNb_(ret);
 }
 
+static void addIndent(char* buf, const char* src)
+{
+	size_t j,i = 0, prev_count = 1, bracket_count = 1;
+ 	size_t c = 1, src_count = strlen(src);
+ 	char line[256], prev = 0, t = src[1];
+ 	char* tmp_buf = buf;
+ 	while (c <= src_count) {
+ 		if (t == '{') {
+ 			bracket_count++;
+ 		} else if (t == '}') {
+			bracket_count--;
+ 		}
+ 		if (prev == '\n') {
+ 			memset(buf, '\t', prev_count);
+ 			buf += prev_count;
+ 			strncpy(buf, line, i);
+ 			buf += i;
+ 			memset(line, '\0', i);
+ 			i = 0;
+ 			prev_count = bracket_count;
+ 		}
+ 		line[i++] = t;
+ 		prev = t;
+ 		t = src[++c];
+ 	}
+}
+
 METHOD CActor_activateActor(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	const char *script_name = String_to(const char *, sfp[1]);
@@ -430,10 +483,12 @@ METHOD CActor_activateActor(CTX ctx, knh_sfp_t *sfp _RIX)
 	char buf[128] = {0};
 	if ((pid = fork()) == 0) {
 		snprintf(buf, 128, "konoha %s", script_name);
-		system(buf);
+		//system(buf);
+		//exec();
 	} else {
-		snprintf(buf, 128, "kill -9 %d", pid);
-		system(buf);
+		//snprintf(buf, 128, "kill -9 %d", pid);
+		//system(buf);
+		//exec();
 	}
 }
 
@@ -457,17 +512,18 @@ METHOD CActor_sendToScalaActor(CTX ctx, knh_sfp_t *sfp _RIX)
         fprintf(stderr, "ERROR : [%d] cannot create JavaVM.\n", result);
     }
 
-    //fprintf(stderr, "search Class\n");
+    fprintf(stderr, "search Class\n");
     jclass cls = jnienv->FindClass("ScalaActor");
     if (cls == 0) {
         fprintf(stderr, "cannot find ScalaActor\n");
     }
-    //fprintf(stderr, "get Method from Hoge\n");
-    jmethodID mid = jnienv->GetStaticMethodID(cls, "sendInt", "(Ljava/lang/String;Ljava/lang/String;II)V");
+    fprintf(stderr, "get Method from Hoge\n");
+    //jmethodID mid = jnienv->GetStaticMethodID(cls, "sendInt", "(Ljava/lang/String;Ljava/lang/String;II)V");
+	jmethodID mid = jnienv->GetStaticMethodID(cls, "sendInt", "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V");
     if (mid == 0) {
         fprintf(stderr, "cannot find sendInt()\n");
     }
-    //printf("call Method.\n");
+    printf("call Method.\n");
 	const char *actor_name = String_to(const char *, sfp[1]);
 	const char *host_name = String_to(const char *, sfp[2]);
 	int port = Int_to(int, sfp[3]);
@@ -475,6 +531,7 @@ METHOD CActor_sendToScalaActor(CTX ctx, knh_sfp_t *sfp _RIX)
 	
 	jstring target = jnienv->NewStringUTF(actor_name);
 	jstring host = jnienv->NewStringUTF(host_name);
+	//jobject obj = jnienv->NewObject(jnienv, targetClass, mid);
     jnienv->CallStaticVoidMethod(cls, mid, target, host, port, msg);
 	//jobject objResult = jnienv->CallStaticObjectMethod(cls, mid);
     jthrowable throwResult = jnienv->ExceptionOccurred();
