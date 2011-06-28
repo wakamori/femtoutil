@@ -6,6 +6,7 @@
    chen_ji, shinpei_NKT, utrhira (C)2011
 
  version:
+  0.0.6 : implemented bugreporter (chen_ji)
   0.0.5 : added git-like history (shinpei_NKT)
   0.0.4 : divided index.cgi and aspen.cgi. (chen_ji)
   0.0.3 : added jQuery and index.html. (chen_ji)
@@ -14,6 +15,7 @@
 '''
 
 import aspendb
+import bugreporter
 import cgi
 import cgitb; cgitb.enable()
 import datetime
@@ -97,26 +99,34 @@ class Aspen:
 			return r == -sig
 
 	# get current konoha revision
-	def getKonohaRevision(self):
+	def setKonohaRevision(self):
 		command = 'svnversion %s' % self.konohapath
 		p = subprocess.Popen(command,
 				shell=True,
 				stdout=subprocess.PIPE,
 				close_fds=True)
-		return p.communicate()[0].rstrip('\n')
+		self.konoha_rev = p.communicate()[0].rstrip('\n')
 
 	# get current aspen version from git hash
-	def getAspenVersion(self):
+	def setAspenVersion(self):
 		command = 'git --git-dir=%s log -1 --format="%%h"' % self.gitpath
 		p = subprocess.Popen(command,
 				shell=True,
 				stdout=subprocess.PIPE,
 				close_fds=True)
-		return p.communicate()[0].rstrip('\n')
+		self.aspen_ver = p.communicate()[0].rstrip('\n')
+
+	def reportBugs(self, body, result):
+		br = bugreporter.BugReporter()
+		br.setEnvironments(self.konoha_rev, self.aspen_ver,
+				self.cookie['UID'].value, self.time)
+		br.reportBugs(body, result)
 
 	# save and evaluate current text
 	def evalScript(self):
 		self.save()
+		self.setKonohaRevision()
+		self.setAspenVersion()
 		foldername = 'scripts/' + self.cookie['UID'].value
 		# copy script file for execution
 		filename = foldername + '/' + 'us_' + self.cookie['SID'].value + '.k'
@@ -163,13 +173,13 @@ class Aspen:
 			p.terminate()
 			errfile = open(errfilename, 'a')
 			errfile.write('Konoha was terminated because the program was running \
-					too long time (more than 3 minutes).')
+too long time (more than 3 minutes).')
 			errfile.close()
 		except RuntimeError:
 			p.terminate()
 			errfile = open(errfilename, 'a')
 			errfile.write('Konoha was terminated because the output text is \
-					too long (over 50KB).')
+too long (over 50KB).')
 			errfile.close()
 
 		# check if process was killed with signal
@@ -190,10 +200,14 @@ class Aspen:
 			#msg = 'Konoha exited normally. <br />'
 			pass
 		elif self.isSignal(r, signal.SIGSEGV):
+			self.reportBugs(open(exefilename, 'r').read(),
+					'[stdout]\n' + open(outfilename, 'r').read() +
+					'\n[stderr]\n' + open(errfilename, 'r').read())
 			errfile = open(errfilename, 'a')
 			errfile.write('Konoha exited unexpectedly. This script will be reported as \
-			a bug. Sorry.')
+a bug. Sorry.')
 			errfile.close()
+
 			# copy script to 'bugs' dir
 			bugdir = 'bugs'
 
@@ -215,8 +229,8 @@ class Aspen:
 
 		msg += 'time: %s\n' % str(exetime)[0:5]
 		msg += '%s\n' % load
-		msg += 'Konoha revision: %s\n' % self.getKonohaRevision()
-		msg += 'Aspen version hash: %s' % self.getAspenVersion()
+		msg += 'Konoha revision: %s\n' % self.konoha_rev
+		msg += 'Aspen version hash: %s' % self.aspen_ver
 
 		# return values as a json object
 		print 'Content-Type: application/json;charset=UTF-8\n'
