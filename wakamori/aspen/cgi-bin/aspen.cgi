@@ -160,12 +160,14 @@ class Aspen:
 			size = 0
 			while p.poll() == None:
 				line = p.stdout.readline()
-				size += len(line)
-				if size < MAX_SIZE:
-					outfile.write(line)
-					outfile.flush()
-				else:
-					raise RuntimeError("too long output")
+				while line:
+					size += len(line)
+					if size < MAX_SIZE:
+						outfile.write(line)
+						outfile.flush()
+					else:
+						raise RuntimeError("too long output")
+					line = p.stdout.readline()
 			outfile.close()
 			errfile = open(errfilename, 'w')
 			errfile.write(p.stderr.read())
