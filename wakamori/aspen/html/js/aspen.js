@@ -258,6 +258,17 @@ configuration : this is temporary.
 	};
 	*/
 
+	Aspen.escapeText = function(text) {
+		text = text.replace(/&/g, "&amp;");
+		text = text.replace(/</g, "&lt;");
+		text = text.replace(/>/g, "&gt;");
+		text = text.replace(/"/g, "&quot;");
+		text = text.replace(/ /g, "&nbsp;");
+		text = text.replace(/\r\n/g, "<br>");
+		text = text.replace(/(\n|\r)/g, "<br>");
+		return text;
+	};
+
 	Aspen.postScript = function(text) {
 		$("#result").empty();
 		$("<span/>").attr("class", "message").append("Evaluating...").appendTo("#result");
@@ -274,7 +285,7 @@ configuration : this is temporary.
 				if (data.length > 0) {
 					$("#result").empty();
 					var inputtxt = $("<span/>").attr("class", "stdout");
-					inputtxt = inputtxt.html(data.replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />"));
+					inputtxt = inputtxt.html(Aspen.escapeText(data));
 					$("#result").append(inputtxt);
 				}
 			}
@@ -295,9 +306,9 @@ configuration : this is temporary.
 					var val = json[i].value;
 					if (val.length > 0) {
 						var inputtxt = $("<span/>").attr("class", key);
-						inputtxt = inputtxt.html(val.replace(/\r\n/g, "<br />").replace(/(\n|\r)/g, "<br />"));
+						inputtxt = inputtxt.html(Aspen.escapeText(val));
 						$("#result").append(inputtxt);
-						$("#result").append("<br />");
+						$("#result").append("<br>");
 					}
 				}
 			}
