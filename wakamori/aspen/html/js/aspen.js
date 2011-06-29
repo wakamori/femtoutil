@@ -105,7 +105,7 @@ configuration : this is temporary.
 */
 		$("#new")[0].onclick = function() {
 			myCodeMirror.setValue("");
-			Aspen.saveCookie();
+			//Aspen.saveCookie();
 		};
 		
 		$("#forward")[0].onclick = function() {
@@ -136,7 +136,7 @@ configuration : this is temporary.
 					$.get(url, function(data) {
 						myCodeMirror.setValue(data);
 						/* temporary */
-						Aspen.saveCookie();
+						//Aspen.saveCookie();
 					});
 					Aspen.allowRequest();
 				}
@@ -172,7 +172,7 @@ configuration : this is temporary.
 					$.get(url, function(data) {
 						myCodeMirror.setValue(data);
 						/* temporary */
-						Aspen.saveCookie();
+						//Aspen.saveCookie();
 					});
 					Aspen.allowRequest();
 				}
@@ -181,7 +181,7 @@ configuration : this is temporary.
 
 		$("#logout")[0].onclick = function() {
 			Aspen.setLogout(true);
-			Aspen.deleteCookie();
+			//Aspen.deleteCookie();
 		};
 	};
 
@@ -192,8 +192,9 @@ configuration : this is temporary.
 			mode: "text/konoha",
 			onKeyEvent: keyevent
 		});
-		Aspen.loadCookie();
-		Aspen.saveCookie();
+		//Aspen.loadCookie();
+		Aspen.loadScriptFromDB();
+		//Aspen.saveCookie();
 		Aspen.allowRequest();
 		Aspen.defineActions();
 		Aspen.setLogout(false);
@@ -215,12 +216,29 @@ configuration : this is temporary.
 		return myCodeMirror.getValue();
 	};
 
+	/*
 	Aspen.loadCookie = function() {
 		if ($.cookie("CODE")) {
 			myCodeMirror.setValue($.cookie("CODE"));
 		}
 	};
+	*/
 
+	Aspen.loadScriptFromDB = function() {
+		$.ajax({
+			type: "GET",
+			url: cgiDir + "/aspen.cgi?method=load",
+			data: {
+				"uid": $.cookie("UID"),
+				"sid": $.cookie("SID")
+			},
+			success: function(data) {
+				myCodeMirror.setValue(data);
+			}
+		});
+	};
+
+	/*
 	Aspen.saveCookie = function() {
 		var date = new Date();
 		date.setTime(date.getTime() + ((30 - date.getTimezoneOffset()) * 60 * 1000)); // 30 minutes
@@ -229,19 +247,22 @@ configuration : this is temporary.
 			path: "/"
 		});
 	};
+	*/
 
+	/*
 	Aspen.deleteCookie = function() {
 		$.cookie("CODE", "", {
 			expires: -1,
 			path: "/"
 		});
 	};
+	*/
 
 	Aspen.postScript = function(text) {
 		$("#result").empty();
 		$("<span/>").attr("class", "message").append("Evaluating...").appendTo("#result");
 		Aspen.denyRequest();
-		Aspen.saveCookie();
+		//Aspen.saveCookie();
 		$.PeriodicalUpdater(
 			cgiDir + "/scripts/" + $.cookie("UID") + "/us_" + $.cookie("SID") + ".out",
 			{
