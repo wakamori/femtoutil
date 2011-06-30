@@ -9,7 +9,7 @@ set(CMAKE_BUILD_TYPE Release)
 #set(CMAKE_BUILD_TYPE Debug)
 
 project(clib)
-set(PACKAGE_SOURCE_CODE clib.c)
+set(PACKAGE_SOURCE_CODE clib.c ws.c proc.c dglue.c)
 set(PACKAGE_SCRIPT_CODE clib.k)
 set(PACKAGE_EXTRA_LIBRARY ffi)
 
