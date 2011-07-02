@@ -8,6 +8,10 @@ include nativelink;
 
 @Native class Clib;
 @Native Clib Clib.new(String libname, Clib _);
+@Native class Structure;
+//@Native Structure Structure.new(Array<Tuple<String, Int>> values, Structure _);
+@Native Structure Structure.new(Array<Array<dynamic>> values, Structure _);
+
 @Native class Process;
 @Native Process Process.new(String path, Process _);
 
@@ -22,4 +26,5 @@ include nativelink;
 @Native Glue Webservice.genGlue(Glue _);
 
 @Native void Clib.makeClass(String classname, NameSpace _);
+@Native void Clib.defineClass(String classname, Structure strc, NameSpace _);
 
