@@ -88,7 +88,7 @@ var Aspen = new Class({
 			//console.log(responseText);
 			if (responseText == "latest") {
 				document.id("result").set("html", "");
-				var msg = new Element("span" {
+				var msg = new Element("span", {
 					"class": "message",
 					html: "there is no forwarding scripts."
 				});
