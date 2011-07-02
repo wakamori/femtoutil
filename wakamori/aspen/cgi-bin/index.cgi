@@ -5,9 +5,8 @@ import Cookie
 import os
 import cgitb; cgitb.enable()
 
-html_login = '''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+html_login = '''<!DOCTYPE html>
+<html lang="ja">
 	<head>
 		<title>アルゴリズムとデータ構造  - try with konoha </title>
 		<link rel="stylesheet" href="../aspen/css/aspen.css" />
@@ -17,7 +16,7 @@ html_login = '''<?xml version="1.0" encoding="UTF-8"?>
 	</head>
 	<body>
 		<form id="loginform" name="loginform" action="./aspen.cgi?method=login" method="post">
-			<table summary="Login dialog.">
+			<table>
 				<tr><th colspan="2">アルゴリズムとデータ構造</th></tr>
 				<tr><td colspan="2">学籍番号とパスワードでログインしてください</td></tr>
 				<tr><th>学籍番号</th><td><input type="text" class="sprited" id="username" name="username" value="your name" /></td></tr>
@@ -31,20 +30,26 @@ html_login = '''<?xml version="1.0" encoding="UTF-8"?>
 	</body>
 </html>'''
 
-html_main = '''<!doctype html>
+html_main = '''<!DOCTYPE html>
 <html>
 	<head>
 		<title>アルゴリズムとデータ構造  - try with konoha</title>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-		<script type="text/javascript" src="../aspen/js/jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="../aspen/js/jquery.cookie.js"></script>
-		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
+		<!--<script type="text/javascript"
+		src="../aspen/js/jquery-1.6.1.min.js"></script>-->
+		<!--<script type="text/javascript"
+		src="../aspen/js/jquery.cookie.js"></script>-->
+		<!--<script type="text/javascript"
+		src="../aspen/js/jquery.lightbox_me.js"></script>-->
 		<script type="text/javascript" src="../aspen/js/codemirror.js"></script>
 		<script type="text/javascript" src="../aspen/js/autocompletion.js"></script>
-		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
-		<script type="text/javascript" src="../aspen/js/jquery.periodicalupdater.js"></script>
-		<script type="text/javascript" src="../aspen/js/aspen.js"></script>
+		<!--<script type="text/javascript"
+		src="../aspen/js/jquery.lightbox_me.js"></script>-->
+		<!--<script type="text/javascript"
+		src="../aspen/js/jquery.periodicalupdater.js"></script>-->
 		<script type="text/javascript" src="../aspen/js/mootools-core-1.3.2-full-compat.js"></script>
+		<script type="text/javascript" src="../aspen/js/mootools-more-1.3.2.1.js"></script>
+		<script type="text/javascript" src="../aspen/js/aspen.js"></script>
 		<script type="text/javascript" src="../aspen/mode/konoha/konoha.js"></script>
 		<link rel="stylesheet" href="../aspen/css/aspen.css" />
 		<link rel="stylesheet" href="../aspen/css/codemirror.css" />
@@ -65,10 +70,13 @@ html_main = '''<!doctype html>
 						<input type="hidden" name="method" value="logout" />
 						<input class="normalbutton" type="submit" id="logout" value="Log out" />
 					</form>
+					<!--
 					<form id="newform" class="inlineform" name="newform" action="./aspen.cgi" method="get">
 						<input type="hidden" name="method" value="new" />
 						<input class="normalbutton" type="submit" id="new" value="New" />
 					</form>
+					-->
+					<input type="button" class="fixedbutton" id="new" name="new" value="New" />
 					<input type="button" class="fixedbutton" id="eval" name="eval" value="Run" />
 <!--				<input type="button" class="fixedbutton" id="save" alt="save the current buffer at remote server" value="Save" />
 					<input type="button" class="fixedbutton" id="load" alt="load a script from your server" value="Load" />
@@ -104,7 +112,9 @@ html_main = '''<!doctype html>
 						<input class="headbutton" type="submit" id="rewind" value=" < " />
 						<input class="headbutton" type="submit" id="forward" value=" > " />
 </div>
-		<textarea id="code" name="code" rows="30" cols="80">print "hello, Konoha";</textarea>
+		<textarea id="code" name="code" rows="30" cols="80"></textarea>
+		<div id="status">
+		</div>
 		<div class="info">
 			このエディタに関するご質問、ご意見は<img src="../aspen/gmail.png" id="mail" alt="wakamori111 at gmail.com"/>までお願いします。
 		</div>
@@ -112,13 +122,12 @@ html_main = '''<!doctype html>
 </html>'''
 
 def main():
-	print 'Content-Type: text/html; charset=UTF-8\n'
+	print 'Content-Type: text/html;charset=UTF-8\n'
 	cookie = Cookie.SimpleCookie()
 	if os.environ.has_key('HTTP_COOKIE'):
 		cookie.load(os.environ['HTTP_COOKIE'])
 		if cookie.has_key('UID') and cookie.has_key('LOGIN_DATE'):
 			print html_main % (cookie['UID'].value, cookie['LOGIN_DATE'].value)
-			return
 		else:
 			print html_login
 	else:

@@ -41,31 +41,40 @@ class Aspen:
 
 	def __init__(self):
 		self.cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
-		if self.cookie.has_key('UID'):
-			self.uid = self.cookie['UID'].value
-		if self.cookie.has_key('SID'):
-			self.sid = self.cookie['SID'].value
-		if self.cookie.has_key('LOGIN_DATE'):
-			self.login_date = self.cookie['LOGIN_DATE'].value
 		self.field = cgi.FieldStorage()
 		self.time = datetime.datetime.now()
 		self.method = os.environ['REQUEST_METHOD']
 
-	def printError(self, errmsg):
+	def printErrorHTML(self, errmsg):
 		print 'Content-Type: text/html\n'
-		print errmsy
+		print '''<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<title>アルゴリズムとデータ構造  - try with konoha </title>
+	</head>
+		<h1>%s</h1>
+	<body>
+	</body>
+</html>''' % errmsg
 
-	def saveCookie(self, uid, sid):
-		exptime = self.time + datetime.timedelta(minutes=30)
-		exptxt = exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
-		self.cookie['UID'] = str(uid)
-		self.cookie['UID']['expires'] = exptxt
-		self.cookie['UID']['path'] = '/'
-		self.cookie['SID'] = str(sid)
-		self.cookie['SID']['expires'] = exptxt
-		self.cookie['SID']['path'] = '/'
+	def printText(self, text):
+		print 'Content-Type: text/plain\n'
+		sys.stdout.write(text)
+
+	def saveCookie(self, uid=None, sid=None, exp=None):
+		if exp == None:
+			exptime = self.time + datetime.timedelta(minutes=30)
+			exp = exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
+		if uid != None:
+			self.cookie['UID'] = str(uid)
+			self.cookie['UID']['expires'] = exp
+			self.cookie['UID']['path'] = '/'
+		if sid != None:
+			self.cookie['SID'] = str(sid)
+			self.cookie['SID']['expires'] = exp
+			self.cookie['SID']['path'] = '/'
 		self.cookie['LOGIN_DATE'] = self.time.strftime('%x,%X')
-		self.cookie['LOGIN_DATE']['expires'] = exptxt
+		self.cookie['LOGIN_DATE']['expires'] = exp
 		self.cookie['LOGIN_DATE']['path'] = '/'
 		print self.cookie
 
@@ -75,22 +84,26 @@ class Aspen:
 		self.astorage = aspendb.AspenStorage()
 		if (self.astorage.authenticate(self.asession)):
 			# Authentication successed.
-			self.saveCookie(username, self.asession.getSID())
+			self.saveCookie(uid=username, sid=self.asession.getSID())
 			print 'Location: ./index.cgi\n'
-			return
-		printError('Failed to login.')
+		else:
+			self.printErrorHTML('Failed to login.')
 
 	def authWithSID(self):
 		self.astorage = aspendb.AspenStorage()
-		self.asession = self.astorage.authenticateWithSID(self.uid, self.sid)
+		self.asession = self.astorage.authenticateWithSID(
+				self.cookie['UID'].value,
+				self.cookie['SID'].value)
 		if self.asession == None:
-			printError('Failed to authenticate.')
+			self.printErrorHTML('Failed to authenticate.')
 
 	def authWithSIDAndRenewSession(self):
 		self.astorage = aspendb.AspenStorage()
-		self.asession = self.astorage.authenticateWithSIDAndRenewSession(self.uid, self.sid)
+		self.asession = self.astorage.authenticateWithSIDAndRenewSession(
+				self.cookie['UID'].value,
+				self.cookie['SID'].value)
 		if self.asession == None:
-			printError('Failed to authenticate and renew.')
+			self.printErrorHTML('Failed to authenticate and renew.')
 
 	def isSignal(self, r, sig):
 		if os.path.isfile('/etc/debian_version'):
@@ -121,41 +134,38 @@ class Aspen:
 	# report a script that causes segv as a bug
 	def reportBugs(self, body, result):
 		br = bugreporter.BugReporter()
-		br.setEnvironments(self.konoha_rev, self.aspen_ver,
-				self.uid, self.time)
+		br.setEnvironments(
+				self.konoha_rev,
+				self.aspen_ver,
+				self.cookie['UID'].value,
+				self.time)
 		br.reportBugs(body, result)
 
-	# save and evaluate current text
+	# store and evaluate current text
 	def evalScript(self):
-		self.save()
+		self.storeScript()
 		self.setKonohaRevision()
 		self.setAspenVersion()
-		foldername = 'scripts/' + self.uid
+		foldername = 'scripts/' + self.cookie['UID'].value
 		# copy script file for execution
-		filename = foldername + '/' + 'us_' + self.sid + '.k'
+		filename = foldername + '/' + 'us_' + self.cookie['SID'].value + '.k'
 		exefilename = foldername + '/aspen.k'
 		shutil.copyfile(filename, exefilename)
-
 		# exec konoha as subprocess
 		starttime = time.time()
 		command = '/usr/local/bin/konoha ' + exefilename
 		p = subprocess.Popen(command, shell=True,
 				stdin=subprocess.PIPE, stdout=subprocess.PIPE,
 				stderr=subprocess.PIPE, close_fds=True)
-
 		outfilename = filename[0:-1] + 'out'
 		errfilename = filename[0:-1] + 'err'
-
 		# output result
 		outfile = open(outfilename, 'w')
 		errfile = open(errfilename, 'w')
-
 		# set timeout
 		signal.signal(signal.SIGALRM, alarm_handler)
 		signal.alarm(3 * 60) # 3 minutes
-
 		MAX_SIZE = 1024 * 50 # 50 KB
-
 		try:
 			size = 0
 			while p.poll() == None:
@@ -166,7 +176,7 @@ class Aspen:
 						outfile.write(line)
 						outfile.flush()
 					else:
-						raise RuntimeError("too long output")
+						raise RuntimeError('too long output')
 					line = p.stdout.readline()
 			outfile.close()
 			errfile = open(errfilename, 'w')
@@ -186,21 +196,16 @@ too long time (more than 3 minutes).')
 			errfile.write('Konoha was terminated because the output text is \
 too long (over 50 KB).')
 			errfile.close()
-
 		# check if process was killed with signal
 		r = p.wait()
 		exetime = float(time.time() - starttime)
-
 		command = 'w'
 		p = subprocess.Popen(command, shell=True,
 				stdin=subprocess.PIPE, stdout=subprocess.PIPE,
 				stderr=subprocess.PIPE, close_fds=True)
-
 		loadline = p.stdout.readlines()[0]
 		load = loadline[loadline.index('load'):-1]
-
 		msg = ''
-
 		if r == 0:
 			#msg = 'Konoha exited normally. <br />'
 			pass
@@ -215,11 +220,9 @@ a bug. Sorry.')
 
 			# copy script to 'bugs' dir
 			bugdir = 'bugs'
-
-			bugfoldername = bugdir + '/' + self.uid
+			bugfoldername = bugdir + '/' + self.cookie['UID'].value
 			if not os.path.exists(bugfoldername):
 				os.makedirs(bugfoldername)
-
 			shutil.copy(filename, bugfoldername)
 		elif self.isSignal(r, signal.SIGTERM):
 			pass
@@ -231,12 +234,10 @@ a bug. Sorry.')
 			errfile = open(errfilename, 'a')
 			errfile.write('Konoha exited unexpectedly with signal: %d. Sorry.' % r)
 			errfile.close()
-
 		msg += 'time: %s\n' % str(exetime)[0:5]
 		msg += '%s\n' % load
 		msg += 'Konoha revision: %s\n' % self.konoha_rev
 		msg += 'Aspen version hash: %s' % self.aspen_ver
-
 		# return values as a json object
 		print 'Content-Type: application/json;charset=UTF-8\n'
 		print json.dumps({'item': [
@@ -248,99 +249,63 @@ a bug. Sorry.')
 	def logout(self):
 		exptime = self.time + datetime.timedelta(days=-1)
 		exptxt = exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
-		self.cookie['UID']['expires'] = exptxt
-		self.cookie['UID']['path'] = '/'
-		self.cookie['SID']['expires'] = exptxt
-		self.cookie['SID']['path'] = '/'
-		self.cookie['LOGIN_DATE']['expires'] = exptxt
-		self.cookie['LOGIN_DATE']['path'] = '/'
-		print self.cookie
+		self.saveCookie(uid='', sid='', exp=exptxt)
 		print 'Location: ./index.cgi\n'
 
 	def replyToRewind(self):
 		self.astorage = aspendb.AspenStorage()
-		fromsid = self.astorage.rewindSID(self.sid)
+		fromsid = self.astorage.rewindSID(self.cookie['SID'].value)
 		if fromsid is not '':
-			#self.cookie['SID'].value = fromsid
-			# create script dir
-			scrdir = 'scripts'
-			foldername = scrdir + '/' + self.uid
-			if not os.path.exists(foldername):
-				os.makedirs(foldername)
-			# settle script filename
-			filename = foldername + '/' + 'us_' + fromsid
-			# create script file
-			filename = filename + '.k'
-			#print self.cookie
-			print 'Content-Type: application/json;charset=UTF-8\n'
-			print json.dumps({'sid': fromsid})
-			return
-		print 'Location: ./index.cgi\n'
+			self.saveCookie(sid=fromsid)
+			self.printScript()
+		else:
+			self.printText('oldest')
 
 	def replyToForward(self):
 		self.astorage = aspendb.AspenStorage()
-		tosid = self.astorage.forwardSID(self.sid)
+		tosid = self.astorage.forwardSID(self.cookie['SID'].value)
 		if tosid is not '':
-			#self.cookie['SID'].value = tosid
-			# create script dir
-			scrdir = 'scripts'
-			foldername = scrdir + '/' + self.uid
-			if not os.path.exists(foldername):
-				os.makedirs(foldername)
-			# settle script filename
-			filename = foldername + '/' + 'us_' + tosid
-			# create script file
-			filename = filename + '.k'
-			#print self.cookie
-			print 'Content-Type: application/json;charset=UTF-8\n'
-			print json.dumps({'sid': tosid})
+			self.saveCookie(sid=tosid)
+			self.printScript()
 		else:
-			# there is no tosid. put error.
-			print 'Content-Type: application/json;charset=UTF-8\n'
-			print json.dumps({'sid': 'none'})
-			#print self.cookie
-
+			self.printText('latest')
 
 	def new(self):
-		self.saveCookie(self.asession.getUID(), self.asession.getSID())
-		print 'Location: ./index.cgi\n'
+		self.saveCookie(uid=self.asession.getUID(), sid=self.asession.getSID())
+		self.printText('new')
 
 	def name(self):
 		fname = self.field.getvalue('filename')
 		if not self.asession == None:
 			nameSID(self.asession, fname)
-			print 'Location: ./index.cgi\n'
-			return
-		printError('Failed to name a file.')
+		self.printErrorHTML('Failed to name a file.')
 
-	# save current text as a file (named 'us_SID.k')
-	def save(self):
+	# store current text as a file (named 'us_SID.k')
+	def storeScript(self):
 		kscript = self.field.getvalue('kscript')
-
 		# create script dir
 		scrdir = 'scripts'
-
-		foldername = scrdir + '/' + self.uid
+		foldername = scrdir + '/' + self.cookie['UID'].value
 		if not os.path.exists(foldername):
 			os.makedirs(foldername)
-
 		# settle script filename
-		filename = foldername + '/' + 'us_' + self.sid
-
+		filename = foldername + '/us_' + self.cookie['SID'].value
 		# create script file
 		filename = filename + '.k'
 		userscript = open(filename, 'w')
 		userscript.write(kscript)
 		userscript.close()
 
-	def load(self):
-		foldername = 'scripts/' + self.uid
-		filename = foldername + '/' + 'us_' + self.sid + '.k'
+	def printScript(self, uid=None, sid=None):
+		if uid == None:
+			uid = self.cookie['UID'].value
+		if sid == None:
+			sid = self.cookie['SID'].value
+		foldername = 'scripts/' + uid
+		filename = foldername + '/us_' + sid + '.k'
 		print 'Content-Type: text/plain\n'
 		if os.path.isfile(filename):
-			print open(filename, 'r').read()
-		else:
-			print 'print "hello, Konoha";'
+			sys.stdout.write(open(filename, 'r').read())
 
 	def run(self):
 		mtype = self.field.getvalue('method')
@@ -351,33 +316,32 @@ a bug. Sorry.')
 			elif mtype == 'name':
 				self.authWithSID()
 				self.name()
+			elif mtype == 'login':
+				self.login()
+			elif mtype == 'save':
+				self.authWithSID()
+				self.store()
+			else:
+				self.printErrorHTML('No such method in POST.')
+		elif self.method == 'GET':
+			if mtype == 'new':
+				self.authWithSIDAndRenewSession()
+				self.new()
 			elif mtype == 'rewind':
 				self.authWithSID()
 				self.replyToRewind()
 			elif mtype == 'forward':
 				self.authWithSID()
 				self.replyToForward()
-			elif mtype == 'login':
-				self.login()
-			elif mtype == 'save':
-				self.authWithSID()
-				self.save()
-				print 'Location: ./index.cgi\n'
-			else:
-				printError('No such method in POST.')
-		elif self.method == 'GET':
-			if mtype == 'new':
-				self.authWithSIDAndRenewSession()
-				self.new()
 			elif mtype == 'logout':
 				self.logout()
 			elif mtype == 'load':
 				self.authWithSID()
-				self.load()
+				self.printScript()
 			else:
-				printError('No such method in GET.')
+				self.printErrorHTML('No such method in GET.')
 		else:
-			printError('No such method.')
+			self.printErrorHTML('No such method.')
 
 def main():
 	a = Aspen()

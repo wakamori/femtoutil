@@ -8,7 +8,7 @@ div#result {
 	overflow: auto;
 	font-family: 'courier new';
 	border: 1px solid #000000;
-	display: none;
+	/*display: none;*/
 }
 
 .stdout {
