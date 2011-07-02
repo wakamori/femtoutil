@@ -28,6 +28,35 @@ extern "C" {
 // #include <glue.h>
 
 /* ------------------------------------------------------------------------ */
+/* [Structure] */
+
+typedef struct knh_Structure_t {
+  size_t param_size;
+  ffi_type **params;
+  void *test;
+} knh_Structure_t ;
+
+static void Structure_init(CTX ctx, knh_RawPtr_t *po)
+{
+  po->rawptr = NULL;
+}
+
+static void Structure_free(CTX ctx, knh_RawPtr_t *po)
+{
+	if (po->rawptr != NULL) {
+	  po->rawptr = NULL;
+	}
+}
+
+DEFAPI(void) defStructure(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	cdef->name = "Structure";
+	cdef->init = Structure_init;
+	cdef->free = Structure_free;
+}
+
+
+/* ------------------------------------------------------------------------ */
 /* [Clib] */
 
 #define CLIB_ARGMAX 3
@@ -38,9 +67,6 @@ typedef struct knh_CLib_t {
 
 static void Clib_init(CTX ctx, knh_RawPtr_t *po)
 {
-  //  po->rawptr = (void*)KNH_MALLOC(ctx, sizeof(knh_CLib_t));
-  //  knh_CLib_t *clib  = (knh_CLib_t*)po->rawptr;
-  //  clib->handler = NULL;
   po->rawptr = NULL;
 }
 
@@ -101,7 +127,138 @@ static void ClibGlue_free(CTX ctx, void *ptr)
 	ptr = NULL;
   }
 }
+/* ------------------------------------------------------------------------ */
 
+static ffi_type *ffi_type_map[] = {
+  &ffi_type_pointer,
+  &ffi_type_void,
+  &ffi_type_uint8,
+  &ffi_type_sint8,
+  &ffi_type_uint16,
+  &ffi_type_sint16,
+  &ffi_type_uint32,
+  &ffi_type_sint32,
+  &ffi_type_uint64,
+  &ffi_type_sint64,
+  &ffi_type_float,
+  &ffi_type_double,
+  &ffi_type_uchar,
+  &ffi_type_schar,
+  &ffi_type_ushort,
+  &ffi_type_sshort,
+  &ffi_type_uint,
+  &ffi_type_sint,
+  &ffi_type_ulong,
+  &ffi_type_slong,
+  &ffi_type_longdouble,
+  &ffi_type_sint64, // KNHINT
+  &ffi_type_double
+};
+
+static knh_IntData_t StructureConstInt[] = {
+  {"FFI_POINTER", 1},
+  {"FFI_VOID", 2},
+  {"FFI_UINT8", 3},
+  {"FFI_SINT8", 4},
+  {"FFI_UINT16", 5},
+  {"FFI_SINT16", 6},
+  {"FFI_UINT32", 7},
+  {"FFI_SINT32", 8},
+  {"FFI_UINT64", 9},
+  {"FFI_SINT64", 11},
+  {"FFI_FLOAT", 12},
+  {"FFI_DOUBLE", 13},
+  {"FFI_UCHAR", 14},
+  {"FFI_SCHAR", 15},
+  {"FFI_USHORT", 16},
+  {"FFI_SSHORT", 17},
+  {"FFI_UINT", 18},
+  {"FFI_SINT", 19},
+  {"FFI_ULONG", 20},
+  {"FFI_SLONG", 21},
+  {"FFI_LONGDOUBLE", 22},
+
+  {"FFI_KNHINT",23 },
+  {"FFI_KNhFLOAT", 24},
+
+  {NULL, 0}
+};
+
+DEFAPI(void) constStructure(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *kapi)
+{
+  kapi->loadIntClassConst(ctx, cid, StructureConstInt);
+}
+
+/* ------------------------------------------------------------------------ */
+
+//@Native Structure Structure.new(Array<Array<dynamic> values, Structure _)
+METHOD Structure_new(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  knh_Array_t *a = sfp[1].a;
+  knh_Structure_t *strc = (knh_Structure_t*)KNH_MALLOC(ctx, sizeof(knh_Structure_t));
+  int i = 0, j = 0;
+  size_t a_size = knh_Array_size(a);
+  strc->param_size = a_size;
+  strc->params = (ffi_type**)KNH_MALLOC(ctx, sizeof(ffi_type*) * strc->param_size);
+
+  for (i = 0; i < a_size; i++) {
+	// param size;
+	knh_Array_t *aa = (knh_Array_t *)knh_Array_n(a, i);
+	size_t aa_size = knh_Array_size(aa);
+	{
+	  // suppose its [<String>, <Int>]
+	  knh_String_t *v1 = (knh_String_t *)knh_Array_n(aa, 0);
+	  knh_Int_t *v2 = (knh_Int_t *)knh_Array_n(aa, 1);
+	  //	  fprintf(stderr, "HERE>>%s:%d\n", S_tochar(v1), v2->n.ivalue);
+	  strc->params[j] = ffi_type_map[v2->n.ivalue];
+	}
+  }
+  knh_RawPtr_t *po = new_RawPtr(ctx, sfp[2].p, strc);
+  RETURN_(po);
+}
+
+/*
+//@Native Structure Structure.new(Array<Tuple<String, Int>> values, Structure _);
+METHOD Structure_new(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  knh_Array_t *a = sfp[1].a;
+  knh_Structure_t *strc = (knh_Structure_t*)KNH_MALLOC(ctx, sizeof(knh_Structure_t));
+  strc->test = NULL;
+
+  int i = 0;
+  int j = 0;
+  for (i = 0; i < knh_Array_size(a); i++) {
+	knh_Map_t *map = (knh_Map_t *)knh_Array_n(a, i);
+	fprintf(stderr, "%s\n", CLASS__(O_cid(map)));
+	knh_ParamArray_t *pa = ClassTBL(O_cid(map))->cparam;
+	size_t psize = pa->psize;
+	for (j = 0; j < psize; j++) {
+	  knh_param_t *p = knh_ParamArray_get(pa, j);
+	  fprintf(stderr, "%s\n", TYPE__(p->type));
+	}
+	asm("int3");
+	knh_String_t *v1 = map->dspi->get(ctx, map->map, sfp, sfp);
+	//	knh_String_t *v1 = knh_Map_get(ctx, map, 
+#if 0
+	knh_DictMap_t *dmap = (knh_DictMap_t *)knh_Array_n(a, i);
+	knh_Int_t *v2 = (knh_Int_t *)knh_DictMap_valueAt(dmap, 0);
+	fprintf(stderr, "%s\n", CLASS__(O_cid(v2)));
+#endif
+#if 0
+	knh_Tuple_t *tpl = (knh_Tuple_t*)knh_Array_n(a, i);
+	fprintf(stderr, "%s\n", CLASS__(O_cid(tpl)));
+	knh_String_t *v1 = tpl->fields[0];
+	asm("int3");
+	knh_Int_t *v2 = tpl->fields[1];
+	fprintf(stderr, "%s\n", CLASS__(O_cid(v1)));
+	fprintf(stderr, "%s\n", CLASS__(O_cid(v2)));
+#endif	
+  }
+  knh_RawPtr_t *po = new_RawPtr(ctx, sfp[2].p, strc);
+  RETURN_(po);
+}
+
+*/
 /* ------------------------------------------------------------------------ */
 //@Native Clib Clib.new(String libname, Clib _);
 METHOD Clib_new(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -288,7 +445,6 @@ METHOD Clib_makeClass(CTX ctx, knh_sfp_t *sfp _RIX)
   char *classname = String_to(char *, sfp[1]);
   knh_String_t *str_classname = sfp[1].s;
   knh_ClassTBL_t *ct = NULL;
-  //knh_NameSpace_t *ns = K_GMANS;
   knh_NameSpace_t *ns = sfp[2].ns;
   knh_class_t cid;
   knh_cwb_t cwbbuf, *cwb = knh_cwb_open(ctx, &cwbbuf);
@@ -387,8 +543,18 @@ METHOD Clib_makeClass(CTX ctx, knh_sfp_t *sfp _RIX)
 
 }
 
-
-
+/* ------------------------------------------------------------------------ */
+// @Native void Clib_defineClass (String classname, Structure strc, Namespace _)
+METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  char *classname = String_to(char *, sfp[1]);
+  knh_ClassTBL_t *ct = NULL;
+  knh_RawPtr_t *po = sfp[2].p;
+  knh_Structure_t *strc = po->rawptr;
+  knh_NameSpace_t *ns = sfp[3].ns;
+  knh_class_t cid;
+  
+}
 
 /* ------------------------------------------------------------------------ */
 
