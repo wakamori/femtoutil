@@ -1,10 +1,7 @@
 using konoha.clib.*;
 
-class Dir;
 Clib libc = new Clib("/usr/lib/libc.dylib");
 Glue g = libc.genGlue();
-
-//Clib.defineClass("Dir", closedir);
 
 Clib.makeClass("Dir");
 
