@@ -74,3 +74,21 @@ METHOD Glue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURN_(ret);
   }
 }
+
+
+#ifdef _SETUP
+DEFAPI(const knh_PackageDef_t*) init(CTX ctx, const knh_PackageLoaderAPI_t *kapi)
+{
+	kapi->setPackageProperty(ctx, "name", "clib");
+	kapi->setPackageProperty(ctx, "version", "0.2");
+	RETURN_PKGINFO("konoha.clib");
+}
+
+  /*DEFAPI(const knh_PackageDef_t*) init(CTX ctx, const knh_PackageLoaderAPI_t *kapi)
+{
+	kapi->setPackageProperty(ctx, "name", "dffi");
+	kapi->setPackageProperty(ctx, "version", "0.2");
+	RETURN_PKGINFO("konoha.dffi");
+}
+  */
+#endif /* _SETUP */
