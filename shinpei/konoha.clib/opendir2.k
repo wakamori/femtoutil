@@ -3,17 +3,9 @@ using konoha.clib.*;
 Clib libc = new Clib("/usr/lib/libc.dylib");
 Glue g = libc.genGlue();
 
-Clib.makeClass("Dir");
-//s = new Structure([("x", Structure.FFI_POINTER)]);
-
-s = new Structure([["x", Structure.FFI_POINTER]]);
-
-/*
-Clib.makeClass(
-	"Dir",
-	new Structure("dir", Structure.FFI_POINTER) 
-)
-*/
+//Clib.makeClass("Dir");
+dirstrc = new Structure([["x", Structure.FFI_POINTER]]);
+Clib.defineClass("Dir",	dirstrc);
 
 Func<String=>Dir> opendir = g.getFunc("opendir");
 
