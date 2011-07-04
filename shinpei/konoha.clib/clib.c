@@ -455,6 +455,7 @@ METHOD Clib_makeClass(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_Bytes_write(ctx, cwb->ba, B(classname));
   cid = knh_getcid(ctx, knh_cwb_tobytes(cwb));
 
+  // CLASS_decl
   if  (cid == CLASS_unknown) {
 	//new class
 	cid = new_ClassId(ctx);
@@ -565,6 +566,7 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_Bytes_write(ctx, cwb->ba, B(classname));
   cid = knh_getcid(ctx, knh_cwb_tobytes(cwb));
 
+  // CLASS_decl
   if  (cid == CLASS_unknown) {
 	//new class
 	cid = new_ClassId(ctx);
@@ -631,7 +633,6 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 			}
 		}
 	}
-
   } else {
 	ct = varClassTBL(cid);
 	if (!(ct->bcid == CLASS_Object && ct->fields == NULL)) {
@@ -649,7 +650,7 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
   //  -decl_flag(_fgetter, _fsetter
   //  -decl3_typing(..)
   // Gamma_declareClassField
-  // add class field
+  //  -add_classField
   knh_flag_t flag  = _FGETTER | _FSETTER;
   //TODO: FFI_TYPE --> KNH_TYPE
   for (i = 0; i < strc->param_size; i++) {
@@ -677,6 +678,14 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 	fi++;
 	DBLNDATA_(if(IS_Tunbox(TYPE_Int)) fi++;);
   }
+  knh_ClassTBL_setObjectCSPI(ct);
+  
+  // add constructor
+  knh_Method_t *mtd = new_Method(ctx, 0, cid, MN_new, NULL); // we can make FMethod as a method
+  knh_ParamArray_t *pa2 = new_ParamArray(ctx);
+  KNH_SETv(ctx, DP(mtd)->mp, pa2);
+  knh_ClassTBL_addMethod(ctx, ct, mtd, 0 /* ischeck*/);
+
 }
 
 /* ------------------------------------------------------------------------ */
