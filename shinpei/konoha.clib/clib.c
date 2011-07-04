@@ -591,6 +591,23 @@ METHOD Clib_makeClass(CTX ctx, knh_sfp_t *sfp _RIX)
 #define _FGETTER     FLAG_Field_Getter
 #define _FSETTER     FLAG_Field_Setter
 
+
+static METHOD Fmethod_structgetter(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+  //	int delta = DP(sfp[K_MTDIDX].mtdNC)->delta;
+  //	RETURN_((sfp[0].ox)->fields[delta]);
+}
+
+static knh_Method_t *new_StructGetter(CTX ctx, knh_class_t cid, knh_methodn_t mn, knh_type_t type, int idx)
+{
+  knh_Fmethod f = Fmethod_structgetter;
+  knh_Method_t *mtd = new_Method(ctx, 0, cid, mn, f);
+  DP(mtd)->delta = idx;
+  KNH_SETv(ctx, DP(mtd)->mp, new_ParamArrayR0(ctx, type));
+  return mtd;
+}
+
+
 // @Native void Clib_defineClass (String classname, Structure strc, Namespace _)
 METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -638,7 +655,7 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 
 	ct->supTBL = ClassTBL(ct->supcid);
 	ct->keyidx = ct->supTBL->keyidx;
-	ct->metaidx = ct->supTBL->keyidx;
+	ct->metaidx = ct->supTBL->metaidx;
 	((knh_ClassTBL_t*)ct->supTBL)->subclass += 1;
 	{
 	  LOGSFPDATA = {cDATA("name", cid), iDATA("cid", cid)};
@@ -654,7 +671,6 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_setClassDefaultValue(ctx, cid, obj, NULL);
 	KNH_INITv(ct->protoNULL, tmp);
 	if(IS_Tfield(cid)) {
-		DBG_P("superclass=%s, fsize=%d, fcapacity=%d", CLASS__(ct->supcid), ct->supTBL->fsize, ct->supTBL->fcapacity);
 		if(ct->supTBL->fcapacity > 0 && ct->fcapacity == 0) {
 			ct->fields = (knh_fields_t*)KNH_MALLOC(ctx, ct->supTBL->fcapacity * sizeof(knh_fields_t));
 			knh_memcpy(ct->fields, ct->supTBL->fields, ct->supTBL->fcapacity * sizeof(knh_fields_t));
@@ -693,9 +709,9 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
   //  -decl3_typing(..)
   // Gamma_declareClassField
   //  -add_classField
-  knh_flag_t flag  = _FGETTER | _FSETTER;
 
-  //TODO: FFI_TYPE --> KNH_TYPE
+  //    knh_flag_t flag  = _FGETTER | _FSETTER;
+  knh_flag_t flag  = 0;
   for (i = 0; i < strc->param_size; i++) {
 	if (strc->param_knh_types[i] == TYPE_Object) {
 	  knh_fieldn_t fn = knh_getfnq(ctx, strc->param_name[i], FN_NEWID);
@@ -739,6 +755,7 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_ObjectField_expand(ctx, ct->defobj, fsize, ct->fsize);
   of = ct->defobj;
   fi = 0;
+  knh_Method_t *mtd = NULL;
   for(i = 0; i < strc->param_size; i++) {
 	//	ObjectField_add(ctx, ct->defobj, fsize + fi, TYPE_Int, NULL);
 	if (strc->param_knh_types[i] == TYPE_Int) {
@@ -754,12 +771,13 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 	} else {
 	  // object or void
 	  KNH_INITv(of->fields[i], KNH_NULVAL(knh_type_tocid(ctx, strc->param_knh_types[i], O_cid(of))));
+	  //	  mtd = new_StructGetter(ctx, cid, 
 	}
   }
   knh_ClassTBL_setObjectCSPI(ct);
   
   // add constructor
-  knh_Method_t *mtd = new_Method(ctx, 0, cid, MN_new, NULL); // we can make FMethod as a method
+  mtd = new_Method(ctx, 0, cid, MN_new, NULL); // we can make FMethod as a method
   knh_ParamArray_t *pa2 = new_ParamArray(ctx);
   KNH_SETv(ctx, DP(mtd)->mp, pa2);
   knh_ClassTBL_addMethod(ctx, ct, mtd, 0 /* ischeck*/);
