@@ -33,7 +33,7 @@ extern "C" {
 typedef struct knh_Structure_t {
   size_t param_size;
   ffi_type **params;
-  char **field_name;
+  knh_bytes_t *param_name;
   void *test;
 } knh_Structure_t ;
 
@@ -200,8 +200,8 @@ METHOD Structure_new(CTX ctx, knh_sfp_t *sfp _RIX)
   int i = 0, j = 0;
   size_t a_size = knh_Array_size(a);
   strc->param_size = a_size;
+  strc->param_name = (knh_bytes_t*)KNH_MALLOC(ctx, sizeof(knh_bytes_t) * strc->param_size);
   strc->params = (ffi_type**)KNH_MALLOC(ctx, sizeof(ffi_type*) * strc->param_size);
-
   for (i = 0; i < a_size; i++) {
 	// param size;
 	knh_Array_t *aa = (knh_Array_t *)knh_Array_n(a, i);
@@ -211,6 +211,7 @@ METHOD Structure_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	  knh_String_t *v1 = (knh_String_t *)knh_Array_n(aa, 0);
 	  knh_Int_t *v2 = (knh_Int_t *)knh_Array_n(aa, 1);
 	  //	  fprintf(stderr, "HERE>>%s:%d\n", S_tochar(v1), v2->n.ivalue);
+	  strc->param_name[j] = S_tobytes(v1);
 	  strc->params[j] = ffi_type_map[v2->n.ivalue];
 	}
   }
@@ -543,6 +544,8 @@ METHOD Clib_makeClass(CTX ctx, knh_sfp_t *sfp _RIX)
   }
 
 }
+#define _FGETTER     FLAG_Field_Getter
+#define _FSETTER     FLAG_Field_Setter
 
 /* ------------------------------------------------------------------------ */
 // @Native void Clib_defineClass (String classname, Structure strc, Namespace _)
@@ -588,17 +591,7 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 	}
 	KNH_INITv(ct->methods, K_EMPTYARRAY);
 	KNH_INITv(ct->typemaps, K_EMPTYARRAY);
-	//// class C extends E ..
-	//	ct->supcid = knh_Token_cid(ctx, tkE, CLASS_unknown);
-	//ct->supcid = CLASS_unknown;
-	//if(ct->supcid == CLASS_unknown) {
-	//  knh_Stmt_toERR(ctx, stmt, ERROR_Undefined(ctx, "class", ct->supcid, tkE));
-	//  return K_BREAK;
-	//}
-	//if(class_isFinal(ct->supcid)) {
-	//  knh_Stmt_toERR(ctx, stmt, ErrorExtendingFinalClass(ctx, ct->supcid));
-	//  return K_BREAK;
-	//}
+
 	ct->supTBL = ClassTBL(ct->supcid);
 	ct->keyidx = ct->supTBL->keyidx;
 	ct->metaidx = ct->supTBL->keyidx;
@@ -651,12 +644,39 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
   }
   
   /* make fields */
+  // basic flow.
+  // DECLFIELD_typing
+  //  -decl_flag(_fgetter, _fsetter
+  //  -decl3_typing(..)
+  // Gamma_declareClassField
+  // add class field
+  knh_flag_t flag  = _FGETTER | _FSETTER;
+  //TODO: FFI_TYPE --> KNH_TYPE
   for (i = 0; i < strc->param_size; i++) {
-	
-
+	knh_fieldn_t fn = knh_getfnq(ctx, strc->param_name[i], FN_NEWID);
+	//	fprintf(stderr, "%s, %d\n", strc->param_name[i].utext, fn);
+	knh_class_addField(ctx, cid, flag, TYPE_Int, fn);
   }
-
-  
+  size_t fsize = ct->fsize;
+  //  fprintf(stderr, "fsize:%d\n");
+  size_t fi = 0;
+  knh_ObjectField_expand(ctx, ct->protoNULL, fsize, ct->fsize);
+  for(i = 0; i < strc->param_size; i++) {
+	//	ObjectField_add(ctx, ct->protoNULL, fsize + fi, TYPE_Int, gf[i].tk);
+	knh_int_t *nn = (knh_int_t *)(ct->protoNULL + (fsize + fi));
+	nn[0] = 0;
+	fi++;
+	DBLNDATA_(if(IS_Tunbox(TYPE_Int)) fi++;)
+	  }
+  knh_ObjectField_expand(ctx, ct->defobj, fsize, ct->fsize);
+  fi = 0;
+  for(i = 0; i < strc->param_size; i++) {
+	//	ObjectField_add(ctx, ct->defobj, fsize + fi, TYPE_Int, NULL);
+	knh_int_t *nn = (knh_int_t *)(ct->protoNULL + (fsize + fi));
+	nn[0] = 0;
+	fi++;
+	DBLNDATA_(if(IS_Tunbox(TYPE_Int)) fi++;);
+  }
 }
 
 /* ------------------------------------------------------------------------ */
