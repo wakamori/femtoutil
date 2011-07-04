@@ -33,6 +33,7 @@ extern "C" {
 typedef struct knh_Structure_t {
   size_t param_size;
   ffi_type **params;
+  knh_type_t *param_knh_types;
   knh_bytes_t *param_name;
   void *test;
 } knh_Structure_t ;
@@ -92,9 +93,20 @@ DEFAPI(void) defClib(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 
 /* ------------------------------------------------------------------------ */
 /* [Dglue:internal] */
+#define DGLUE_NOT_UNBOXED (1 << 0)
+#define DGLUE_UNBOXED (1 << 1)
+#define DGLUE_TYPE_NUMBER (1 << 2)
+#define DGLUE_TYPE_STRUCTURE (1 << 3)
+#define DGLUE_TYPE_STRING (1 << 4)
+#define DGLUE_TYPE_MAP (1 << 5)
+#define DGLUE_TYPE_ARRAY (1 << 6)
+#define DGLUE_TYPE_CLOSURE (1 << 7)
 
-#define DGLUE_NOT_UNBOXED 0
-#define DGLUE_UNBOXED 1
+#define IS_DGLUE_NOT_UNBOXED(b) ((b & DGLUE_NOT_UNBOXED) == DGLUE_NOT_UNBOXED)
+#define IS_DGLUE_UNBOXED(b) ((b & DGLUE_UNBOXED) == DGLUE_UNBOXED)
+#define IS_TYPE_STRUCTURE(b) ((b & DGLUE_TYPE_STRUCTURE) == DGLUE_TYPE_STRUCTURE)
+#define IS_TYPE_STRING(b) ((b & DGLUE_TYPE_STRING) == DGLUE_TYPE_STRING)
+#define IS_TYPE_STRING(b) ((b & DGLUE_TYPE_STRING) == DGLUE_TYPE_STRING)
 
 typedef struct knh_ClibGlue_t {
   void *fptr;
@@ -128,8 +140,32 @@ static void ClibGlue_free(CTX ctx, void *ptr)
 	ptr = NULL;
   }
 }
-/* ------------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------------ */
+static knh_type_t knh_type_map[] = {
+  TYPE_Object,
+  TYPE_Tvoid,
+  TYPE_Int, /* 8 */
+  TYPE_Int,
+  TYPE_Int, /* 16 */
+  TYPE_Int,
+  TYPE_Int, /* 32 */
+  TYPE_Int,
+  TYPE_Int, /* 64 */
+  TYPE_Int,
+  TYPE_Float,
+  TYPE_Float,
+  TYPE_Int, /* char */
+  TYPE_Int,
+  TYPE_Int, /* short */
+  TYPE_Int,  
+  TYPE_Int, /* int */
+  TYPE_Int,
+  TYPE_Int, /* long */
+  TYPE_Int,
+  TYPE_Float, /* longdouble*/
+  TYPE_String
+};
 static ffi_type *ffi_type_map[] = {
   &ffi_type_pointer,
   &ffi_type_void,
@@ -152,8 +188,9 @@ static ffi_type *ffi_type_map[] = {
   &ffi_type_ulong,
   &ffi_type_slong,
   &ffi_type_longdouble,
-  &ffi_type_sint64, // KNHINT
-  &ffi_type_double // KNHFLOAT
+  /*  &ffi_type_sint64, // KNHINT
+	  &ffi_type_double // KNHFLOAT*/
+  &ffi_type_pointer // STRING
 };
 
 static knh_IntData_t StructureConstInt[] = {
@@ -178,10 +215,9 @@ static knh_IntData_t StructureConstInt[] = {
   {"FFI_ULONG", 20},
   {"FFI_SLONG", 21},
   {"FFI_LONGDOUBLE", 22},
-
-  {"FFI_KNHINT",23 },
-  {"FFI_KNhFLOAT", 24},
-
+  /*  {"FFI_KNHINT", 23},
+	  {"FFI_KNhFLOAT", 24},*/
+  {"FFI_STRING", 25},
   {NULL, 0}
 };
 
@@ -202,17 +238,18 @@ METHOD Structure_new(CTX ctx, knh_sfp_t *sfp _RIX)
   strc->param_size = a_size;
   strc->param_name = (knh_bytes_t*)KNH_MALLOC(ctx, sizeof(knh_bytes_t) * strc->param_size);
   strc->params = (ffi_type**)KNH_MALLOC(ctx, sizeof(ffi_type*) * strc->param_size);
+  strc->param_knh_types = (knh_type_t*)KNH_MALLOC(ctx, sizeof(knh_type_t) * strc->param_size);
   for (i = 0; i < a_size; i++) {
 	// param size;
 	knh_Array_t *aa = (knh_Array_t *)knh_Array_n(a, i);
-	size_t aa_size = knh_Array_size(aa);
+	//size_t aa_size = knh_Array_size(aa);
 	{
 	  // suppose its [<String>, <Int>]
 	  knh_String_t *v1 = (knh_String_t *)knh_Array_n(aa, 0);
 	  knh_Int_t *v2 = (knh_Int_t *)knh_Array_n(aa, 1);
-	  //	  fprintf(stderr, "HERE>>%s:%d\n", S_tochar(v1), v2->n.ivalue);
 	  strc->param_name[j] = S_tobytes(v1);
 	  strc->params[j] = ffi_type_map[v2->n.ivalue];
+	  strc->param_knh_types[j] = knh_type_map[v2->n.ivalue];
 	}
   }
   knh_RawPtr_t *po = new_RawPtr(ctx, sfp[2].p, strc);
@@ -242,11 +279,6 @@ METHOD Structure_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_String_t *v1 = map->dspi->get(ctx, map->map, sfp, sfp);
 	//	knh_String_t *v1 = knh_Map_get(ctx, map, 
 #if 0
-	knh_DictMap_t *dmap = (knh_DictMap_t *)knh_Array_n(a, i);
-	knh_Int_t *v2 = (knh_Int_t *)knh_DictMap_valueAt(dmap, 0);
-	fprintf(stderr, "%s\n", CLASS__(O_cid(v2)));
-#endif
-#if 0
 	knh_Tuple_t *tpl = (knh_Tuple_t*)knh_Array_n(a, i);
 	fprintf(stderr, "%s\n", CLASS__(O_cid(tpl)));
 	knh_String_t *v1 = tpl->fields[0];
@@ -259,8 +291,8 @@ METHOD Structure_new(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_RawPtr_t *po = new_RawPtr(ctx, sfp[2].p, strc);
   RETURN_(po);
 }
-
 */
+
 /* ------------------------------------------------------------------------ */
 //@Native Clib Clib.new(String libname, Clib _);
 METHOD Clib_new(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -277,21 +309,20 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_type_t rtype = knh_ParamArray_rtype(DP(sfp[K_MTDIDX].mtdNC)->mp);
   knh_Func_t *fo = sfp[0].fo;
   knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)(((fo->mtd)->b)->cfunc);
-  //  fprintf(stderr, "fptr:%p, %p, %d, %p, %p\n", 
-  //		  dg->fptr,
-  //		  &(dg->cif), dg->argCount,
-  //		  dg->retT, dg->argT);
   
   int idx = 0;
   for (idx = 0; idx < cglue->argCount; idx++) {
-	if (cglue->argT_isUnboxed[idx] == DGLUE_UNBOXED) {
+	if (IS_DGLUE_UNBOXED(cglue->argT_isUnboxed[idx])) {
 	  cglue->argV[idx] = &(sfp[idx+1].ndata);
 	} else {
 	  //TODO: now, we cannot distinguish object from string
-	  if (cglue->argT[idx] == &ffi_type_pointer) {
+	  if (IS_TYPE_STRING(cglue->argT_isUnboxed[idx])) {
+		//	  if (cglue->argT[idx] == &ffi_type_pointer) {
 		cglue->argV[idx] = &((sfp[idx+1].s)->str.text);
+	  } else if (IS_TYPE_STRUCTURE(cglue->argT_isUnboxed[idx])) {
+		cglue->argV[idx] = &((sfp[idx+1].p)->rawptr);
 	  } else {
-		// TODO? : array? map? char?
+		// TODO? : array? map?
 		cglue->argV[idx] = &(sfp[idx+1].o);
 	  }
 	}
@@ -373,19 +404,24 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   // type a method from requested type
   size_t argCount = pa->psize;
   cglue->argCount = argCount;
-  // retT
+
+  // return value typing
   DBG_ASSERT(pa->rsize == 1);
   knh_param_t *p = knh_ParamArray_rget(pa, 0);
   if (p->type == TYPE_Int || p->type == TYPE_Boolean) {
 	cglue->retT = &ffi_type_sint64;
   } else if (p->type == TYPE_Float) {
 	cglue->retT = &ffi_type_double;
-  } else {
+  } else if (p->type == TYPE_String) {
 	cglue->retT = &ffi_type_pointer;
+  } else {
+	// what about class, that made from Structure
+	// it is also a pointer
+	cglue->retT = &ffi_type_pointer;	
 	//	TODO();
   }
 
-  //argT
+  // arguments typing
   size_t idx = 0;
   for (idx = 0; idx < argCount; idx++) {
 	knh_param_t *p = knh_ParamArray_get(pa, idx);
@@ -397,10 +433,12 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 	  cglue->argT_isUnboxed[idx] = DGLUE_UNBOXED;
 	} else if (p->type == TYPE_String) {
 	  cglue->argT[idx] = &ffi_type_pointer;
-	  cglue->argT_isUnboxed[idx] = DGLUE_NOT_UNBOXED;
+	  cglue->argT_isUnboxed[idx] = DGLUE_NOT_UNBOXED | DGLUE_TYPE_STRING;
 	} else {
+	  // here, we have to distinguish Structure class from the others
+	  // suppose they are Structure;
 	  cglue->argT[idx] = &ffi_type_pointer;
-	  cglue->argT_isUnboxed[idx] = DGLUE_NOT_UNBOXED;
+	  cglue->argT_isUnboxed[idx] = DGLUE_NOT_UNBOXED | DGLUE_TYPE_STRUCTURE;
 	  //	  TODO();
 	}
   }
@@ -424,6 +462,7 @@ static knh_GlueSPI_t CLibGlueSPI = {
   ClibGlue_free
 };
 
+/* ------------------------------------------------------------------------ */
 // @Native Glue Clib_genGlue (Glue _)
 METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -441,6 +480,7 @@ METHOD Clib_genGlue(CTX ctx, knh_sfp_t *sfp _RIX)
   RETURN_(sfp[1].p);
 }
 
+/* ------------------------------------------------------------------------ */
 // @Native void Clib_makeClass (String classname)
 METHOD Clib_makeClass(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -545,10 +585,12 @@ METHOD Clib_makeClass(CTX ctx, knh_sfp_t *sfp _RIX)
   }
 
 }
+
+/* ------------------------------------------------------------------------ */
+
 #define _FGETTER     FLAG_Field_Getter
 #define _FSETTER     FLAG_Field_Setter
 
-/* ------------------------------------------------------------------------ */
 // @Native void Clib_defineClass (String classname, Structure strc, Namespace _)
 METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -652,31 +694,67 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
   // Gamma_declareClassField
   //  -add_classField
   knh_flag_t flag  = _FGETTER | _FSETTER;
+
   //TODO: FFI_TYPE --> KNH_TYPE
   for (i = 0; i < strc->param_size; i++) {
-	knh_fieldn_t fn = knh_getfnq(ctx, strc->param_name[i], FN_NEWID);
-	//	fprintf(stderr, "%s, %d\n", strc->param_name[i].utext, fn);
-	knh_class_addField(ctx, cid, flag, TYPE_Int, fn);
+	if (strc->param_knh_types[i] == TYPE_Object) {
+	  knh_fieldn_t fn = knh_getfnq(ctx, strc->param_name[i], FN_NEWID);
+	  knh_class_addField(ctx, cid, flag, TYPE_Object, fn);
+	} else if (strc->param_knh_types[i] == TYPE_String) {
+	  // its String
+	  knh_fieldn_t fn = knh_getfnq(ctx, strc->param_name[i], FN_NEWID);
+	  knh_class_addField(ctx, cid, flag, TYPE_String, fn);
+	} else if (strc->param_knh_types[i] == TYPE_Int) {
+	  // its Float
+	  knh_fieldn_t fn = knh_getfnq(ctx, strc->param_name[i], FN_NEWID);
+	  knh_class_addField(ctx, cid, flag, TYPE_Int, fn);
+	} else {
+	  // its Integer
+	  knh_fieldn_t fn = knh_getfnq(ctx, strc->param_name[i], FN_NEWID);
+	  knh_class_addField(ctx, cid, flag, TYPE_Float, fn);
+	}
   }
   size_t fsize = ct->fsize;
-  //  fprintf(stderr, "fsize:%d\n");
   size_t fi = 0;
+  knh_ObjectField_t *of;
   knh_ObjectField_expand(ctx, ct->protoNULL, fsize, ct->fsize);
+  of = ct->protoNULL;
   for(i = 0; i < strc->param_size; i++) {
 	//	ObjectField_add(ctx, ct->protoNULL, fsize + fi, TYPE_Int, gf[i].tk);
-	knh_int_t *nn = (knh_int_t *)(ct->protoNULL + (fsize + fi));
-	nn[0] = 0;
-	fi++;
-	DBLNDATA_(if(IS_Tunbox(TYPE_Int)) fi++;)
-	  }
+	if (strc->param_knh_types[i] == TYPE_Int) {
+	  knh_int_t *nn = (knh_int_t *)(of + (fsize + fi));
+	  nn[0] = 0;
+	  fi++;
+	  DBLNDATA_(if(IS_Tunbox(TYPE_Int)) fi++;);
+	} else if (strc->param_knh_types[i] == TYPE_Float) {
+	  knh_float_t *nn = (knh_float_t *)(of + (fsize + fi));
+	  nn[0] = 0.0;
+	  fi++;
+	  DBLNDATA_(if(IS_Tunbox(TYPE_Float)) fi++;);
+	} else {
+	  // object , or void
+	  KNH_INITv(of->fields[i], KNH_NULVAL(knh_type_tocid(ctx, strc->param_knh_types[i], O_cid(of))));
+	}
+  }
   knh_ObjectField_expand(ctx, ct->defobj, fsize, ct->fsize);
+  of = ct->defobj;
   fi = 0;
   for(i = 0; i < strc->param_size; i++) {
 	//	ObjectField_add(ctx, ct->defobj, fsize + fi, TYPE_Int, NULL);
-	knh_int_t *nn = (knh_int_t *)(ct->protoNULL + (fsize + fi));
-	nn[0] = 0;
-	fi++;
-	DBLNDATA_(if(IS_Tunbox(TYPE_Int)) fi++;);
+	if (strc->param_knh_types[i] == TYPE_Int) {
+	  knh_int_t *nn = (knh_int_t *)(of + (fsize + fi));
+	  nn[0] = 0;
+	  fi++;
+	  DBLNDATA_(if(IS_Tunbox(TYPE_Int)) fi++;);
+	} else if (strc->param_knh_types[i] == TYPE_Float) {
+	  knh_float_t *nn = (knh_float_t *)(of + (fsize + fi));
+	  nn[0] = 0.0;
+	  fi++;
+	  DBLNDATA_(if(IS_Tunbox(TYPE_Float)) fi++;);
+	} else {
+	  // object or void
+	  KNH_INITv(of->fields[i], KNH_NULVAL(knh_type_tocid(ctx, strc->param_knh_types[i], O_cid(of))));
+	}
   }
   knh_ClassTBL_setObjectCSPI(ct);
   
@@ -685,7 +763,6 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_ParamArray_t *pa2 = new_ParamArray(ctx);
   KNH_SETv(ctx, DP(mtd)->mp, pa2);
   knh_ClassTBL_addMethod(ctx, ct, mtd, 0 /* ischeck*/);
-
 }
 
 /* ------------------------------------------------------------------------ */
