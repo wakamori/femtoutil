@@ -1,31 +1,26 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import Cookie
-import os
 import cgitb; cgitb.enable()
+import login
+import os
+import Cookie
 
 html_login = '''<!DOCTYPE html>
 <html lang="ja">
 	<head>
-		<title>アルゴリズムとデータ構造  - try with konoha </title>
+		<title>Aspen - An online KonohaScript editor</title>
 		<link rel="stylesheet" href="../aspen/css/aspen.css" />
 		<script type="text/javascript" src="../aspen/js/jquery-1.6.1.min.js"></script>
 		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
 		<script type="text/javascript" src="../aspen/js/login.js"></script>
 	</head>
 	<body>
-		<form id="loginform" name="loginform" action="./aspen.cgi?method=login" method="post">
-			<table>
-				<tr><th colspan="2">アルゴリズムとデータ構造</th></tr>
-				<tr><td colspan="2">学籍番号とパスワードでログインしてください</td></tr>
-				<tr><th>学籍番号</th><td><input type="text" class="sprited" id="username" name="username" value="your name" /></td></tr>
-				<tr><th>パスワード</th><td><input type="password" class="sprited" id="password" name="password" /></td></tr>
-			</table>
-<div style="text-align:right;">
-			<input class="loginbutton" type="submit" id="signin" value="Log In" />
-			<input class="loginbutton" type="reset" id="cancel" name="cancel" value="Clear" />
-</div>
+		<form id="loginform" name="loginform" action="./aspen.cgi?method=oauth" method="post">
+		<div class="info">Aspenを使用するには，Twitterでの認証が必要です．</div>
+		<div style="text-align:right;">
+			<input class="loginbutton" type="submit" id="signin" value="認証する" />
+		</div>
 		</form>
 	</body>
 </html>'''
@@ -33,20 +28,10 @@ html_login = '''<!DOCTYPE html>
 html_main = '''<!DOCTYPE html>
 <html>
 	<head>
-		<title>アルゴリズムとデータ構造  - try with konoha</title>
+		<title>Aspen - An online KonohaScript editor</title>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-		<!--<script type="text/javascript"
-		src="../aspen/js/jquery-1.6.1.min.js"></script>-->
-		<!--<script type="text/javascript"
-		src="../aspen/js/jquery.cookie.js"></script>-->
-		<!--<script type="text/javascript"
-		src="../aspen/js/jquery.lightbox_me.js"></script>-->
 		<script type="text/javascript" src="../aspen/js/codemirror.js"></script>
 		<script type="text/javascript" src="../aspen/js/autocompletion.js"></script>
-		<!--<script type="text/javascript"
-		src="../aspen/js/jquery.lightbox_me.js"></script>-->
-		<!--<script type="text/javascript"
-		src="../aspen/js/jquery.periodicalupdater.js"></script>-->
 		<script type="text/javascript" src="../aspen/js/mootools-core-1.3.2-full-compat.js"></script>
 		<script type="text/javascript" src="../aspen/js/mootools-more-1.3.2.1.js"></script>
 		<script type="text/javascript" src="../aspen/js/aspen.js"></script>
@@ -64,7 +49,6 @@ html_main = '''<!DOCTYPE html>
 				<td>
 					<div class="info">
 						<span class="user">Hello, %s.</span>
-						<span class="date">Last login: %s</span><br />
 					</div>
 					<form id="logoutform" class="inlineform" name="logoutform" action="./aspen.cgi" method="get">
 						<input type="hidden" name="method" value="logout" />
@@ -123,15 +107,12 @@ html_main = '''<!DOCTYPE html>
 
 def main():
 	print 'Content-Type: text/html;charset=UTF-8\n'
-	cookie = Cookie.SimpleCookie()
-	if os.environ.has_key('HTTP_COOKIE'):
-		cookie.load(os.environ['HTTP_COOKIE'])
-		if cookie.has_key('UID') and cookie.has_key('LOGIN_DATE'):
-			print html_main % (cookie['UID'].value, cookie['LOGIN_DATE'].value)
-		else:
-			print html_login
+	cookie = Cookie.SimpleCookie(os.environ['HTTP_COOKIE'])
+	if cookie.has_key('access_token') and cookie.has_key('access_token_secret'):
+		lm = login.LoginManager()
+		print html_main % (lm.getAccountInfo()['name'].encode('utf-8'))
 	else:
-		print html_login
+		print html_oauth
 
 if __name__ == '__main__':
 	main()

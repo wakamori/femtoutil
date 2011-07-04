@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+'''
 Aspen Bugreporter:
   for reporting bugs via e-mail
   copyright (c) wakamori <wakamori111 at gmail.com> Twitter:@chen_ji
-"""
+'''
 
 import smtplib
 from email.MIMEText import MIMEText

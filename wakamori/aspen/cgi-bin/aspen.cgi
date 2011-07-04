@@ -20,6 +20,7 @@ import cgi
 import cgitb; cgitb.enable()
 import datetime
 import json
+import login
 import os
 import shutil
 import signal
@@ -50,7 +51,7 @@ class Aspen:
 		print '''<!DOCTYPE html>
 <html lang="ja">
 	<head>
-		<title>アルゴリズムとデータ構造  - try with konoha </title>
+		<title>Aspen - An online KonohaScript editor</title>
 	</head>
 		<h1>%s</h1>
 	<body>
@@ -62,21 +63,22 @@ class Aspen:
 		sys.stdout.write(text)
 
 	def saveCookie(self, uid=None, sid=None, exp=None):
+		cookie = Cookie.SimpleCookie()
 		if exp == None:
 			exptime = self.time + datetime.timedelta(minutes=30)
 			exp = exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
 		if uid != None:
-			self.cookie['UID'] = str(uid)
-			self.cookie['UID']['expires'] = exp
-			self.cookie['UID']['path'] = '/'
+			cookie['UID'] = str(uid)
+			cookie['UID']['expires'] = exp
+			cookie['UID']['path'] = '/'
 		if sid != None:
-			self.cookie['SID'] = str(sid)
-			self.cookie['SID']['expires'] = exp
-			self.cookie['SID']['path'] = '/'
-		self.cookie['LOGIN_DATE'] = self.time.strftime('%x,%X')
-		self.cookie['LOGIN_DATE']['expires'] = exp
-		self.cookie['LOGIN_DATE']['path'] = '/'
-		print self.cookie
+			cookie['SID'] = str(sid)
+			cookie['SID']['expires'] = exp
+			cookie['SID']['path'] = '/'
+		cookie['LOGIN_DATE'] = self.time.strftime('%x,%X')
+		cookie['LOGIN_DATE']['expires'] = exp
+		cookie['LOGIN_DATE']['path'] = '/'
+		print cookie
 
 	def login(self):
 		username = self.field.getvalue('username')
@@ -88,6 +90,11 @@ class Aspen:
 			print 'Location: ./index.cgi\n'
 		else:
 			self.printErrorHTML('Failed to login.')
+
+	def oauth(self):
+		lm = login.LoginManager()
+		lm.getRequestToken()
+		lm.redirectToProvider()
 
 	def authWithSID(self):
 		self.astorage = aspendb.AspenStorage()
@@ -318,6 +325,8 @@ a bug. Sorry.')
 				self.name()
 			elif mtype == 'login':
 				self.login()
+			elif mtype == 'oauth':
+				self.oauth()
 			elif mtype == 'save':
 				self.authWithSID()
 				self.store()
