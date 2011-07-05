@@ -33,15 +33,16 @@ def alarm_handler(signum, frame):
 
 class Aspen:
 
-	konohapath = 'path/to/konoha'
-	gitpath = 'path/to/.git'
-
 	def __init__(self):
 		self.cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
 		self.field = cgi.FieldStorage()
 		self.time = datetime.datetime.now()
 		self.method = os.environ['REQUEST_METHOD']
 		self.lm = login.LoginManager()
+		self.conf = ConfigParser.SafeConfigParser()
+		self.conf.read('settings.ini')
+		self.konohapath = self.conf.get('path', 'konoha')
+		self.gitpath = self.conf.get('path', 'git')
 
 	def printText(self, text):
 		print 'Content-Type: text/plain\n'
@@ -230,9 +231,7 @@ a bug. Sorry.')
 		keys = ['request_token', 'request_token_secret', 'access_token',
 		'access_token_secret', 'UID', 'SID']
 		self.deleteCookie(keys)
-		conf = ConfigParser.SafeConfigParser()
-		conf.read('settings.ini')
-		print "Location: %s\n" % conf.get('general', 'indexpath')
+		print "Location: %s\n" % self.conf.get('general', 'indexpath')
 
 	def replyToRewind(self):
 		self.astorage = aspendb.AspenStorage()
