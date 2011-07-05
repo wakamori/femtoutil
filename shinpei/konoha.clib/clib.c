@@ -5,18 +5,12 @@
 
 #include <konoha1.h>
 
-
-//#define MACOSX
 #if defined(K_USING_MACOSX_)
-#include <signal.h>
+//#define MACOSX
 #include <ffi/ffi.h>
 #elif defined(K_USING_LINUX_)
 #include <ffi.h>
-#include <sys/wait.h>
-#include <signal.h>
 #endif
-
-#include <unistd.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,7 +29,6 @@ typedef struct knh_Structure_t {
   ffi_type **params;
   knh_type_t *param_knh_types;
   knh_bytes_t *param_name;
-  void *test;
 } knh_Structure_t ;
 
 static void Structure_init(CTX ctx, knh_RawPtr_t *po)
@@ -57,11 +50,8 @@ DEFAPI(void) defStructure(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 	cdef->free = Structure_free;
 }
 
-
 /* ------------------------------------------------------------------------ */
 /* [Clib] */
-
-#define CLIB_ARGMAX 3
 
 typedef struct knh_CLib_t {
   void *handler;
@@ -109,6 +99,8 @@ DEFAPI(void) defClib(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 #define IS_TYPE_MAP(b) ((b & DGLUE_TYPE_MAP) == DGLUE_TYPE_MAP)
 #define IS_TYPE_ARRAY(b) ((b & DGLUE_TYPE_ARRAY) == DGLUE_TYPE_ARRAY)
 #define IS_TYPE_CLOSURE(b) ((b & DGLUE_TYPE_CLOSURE) == DGLUE_TYPE_CLOSURE)
+
+#define CLIB_ARGMAX (3)
 
 typedef struct knh_ClibGlue_t {
   void *fptr;
@@ -168,6 +160,7 @@ static knh_type_t knh_type_map[] = {
   TYPE_Float, /* longdouble*/
   TYPE_String
 };
+
 static ffi_type *ffi_type_map[] = {
   &ffi_type_pointer,
   &ffi_type_void,
@@ -229,7 +222,6 @@ DEFAPI(void) constStructure(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI
 }
 
 /* ------------------------------------------------------------------------ */
-
 //@Native Structure Structure.new(Array<Array<dynamic> values, Structure _)
 METHOD Structure_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
@@ -441,10 +433,8 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 	  // suppose they are Structure;
 	  cglue->argT[idx] = &ffi_type_pointer;
 	  cglue->argT_isUnboxed[idx] = DGLUE_NOT_UNBOXED | DGLUE_TYPE_STRUCTURE;
-	  //	  TODO();
 	}
   }
-
   // type Func object
   fo->h.cTBL= tbl;
   //cid = knh_class_Generics(ctx, CLASS_Func, pa);

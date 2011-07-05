@@ -5,7 +5,6 @@
 
 #include <konoha1.h>
 
-
 //#define MACOSX
 #if defined(K_USING_MACOSX_)
 #include <signal.h>
