@@ -69,6 +69,28 @@ class AspenStorage:
             return True;
         return False;
 
+    # added by wakamori
+    def authenticateWithoutPassword(self, session):
+        uid = session.getUID()
+        query = "select * from %s where uid=?" % personal_tbl_name
+        self.cur.execute(query, (uid,))
+        row = self.cur.fetchone()
+
+        if row == None:
+            # add user
+            query = "insert into %s values(?,?,?);" % personal_tbl_name
+            try:
+                self.cur.execute(query, (uid, '', ''))
+                self.con.commit()
+            except sqlite.IntegrityError, err:
+                sys.stderr.write("ERROR: %s\n" % str(err))
+                sys.stderr.write("'%s' is probably already exists in database.\n" % (uid))
+                return False
+
+        # commit session
+        session.generateSID()
+        self.commitSession(session)
+        return True
 
     # ahthenticate with a pair of uid, and sid
     def authenticateWithSID (self, uid, sid):
@@ -77,7 +99,7 @@ class AspenStorage:
         query = query + ' where sid="' + sid + '";';
         self.cur.execute(query);
         for row in self.cur:
-            luid = row[0];
+            luid = str(row[0]);
             if luid == uid:
                 retSession = AspenSession(uid, "");
                 return retSession;

@@ -6,6 +6,7 @@ Aspen OAuth login manager:
   copyright (c) wakamori <wakamori111 at gmail.com> Twitter:@chen_ji
 '''
 
+import aspendb
 import cgi
 import json
 import oauth2 as oauth
@@ -20,7 +21,7 @@ class LoginManager:
 	consumer_secret = 'consumer_secret'
 	request_token_url = 'https://api.twitter.com/oauth/request_token'
 	access_token_url = 'https://api.twitter.com/oauth/access_token'
-	authorize_url = 'https://api.twitter.com/oauth/authorize'
+	authenticate_url = 'https://api.twitter.com/oauth/authenticate'
 	account_url = 'https://api.twitter.com/1/account/verify_credentials.json'
 
 	def __init__(self):
@@ -45,15 +46,18 @@ class LoginManager:
 		print cookie
 
 	# Ridirect to the provider
+	# internal use only
 	def redirectToProvider(self):
-		print "Location: %s?oauth_token=%s\n" % (self.authorize_url,
+		print "Location: %s?oauth_token=%s\n" % (self.authenticate_url,
 				self.request_token['oauth_token'])
 
 	# Request the access token
-	def getAccessToken(self):
+	def getAccessToken(self, request_token, request_token_secret):
 		field = cgi.FieldStorage()
-		token = oauth.Token(self.cookie['request_token'].value,
-				self.cookie['request_token_secret'].value)
+		token = oauth.Token(request_token, request_token_secret)
+		if field.getvalue('denied') != None:
+			# authentication denied
+			self.redirectToIndex()
 		token.set_verifier(field.getvalue('oauth_verifier'))
 		client = oauth.Client(self.consumer, token)
 
@@ -69,9 +73,8 @@ class LoginManager:
 		cookie['access_token_secret']['path'] = '/'
 		print cookie
 
-	def getAccountInfo(self):
-		token = oauth.Token(self.cookie['access_token'].value,
-				self.cookie['access_token_secret'].value)
+	def getAccountInfo(self, access_token, access_token_secret):
+		token = oauth.Token(access_token, access_token_secret)
 		client = oauth.Client(self.consumer, token)
 
 		resp, content = client.request(self.account_url, 'GET')
@@ -83,7 +86,24 @@ class LoginManager:
 	def redirectToIndex(self):
 		print 'Location: ./index.cgi\n'
 
-if __name__ == '__main__':
+def main():
 	lm = LoginManager()
-	lm.getAccessToken()
+	lm.getAccessToken(lm.cookie['request_token'].value,
+			lm.cookie['request_token_secret'].value)
+	userid = lm.getAccountInfo(lm.access_token['oauth_token'],
+			lm.access_token['oauth_token_secret'])['id_str']
+	asession = aspendb.AspenSession(userid, '')
+	astorage = aspendb.AspenStorage()
+	if astorage.authenticateWithoutPassword(asession):
+		cookie = Cookie.SimpleCookie()
+		cookie['UID'] = asession.getUID()
+		cookie['UID']['path'] = '/'
+		cookie['SID'] = asession.getSID()
+		cookie['SID']['path'] = '/'
+		print cookie
+	else:
+		raise Exception('Authentication failed')
 	lm.redirectToIndex()
+
+if __name__ == '__main__':
+	main()

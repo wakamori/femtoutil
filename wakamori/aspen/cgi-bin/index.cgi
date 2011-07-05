@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import cgitb; cgitb.enable()
@@ -16,11 +16,9 @@ html_login = '''<!DOCTYPE html>
 		<script type="text/javascript" src="../aspen/js/login.js"></script>
 	</head>
 	<body>
-		<form id="loginform" name="loginform" action="./aspen.cgi?method=oauth" method="post">
-		<div class="info">Aspenを使用するには，Twitterでの認証が必要です．</div>
-		<div style="text-align:right;">
-			<input class="loginbutton" type="submit" id="signin" value="認証する" />
-		</div>
+		<form id="loginform" name="loginform" action="./aspen.cgi?method=login" method="post">
+			<div class="info">Aspenを使用するには、Twitterアカウントでの認証が必要です。</div>
+			<input type="image" src="../aspen/sign-in-with-twitter-d.png" alt="Twitterで認証する" align="right">
 		</form>
 	</body>
 </html>'''
@@ -107,12 +105,17 @@ html_main = '''<!DOCTYPE html>
 
 def main():
 	print 'Content-Type: text/html;charset=UTF-8\n'
-	cookie = Cookie.SimpleCookie(os.environ['HTTP_COOKIE'])
+	cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
 	if cookie.has_key('access_token') and cookie.has_key('access_token_secret'):
 		lm = login.LoginManager()
-		print html_main % (lm.getAccountInfo()['name'].encode('utf-8'))
+		try:
+			print html_main % (lm.getAccountInfo(cookie['access_token'].value,
+			cookie['access_token_secret'].value)['name'].encode('utf-8'))
+		except Exception:
+			# not authorized
+			print html_login
 	else:
-		print html_oauth
+		print html_login
 
 if __name__ == '__main__':
 	main()
