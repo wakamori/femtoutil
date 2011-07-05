@@ -70,10 +70,7 @@ class Aspen:
 	def authWithSID(self):
 		self.astorage = aspendb.AspenStorage()
 		self.asession = self.astorage.authenticateWithSID(
-				self.lm.getAccountInfo(
-					self.cookie['access_token'].value,
-					self.cookie['access_token_secret'].value
-					)['id_str'],
+				self.cookie['UID'].value,
 				self.cookie['SID'].value)
 		if self.asession == None:
 			raise Exception('Failed to authenticate.')
@@ -81,10 +78,7 @@ class Aspen:
 	def authWithSIDAndRenewSession(self):
 		self.astorage = aspendb.AspenStorage()
 		self.asession = self.astorage.authenticateWithSIDAndRenewSession(
-				self.lm.getAccountInfo(
-					self.cookie['access_token'].value,
-					self.cookie['access_token_secret'].value
-					)['id_str'],
+				self.cookie['UID'].value,
 				self.cookie['SID'].value)
 		if self.asession == None:
 			raise Exception('Failed to authenticate and renew.')
@@ -271,9 +265,7 @@ a bug. Sorry.')
 		kscript = self.field.getvalue('kscript')
 		# create script dir
 		scrdir = 'scripts'
-		foldername = scrdir + '/' + self.lm.getAccountInfo(
-				self.cookie['access_token'].value,
-				self.cookie['access_token_secret'].value)['id_str']
+		foldername = scrdir + '/' + self.cookie['UID'].value
 		if not os.path.exists(foldername):
 			os.makedirs(foldername)
 		# settle script filename
