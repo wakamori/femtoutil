@@ -4,21 +4,22 @@
 import cgitb; cgitb.enable()
 import login
 import os
+import ConfigParser
 import Cookie
 
 html_login = '''<!DOCTYPE html>
 <html lang="ja">
 	<head>
 		<title>Aspen - An online KonohaScript editor</title>
-		<link rel="stylesheet" href="../aspen/css/aspen.css" />
-		<script type="text/javascript" src="../aspen/js/jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
-		<script type="text/javascript" src="../aspen/js/login.js"></script>
+		<link rel="stylesheet" href="%(rootpath)s/css/aspen.css" />
+		<script type="text/javascript" src="%(rootpath)s/js/jquery-1.6.1.min.js"></script>
+		<script type="text/javascript" src="%(rootpath)s/js/jquery.lightbox_me.js"></script>
+		<script type="text/javascript" src="%(rootpath)s/js/login.js"></script>
 	</head>
 	<body>
-		<form id="loginform" name="loginform" action="./aspen.cgi?method=login" method="post">
+		<form id="loginform" name="loginform" action="%(cgipath)s/aspen.cgi?method=login" method="post">
 			<div class="info">Aspenを使用するには、Twitterアカウントでの認証が必要です。</div>
-			<input type="image" src="../aspen/sign-in-with-twitter-d.png" alt="Twitterで認証する" align="right">
+			<input type="image" src="%(rootpath)s/img/sign-in-with-twitter-d.png" alt="Twitterで認証する" align="right">
 		</form>
 	</body>
 </html>'''
@@ -28,32 +29,32 @@ html_main = '''<!DOCTYPE html>
 	<head>
 		<title>Aspen - An online KonohaScript editor</title>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-		<script type="text/javascript" src="../aspen/js/codemirror.js"></script>
-		<script type="text/javascript" src="../aspen/js/autocompletion.js"></script>
-		<script type="text/javascript" src="../aspen/js/mootools-core-1.3.2-full-compat.js"></script>
-		<script type="text/javascript" src="../aspen/js/mootools-more-1.3.2.1.js"></script>
-		<script type="text/javascript" src="../aspen/js/aspen.js"></script>
-		<script type="text/javascript" src="../aspen/mode/konoha/konoha.js"></script>
-		<link rel="stylesheet" href="../aspen/css/aspen.css" />
-		<link rel="stylesheet" href="../aspen/css/codemirror.css" />
-		<link rel="stylesheet" href="../aspen/mode/konoha/konoha.css" />
+		<script type="text/javascript" src="%(rootpath)s/js/codemirror.js"></script>
+		<script type="text/javascript" src="%(rootpath)s/js/autocompletion.js"></script>
+		<script type="text/javascript" src="%(rootpath)s/js/mootools-core-1.3.2-full-compat.js"></script>
+		<script type="text/javascript" src="%(rootpath)s/js/mootools-more-1.3.2.1.js"></script>
+		<script type="text/javascript" src="%(rootpath)s/js/aspen.js"></script>
+		<script type="text/javascript" src="%(rootpath)s/mode/konoha/konoha.js"></script>
+		<link rel="stylesheet" href="%(rootpath)s/css/aspen.css" />
+		<link rel="stylesheet" href="%(rootpath)s/css/codemirror.css" />
+		<link rel="stylesheet" href="%(rootpath)s/mode/konoha/konoha.css" />
 	</head>
 	<body>
 		<table role="presentation">
 			<tr>
 				<td class="logo">
-					<a href="./index.cgi"><img class="logo" src="../aspen/konoha_logo.png" alt="Konoha"/></a>
+					<a href="%(indexpath)s"><img class="logo" src="%(rootpath)s/img/konoha_logo.png" alt="Konoha"/></a>
 				</td>
 				<td>
 					<div class="info">
-						<span class="user">Hello, %s.</span>
+						<span class="user">Hello, %(name)s.</span>
 					</div>
-					<form id="logoutform" class="inlineform" name="logoutform" action="./aspen.cgi" method="get">
+					<form id="logoutform" class="inlineform" name="logoutform" action="%(cgipath)s/aspen.cgi" method="get">
 						<input type="hidden" name="method" value="logout" />
 						<input class="normalbutton" type="submit" id="logout" value="Log out" />
 					</form>
 					<!--
-					<form id="newform" class="inlineform" name="newform" action="./aspen.cgi" method="get">
+					<form id="newform" class="inlineform" name="newform" action="%(cgipath)s/aspen.cgi" method="get">
 						<input type="hidden" name="method" value="new" />
 						<input class="normalbutton" type="submit" id="new" value="New" />
 					</form>
@@ -98,24 +99,30 @@ html_main = '''<!DOCTYPE html>
 		<div id="status">
 		</div>
 		<div class="info">
-			このエディタに関するご質問、ご意見は<img src="../aspen/gmail.png" id="mail" alt="wakamori111 at gmail.com"/>までお願いします。
+			このエディタに関するご質問、ご意見は<img src="%(rootpath)s/img/gmail.png" id="mail" alt="wakamori111 at gmail.com"/>までお願いします。
 		</div>
 	</body>
 </html>'''
 
 def main():
+	conf = ConfigParser.SafeConfigParser()
+	conf.read('settings.ini')
+	rootpath = conf.get('general', 'rootpath')
+	cgipath = conf.get('general', 'cgipath')
+	indexpath = conf.get('general', 'indexpath')
 	print 'Content-Type: text/html;charset=UTF-8\n'
 	cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
 	if cookie.has_key('access_token') and cookie.has_key('access_token_secret'):
 		lm = login.LoginManager()
 		try:
-			print html_main % (lm.getAccountInfo(cookie['access_token'].value,
-			cookie['access_token_secret'].value)['name'].encode('utf-8'))
+			name = lm.getAccountInfo(cookie['access_token'].value,
+				cookie['access_token_secret'].value)['name'].encode('utf-8')
+			print html_main % locals()
 		except Exception:
 			# not authorized
-			print html_login
+			print html_login % locals()
 	else:
-		print html_login
+		print html_login % locals()
 
 if __name__ == '__main__':
 	main()

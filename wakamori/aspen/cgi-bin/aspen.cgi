@@ -22,6 +22,7 @@ import signal
 import subprocess
 import sys
 import time
+import ConfigParser
 import Cookie
 
 class Alarm(Exception):
@@ -229,7 +230,9 @@ a bug. Sorry.')
 		keys = ['request_token', 'request_token_secret', 'access_token',
 		'access_token_secret', 'UID', 'SID']
 		self.deleteCookie(keys)
-		print 'Location: ./index.cgi\n'
+		conf = ConfigParser.SafeConfigParser()
+		conf.read('settings.ini')
+		print "Location: %s\n" % conf.get('general', 'indexpath')
 
 	def replyToRewind(self):
 		self.astorage = aspendb.AspenStorage()

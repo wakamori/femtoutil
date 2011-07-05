@@ -13,18 +13,21 @@ import oauth2 as oauth
 import os
 import urlparse
 import urllib
+import ConfigParser
 import Cookie
 
 class LoginManager:
 
-	consumer_key = 'consumer_key'
-	consumer_secret = 'consumer_secret'
 	request_token_url = 'https://api.twitter.com/oauth/request_token'
 	access_token_url = 'https://api.twitter.com/oauth/access_token'
 	authenticate_url = 'https://api.twitter.com/oauth/authenticate'
 	account_url = 'https://api.twitter.com/1/account/verify_credentials.json'
 
 	def __init__(self):
+		self.conf = ConfigParser.SafeConfigParser()
+		self.conf.read('settings.ini')
+		self.consumer_key = self.conf.get('twitter', 'consumer_key')
+		self.consumer_secret = self.conf.get('twitter', 'consumer_secret')
 		self.consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
 		self.cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
 
@@ -84,7 +87,7 @@ class LoginManager:
 		return json.loads(content)
 
 	def redirectToIndex(self):
-		print 'Location: ./index.cgi\n'
+		print "Location: %s\n" % self.conf.get('general', 'indexpath')
 
 def main():
 	lm = LoginManager()
