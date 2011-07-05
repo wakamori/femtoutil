@@ -3,7 +3,6 @@ using konoha.clib.*;
 Clib libc = new Clib("/usr/lib/libc.dylib");
 Glue g = libc.genGlue();
 
-//Clib.makeClass("Dir");
 dirstrc = new Structure([["x", Structure.FFI_POINTER]]);
 Clib.defineClass("Dir",	dirstrc);
 
