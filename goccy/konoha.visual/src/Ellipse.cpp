@@ -15,6 +15,7 @@ KEllipse::KEllipse()
 #endif
 }
 
+#ifdef K_USING_BOX2D
 void KEllipse::setRotation(qreal rotation_)
 {
 	rotation = rotation_;
@@ -73,6 +74,7 @@ void KEllipse::adjust(void)
 		ge->setRotation(-(angle * 360.0) / (2 * M_PI));
 	}
 }
+#endif
 
 void KEllipse::setRect(KRect *r)
 {

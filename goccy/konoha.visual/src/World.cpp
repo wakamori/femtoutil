@@ -14,6 +14,8 @@ KWorld::KWorld(int width, int height)
 	//world = new b2World(worldAABB, b2Vec2(0.0f, -10.0f), true);
 	rect_list = new QList<KRect*>();
 	ellipse_list = new QList<KEllipse*>();
+	texture_list = new QList<KTexture*>();
+	text_list = new QList<KText*>();
 	world = new b2World(b2Vec2(0.0f, -10.0f), true);
 	//scene = new QGraphicsScene();
 	//scene->setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -34,9 +36,13 @@ void KWorld::addObj(void *obj)
 	if (name == "KRect") {
 		//fprintf(stderr, "addAdjustFuncFromObj: this = [%p]\n", ((KRect *)o));
 		rect_list->append((KRect *)o);
-	} else if ("KEllipse") {
+	} else if (name == "KEllipse") {
 		ellipse_list->append((KEllipse *)o);
-	} else if ("KGroup") {
+	} else if (name == "KTexture") {
+		texture_list->append((KTexture *)o);
+	} else if (name == "KText") {
+		text_list->append((KText *)o);
+	} else if (name == "KGroup") {
 		fprintf(stderr, "STILL NOT SUPPORTED\n");
 	}
 }
@@ -83,6 +89,8 @@ void KWorld::timerEvent(QTimerEvent *event)
 		world->Step(timestep, iteration, iteration);
 		int rect_list_size = rect_list->size();
 		int ellipse_list_size = ellipse_list->size();
+		int texture_list_size = texture_list->size();
+		int text_list_size = text_list->size();
 		for (int i = 0; i < rect_list_size; i++) {
 			KRect *r = rect_list->at(i);
 			r->adjust();
@@ -90,6 +98,14 @@ void KWorld::timerEvent(QTimerEvent *event)
 		for (int i = 0; i < ellipse_list_size; i++) {
 			KEllipse *e = ellipse_list->at(i);
 			e->adjust();
+		}
+		for (int i = 0; i < texture_list_size; i++) {
+			KTexture *t = texture_list->at(i);
+			t->adjust();
+		}
+		for (int i = 0; i < text_list_size; i++) {
+			KText *t = text_list->at(i);
+			t->adjust();
 		}
 	}
 	QObject::timerEvent(event);
@@ -102,8 +118,6 @@ KMETHOD World_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	int width = Int_to(int, sfp[1]);
 	int height = Int_to(int, sfp[2]);
 	KWorld *w = new KWorld(width, height);
-	//center_x = width / 2;
-	//center_y = height / 2;
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, w);
 	RETURN_(p);
 }
@@ -122,6 +136,14 @@ KMETHOD World_add(Ctx *ctx, knh_sfp_t *sfp _RIX)
 		KEllipse *e = RawPtr_to(KEllipse *, sfp[1]);
 		e->addToWorld(world);
 		world->addObj(e);
+	} else if (name == "KTexture") {
+		KTexture *t = RawPtr_to(KTexture *, sfp[1]);
+		t->addToWorld(world);
+		world->addObj(t);
+	} else if (name == "KText") {
+		KText *t = RawPtr_to(KText *, sfp[1]);
+		t->addToWorld(world);
+		world->addObj(t);
 	} else {
 		fprintf(stderr, "World: [WARNING] UNNOWN OBJECT\n");
 	}

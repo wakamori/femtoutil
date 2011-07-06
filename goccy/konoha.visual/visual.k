@@ -4,6 +4,8 @@ class Item;
 class Group extends Item;
 class Ellipse extends Item;
 class Rect extends Item;
+class Texture extends Item;
+class Text extends Item;
 @Native class TimeLine;
 class Transform;
 class Connector;
@@ -45,6 +47,22 @@ void Rect.setRotation(float rotation);
 void Rect.setDensity(float density);
 void Rect.setFriction(float friction);
 void Rect.setRestitution(float restitution);
+
+Texture Texture.new(String filepath);
+void Texture.setRect(Rect r);
+void Texture.setColor(Color c);
+void Texture.setRotation(float rotation);
+void Texture.setDensity(float density);
+void Texture.setFriction(float friction);
+void Texture.setRestitution(float restitution);
+
+Text Text.new(String text);
+void Text.setPosition(int x, int y);
+void Text.setColor(Color c);
+void Text.setRotation(float rotation);
+void Text.setDensity(float density);
+void Text.setFriction(float friction);
+void Text.setRestitution(float restitution);
 
 Color Color.new(String color);
 Brush Brush.new(String color);

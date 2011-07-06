@@ -53,6 +53,8 @@ signals:
 #ifdef K_USING_BOX2D
 class KRect;
 class KEllipse;
+class KTexture;
+class KText;
 class KWorld : public QObject {
 public:
 	int timer_id;
@@ -63,6 +65,8 @@ public:
 	QGraphicsScene *scene;
 	QList<KRect *> *rect_list;
 	QList<KEllipse*> *ellipse_list;
+	QList<KTexture*> *texture_list;
+	QList<KText*> *text_list;
 	b2Body *root;
 	//JointObjectManagerList *joml;
 	b2World *world;
@@ -144,6 +148,65 @@ public:
 #endif
 };
 
+class KTexture : public QObject {
+	Q_OBJECT;
+public:
+	QPixmap *p;
+	QGraphicsPixmapItem *gp;
+	bool isDrag;
+	int x;
+	int y;
+	int width;
+	int height;
+#ifdef K_USING_BOX2D
+	bool isStatic;
+	qreal rotation;
+	b2FixtureDef *shapeDef;
+	b2BodyDef *bodyDef;
+	b2Body *body;
+#endif
+	
+	KTexture(QString filepath);
+	void setRect(KRect *r);
+#ifdef K_USING_BOX2D
+	void setRotation(qreal rotation_);
+	void setDensity(qreal density_);
+	void setFriction(qreal friction_);
+	void setRestitution(qreal restitution_);
+	void addToWorld(KWorld *w);
+	void adjust(void);
+#endif
+};
+
+class KText : public QObject {
+	Q_OBJECT;
+public:
+	QGraphicsTextItem *gt;
+	bool isDrag;
+	int x;
+	int y;
+	int width;
+	int height;
+#ifdef K_USING_BOX2D
+	bool isStatic;
+	qreal rotation;
+	b2FixtureDef *shapeDef;
+	b2BodyDef *bodyDef;
+	b2Body *body;
+#endif
+	
+	KText(QString text);
+	void setPosition(int x, int y);
+#ifdef K_USING_BOX2D
+	void setRotation(qreal rotation_);
+	void setDensity(qreal density_);
+	void setFriction(qreal friction_);
+	void setRestitution(qreal restitution_);
+	void addToWorld(KWorld *w);
+	void adjust(void);
+#endif
+};
+
 class KGroup : public QObject {
 	Q_OBJECT;
 public:
@@ -165,11 +228,18 @@ static inline QGraphicsItem *KITEM_to(knh_RawPtr_t *p)
 	QString name = o->objectName();
 	if (name == "KRect") {
 		return (QGraphicsItem *)((KRect *)o)->gr;
-	} else if ("KGroup") {
+	} else if (name == "KGroup") {
 		return (QGraphicsItem *)((KGroup *)o)->g;
-	} else if ("KEllipse") {
+	} else if (name == "KEllipse") {
 		return (QGraphicsItem *)((KEllipse *)o)->ge;
+	} else if (name == "KTexture") {
+		return (QGraphicsItem *)((KTexture *)o)->gp;
+	} else if (name == "KText") {
+		return (QGraphicsItem *)((KText *)o)->gt;
+	} else {
+		fprintf(stderr, "CANNNOT CONVERT TO QGraphicsItem\n");
 	}
+	return NULL;
 }
 
 static inline int match(const char *base, const char *target)

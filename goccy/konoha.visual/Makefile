@@ -25,6 +25,8 @@ objs = build/visual.o\
 	build/Color.o\
 	build/Brush.o\
 	build/World.o\
+	build/Texture.o\
+	build/Text.o
 
 .PHONY: all
 all: $(library)
@@ -58,6 +60,12 @@ build/Rect.o: src/Rect.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Item.o: src/Item.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+build/Texture.o: src/Texture.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+build/Text.o: src/Text.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/TimeLine.o: src/TimeLine.cpp

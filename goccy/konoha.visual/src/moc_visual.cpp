@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'visual.hpp'
 **
-** Created: Wed Jul 6 00:00:13 2011
+** Created: Thu Jul 7 01:56:23 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -286,6 +286,104 @@ void *KEllipse::qt_metacast(const char *_clname)
 }
 
 int KEllipse::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    return _id;
+}
+static const uint qt_meta_data_KTexture[] = {
+
+ // content:
+       5,       // revision
+       0,       // classname
+       0,    0, // classinfo
+       0,    0, // methods
+       0,    0, // properties
+       0,    0, // enums/sets
+       0,    0, // constructors
+       0,       // flags
+       0,       // signalCount
+
+       0        // eod
+};
+
+static const char qt_meta_stringdata_KTexture[] = {
+    "KTexture\0"
+};
+
+const QMetaObject KTexture::staticMetaObject = {
+    { &QObject::staticMetaObject, qt_meta_stringdata_KTexture,
+      qt_meta_data_KTexture, 0 }
+};
+
+#ifdef Q_NO_DATA_RELOCATION
+const QMetaObject &KTexture::getStaticMetaObject() { return staticMetaObject; }
+#endif //Q_NO_DATA_RELOCATION
+
+const QMetaObject *KTexture::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
+}
+
+void *KTexture::qt_metacast(const char *_clname)
+{
+    if (!_clname) return 0;
+    if (!strcmp(_clname, qt_meta_stringdata_KTexture))
+        return static_cast<void*>(const_cast< KTexture*>(this));
+    return QObject::qt_metacast(_clname);
+}
+
+int KTexture::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    return _id;
+}
+static const uint qt_meta_data_KText[] = {
+
+ // content:
+       5,       // revision
+       0,       // classname
+       0,    0, // classinfo
+       0,    0, // methods
+       0,    0, // properties
+       0,    0, // enums/sets
+       0,    0, // constructors
+       0,       // flags
+       0,       // signalCount
+
+       0        // eod
+};
+
+static const char qt_meta_stringdata_KText[] = {
+    "KText\0"
+};
+
+const QMetaObject KText::staticMetaObject = {
+    { &QObject::staticMetaObject, qt_meta_stringdata_KText,
+      qt_meta_data_KText, 0 }
+};
+
+#ifdef Q_NO_DATA_RELOCATION
+const QMetaObject &KText::getStaticMetaObject() { return staticMetaObject; }
+#endif //Q_NO_DATA_RELOCATION
+
+const QMetaObject *KText::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
+}
+
+void *KText::qt_metacast(const char *_clname)
+{
+    if (!_clname) return 0;
+    if (!strcmp(_clname, qt_meta_stringdata_KText))
+        return static_cast<void*>(const_cast< KText*>(this));
+    return QObject::qt_metacast(_clname);
+}
+
+int KText::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QObject::qt_metacall(_c, _id, _a);
     if (_id < 0)

@@ -49,16 +49,18 @@ class PhysicsWorld {
 		e.setRect(new Rect(250, 300, 20, 20));
 		e.setColor(new Color("#eeee00"));
 		e.setDensity(1.0);
-		//QText t = new QText(200, 100, "Hello World");
-		//t.setDensity(1.0);
-		//QPixmap p = new QPixmap("sample/qt.jpg");
-		//p.setPosition(200, 50);
-		//p.setSize(50, 50);
-		//p.setDensity(1);
+		Text text = new Text("Hello World");
+		text.setPosition(300, 100);
+		text.setDensity(1.0);
+		Texture texture = new Texture("sample/qt.jpg");
+		texture.setRect(new Rect(200, 200, 50, 50));
+		texture.setDensity(1);
 		world.add(e);
 		scene.addItem(e);
-		//world.add(t);
-		//world.add(p);
+		world.add(text);
+		scene.addItem(text);
+		world.add(texture);
+		scene.addItem(texture);
 	}
 
 	void show() {

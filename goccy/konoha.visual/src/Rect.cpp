@@ -114,6 +114,7 @@ KRect::KRect(int x_, int y_, int width_, int height_)
 #endif
 }
 
+#ifdef K_USING_BOX2D
 void KRect::setRotation(qreal rotation_)
 {
 	rotation = rotation_;
@@ -171,6 +172,7 @@ void KRect::adjust(void)
 		gr->setRotation(-(angle * 360.0) / (2 * M_PI));
 	}
 }
+#endif
 
 KMETHOD Rect_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
