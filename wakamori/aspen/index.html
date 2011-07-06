@@ -26,35 +26,38 @@
 	</head>
 	<body>
 
-		<!-- status -->
-		<table role="presentation" id="header">
-			<tr>
-				<td class="logo">
-					<img class="logo" src="./img/konoha_logo.png" alt="Konoha"/>
-				</td>
-				<td>
-					<div class="info">
-						<span id="user"></span>
-					</div>
-					<form id="logoutform" class="inlineform" name="logoutform" action="./cgi-bin/aspen.cgi" method="get">
-						<input type="hidden" name="method" value="logout" />
-						<input class="normalbutton" type="submit" id="logout" value="Log out" />
-					</form>
-					<!--
-					<form id="newform" class="inlineform" name="newform" action="%(cgipath)s/aspen.cgi" method="get">
-						<input type="hidden" name="method" value="new" />
-						<input class="normalbutton" type="submit" id="new" value="New" />
-					</form>
-					-->
-					<input type="button" class="fixedbutton" id="new" name="new" value="New" />
-					<input type="button" class="fixedbutton" id="eval" name="eval" value="Run" />
-					<!--				<input type="button" class="fixedbutton" id="save" alt="save the current buffer at remote server" value="Save" />
-					<input type="button" class="fixedbutton" id="load" alt="load a script from your server" value="Load" />
-					<input type="button" class="fixedbutton" id="save" alt="open your script" value="Open" onclick='javascript:{ if ($("#file").css("display") == "none") { $("#file").css("display", "inline");} else { $("#file").css("display", "none"); }};' />
-					<input style="display:none" type="file" id="file" name="file" />-->
-				</td>
-			</tr>
-		</table>
+		<!-- header -->
+		<header id="titleheader">
+			<h1>Aspen: KonohaScript Editor</h1>
+		</header>
+						<!--
+						<form id="newform" class="inlineform" name="newform" action="%(cgipath)s/aspen.cgi" method="get">
+							<input type="hidden" name="method" value="new" />
+							<input class="normalbutton" type="submit" id="new" value="New" />
+						</form>
+						-->
+						<!--				<input type="button" class="fixedbutton" id="save" alt="save the current buffer at remote server" value="Save" />
+						<input type="button" class="fixedbutton" id="load" alt="load a script from your server" value="Load" />
+						<input type="button" class="fixedbutton" id="save" alt="open your script" value="Open" onclick='javascript:{ if ($("#file").css("display") == "none") { $("#file").css("display", "inline");} else { $("#file").css("display", "none"); }};' />
+						<input style="display:none" type="file" id="file" name="file" />-->
+
+		<!-- information -->
+		<div class="info" id="info">
+			<span id="user"></span>
+		</div>
+
+		<!--
+		<form id="logoutform" class="inlineform" name="logoutform" action="./cgi-bin/aspen.cgi" method="get">
+			<input type="hidden" name="method" value="logout" />
+		</form>
+		-->
+
+		<!-- menu -->
+		<menu type="toolbar" id="topmenu">
+			<button class="menubutton" type="submit" id="logout">Sign out</button>
+			<button class="menubutton" type="button" id="new">New</button>
+			<button class="menubutton" type="button" id="eval">Run</button>
+		</menu>
 
 		<!-- tabs -->
 		<!--
@@ -91,8 +94,14 @@
 		<textarea id="code" name="code" rows="30" cols="80"></textarea>
 
 		<!-- footer -->
-		<div id="footer" class="info">
-			このエディタに関するご質問、ご意見は<img src="./img/gmail.png" id="mail" alt="wakamori111 at gmail.com"/>までお願いします。
-		</div>
+		<footer id="footer" class="info">
+			<p>
+			Copyright (c) <a href="http://konoha.sourceforge.jp/">Konoha Software Foundation</a>
+			2008-2011 All rights reserved.
+			</p>
+			<p>
+			Contact: <img src="./img/gmail.png" id="mail" alt="wakamori111 at gmail.com"/>
+			</p>
+		</footer>
 	</body>
 </html>

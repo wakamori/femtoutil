@@ -14,13 +14,13 @@ Setting example (Mac OSX)
 
  * httpd.conf
 
-	<Directory "/path/to/aspen/cgi-bin/">
-		AllowOverride None
-		Options ExecCGI FollowSymLinks
-		AddHandler text/plain .out .err .k
-		Order allow,deny
-		Allow from all
-	</Directory>
+    <Directory "/path/to/aspen/cgi-bin/">
+        AllowOverride None
+        Options ExecCGI FollowSymLinks
+        AddHandler text/plain .out .err .k
+        Order allow,deny
+        Allow from all
+    </Directory>
 
 Next, modify cgi-bin/settings.ini based on your environments.
 

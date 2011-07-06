@@ -11,7 +11,7 @@ window.onload = function() {
 	Shadowbox.init();
 	if (Cookie.read("UID") == null || Cookie.read("SID") == null) {
 		Shadowbox.open({
-			content: '<form id="login" name="loginform" action="./cgi-bin/aspen.cgi?method=login" method="post">'
+			content: '<form id="login" action="./cgi-bin/aspen.cgi?method=login" method="post">'
 			+ '<div class="info">Aspenを使用するには、Twitterアカウントでの認証が必要です。</div>'
 			+ '<input id="sign_in_button" type="image" src="./img/sign-in-with-twitter-d.png" alt="Twitterで認証する"></form>',
 			player: "html",
@@ -101,9 +101,9 @@ var Aspen = new Class({
 			self.newReq.send();
 		});
 		var changeScript = function(responseText) {
-			console.log(Cookie.read("UID"));
-			console.log(Cookie.read("SID"));
-			console.log(responseText);
+			//console.log(Cookie.read("UID"));
+			//console.log(Cookie.read("SID"));
+			//console.log(responseText);
 			if (responseText == "latest") {
 				document.id("result").set("html", "");
 				var msg = new Element("span", {
@@ -125,6 +125,20 @@ var Aspen = new Class({
 					"time": new Date().getTime() // for IE
 				},
 				onSuccess: changeScript
+			});
+			req.send();
+		});
+		document.id("logout").addEvent("click", function() {
+			var req = new Request({
+				url: self.cgi_dir + "/aspen.cgi",
+				method: "get",
+				data: {
+					"method": "logout",
+					"time": new Date().getTime() // for IE
+				},
+				onSuccess: function() {
+					location.reload();
+				}
 			});
 			req.send();
 		});
@@ -154,7 +168,9 @@ var Aspen = new Class({
 		});
 		if (Cookie.read("UID") == null || Cookie.read("SID") == null) {
 			// show login dialog
-			document.id("header").hide();
+			document.id("titleheader").hide();
+			document.id("info").hide();
+			document.id("topmenu").hide();
 			document.id("result").hide();
 			document.id("file").hide();
 			this.cm.toTextArea();

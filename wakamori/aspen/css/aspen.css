@@ -1,13 +1,44 @@
 /* aspen style */
 
-div#result {
-	margin-top: 10px;
-	margin-bottom: 10px;
+#titleheader {
+	background: #022d23;
+	color: #e8db9e;
+	text-shadow: black 2px 2px 2px;
+	padding: 10px 10px 10px 10px;
+	border-top: 5px #594 solid;
+	border-bottom: 5px #594 solid;
+}
+
+body {
+	margin: 0px;
+}
+
+h1 {
+	background-image: url("../img/ks_icon.jpg");
+	background-repeat: no-repeat;
+	background-position: left center;
+	font-family: arial;
+	font-size: 40pt;
+	margin: 0px;
+	padding-left: 90px;
+}
+
+#info {
+	margin: 8px;
+}
+
+#file {
+	margin-left: 8px;
+	margin-right: 8px;
+}
+
+#result {
+	margin: 10px 8px 10px 8px;
 	height: 150px;
-	width: 75%;
+	/*width: 75%;*/
 	overflow: auto;
 	font-family: 'courier new';
-	border: 1px solid #000000;
+	border: 1px solid black;
 	/*display: none;*/
 }
 
@@ -23,12 +54,8 @@ div#result {
 	color: gray;
 }
 
-#username.sprited {
-	color: gray;
-}
-
-.normalbutton, .fixedbutton {
-	width: 50px;
+.menubutton {
+	width: 60px;
 	line-height: 20px;
 	height: 30px;
 	text-align: center;
@@ -55,11 +82,7 @@ div#result {
 	padding: 2px;
 }
 
-.fixedbutton {
-	width: 50px;
-}
-
-.logoutbutton:hover, .newbutton:hover {
+.menubutton:hover {
 	opacity: 0.9;
 	-webkit-box-shadow: 0px 0px 5px #999;  /* safari */
 	-moz-box-shadow: 0px 0px 5px #999;   /* firefox */
@@ -68,21 +91,6 @@ div#result {
 
 .inlineform {
 	display: inline;
-}
-
-textarea {
-	width: 100%;
-	height: 100%;
-}
-
-.logo {
-	border: 0;
-	width: 213px;
-	height: 54px;
-}
-
-td.logo {
-	width: 230px;
 }
 
 .mail {
@@ -96,4 +104,12 @@ td.logo {
 
 #sign_in_button {
 	padding-top: 15px;
+}
+
+#footer {
+	/*margin-top: 10px;
+	border-top: 1px gray dashed;*/
+	font-size: small;
+	color: gray;
+	text-align: center;
 }
