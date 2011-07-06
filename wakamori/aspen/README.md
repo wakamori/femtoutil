@@ -11,6 +11,9 @@ If it is possible, use ScriptAlias and locate cgi-bin directory outside of
 DocumentRoot directory.
 
 Setting example (Mac OSX)
+
+ * httpd.conf
+
 	<Directory "/path/to/aspen/cgi-bin/">
 		AllowOverride None
 		Options ExecCGI FollowSymLinks
@@ -18,6 +21,8 @@ Setting example (Mac OSX)
 		Order allow,deny
 		Allow from all
 	</Directory>
+
+Next, modify cgi-bin/settings.ini based on your environments.
 
 How to use
 ----------
