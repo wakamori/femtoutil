@@ -28,15 +28,19 @@ class LoginManager:
 		self.conf.read('settings.ini')
 		self.consumer_key = self.conf.get('twitter', 'consumer_key')
 		self.consumer_secret = self.conf.get('twitter', 'consumer_secret')
+		self.callback_url = self.conf.get('twitter', 'callback_url')
 		self.consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
 		self.cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
 
 	# Get a request token
 	def getRequestToken(self):
 		client = oauth.Client(self.consumer)
-		#resp, content = client.request(self.request_token_url, 'GET')
-		resp, content = client.request(self.request_token_url, 'POST',
-				body=urllib.urlencode({'oauth_callback':'http://localhost/aspen/cgi-bin/login.py'}))
+		resp, content = None, None
+		if self.callback_url == None:
+			resp, content = client.request(self.request_token_url, 'GET')
+		else:
+			resp, content = client.request(self.request_token_url, 'POST',
+				body=urllib.urlencode({'oauth_callback': self.callback_url}))
 		if resp['status'] != '200':
 			raise Exception("Invalid response %s." % resp['status'])
 

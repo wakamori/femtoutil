@@ -236,7 +236,7 @@ a bug. Sorry.')
 	def replyToRewind(self):
 		self.astorage = aspendb.AspenStorage()
 		fromsid = self.astorage.rewindSID(self.cookie['SID'].value)
-		if fromsid is not '':
+		if fromsid != 'none' and fromsid != '':
 			self.saveCookie([('SID', fromsid)])
 			self.printScript(sid=fromsid)
 		else:
