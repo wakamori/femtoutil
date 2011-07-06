@@ -288,12 +288,13 @@ a bug. Sorry.')
 		if os.path.isfile(filename):
 			sys.stdout.write(open(filename, 'r').read())
 
-	def getScreenName(self):
+	def getUserInfomation(self):
 		name = self.lm.getAccountInfo(
 				self.cookie['access_token'].value,
 				self.cookie['access_token_secret'].value
-				)['name']
-		self.printText(name.encode('utf-8'))
+				)
+		print 'Content-Type: application/json;charset=UTF-8\n'
+		print json.dumps(name)
 
 	def run(self):
 		mtype = self.field.getvalue('method')
@@ -326,8 +327,8 @@ a bug. Sorry.')
 			elif mtype == 'load':
 				self.authWithSID()
 				self.printScript()
-			elif mtype == 'getName':
-				self.getScreenName()
+			elif mtype == 'getInfo':
+				self.getUserInfomation()
 			else:
 				raise Exception('No such method in GET.')
 		else:

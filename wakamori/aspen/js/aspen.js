@@ -182,11 +182,19 @@ var Aspen = new Class({
 				url: self.cgi_dir + "/aspen.cgi",
 				method: "get",
 				data: {
-					"method": "getName",
+					"method": "getInfo",
 					"time": new Date().getTime() // for IE
 				},
 				onSuccess: function(responseText) {
-					document.id("user").set("html", "Hello, " + responseText + ".");
+					var json = JSON.decode(responseText);
+					var img = new Element("img", {
+						src: json["profile_image_url"],
+						styles: {
+							"vertical-align": "middle"
+						}
+					});
+					img.inject("info", "top");
+					document.id("user").set("html", json["name"] + " @" + json["screen_name"]);
 				}
 			});
 			req.send();
