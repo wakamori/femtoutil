@@ -1,5 +1,8 @@
 #include <konoha1.h>
 #include <QtGui>
+#ifdef K_USING_BOX2D
+#include <Box2D.h>
+#endif
 #include <iostream>
 using namespace std;
 
@@ -30,40 +33,63 @@ signals:
 	void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
 };
 
+#ifdef K_USING_BOX2D
+class KRect;
+//typedef void(KRect::*AdjustRectFunc)(void);
+class KWorld : public QObject {
+public:
+	int timer_id;
+	int iteration;
+	qreal center_x;
+	qreal center_y;
+	float timestep;
+	QGraphicsScene *scene;
+	//QList<AdjustRectFunc> *adjust_rect_func_list;
+	QList<KRect *> *rect_list;
+	KRect *r;
+	//KEllipse *e;
+	b2Body *root;
+	//JointObjectManagerList *joml;
+	b2World *world;
+	
+	KWorld(int width, int height);
+	//void addJointObjectManager(JointObjectManager *jom);
+	void addObj(void *obj);
+    void start(void);
+	void joint(void);
+	qreal centerX(void);
+	qreal centerY(void);
+	void timerEvent(QTimerEvent *event);
+};
+#endif
+
 class KRect : public QObject {
 	Q_OBJECT;
 public:
 	QRect *r;
 	KGraphicsRectItem *gr;
 	int isDrag;
+	int x;
+	int y;
+	int width;
+	int height;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
-	b2PolygonDef *shapeDef;
+	//b2PolygonDef *shapeDef;
+	b2FixtureDef *shapeDef;
 	b2BodyDef *bodyDef;
 	b2Body *body;
+	void (KRect::*adjust_func)(void);
 #endif
 	KRect(int x, int y, int width, int height);
-
 #ifdef K_USING_BOX2D
-	void setRotation(qreal rotation_) {
-		rotation = rotation_;
-	}
-	
-	void setDensity(qreal density_) {
-		shapeDef->density = density_;
-		if (density > 0) {
-			isStatic = 0;
-		}
-	}
-
-	void setFriction(qreal friction_) {
-		shapeDef->friction = friction_;
-	}
-
-	void setRestitution(qreal restitution_) {
-		shapeDef->restitution = restitution_;
-	}
+	void setRotation(qreal rotation_);
+	void setDensity(qreal density_);
+	void setFriction(qreal friction_);
+	void setRestitution(qreal restitution_);
+	void addToWorld(KWorld *w);
+	void adjust(void);
 #endif
 public slots:
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);

@@ -1,10 +1,10 @@
 CC = g++
-INCPATH = -I/usr/local/Trolltech/Qt-4.7.3/mkspecs/macx-g++ -I. -I/usr/local/Trolltech/Qt-4.7.3/lib/QtCore.framework/Versions/4/Headers -I/usr/local/Trolltech/Qt-4.7.3/include/QtCore -I/usr/local/Trolltech/Qt-4.7.3/lib/QtGui.framework/Versions/4/Headers -I/usr/local/Trolltech/Qt-4.7.3/include/QtGui -I/usr/local/Trolltech/Qt-4.7.3/include -I. -I. -F/usr/local/Trolltech/Qt-4.7.3/lib
+INCPATH = -I/usr/local/Trolltech/Qt-4.7.3/mkspecs/macx-g++ -I. -I/usr/local/Trolltech/Qt-4.7.3/lib/QtCore.framework/Versions/4/Headers -I/usr/local/Trolltech/Qt-4.7.3/include/QtCore -I/usr/local/Trolltech/Qt-4.7.3/lib/QtGui.framework/Versions/4/Headers -I/usr/local/Trolltech/Qt-4.7.3/include/QtGui -I/usr/local/Trolltech/Qt-4.7.3/include -I. -I. -F/usr/local/Trolltech/Qt-4.7.3/lib -I/usr/local/include/Box2D
 LFLAGS = -headerpad_max_install_names -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5 
 LIBS = -F/usr/local/Trolltech/Qt-4.7.3/lib -L/usr/local/Trolltech/Qt-4.7.3/lib -framework QtGui -L/usr/local/Trolltech/Qt-4.7.3/lib -F/usr/local/Trolltech/Qt-4.7.3/lib -framework QtCore
-DEFINES = -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED
+DEFINES = -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -DK_USING_BOX2D
 CFLAGS = -O0 -g3 -pipe -g -gdwarf-2 -Wall -W -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5 $(DEFINES) -I/usr/local/include/ -I./include/ -Wall -W -fPIC $(INCPATH)
-LDLIBS = $(LFLAGS) $(LIBS) -lkonoha1
+LDLIBS = $(LFLAGS) $(LIBS) -lkonoha1 -lBox2D
 
 pkgname = visual
 library = "$(pkgname).dylib"
@@ -23,7 +23,8 @@ objs = build/visual.o\
 	build/Timer.o\
 	build/View.o\
 	build/Color.o\
-	build/Brush.o
+	build/Brush.o\
+	build/World.o\
 
 .PHONY: all
 all: $(library)
@@ -77,6 +78,8 @@ build/Scene.o: src/Scene.cpp
 build/View.o: src/View.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
+build/World.o: src/World.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
 
 $(library): $(objs)
 	$(CC) -dynamiclib -o $@ $^ $(LDLIBS)

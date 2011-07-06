@@ -1,13 +1,8 @@
-#include <konoha1.h>
-#include <QtGui>
-#define KMETHOD  void  CC_FASTCALL_
 #include <visual.hpp>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define NO_WARNING() (void)ctx; (void)sfp; (void)_rix;
-#define NO_WARNING2() (void)ctx; (void)cid;
 
 void KGraphicsRectItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -47,8 +42,8 @@ void KRect::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	(void)event;
 #ifdef K_USING_BOX2D
 	QPointF lspos = event->lastScreenPos();
-	if (!isStatic()) {
-		setPos(lspos.x() - r_prev_x + x(), lspos.y() - r_prev_y + y());
+	if (!isStatic) {
+		gr->setPos(lspos.x() - r_prev_x + x, lspos.y() - r_prev_y + y);
 	}
 	r_prev_x = lspos.x();
 	r_prev_y = lspos.y();
@@ -70,19 +65,92 @@ void KRect::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 	//event->setAccepted(event->mimeData()->hasFormat("text/plain"));
 }
 
-KRect::KRect(int x, int y, int width, int height)
+KRect::KRect(int x_, int y_, int width_, int height_)
 {
-	r = new QRect(x, y, width, height);
+	r = new QRect(x_, y_, width_, height_);
+	x = x_;
+	y = y_;
+	width = width_;
+	height = height_;
+	isDrag = 0;
 	gr = new KGraphicsRectItem();
 	gr->setRect(*r);
-	connect(gr, SIGNAL(emitMousePressEvent(QGraphicsSceneMouseEvent*)), this, SLOT(mousePressEvent(QGraphicsSceneMouseEvent*)));
-	connect(gr, SIGNAL(emitMouseMoveEvent(QGraphicsSceneMouseEvent*)), this, SLOT(mouseMoveEvent(QGraphicsSceneMouseEvent*)));
-	connect(gr, SIGNAL(emitMouseReleaseEvent(QGraphicsSceneMouseEvent*)), this, SLOT(mouseReleaseEvent(QGraphicsSceneMouseEvent*)));
-	connect(gr, SIGNAL(emitDragEnterEvent(QGraphicsSceneDragDropEvent*)), this, SLOT(dragEnterEvent(QGraphicsSceneDragDropEvent*)));
+	connect(gr, SIGNAL(emitMousePressEvent(QGraphicsSceneMouseEvent*)),
+			this, SLOT(mousePressEvent(QGraphicsSceneMouseEvent*)));
+	connect(gr, SIGNAL(emitMouseMoveEvent(QGraphicsSceneMouseEvent*)),
+			this, SLOT(mouseMoveEvent(QGraphicsSceneMouseEvent*)));
+	connect(gr, SIGNAL(emitMouseReleaseEvent(QGraphicsSceneMouseEvent*)),
+			this, SLOT(mouseReleaseEvent(QGraphicsSceneMouseEvent*)));
+	connect(gr, SIGNAL(emitDragEnterEvent(QGraphicsSceneDragDropEvent*)),
+			this, SLOT(dragEnterEvent(QGraphicsSceneDragDropEvent*)));
 	setObjectName("KRect");
 #ifdef K_USING_BOX2D
-	shapeDef = new b2PolygonDef();
+	isStatic = true;
+	adjust_func = &KRect::adjust;
+	shapeDef = new b2FixtureDef();
 #endif
+}
+
+void KRect::setRotation(qreal rotation_)
+{
+	rotation = rotation_;
+}
+
+void KRect::setDensity(qreal density_)
+{
+	shapeDef->density = density_;
+	if (density_ > 0) {
+		isStatic = false;
+	} else {
+		isStatic = true;
+	}
+}
+void KRect::setFriction(qreal friction_)
+{
+	shapeDef->friction = friction_;
+}
+
+void KRect::setRestitution(qreal restitution_)
+{
+	shapeDef->restitution = restitution_;
+}
+
+void KRect::addToWorld(KWorld *w)
+{
+	b2World *world = w->world;
+	b2BodyDef bodyDef;
+	if (!isStatic) {
+		bodyDef.type = b2_dynamicBody;
+	}
+	bodyDef.position.Set(0, 0);
+	bodyDef.angle = -(gr->rotation() * (2 * M_PI)) / 360.0;
+	body = world->CreateBody(&bodyDef);
+	b2PolygonShape *shape = new b2PolygonShape();
+	shape->SetAsBox(width / 2, height / 2,
+					*(new b2Vec2(x + width / 2, -y - height / 2)), 0.0);
+	shapeDef->shape = shape;
+	//fprintf(stderr, "density = [%f]\n", shapeDef->density);
+	body->CreateFixture(shapeDef);
+	//fprintf(stderr, "this = [%p]\n", this);
+	//fprintf(stderr, "body = [%p]\n", body);
+}
+
+void KRect::adjust(void)
+{
+	//fprintf(stderr, "=============\n");
+	//fprintf(stderr, "this = [%p]\n", this);
+	//fprintf(stderr, "body = [%p]\n", body);
+	b2Vec2 position = body->GetPosition();
+	qreal angle = body->GetAngle();
+	if (isDrag) {
+		//body->SetXForm(*(new b2Vec2(gr->x(), -gr->y())), angle);
+	} else {
+		x = position.x;
+		y = -position.y;
+		//fprintf(stderr, "x = [%d], y = [%d]\n", x, y);
+		gr->setPos(x, y);
+		gr->setRotation(-(angle * 360.0) / (2 * M_PI));
+	}
 }
 
 KMETHOD Rect_new(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -92,7 +160,6 @@ KMETHOD Rect_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	int y = Int_to(int, sfp[2]);
 	int width = Int_to(int, sfp[3]);
 	int height = Int_to(int, sfp[4]);
-	//fprintf(stderr, "x = [%d], y = [%d], width = [%d], height = [%d]\n", x, y, width, height);
 	KRect *r = new KRect(x, y, width, height);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, r);
 	RETURN_(p);
@@ -108,7 +175,7 @@ KMETHOD Rect_setColor(CTX ctx, knh_sfp_t *sfp _RIX)
 }
 
 #ifdef K_USING_BOX2D
-KMETHOD Rect_setRotation(Ctx *ctx, knh_sfp_t *sfp, long rix)
+KMETHOD Rect_setRotation(Ctx *ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KRect *r = RawPtr_to(KRect *, sfp[0]);
@@ -117,7 +184,7 @@ KMETHOD Rect_setRotation(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNvoid_();
 }
 
-KMETHOD Rect_setDensity(Ctx *ctx, knh_sfp_t *sfp, long rix)
+KMETHOD Rect_setDensity(Ctx *ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KRect *r = RawPtr_to(KRect *, sfp[0]);
@@ -126,7 +193,7 @@ KMETHOD Rect_setDensity(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNvoid_();
 }
 
-KMETHOD Rect_setFriction(Ctx *ctx, knh_sfp_t *sfp, long rix)
+KMETHOD Rect_setFriction(Ctx *ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KRect *r = RawPtr_to(KRect *, sfp[0]);
@@ -135,7 +202,7 @@ KMETHOD Rect_setFriction(Ctx *ctx, knh_sfp_t *sfp, long rix)
 	RETURNvoid_();
 }
 
-KMETHOD Rect_setRestitution(Ctx *ctx, knh_sfp_t *sfp, long rix)
+KMETHOD Rect_setRestitution(Ctx *ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KRect *r = RawPtr_to(KRect *, sfp[0]);
