@@ -23,27 +23,8 @@ div#result {
 	color: gray;
 }
 
-#loginform {
-	-moz-border-radius: 6px;
-	background: #eef2f7;
-	-webkit-border-radius: 6px;
-	border: 1px solid #536376;
-	-webkit-box-shadow: rgba(0,0,0,.6) 0px 2px 12px;
-	-moz-box-shadow:  rgba(0,0,0,.6) 0px 2px 12px;
-	padding: 14px 22px;
-	width: 300px;
-	position: relative;
-	display: none;
-}
-
 #username.sprited {
 	color: gray;
-}
-
-.loginbutton {
-	width: 70px;
-	height: 31px;
-	margin-right: 15px;
 }
 
 .normalbutton, .fixedbutton {
@@ -106,4 +87,13 @@ td.logo {
 
 .mail {
 	font-size: small;
+}
+
+#login {
+	padding: 10px;
+	text-align: center;
+}
+
+#sign_in_button {
+	padding-top: 15px;
 }

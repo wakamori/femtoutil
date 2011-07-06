@@ -231,14 +231,14 @@ a bug. Sorry.')
 		keys = ['request_token', 'request_token_secret', 'access_token',
 		'access_token_secret', 'UID', 'SID']
 		self.deleteCookie(keys)
-		print "Location: %s\n" % self.conf.get('general', 'indexpath')
+		print "Location: ../\n"
 
 	def replyToRewind(self):
 		self.astorage = aspendb.AspenStorage()
 		fromsid = self.astorage.rewindSID(self.cookie['SID'].value)
 		if fromsid is not '':
 			self.saveCookie([('SID', fromsid)])
-			self.printScript()
+			self.printScript(sid=fromsid)
 		else:
 			self.printText('oldest')
 
@@ -247,14 +247,13 @@ a bug. Sorry.')
 		tosid = self.astorage.forwardSID(self.cookie['SID'].value)
 		if tosid is not '':
 			self.saveCookie([('SID', tosid)])
-			self.printScript()
+			self.printScript(sid=tosid)
 		else:
 			self.printText('latest')
 
 	def new(self):
-		pass
-		#self.saveCookie(uid=self.lm.getAccountInfo()['id_str'], sid=self.asession.getSID())
-		#self.printText('new')
+		self.saveCookie([('SID', self.asession.getSID())])
+		self.printText('new')
 
 	def name(self):
 		fname = self.field.getvalue('filename')
@@ -289,6 +288,13 @@ a bug. Sorry.')
 		if os.path.isfile(filename):
 			sys.stdout.write(open(filename, 'r').read())
 
+	def getScreenName(self):
+		name = self.lm.getAccountInfo(
+				self.cookie['access_token'].value,
+				self.cookie['access_token_secret'].value
+				)['name']
+		self.printText(name.encode('utf-8'))
+
 	def run(self):
 		mtype = self.field.getvalue('method')
 		if self.method == 'POST':
@@ -320,6 +326,8 @@ a bug. Sorry.')
 			elif mtype == 'load':
 				self.authWithSID()
 				self.printScript()
+			elif mtype == 'getName':
+				self.getScreenName()
 			else:
 				raise Exception('No such method in GET.')
 		else:

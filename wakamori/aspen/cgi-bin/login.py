@@ -36,7 +36,7 @@ class LoginManager:
 		client = oauth.Client(self.consumer)
 		#resp, content = client.request(self.request_token_url, 'GET')
 		resp, content = client.request(self.request_token_url, 'POST',
-				body=urllib.urlencode({'oauth_callback':'http://localhost/cgi-bin/login.py'}))
+				body=urllib.urlencode({'oauth_callback':'http://localhost/aspen/cgi-bin/login.py'}))
 		if resp['status'] != '200':
 			raise Exception("Invalid response %s." % resp['status'])
 
@@ -87,7 +87,7 @@ class LoginManager:
 		return json.loads(content)
 
 	def redirectToIndex(self):
-		print "Location: %s\n" % self.conf.get('general', 'indexpath')
+		print "Location: ../\n"
 
 def main():
 	lm = LoginManager()

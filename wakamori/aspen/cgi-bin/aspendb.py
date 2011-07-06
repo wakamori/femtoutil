@@ -111,7 +111,7 @@ class AspenStorage:
         query = query + ' where sid="' + sid + '";';
         self.cur.execute(query);
         for row in self.cur:
-            luid = row[0];
+            luid = str(row[0]);
             if luid == uid:
                 retSession = AspenSession(uid, "");
                 retSession.generateSID();
