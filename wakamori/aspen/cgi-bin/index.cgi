@@ -9,10 +9,10 @@ html_login = '''<!DOCTYPE html>
 <html lang="ja">
 	<head>
 		<title>アルゴリズムとデータ構造  - try with konoha </title>
-		<link rel="stylesheet" href="../aspen/css/aspen.css" />
-		<script type="text/javascript" src="../aspen/js/jquery-1.6.1.min.js"></script>
-		<script type="text/javascript" src="../aspen/js/jquery.lightbox_me.js"></script>
-		<script type="text/javascript" src="../aspen/js/login.js"></script>
+		<link rel="stylesheet" href="%(cgi_path)s/css/aspen.css" />
+		<script type="text/javascript" src="%(cgi_path)s/js/jquery-1.6.1.min.js"></script>
+		<script type="text/javascript" src="%(cgi_path)s/js/jquery.lightbox_me.js"></script>
+		<script type="text/javascript" src="%(cgi_path)s/js/login.js"></script>
 	</head>
 	<body>
 		<form id="loginform" name="loginform" action="./aspen.cgi?method=login" method="post">
@@ -36,35 +36,35 @@ html_main = '''<!DOCTYPE html>
 		<title>アルゴリズムとデータ構造  - try with konoha</title>
 		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 		<!--<script type="text/javascript"
-		src="../aspen/js/jquery-1.6.1.min.js"></script>-->
+		src="%(cgi_path)s/js/jquery-1.6.1.min.js"></script>-->
 		<!--<script type="text/javascript"
-		src="../aspen/js/jquery.cookie.js"></script>-->
+		src="%(cgi_path)s/js/jquery.cookie.js"></script>-->
 		<!--<script type="text/javascript"
-		src="../aspen/js/jquery.lightbox_me.js"></script>-->
-		<script type="text/javascript" src="../aspen/js/codemirror.js"></script>
-		<script type="text/javascript" src="../aspen/js/autocompletion.js"></script>
+		src="%(cgi_path)s/js/jquery.lightbox_me.js"></script>-->
+		<script type="text/javascript" src="%(cgi_path)s/js/codemirror.js"></script>
+		<script type="text/javascript" src="%(cgi_path)s/js/autocompletion.js"></script>
 		<!--<script type="text/javascript"
-		src="../aspen/js/jquery.lightbox_me.js"></script>-->
+		src="%(cgi_path)s/js/jquery.lightbox_me.js"></script>-->
 		<!--<script type="text/javascript"
-		src="../aspen/js/jquery.periodicalupdater.js"></script>-->
-		<script type="text/javascript" src="../aspen/js/mootools-core-1.3.2-full-compat.js"></script>
-		<script type="text/javascript" src="../aspen/js/mootools-more-1.3.2.1.js"></script>
-		<script type="text/javascript" src="../aspen/js/aspen.js"></script>
-		<script type="text/javascript" src="../aspen/mode/konoha/konoha.js"></script>
-		<link rel="stylesheet" href="../aspen/css/aspen.css" />
-		<link rel="stylesheet" href="../aspen/css/codemirror.css" />
-		<link rel="stylesheet" href="../aspen/mode/konoha/konoha.css" />
+		src="%(cgi_path)s/js/jquery.periodicalupdater.js"></script>-->
+		<script type="text/javascript" src="%(cgi_path)s/js/mootools-core-1.3.2-full-compat.js"></script>
+		<script type="text/javascript" src="%(cgi_path)s/js/mootools-more-1.3.2.1.js"></script>
+		<script type="text/javascript" src="%(cgi_path)s/js/aspen.js"></script>
+		<script type="text/javascript" src="%(cgi_path)s/mode/konoha/konoha.js"></script>
+		<link rel="stylesheet" href="%(cgi_path)s/css/aspen.css" />
+		<link rel="stylesheet" href="%(cgi_path)s/css/codemirror.css" />
+		<link rel="stylesheet" href="%(cgi_path)s/mode/konoha/konoha.css" />
 	</head>
 	<body>
 		<table role="presentation">
 			<tr>
 				<td class="logo">
-					<a href="./index.cgi"><img class="logo" src="../aspen/konoha_logo.png" alt="Konoha"/></a>
+					<a href="./index.cgi"><img class="logo" src="%(cgi_path)s/konoha_logo.png" alt="Konoha"/></a>
 				</td>
 				<td>
 					<div class="info">
-						<span class="user">Hello, %s.</span>
-						<span class="date">Last login: %s</span><br />
+						<span class="user">Hello, %(uid)s.</span>
+						<span class="date">Last login: %(login_date)s</span><br />
 					</div>
 					<form id="logoutform" class="inlineform" name="logoutform" action="./aspen.cgi" method="get">
 						<input type="hidden" name="method" value="logout" />
@@ -116,22 +116,25 @@ html_main = '''<!DOCTYPE html>
 		<div id="status">
 		</div>
 		<div class="info">
-			このエディタに関するご質問、ご意見は<img src="../aspen/gmail.png" id="mail" alt="wakamori111 at gmail.com"/>までお願いします。
+			このエディタに関するご質問、ご意見は<img src="%(cgi_path)s/gmail.png" id="mail" alt="wakamori111 at gmail.com"/>までお願いします。
 		</div>
 	</body>
 </html>'''
 
 def main():
+	cgi_path = "../cgi-bin"
 	print 'Content-Type: text/html;charset=UTF-8\n'
 	cookie = Cookie.SimpleCookie()
 	if os.environ.has_key('HTTP_COOKIE'):
 		cookie.load(os.environ['HTTP_COOKIE'])
 		if cookie.has_key('UID') and cookie.has_key('LOGIN_DATE'):
-			print html_main % (cookie['UID'].value, cookie['LOGIN_DATE'].value)
+			uid = cookie['UID'].value
+			login_date = cookie['LOGIN_DATE'].value
+			print html_main % locals()
 		else:
-			print html_login
+			print html_login % locals()
 	else:
-		print html_login
+		print html_login % locals()
 
 if __name__ == '__main__':
 	main()
