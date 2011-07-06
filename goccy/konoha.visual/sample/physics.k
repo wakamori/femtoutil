@@ -18,16 +18,18 @@ class PhysicsWorld {
 		left_block.setColor(static_block_color);
 		Rect right_block = new Rect(400 - 10, 350, 10, 50);
 		right_block.setColor(static_block_color);
-		//QEllipse e = new QEllipse(300, 300, 20);
-		//e.setColor(new QColor(100, 200, 100));
+		Ellipse e = new Ellipse();
+		e.setRect(new Rect(300, 300, 20, 20));
+		e.setColor(new QColor("#999900"));
 		ground.setRestitution(0);
 		scene.addItem(ground);
 		scene.addItem(left_block);
 		scene.addItem(right_block);
+		scene.addItem(e);
 		world.add(ground);
 		world.add(left_block);
 		world.add(right_block);
-		//world.add(e);
+		world.add(e);
 	}
 
 	void addDynamicObject() {
@@ -42,22 +44,26 @@ class PhysicsWorld {
 			world.add(rect);
 			scene.addItem(rect);
 		}
-		//QEllipse e = new QEllipse(250, 300, 20);
-		//e.setColor(new QColor(200, 100, 100));
-		//e.setDensity(1.0);
+		
+		Ellipse e = new Ellipse();
+		e.setRect(new Rect(250, 300, 20, 20));
+		e.setColor(new Color("#eeee00"));
+		e.setDensity(1.0);
 		//QText t = new QText(200, 100, "Hello World");
 		//t.setDensity(1.0);
 		//QPixmap p = new QPixmap("sample/qt.jpg");
 		//p.setPosition(200, 50);
 		//p.setSize(50, 50);
 		//p.setDensity(1);
-		//world.add(e);
+		world.add(e);
+		scene.addItem(e);
 		//world.add(t);
 		//world.add(p);
 	}
 
 	void show() {
 		View view = new View(scene);
+		view.setRenderHint(Painter.Antialiasing);
 		view.show();
 		world.start();
 	}

@@ -1,13 +1,8 @@
-#include <konoha1.h>
-#include <QtGui>
-#define KMETHOD  void  CC_FASTCALL_
 #include <visual.hpp>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define NO_WARNING() (void)ctx; (void)sfp; (void)_rix;
-#define NO_WARNING2() (void)ctx; (void)cid;
 
 Connector::Connector() {}
 void Connector::signalConnect(QTimeLine *t, int signal, knh_Func_t *fo_, knh_context_t *ctx_, knh_sfp_t *sfp_)

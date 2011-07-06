@@ -24,38 +24,62 @@ void KGraphicsRectItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 	emit emitDragEnterEvent(event);
 }
 
-qreal r_prev_x = 0.0f;
-qreal r_prev_y = 0.0f;
 void KRect::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	fprintf(stderr, "KRect::mousePressEvent\n");
 	QPointF spos = event->lastScreenPos();
 	//fprintf(stderr, "sx: [%f], sy:[%f]\n", spos.x(), spos.y());
-	r_prev_x = spos.x();
-	r_prev_y = spos.y();
-	isDrag = 1;
+	prev_x = spos.x();
+	prev_y = spos.y();
+	isDrag = true;
+	dx_sum = 0;
+	dy_sum = 0;
 }
 
 void KRect::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-	fprintf(stderr, "KRect::mouseMoveEvent\n");
 	(void)event;
 #ifdef K_USING_BOX2D
 	QPointF lspos = event->lastScreenPos();
+	//fprintf(stderr, "lsx: [%f], lsy:[%f]\n", lspos.x(), lspos.y());
 	if (!isStatic) {
-		gr->setPos(lspos.x() - r_prev_x + x, lspos.y() - r_prev_y + y);
+		qreal dx = lspos.x() - prev_x;
+		qreal dy = lspos.y() - prev_y;
+		//fprintf(stderr, "dx: [%d], dy:[%d]\n", dx, dy);
+		//fprintf(stderr, "x: [%d], y:[%d]\n", dx + x, dy + y);
+		gr->translate(dx, dy);
+		//const b2Transform t = body->GetTransform();
+		//b2Vec2 position = t.position;
+		//body->SetTransform(*(new b2Vec2(position.x - dx, position.y - dy)), body->GetAngle());
+		dx_sum += dx;
+		dy_sum += dy;
+		//gr->setPos(lspos.x() - prev_x + x, lspos.y() - prev_y + y);
 	}
-	r_prev_x = lspos.x();
-	r_prev_y = lspos.y();
-	isDrag = 1;
+	prev_x = lspos.x();
+	prev_y = lspos.y();
+	isDrag = true;
 #endif
 }
 
 void KRect::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	fprintf(stderr, "KRect::mouseMoveRelease\n");
 	(void)event;
-	isDrag = 0;
+	isDrag = false;
+	/*
+	const b2Transform t = body->GetTransform();
+	b2Vec2 position = t.position;
+	fprintf(stderr, "================\n");
+	fprintf(stderr, "dx_sum = [%f], dy_sum = [%f]\n", dx_sum, dy_sum);
+	//fprintf(stderr, "gx = [%f], gy = [%f]\n", gr->x(), gr->y());
+	fprintf(stderr, "pos.x = [%f], -pos.y = [%f]\n", position.x, -position.y);
+	//body->SetTransform(*(new b2Vec2(gr->x() - position.x, -gr->y() - -position.y)), angle);
+	//body->SetTransform(*(new b2Vec2(x + dx, -dy - y)), angle);
+	x = gr->x() + dx_sum;
+	y = gr->y() + dy_sum;
+	fprintf(stderr, "x = [%d], y = [%d]\n", x, y);
+	b2Vec2 pos = body->GetWorldPoint(*(new b2Vec2(x, y)));
+	fprintf(stderr, "pos.x = [%f], -pos.y = [%f]\n", pos.x, -pos.y);
+	body->SetTransform(*(new b2Vec2(position.x - x, position.y - y)), body->GetAngle());
+	*/
 }
 
 void KRect::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
@@ -72,7 +96,7 @@ KRect::KRect(int x_, int y_, int width_, int height_)
 	y = y_;
 	width = width_;
 	height = height_;
-	isDrag = 0;
+	isDrag = false;
 	gr = new KGraphicsRectItem();
 	gr->setRect(*r);
 	connect(gr, SIGNAL(emitMousePressEvent(QGraphicsSceneMouseEvent*)),
@@ -86,7 +110,6 @@ KRect::KRect(int x_, int y_, int width_, int height_)
 	setObjectName("KRect");
 #ifdef K_USING_BOX2D
 	isStatic = true;
-	adjust_func = &KRect::adjust;
 	shapeDef = new b2FixtureDef();
 #endif
 }
@@ -137,13 +160,9 @@ void KRect::addToWorld(KWorld *w)
 
 void KRect::adjust(void)
 {
-	//fprintf(stderr, "=============\n");
-	//fprintf(stderr, "this = [%p]\n", this);
-	//fprintf(stderr, "body = [%p]\n", body);
 	b2Vec2 position = body->GetPosition();
 	qreal angle = body->GetAngle();
 	if (isDrag) {
-		//body->SetXForm(*(new b2Vec2(gr->x(), -gr->y())), angle);
 	} else {
 		x = position.x;
 		y = -position.y;

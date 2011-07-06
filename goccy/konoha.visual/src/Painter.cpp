@@ -1,13 +1,8 @@
-#include <konoha1.h>
-#include <QtGui>
-#define KMETHOD  void  CC_FASTCALL_
 #include <visual.hpp>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define NO_WARNING() (void)ctx; (void)sfp; (void)_rix;
-#define NO_WARNING2() (void)ctx; (void)cid;
 
 KMETHOD Painter_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {

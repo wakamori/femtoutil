@@ -33,9 +33,26 @@ signals:
 	void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
 };
 
+/*
+class KGraphicsEllipseItem : public QObject, public QGraphicsEllipseItem {
+	Q_OBJECT;
+public:
+	KGraphicsEllipseItem() {}
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+signals:
+	void emitMousePressEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
+};
+*/
+
 #ifdef K_USING_BOX2D
 class KRect;
-//typedef void(KRect::*AdjustRectFunc)(void);
+class KEllipse;
 class KWorld : public QObject {
 public:
 	int timer_id;
@@ -44,10 +61,8 @@ public:
 	qreal center_y;
 	float timestep;
 	QGraphicsScene *scene;
-	//QList<AdjustRectFunc> *adjust_rect_func_list;
 	QList<KRect *> *rect_list;
-	KRect *r;
-	//KEllipse *e;
+	QList<KEllipse*> *ellipse_list;
 	b2Body *root;
 	//JointObjectManagerList *joml;
 	b2World *world;
@@ -68,19 +83,21 @@ class KRect : public QObject {
 public:
 	QRect *r;
 	KGraphicsRectItem *gr;
-	int isDrag;
+	bool isDrag;
 	int x;
 	int y;
 	int width;
 	int height;
+	qreal prev_x;
+	qreal prev_y;
+	qreal dx_sum;
+	qreal dy_sum;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
-	//b2PolygonDef *shapeDef;
 	b2FixtureDef *shapeDef;
 	b2BodyDef *bodyDef;
 	b2Body *body;
-	void (KRect::*adjust_func)(void);
 #endif
 	KRect(int x, int y, int width, int height);
 #ifdef K_USING_BOX2D
@@ -102,12 +119,29 @@ class KEllipse : public QObject {
 	Q_OBJECT;
 public:
 	QGraphicsEllipseItem *ge;
+	bool isDrag;
+	int x;
+	int y;
+	int width;
+	int height;
+#ifdef K_USING_BOX2D
+	bool isStatic;
+	qreal rotation;
+	b2FixtureDef *shapeDef;
+	b2BodyDef *bodyDef;
+	b2Body *body;
+#endif
 	
-	KEllipse() {
-		ge = new QGraphicsEllipseItem();
-		setObjectName("KEllipse");
-	}
-
+	KEllipse();
+	void setRect(KRect *r);
+#ifdef K_USING_BOX2D
+	void setRotation(qreal rotation_);
+	void setDensity(qreal density_);
+	void setFriction(qreal friction_);
+	void setRestitution(qreal restitution_);
+	void addToWorld(KWorld *w);
+	void adjust(void);
+#endif
 };
 
 class KGroup : public QObject {
