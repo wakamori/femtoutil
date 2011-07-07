@@ -302,13 +302,15 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_Method_t *mtd = fo->mtd;
   knh_param_t *rp = knh_ParamArray_rget(DP(mtd)->mp, 0);
   knh_type_t rtype = rp->type;
-  fprintf(stderr, "wrapFunc, ftype:%s, rtype:%s\n", TYPE__(O_cid(fo)), TYPE__(rtype));
   knh_ClibFunc_t *clibfunc = (knh_ClibFunc_t*)(((fo->mtd)->b)->cfunc);
-  
+  fprintf(stderr, "wrapFunc,idx:%d ftype:%s, rtype:%s\n", clibfunc->idx, TYPE__(O_cid(fo)), TYPE__(rtype));
+  fprintf(stderr, "cfunc:%p\n", clibfunc->fptr);
   int idx = 0;
+  // push arg values
   for (idx = 0; idx < clibfunc->argCount; idx++) {
 	if (IS_DGLUE_UNBOXED(clibfunc->argT_original[idx])) {
 	  clibfunc->argV[idx] = &(sfp[idx+1].ndata);
+	  fprintf(stderr, "val:%d:%d\n", idx+1, sfp[idx+1].ivalue);
 	} else {
 	  //TODO: now, we cannot distinguish object from string
 	  if (IS_TYPE_STRING(clibfunc->argT_original[idx])) {
@@ -360,6 +362,7 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 		RETURN_(new_String(ctx, return_s));
 	  } else {
 		// its Object
+		fprintf(stderr, "returning rawptr\n");
 		void *return_ptr = NULL;
 		if (ffi_prep_cif(&(clibfunc->cif), FFI_DEFAULT_ABI, clibfunc->argCount,
 						 clibfunc->retT, clibfunc->argT) == FFI_OK) {
@@ -368,7 +371,7 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 		} else {
 		  fprintf(stderr, "prep_cif FAILED\n:");
 		}
-		fprintf(stderr, "%p\n", return_ptr);
+		fprintf(stderr, "rawptr:'%p'\n", return_ptr);
 		RETURN_(new_RawPtr(ctx, (knh_RawPtr_t*)KNH_NULVAL(CLASS_Tvar), return_ptr));
 	  }
 	} // end of IS_Tunbox 
@@ -394,7 +397,7 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 
   knh_ClibFunc_t *clibfunc = new_ClibFunc(ctx);
   if ((clibfunc->idx = ClibGlue_add_ClibFunc(ctx, cglue, clibfunc)) == -1) {
-	fprintf(stderr, "cannot add clibfunc\n");
+	fprintf(stderr, "cannot add clibfunc, there are %ld funcs already.\n", cglue->num_func);
 	return (knh_RawPtr_t*)(sfp[3].o);
   }
 
@@ -438,6 +441,7 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 	} else if (p->type == TYPE_String) {
 	  clibfunc->argT[idx] = &ffi_type_pointer;
 	  clibfunc->argT_original[idx] = DGLUE_NOT_UNBOXED | DGLUE_TYPE_STRING;
+
 	} else {
 	  // here, we have to distinguish Structure class from the others
 	  // suppose they are Structure;
