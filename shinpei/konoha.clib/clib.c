@@ -2,8 +2,11 @@
  *  ffi package, for DEOS
  *  written by shinpei(c)2011
  */
-
+#define K_INTERNAL 1
 #include <konoha1.h>
+#include <konoha1/konohalang.h>
+#include <konoha1/inlinelibs.h>
+
 
 #if defined(K_USING_MACOSX_)
 //#define MACOSX
@@ -100,7 +103,7 @@ DEFAPI(void) defClib(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 #define IS_TYPE_ARRAY(b) ((b & DGLUE_TYPE_ARRAY) == DGLUE_TYPE_ARRAY)
 #define IS_TYPE_CLOSURE(b) ((b & DGLUE_TYPE_CLOSURE) == DGLUE_TYPE_CLOSURE)
 
-#define CLIB_ARGMAX (3)
+#define CLIB_ARGMAX (5)
 
 typedef struct knh_ClibGlue_t {
   void *fptr;
@@ -311,7 +314,6 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 	} else {
 	  //TODO: now, we cannot distinguish object from string
 	  if (IS_TYPE_STRING(cglue->argT_isUnboxed[idx])) {
-		//	  if (cglue->argT[idx] == &ffi_type_pointer) {
 		cglue->argV[idx] = &((sfp[idx+1].s)->str.text);
 	  } else if (IS_TYPE_STRUCTURE(cglue->argT_isUnboxed[idx])) {
 		cglue->argV[idx] = &((sfp[idx+1].p)->rawptr);
@@ -437,7 +439,6 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   }
   // type Func object
   fo->h.cTBL= tbl;
-  //cid = knh_class_Generics(ctx, CLASS_Func, pa);
   
   // set wrapper method
   knh_Method_t *mtd = new_Method(ctx, 0, O_cid(klass), MN_LAMBDA, Fmethod_wrapCLib);
@@ -480,6 +481,7 @@ static METHOD Fmethod_structgetter(CTX ctx, knh_sfp_t *sfp _RIX)
 {
   //	int delta = DP(sfp[K_MTDIDX].mtdNC)->delta;
   //	RETURN_((sfp[0].ox)->fields[delta]);
+  
 }
 
 static knh_Method_t *new_StructGetter(CTX ctx, knh_class_t cid, knh_methodn_t mn, knh_type_t type, int idx)
@@ -567,12 +569,6 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 				knh_ObjectField_expand(ctx, ct->defobj, 0, ct->fsize);
 				knh_memcpy(ct->protoNULL->fields, suptmp->ref, ct->fsize*sizeof(knh_Object_t*));
 				knh_memcpy(ct->defnull->ref, supobj->ref, ct->fsize*sizeof(knh_Object_t*));
-#ifdef K_USING_RCGC
-				ct->supTBL->cdef->reftrace(ctx, suptmp, ctx->refs);
-				knh_RefTraverse(ctx, RCinc);
-				ct->supTBL->cdef->reftrace(ctx, supobj, ctx->refs);
-				knh_RefTraverse(ctx, RCinc);
-#endif
 			}
 		}
 	}
@@ -595,7 +591,7 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
   // Gamma_declareClassField
   //  -add_classField
 
-  //    knh_flag_t flag  = _FGETTER | _FSETTER;
+  //  knh_flag_t flag  = _FGETTER | _FSETTER;
   knh_flag_t flag  = 0;
   for (i = 0; i < strc->param_size; i++) {
 	knh_fieldn_t fn = knh_getfnq(ctx, strc->param_name[i], FN_NEWID);

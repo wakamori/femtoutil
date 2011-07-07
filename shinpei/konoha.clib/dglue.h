@@ -1,6 +1,9 @@
 #ifndef _DGLUE_H_
 #define _DGLUE_H_
 
+
+
+
 #define GLUE_TYPE_UNKNOWN 0
 #define GLUE_TYPE_INTERNAL 1
 #define GLUE_TYPE_LOCAL 2
