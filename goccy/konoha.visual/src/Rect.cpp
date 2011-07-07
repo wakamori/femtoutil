@@ -155,6 +155,11 @@ void KRect::addToWorld(KWorld *w)
 	shapeDef->shape = shape;
 	//fprintf(stderr, "density = [%f]\n", shapeDef->density);
 	body->CreateFixture(shapeDef);
+	knh_GraphicsUserData_t *data = (knh_GraphicsUserData_t *)malloc(sizeof(knh_GraphicsUserData_t));
+	memset(data, 0, sizeof(knh_GraphicsUserData_t));
+	data->cid = cid;
+	data->o = (QObject *)this;
+	body->SetUserData((void *)data);
 	//fprintf(stderr, "this = [%p]\n", this);
 	//fprintf(stderr, "body = [%p]\n", body);
 }
@@ -174,6 +179,21 @@ void KRect::adjust(void)
 }
 #endif
 
+void KRect::setClassID(CTX ctx)
+{
+	knh_ClassTBL_t *ct = NULL;
+	const knh_ClassTBL_t **cts = ctx->share->ClassTBL;
+	size_t size = ctx->share->sizeClassTBL;
+	for (size_t i = 0; i < size; i++) {
+		if (!strncmp("Rect", S_tochar(cts[i]->sname), sizeof("Rect"))) {
+			ct = (knh_ClassTBL_t *)cts[i];
+			break;
+		}
+	}
+	if (ct == NULL) fprintf(stderr, "ERROR: UNKNOWN CLASS: Rect\n");
+	cid = ct->cid;
+}
+
 KMETHOD Rect_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
@@ -182,6 +202,7 @@ KMETHOD Rect_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	int width = Int_to(int, sfp[3]);
 	int height = Int_to(int, sfp[4]);
 	KRect *r = new KRect(x, y, width, height);
+	r->setClassID(ctx);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, r);
 	RETURN_(p);
 }
@@ -231,6 +252,14 @@ KMETHOD Rect_setRestitution(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	r->setRestitution(restitution);
 	RETURNvoid_();
 }
+
+KMETHOD Rect_isSTatic(Ctx *ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KRect *r = RawPtr_to(KRect *, sfp[0]);
+	RETURNb_(r->isStatic);
+}
+
 #endif
 
 #ifdef __cplusplus

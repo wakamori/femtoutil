@@ -26,7 +26,8 @@ objs = build/visual.o\
 	build/Brush.o\
 	build/World.o\
 	build/Texture.o\
-	build/Text.o
+	build/Text.o\
+	build/Contact.o
 
 .PHONY: all
 all: $(library)
@@ -45,6 +46,9 @@ build/Brush.o: src/Brush.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Connector.o: src/Connector.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+build/Contact.o: src/Contact.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Color.o: src/Color.cpp

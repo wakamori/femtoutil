@@ -58,6 +58,11 @@ void KEllipse::addToWorld(KWorld *w)
 	shape->m_radius = width / 2;
 	shapeDef->shape = shape;
 	body->CreateFixture(shapeDef);
+	knh_GraphicsUserData_t *data = (knh_GraphicsUserData_t *)malloc(sizeof(knh_GraphicsUserData_t));
+	memset(data, 0, sizeof(knh_GraphicsUserData_t));
+	data->cid = cid;
+	data->o = (QObject *)this;
+	body->SetUserData((void *)data);
 }
 
 void KEllipse::adjust(void)
@@ -85,10 +90,26 @@ void KEllipse::setRect(KRect *r)
 	height = r->height;
 }
 
+void KEllipse::setClassID(CTX ctx)
+{
+	knh_ClassTBL_t *ct = NULL;
+	const knh_ClassTBL_t **cts = ctx->share->ClassTBL;
+	size_t size = ctx->share->sizeClassTBL;
+	for (size_t i = 0; i < size; i++) {
+		if (!strncmp("Ellipse", S_tochar(cts[i]->sname), sizeof("Ellipse"))) {
+			ct = (knh_ClassTBL_t *)cts[i];
+			break;
+		}
+	}
+	if (ct == NULL) fprintf(stderr, "ERROR: UNKNOWN CLASS: Ellipse\n");
+	cid = ct->cid;
+}
+
 KMETHOD Ellipse_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KEllipse *e = new KEllipse();
+	e->setClassID(ctx);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, e);
 	RETURN_(p);
 }

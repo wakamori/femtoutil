@@ -55,6 +55,27 @@ class KRect;
 class KEllipse;
 class KTexture;
 class KText;
+
+typedef struct _knh_GraphicsUserData_t {
+	QObject *o;
+	knh_class_t cid;
+} knh_GraphicsUserData_t;
+
+class KContact : public b2ContactListener {
+public:
+	knh_Func_t *begin;
+	knh_Func_t *end;
+	knh_context_t *ctx;
+	knh_sfp_t *sfp;
+
+	KContact();
+	knh_ClassTBL_t *getClassTBL(QString class_name);
+	void BeginContact(b2Contact *contact);
+	void EndContact(b2Contact *contact);
+	void PreSolve(b2Contact *contact, const b2Manifold *oldManifold);
+	void PostSolve(b2Contact *contact, const b2ContactImpulse *impulse);
+};
+
 class KWorld : public QObject {
 public:
 	int timer_id;
@@ -70,7 +91,8 @@ public:
 	b2Body *root;
 	//JointObjectManagerList *joml;
 	b2World *world;
-	
+	KContact *contact;
+
 	KWorld(int width, int height);
 	//void addJointObjectManager(JointObjectManager *jom);
 	void addObj(void *obj);
@@ -80,6 +102,7 @@ public:
 	qreal centerY(void);
 	void timerEvent(QTimerEvent *event);
 };
+
 #endif
 
 class KRect : public QObject {
@@ -96,6 +119,7 @@ public:
 	qreal prev_y;
 	qreal dx_sum;
 	qreal dy_sum;
+	knh_class_t cid;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -104,6 +128,7 @@ public:
 	b2Body *body;
 #endif
 	KRect(int x, int y, int width, int height);
+	void setClassID(CTX ctx);
 #ifdef K_USING_BOX2D
 	void setRotation(qreal rotation_);
 	void setDensity(qreal density_);
@@ -128,6 +153,7 @@ public:
 	int y;
 	int width;
 	int height;
+	knh_class_t cid;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -138,6 +164,7 @@ public:
 	
 	KEllipse();
 	void setRect(KRect *r);
+	void setClassID(CTX ctx);
 #ifdef K_USING_BOX2D
 	void setRotation(qreal rotation_);
 	void setDensity(qreal density_);
@@ -158,6 +185,7 @@ public:
 	int y;
 	int width;
 	int height;
+	knh_class_t cid;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -168,6 +196,7 @@ public:
 	
 	KTexture(QString filepath);
 	void setRect(KRect *r);
+	void setClassID(CTX ctx);
 #ifdef K_USING_BOX2D
 	void setRotation(qreal rotation_);
 	void setDensity(qreal density_);
@@ -187,6 +216,7 @@ public:
 	int y;
 	int width;
 	int height;
+	knh_class_t cid;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -196,6 +226,7 @@ public:
 #endif
 	
 	KText(QString text);
+	void setClassID(CTX ctx);
 	void setPosition(int x, int y);
 #ifdef K_USING_BOX2D
 	void setRotation(qreal rotation_);
@@ -211,7 +242,7 @@ class KGroup : public QObject {
 	Q_OBJECT;
 public:
 	QGraphicsItemGroup *g;
-	
+	knh_class_t cid;
 	KGroup() {
 		g = new QGraphicsItemGroup();
 		setObjectName("KGroup");

@@ -1,4 +1,5 @@
 include nativelink;
+
 @Native class Visual;
 class Item;
 class Group extends Item;
@@ -47,6 +48,7 @@ void Rect.setRotation(float rotation);
 void Rect.setDensity(float density);
 void Rect.setFriction(float friction);
 void Rect.setRestitution(float restitution);
+boolean Rect.isStatic();
 
 Texture Texture.new(String filepath);
 void Texture.setRect(Rect r);
@@ -95,3 +97,5 @@ int Timer.start();
 World World.new(int width, int height);
 void World.add(Item i);
 void World.start();
+void World.setBeginContactEvent(Func<dynamic,dynamic=>void> contact);
+void World.setEndContactEvent(Func<dynamic,dynamic=>void> contact);

@@ -66,6 +66,11 @@ void KText::addToWorld(KWorld *w)
 	shapeDef->shape = shape;
 	//fprintf(stderr, "density = [%f]\n", shapeDef->density);
 	body->CreateFixture(shapeDef);
+	knh_GraphicsUserData_t *data = (knh_GraphicsUserData_t *)malloc(sizeof(knh_GraphicsUserData_t));
+	memset(data, 0, sizeof(knh_GraphicsUserData_t));
+	data->cid = cid;
+	data->o = (QObject *)this;
+	body->SetUserData((void *)data);
 	//fprintf(stderr, "this = [%p]\n", this);
 	//fprintf(stderr, "body = [%p]\n", body);
 }
@@ -85,11 +90,27 @@ void KText::adjust(void)
 }
 #endif
 
+void KText::setClassID(CTX ctx)
+{
+	knh_ClassTBL_t *ct = NULL;
+	const knh_ClassTBL_t **cts = ctx->share->ClassTBL;
+	size_t size = ctx->share->sizeClassTBL;
+	for (size_t i = 0; i < size; i++) {
+		if (!strncmp("Text", S_tochar(cts[i]->sname), sizeof("Text"))) {
+			ct = (knh_ClassTBL_t *)cts[i];
+			break;
+		}
+	}
+	if (ct == NULL) fprintf(stderr, "ERROR: UNKNOWN CLASS: Text\n");
+	cid = ct->cid;
+}
+
 KMETHOD Text_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	QString text = String_to(QString, sfp[1]);
 	KText *t = new KText(text);
+	t->setClassID(ctx);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, t);
 	RETURN_(p);
 }

@@ -27,6 +27,8 @@ KWorld::KWorld(int width, int height)
 	//joml = new JointObjectManagerList();
 	center_x = width / 2;
 	center_y = height / 2;
+	contact = new KContact();
+	world->SetContactListener(contact);
 }
 	
 void KWorld::addObj(void *obj)
@@ -155,6 +157,28 @@ KMETHOD World_start(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	NO_WARNING();
 	KWorld *w = RawPtr_to(KWorld *, sfp[0]);
 	w->start();
+	RETURNvoid_();
+}
+
+KMETHOD World_setBeginContactEvent(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KWorld *w = RawPtr_to(KWorld *, sfp[0]);
+	knh_Func_t *f = sfp[1].fo;
+	w->contact->begin = f;
+	w->contact->ctx = (knh_context_t *)ctx;
+	w->contact->sfp = sfp;
+	RETURNvoid_();
+}
+
+KMETHOD World_setEndContactEvent(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KWorld *w = RawPtr_to(KWorld *, sfp[0]);
+	knh_Func_t *f = sfp[1].fo;
+	w->contact->end = f;
+	w->contact->ctx = (knh_context_t *)ctx;
+	w->contact->sfp = sfp;
 	RETURNvoid_();
 }
 

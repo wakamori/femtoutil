@@ -6,6 +6,8 @@ class PhysicsWorld {
 	
 	PhysicsWorld() {
 		world = new World(600, 600);
+		world.setBeginContactEvent(delegate(this, beginContact));
+		world.setEndContactEvent(delegate(this, endContact));
 		scene = new Scene();
 		scene.setSceneRect(0, 0, 600, 600);
 	}
@@ -68,6 +70,44 @@ class PhysicsWorld {
 		view.setRenderHint(Painter.Antialiasing);
 		view.show();
 		world.start();
+	}
+
+	Color getRandomColor() {
+		String color = "#";
+		for (int i = 0; i < 3; i++) {
+			color += "%x"(100 + Int.random(156));
+		}
+		return new Color(color);
+	}
+
+	void beginContact(dynamic obj1, dynamic obj2) {
+		//print "beginContact";
+		Color color1 = getRandomColor();
+		Color color2 = getRandomColor();
+		if (obj1.class == Rect) {
+			Rect r = (Rect)obj1;
+			if (!r.isStatic()) {
+				r.setColor(color1);
+			}
+		} else if (obj1.class == Ellipse) {
+			Ellipse e = (Ellipse)obj1;
+			e.setColor(color1);
+		}
+		if (obj2.class == Rect) {
+			Rect r = (Rect)obj2;
+			if (!r.isStatic()) {
+				r.setColor(color2);
+			}
+		} else if (obj2.class == Ellipse) {
+			Ellipse e = (Ellipse)obj2;
+			e.setColor(color2);
+		}
+	}
+
+	void endContact(dynamic obj1, dynamic obj2) {
+		//print "endContact";
+		//print obj1.class;
+		//print obj2.class;
 	}
 }
 
