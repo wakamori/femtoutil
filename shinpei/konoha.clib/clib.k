@@ -16,10 +16,11 @@ include nativelink;
 @Native Process Process.new(String path, Process _);
 
 @Native class Webservice;
-@Native Webservice Webservice.new(String url);
+@Native Webservice Webservice.new(String url, Webservice _);
 
 @Native class Glue;
 @Native var Glue.getFunc(String symbol, Class _, Func _);
+//@Native Method Glue.getFunc(String symbol, Class _, Func _);
 
 @Native Glue Clib.genGlue(Glue _);
 @Native Glue Process.genGlue(Glue _);
