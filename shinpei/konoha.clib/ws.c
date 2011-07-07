@@ -1,6 +1,10 @@
 
 
+#define K_INTERNAL 1
 #include <konoha1.h>
+#include <konoha1/konohalang.h>
+#include <konoha1/inlinelibs.h>
+
 
 //#define MACOSX
 #if defined(K_USING_MACOSX_)

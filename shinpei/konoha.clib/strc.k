@@ -1,5 +1,4 @@
 using konoha.clib.*;
 
-s = new Structure([["a", Structure.FFI_UINT]]);
-Clib.defineClass("Test", s);
-
+c_test = new Structure([["test", Structure.FFI_UINT]]);
+Clib.defineClass("Test", c_test);
