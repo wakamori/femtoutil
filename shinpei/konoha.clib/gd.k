@@ -2,13 +2,14 @@ using konoha.clib.*;
 
 Clib libgd = new Clib("/usr/local/lib/libgd.dylib");
 class Image;
-class Color;
 
 Glue gdg = libgd.genGlue();
 
 Func<int, int => Image> gd_imagecreate = gdg.getFunc("gdImageCreate");
-Func<int, int, int => Color> gd_imagecolorallocate = gdg.getFunc("gdImageColorAllocate");
-Func<int, int, int, int, Color=>void> gd_imageline = gdg.getFunc("gdImageLine");
+Func<Image, int, int, int => int> gd_imagecolorallocate = gdg.getFunc("gdImageColorAllocate");
+Func<int, int, int, int, int=>void> gd_imageline = gdg.getFunc("gdImageLine");
+
+Func<Image, int=>void> gd_imagegif = gdg.getFunc("gdImageGif");
 
 /*
 Image Image.new (int x, int y, Image _) {
