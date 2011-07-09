@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'visual.hpp'
 **
-** Created: Thu Jul 7 01:56:23 2011
+** Created: Fri Jul 8 17:45:42 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -175,6 +175,105 @@ void KGraphicsRectItem::emitDragEnterEvent(QGraphicsSceneDragDropEvent * _t1)
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 3, _a);
 }
+static const uint qt_meta_data_KGraphicsPixmapItem[] = {
+
+ // content:
+       5,       // revision
+       0,       // classname
+       0,    0, // classinfo
+       4,   14, // methods
+       0,    0, // properties
+       0,    0, // enums/sets
+       0,    0, // constructors
+       0,       // flags
+       4,       // signalCount
+
+ // signals: signature, parameters, type, tag, flags
+      27,   21,   20,   20, 0x05,
+      74,   21,   20,   20, 0x05,
+     123,   21,   20,   20, 0x05,
+     169,   21,   20,   20, 0x05,
+
+       0        // eod
+};
+
+static const char qt_meta_stringdata_KGraphicsPixmapItem[] = {
+    "KGraphicsPixmapItem\0\0event\0"
+    "emitMousePressEvent(QGraphicsSceneMouseEvent*)\0"
+    "emitMouseReleaseEvent(QGraphicsSceneMouseEvent*)\0"
+    "emitMouseMoveEvent(QGraphicsSceneMouseEvent*)\0"
+    "emitDragEnterEvent(QGraphicsSceneDragDropEvent*)\0"
+};
+
+const QMetaObject KGraphicsPixmapItem::staticMetaObject = {
+    { &QObject::staticMetaObject, qt_meta_stringdata_KGraphicsPixmapItem,
+      qt_meta_data_KGraphicsPixmapItem, 0 }
+};
+
+#ifdef Q_NO_DATA_RELOCATION
+const QMetaObject &KGraphicsPixmapItem::getStaticMetaObject() { return staticMetaObject; }
+#endif //Q_NO_DATA_RELOCATION
+
+const QMetaObject *KGraphicsPixmapItem::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
+}
+
+void *KGraphicsPixmapItem::qt_metacast(const char *_clname)
+{
+    if (!_clname) return 0;
+    if (!strcmp(_clname, qt_meta_stringdata_KGraphicsPixmapItem))
+        return static_cast<void*>(const_cast< KGraphicsPixmapItem*>(this));
+    if (!strcmp(_clname, "QGraphicsPixmapItem"))
+        return static_cast< QGraphicsPixmapItem*>(const_cast< KGraphicsPixmapItem*>(this));
+    return QObject::qt_metacast(_clname);
+}
+
+int KGraphicsPixmapItem::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QObject::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: emitMousePressEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
+        case 1: emitMouseReleaseEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
+        case 2: emitMouseMoveEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
+        case 3: emitDragEnterEvent((*reinterpret_cast< QGraphicsSceneDragDropEvent*(*)>(_a[1]))); break;
+        default: ;
+        }
+        _id -= 4;
+    }
+    return _id;
+}
+
+// SIGNAL 0
+void KGraphicsPixmapItem::emitMousePressEvent(QGraphicsSceneMouseEvent * _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 0, _a);
+}
+
+// SIGNAL 1
+void KGraphicsPixmapItem::emitMouseReleaseEvent(QGraphicsSceneMouseEvent * _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 1, _a);
+}
+
+// SIGNAL 2
+void KGraphicsPixmapItem::emitMouseMoveEvent(QGraphicsSceneMouseEvent * _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 2, _a);
+}
+
+// SIGNAL 3
+void KGraphicsPixmapItem::emitDragEnterEvent(QGraphicsSceneDragDropEvent * _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 3, _a);
+}
 static const uint qt_meta_data_KRect[] = {
 
  // content:
@@ -298,18 +397,28 @@ static const uint qt_meta_data_KTexture[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-       0,    0, // methods
+       4,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
        0,       // signalCount
 
+ // slots: signature, parameters, type, tag, flags
+      16,   10,    9,    9, 0x0a,
+      59,   10,    9,    9, 0x0a,
+     101,   10,    9,    9, 0x0a,
+     146,   10,    9,    9, 0x0a,
+
        0        // eod
 };
 
 static const char qt_meta_stringdata_KTexture[] = {
-    "KTexture\0"
+    "KTexture\0\0event\0"
+    "mousePressEvent(QGraphicsSceneMouseEvent*)\0"
+    "mouseMoveEvent(QGraphicsSceneMouseEvent*)\0"
+    "mouseReleaseEvent(QGraphicsSceneMouseEvent*)\0"
+    "dragEnterEvent(QGraphicsSceneDragDropEvent*)\0"
 };
 
 const QMetaObject KTexture::staticMetaObject = {
@@ -339,6 +448,16 @@ int KTexture::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     _id = QObject::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: mousePressEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
+        case 1: mouseMoveEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
+        case 2: mouseReleaseEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
+        case 3: dragEnterEvent((*reinterpret_cast< QGraphicsSceneDragDropEvent*(*)>(_a[1]))); break;
+        default: ;
+        }
+        _id -= 4;
+    }
     return _id;
 }
 static const uint qt_meta_data_KText[] = {

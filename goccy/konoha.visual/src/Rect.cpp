@@ -210,14 +210,14 @@ KMETHOD Rect_new(CTX ctx, knh_sfp_t *sfp _RIX)
 KMETHOD Rect_setColor(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
-	QGraphicsRectItem *r = (QGraphicsRectItem *)KITEM_to(sfp[0].p);
+	KGraphicsRectItem *r = (KGraphicsRectItem *)KITEM_to(sfp[0].p);
 	QColor *c = RawPtr_to(QColor *, sfp[1]);
 	r->setBrush(*c);
 	RETURNvoid_();
 }
 
 #ifdef K_USING_BOX2D
-KMETHOD Rect_setRotation(Ctx *ctx, knh_sfp_t *sfp _RIX)
+KMETHOD Rect_setRotation(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KRect *r = RawPtr_to(KRect *, sfp[0]);
@@ -226,7 +226,7 @@ KMETHOD Rect_setRotation(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
-KMETHOD Rect_setDensity(Ctx *ctx, knh_sfp_t *sfp _RIX)
+KMETHOD Rect_setDensity(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KRect *r = RawPtr_to(KRect *, sfp[0]);
@@ -235,7 +235,7 @@ KMETHOD Rect_setDensity(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
-KMETHOD Rect_setFriction(Ctx *ctx, knh_sfp_t *sfp _RIX)
+KMETHOD Rect_setFriction(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KRect *r = RawPtr_to(KRect *, sfp[0]);
@@ -244,7 +244,7 @@ KMETHOD Rect_setFriction(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
-KMETHOD Rect_setRestitution(Ctx *ctx, knh_sfp_t *sfp _RIX)
+KMETHOD Rect_setRestitution(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KRect *r = RawPtr_to(KRect *, sfp[0]);
@@ -253,11 +253,20 @@ KMETHOD Rect_setRestitution(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
-KMETHOD Rect_isSTatic(Ctx *ctx, knh_sfp_t *sfp _RIX)
+KMETHOD Rect_isSTatic(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KRect *r = RawPtr_to(KRect *, sfp[0]);
 	RETURNb_(r->isStatic);
+}
+
+KMETHOD Rect_setShadow(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KGraphicsRectItem *gr = (KGraphicsRectItem *)KITEM_to(sfp[0].p);
+	QGraphicsDropShadowEffect *se = RawPtr_to(QGraphicsDropShadowEffect *, sfp[1]);
+	gr->setGraphicsEffect(se);
+	RETURNvoid_();
 }
 
 #endif

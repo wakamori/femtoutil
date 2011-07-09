@@ -5,7 +5,7 @@ class Item;
 class Group extends Item;
 class Ellipse extends Item;
 class Rect extends Item;
-class Texture extends Item;
+@Native class Texture extends Item;
 class Text extends Item;
 @Native class TimeLine;
 class Transform;
@@ -19,6 +19,8 @@ class Application;
 class Timer;
 class TimerEvent;
 class World;
+class Shadow;
+class Camera;
 
 TimeLine TimeLine.new();
 void TimeLine.setDuration(int duration);
@@ -48,6 +50,7 @@ void Rect.setRotation(float rotation);
 void Rect.setDensity(float density);
 void Rect.setFriction(float friction);
 void Rect.setRestitution(float restitution);
+void Rect.setShadow(Shadow s);
 boolean Rect.isStatic();
 
 Texture Texture.new(String filepath);
@@ -57,6 +60,7 @@ void Texture.setRotation(float rotation);
 void Texture.setDensity(float density);
 void Texture.setFriction(float friction);
 void Texture.setRestitution(float restitution);
+Texture[] Texture.split(int row, int col);
 
 Text Text.new(String text);
 void Text.setPosition(int x, int y);
@@ -80,6 +84,7 @@ void Scene.setItemIndexMethod(int idx);
 void Scene.setBackgroundColor(Color color);
 void Scene.setSceneRect(int x, int y, int width, int height);
 void Scene.addItem(Item i);
+//void Scene.setMousePressEvent();
 
 View View.new(Scene scene);
 void View.setViewportUpdateMode(int mode);
@@ -99,3 +104,9 @@ void World.add(Item i);
 void World.start();
 void World.setBeginContactEvent(Func<dynamic,dynamic=>void> contact);
 void World.setEndContactEvent(Func<dynamic,dynamic=>void> contact);
+
+Shadow Shadow.new();
+
+Camera Camera.new(int camera_num);
+Texture Camera.queryFrame();
+

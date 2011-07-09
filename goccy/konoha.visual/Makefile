@@ -1,8 +1,9 @@
 CC = g++
-INCPATH = -I/usr/local/Trolltech/Qt-4.7.3/mkspecs/macx-g++ -I. -I/usr/local/Trolltech/Qt-4.7.3/lib/QtCore.framework/Versions/4/Headers -I/usr/local/Trolltech/Qt-4.7.3/include/QtCore -I/usr/local/Trolltech/Qt-4.7.3/lib/QtGui.framework/Versions/4/Headers -I/usr/local/Trolltech/Qt-4.7.3/include/QtGui -I/usr/local/Trolltech/Qt-4.7.3/include -I. -I. -F/usr/local/Trolltech/Qt-4.7.3/lib -I/usr/local/include/Box2D
-LFLAGS = -headerpad_max_install_names -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5 
-LIBS = -F/usr/local/Trolltech/Qt-4.7.3/lib -L/usr/local/Trolltech/Qt-4.7.3/lib -framework QtGui -L/usr/local/Trolltech/Qt-4.7.3/lib -F/usr/local/Trolltech/Qt-4.7.3/lib -framework QtCore
-DEFINES = -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -DK_USING_BOX2D
+INCPATH = -I/usr/local/Trolltech/Qt-4.7.3/mkspecs/macx-g++ -I. -I/usr/local/Trolltech/Qt-4.7.3/lib/QtCore.framework/Versions/4/Headers -I/usr/local/Trolltech/Qt-4.7.3/include/QtCore -I/usr/local/Trolltech/Qt-4.7.3/lib/QtGui.framework/Versions/4/Headers -I/usr/local/Trolltech/Qt-4.7.3/include/QtGui -I/usr/local/Trolltech/Qt-4.7.3/include -I. -I. -F/usr/local/Trolltech/Qt-4.7.3/lib -I/usr/local/include/Box2D -I/usr/local/include/opencv/
+LFLAGS = -headerpad_max_install_names -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5
+OPENCV_LIBS = -lopencv_calib3d -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_objdetect -lopencv_ts -lopencv_video
+LIBS = -F/usr/local/Trolltech/Qt-4.7.3/lib -L/usr/local/Trolltech/Qt-4.7.3/lib -framework QtGui -L/usr/local/Trolltech/Qt-4.7.3/lib -F/usr/local/Trolltech/Qt-4.7.3/lib -framework QtCore $(OPENCV_LIBS)
+DEFINES = -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -DK_USING_BOX2D -DK_USING_OPENCV
 CFLAGS = -O0 -g3 -pipe -g -gdwarf-2 -Wall -W -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5 $(DEFINES) -I/usr/local/include/ -I./include/ -Wall -W -fPIC $(INCPATH)
 LDLIBS = $(LFLAGS) $(LIBS) -lkonoha1 -lBox2D
 
@@ -27,7 +28,9 @@ objs = build/visual.o\
 	build/World.o\
 	build/Texture.o\
 	build/Text.o\
-	build/Contact.o
+	build/Contact.o\
+	build/Shadow.o\
+	build/Camera.o
 
 .PHONY: all
 all: $(library)
@@ -43,6 +46,9 @@ build/Application.o: src/Application.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Brush.o: src/Brush.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+build/Camera.o: src/Camera.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Connector.o: src/Connector.cpp
@@ -82,6 +88,9 @@ build/Painter.o: src/Painter.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Timer.o: src/Timer.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+build/Shadow.o: src/Shadow.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Scene.o: src/Scene.cpp

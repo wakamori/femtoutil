@@ -1,9 +1,14 @@
-#include <konoha1.h>
 #include <QtGui>
 #ifdef K_USING_BOX2D
 #include <Box2D.h>
 #endif
+#ifdef K_USING_OPENCV
+#include <cv.h>
+#include <highgui.h>
+#endif
 #include <iostream>
+#include <konoha1.h>
+
 using namespace std;
 
 class Connector : public QObject {
@@ -22,6 +27,21 @@ class KGraphicsRectItem : public QObject, public QGraphicsRectItem {
 	Q_OBJECT;
 public:
 	KGraphicsRectItem() {}
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+signals:
+	void emitMousePressEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
+};
+
+class KGraphicsPixmapItem : public QObject, public QGraphicsPixmapItem {
+	Q_OBJECT;
+public:
+	KGraphicsPixmapItem() {}
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
@@ -120,6 +140,7 @@ public:
 	qreal dx_sum;
 	qreal dy_sum;
 	knh_class_t cid;
+	QGraphicsDropShadowEffect *se;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -179,13 +200,14 @@ class KTexture : public QObject {
 	Q_OBJECT;
 public:
 	QPixmap *p;
-	QGraphicsPixmapItem *gp;
+	KGraphicsPixmapItem *gp;
 	bool isDrag;
 	int x;
 	int y;
 	int width;
 	int height;
 	knh_class_t cid;
+	QGraphicsColorizeEffect *ce;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -195,8 +217,14 @@ public:
 #endif
 	
 	KTexture(QString filepath);
+	KTexture(QImage *image);
+	KTexture(QPixmap *image);
+	void setConnect(void);
+	QList<KTexture*> *split(int row, int col);
 	void setRect(KRect *r);
+	void setColor(QColor *c);
 	void setClassID(CTX ctx);
+	~KTexture(void);
 #ifdef K_USING_BOX2D
 	void setRotation(qreal rotation_);
 	void setDensity(qreal density_);
@@ -205,6 +233,11 @@ public:
 	void addToWorld(KWorld *w);
 	void adjust(void);
 #endif
+public slots:
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
 };
 
 class KText : public QObject {

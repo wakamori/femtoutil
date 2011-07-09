@@ -16,10 +16,13 @@ class PhysicsWorld {
 		Color static_block_color = new Color("#90ee90");
 		Rect ground = new Rect(200, 400, 200, 40);
 		ground.setColor(static_block_color);
+		ground.setShadow(new Shadow());
 		Rect left_block = new Rect(200, 350, 10, 50);
 		left_block.setColor(static_block_color);
+		//left_block.setShadow(new Shadow());
 		Rect right_block = new Rect(400 - 10, 350, 10, 50);
 		right_block.setColor(static_block_color);
+		right_block.setShadow(new Shadow());
 		Ellipse e = new Ellipse();
 		e.setRect(new Rect(300, 300, 20, 20));
 		e.setColor(new QColor("#999900"));
@@ -28,16 +31,15 @@ class PhysicsWorld {
 		scene.addItem(left_block);
 		scene.addItem(right_block);
 		scene.addItem(e);
-		world.add(ground);
 		world.add(left_block);
 		world.add(right_block);
+		world.add(ground);
 		world.add(e);
 	}
 
 	void addDynamicObject() {
-		for (int i = 0; i < 10; i++) {
-			float f = 100.0;
-			float r = f.random() * 100;
+		for (int i = 0; i < 100; i++) {
+			int r = Int.random(100);
 			Rect rect = new Rect(350 - r, 300 - r, 10, 10);
 			rect.setDensity(1);
 			//rect.setFriction(0.3);
@@ -75,7 +77,7 @@ class PhysicsWorld {
 	Color getRandomColor() {
 		String color = "#";
 		for (int i = 0; i < 3; i++) {
-			color += "%x"(100 + Int.random(156));
+			color += "%x"(50 + Int.random(206));
 		}
 		return new Color(color);
 	}
@@ -92,6 +94,9 @@ class PhysicsWorld {
 		} else if (obj1.class == Ellipse) {
 			Ellipse e = (Ellipse)obj1;
 			e.setColor(color1);
+		} else if (obj1.class == Texture) {
+			Texture t = (Texture)obj1;
+			t.setColor(color1);
 		}
 		if (obj2.class == Rect) {
 			Rect r = (Rect)obj2;
@@ -101,6 +106,9 @@ class PhysicsWorld {
 		} else if (obj2.class == Ellipse) {
 			Ellipse e = (Ellipse)obj2;
 			e.setColor(color2);
+		} else if (obj2.class == Texture) {
+			Texture t = (Texture)obj2;
+			t.setColor(color2);
 		}
 	}
 

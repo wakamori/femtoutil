@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+#ifdef K_USING_BOX2D
 KContact::KContact()
 {
 	begin = NULL;
@@ -83,6 +84,8 @@ void KContact::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
 	(void)contact;
 	(void)impulse;
 }
+
+#endif
 
 #ifdef __cplusplus
 }
