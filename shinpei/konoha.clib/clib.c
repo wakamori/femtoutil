@@ -568,7 +568,7 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 	Object_setNullObject(obj, 1);
 	ct->bcid = CLASS_Object;
 	ct->baseTBL = ClassTBL(CLASS_Object);
-	knh_setClassDef(ct, ct->baseTBL->cdef);
+	knh_setClassDef(ctx, ct, ct->baseTBL->cdef);
 	obj->ref = NULL; tmp->ref = NULL;
 	knh_setClassDefaultValue(ctx, cid, obj, NULL);
 	KNH_INITv(ct->protoNULL, tmp);
@@ -669,7 +669,7 @@ METHOD Clib_defineClass(CTX ctx, knh_sfp_t *sfp _RIX)
 	  //	  mtd = new_StructGetter(ctx, cid, 
 	}
   }
-  knh_ClassTBL_setObjectCSPI(ct);
+  knh_ClassTBL_setObjectCSPI(ctx, ct);
   
   // add constructor
   mtd = new_Method(ctx, 0, cid, MN_new, NULL); // we can make FMethod as a method
