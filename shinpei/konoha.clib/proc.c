@@ -235,7 +235,7 @@ static METHOD Fmethod_wrapProcess(CTX ctx, knh_sfp_t *sfp _RIX)
 #endif
   if(rtype != TYPE_void) {
 	if(IS_Tunbox(rtype)) {
-	  RETURN_(KNH_INT0);
+	  RETURNi_(0);
 	} else {
 	  RETURN_(KNH_NULVAL(CLASS_t(rtype)));	  
 	}
