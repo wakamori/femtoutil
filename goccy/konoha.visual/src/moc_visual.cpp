@@ -1,13 +1,13 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'visual.hpp'
 **
-** Created: Fri Jul 8 17:45:42 2011
+** Created: Tue Jul 12 01:27:10 2011
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "include/visual.hpp"
+#include "../include/visual.hpp"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'visual.hpp' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 62
@@ -82,18 +82,20 @@ static const uint qt_meta_data_KGraphicsRectItem[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       6,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       4,       // signalCount
+       6,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       25,   19,   18,   18, 0x05,
       72,   19,   18,   18, 0x05,
      121,   19,   18,   18, 0x05,
      167,   19,   18,   18, 0x05,
+     220,   19,   18,   18, 0x05,
+     269,   19,   18,   18, 0x05,
 
        0        // eod
 };
@@ -103,7 +105,9 @@ static const char qt_meta_stringdata_KGraphicsRectItem[] = {
     "emitMousePressEvent(QGraphicsSceneMouseEvent*)\0"
     "emitMouseReleaseEvent(QGraphicsSceneMouseEvent*)\0"
     "emitMouseMoveEvent(QGraphicsSceneMouseEvent*)\0"
+    "emitMouseDoubleClickEvent(QGraphicsSceneMouseEvent*)\0"
     "emitDragEnterEvent(QGraphicsSceneDragDropEvent*)\0"
+    "emitWheelEvent(QGraphicsSceneWheelEvent*)\0"
 };
 
 const QMetaObject KGraphicsRectItem::staticMetaObject = {
@@ -140,10 +144,12 @@ int KGraphicsRectItem::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 0: emitMousePressEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
         case 1: emitMouseReleaseEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
         case 2: emitMouseMoveEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
-        case 3: emitDragEnterEvent((*reinterpret_cast< QGraphicsSceneDragDropEvent*(*)>(_a[1]))); break;
+        case 3: emitMouseDoubleClickEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
+        case 4: emitDragEnterEvent((*reinterpret_cast< QGraphicsSceneDragDropEvent*(*)>(_a[1]))); break;
+        case 5: emitWheelEvent((*reinterpret_cast< QGraphicsSceneWheelEvent*(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 4;
+        _id -= 6;
     }
     return _id;
 }
@@ -170,10 +176,24 @@ void KGraphicsRectItem::emitMouseMoveEvent(QGraphicsSceneMouseEvent * _t1)
 }
 
 // SIGNAL 3
-void KGraphicsRectItem::emitDragEnterEvent(QGraphicsSceneDragDropEvent * _t1)
+void KGraphicsRectItem::emitMouseDoubleClickEvent(QGraphicsSceneMouseEvent * _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 3, _a);
+}
+
+// SIGNAL 4
+void KGraphicsRectItem::emitDragEnterEvent(QGraphicsSceneDragDropEvent * _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 4, _a);
+}
+
+// SIGNAL 5
+void KGraphicsRectItem::emitWheelEvent(QGraphicsSceneWheelEvent * _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 5, _a);
 }
 static const uint qt_meta_data_KGraphicsPixmapItem[] = {
 
@@ -280,7 +300,7 @@ static const uint qt_meta_data_KRect[] = {
        5,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       6,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -292,6 +312,8 @@ static const uint qt_meta_data_KRect[] = {
       56,    7,    6,    6, 0x0a,
       98,    7,    6,    6, 0x0a,
      143,    7,    6,    6, 0x0a,
+     192,    7,    6,    6, 0x0a,
+     237,    7,    6,    6, 0x0a,
 
        0        // eod
 };
@@ -300,7 +322,9 @@ static const char qt_meta_stringdata_KRect[] = {
     "KRect\0\0event\0mousePressEvent(QGraphicsSceneMouseEvent*)\0"
     "mouseMoveEvent(QGraphicsSceneMouseEvent*)\0"
     "mouseReleaseEvent(QGraphicsSceneMouseEvent*)\0"
+    "mouseDoubleClickEvent(QGraphicsSceneMouseEvent*)\0"
     "dragEnterEvent(QGraphicsSceneDragDropEvent*)\0"
+    "wheelEvent(QGraphicsSceneWheelEvent*)\0"
 };
 
 const QMetaObject KRect::staticMetaObject = {
@@ -335,10 +359,12 @@ int KRect::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 0: mousePressEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
         case 1: mouseMoveEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
         case 2: mouseReleaseEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
-        case 3: dragEnterEvent((*reinterpret_cast< QGraphicsSceneDragDropEvent*(*)>(_a[1]))); break;
+        case 3: mouseDoubleClickEvent((*reinterpret_cast< QGraphicsSceneMouseEvent*(*)>(_a[1]))); break;
+        case 4: dragEnterEvent((*reinterpret_cast< QGraphicsSceneDragDropEvent*(*)>(_a[1]))); break;
+        case 5: wheelEvent((*reinterpret_cast< QGraphicsSceneWheelEvent*(*)>(_a[1]))); break;
         default: ;
         }
-        _id -= 4;
+        _id -= 6;
     }
     return _id;
 }

@@ -30,12 +30,16 @@ public:
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+	void wheelEvent(QGraphicsSceneWheelEvent *event);
 signals:
 	void emitMousePressEvent(QGraphicsSceneMouseEvent *event);
 	void emitMouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void emitMouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
+	void emitWheelEvent(QGraphicsSceneWheelEvent *event);
 };
 
 class KGraphicsPixmapItem : public QObject, public QGraphicsPixmapItem {
@@ -61,12 +65,16 @@ public:
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+	void wheelEvent(QGraphicsSceneWheelEvent *event);
 signals:
 	void emitMousePressEvent(QGraphicsSceneMouseEvent *event);
 	void emitMouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void emitMouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
+	void emitWheelEvent(QGraphicsSceneWheelEvent *event);
 };
 */
 
@@ -79,6 +87,7 @@ class KText;
 typedef struct _knh_GraphicsUserData_t {
 	QObject *o;
 	knh_class_t cid;
+	size_t *step_count;
 } knh_GraphicsUserData_t;
 
 class KContact : public b2ContactListener {
@@ -112,11 +121,11 @@ public:
 	//JointObjectManagerList *joml;
 	b2World *world;
 	KContact *contact;
-
+	size_t step_count;
 	KWorld(int width, int height);
 	//void addJointObjectManager(JointObjectManager *jom);
 	void addObj(void *obj);
-    void start(void);
+	void start(void);
 	void joint(void);
 	qreal centerX(void);
 	qreal centerY(void);
@@ -147,6 +156,7 @@ public:
 	b2FixtureDef *shapeDef;
 	b2BodyDef *bodyDef;
 	b2Body *body;
+	size_t base_step;
 #endif
 	KRect(int x, int y, int width, int height);
 	void setClassID(CTX ctx);
@@ -162,7 +172,9 @@ public slots:
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+	void wheelEvent(QGraphicsSceneWheelEvent *event);
 };
 
 class KEllipse : public QObject {

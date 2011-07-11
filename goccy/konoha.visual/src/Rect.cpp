@@ -19,9 +19,19 @@ void KGraphicsRectItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	emit emitMouseMoveEvent(event);
 }
 
+void KGraphicsRectItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+	emit emitMouseDoubleClickEvent(event);
+}
+
 void KGraphicsRectItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
 	emit emitDragEnterEvent(event);
+}
+
+void KGraphicsRectItem::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+	emit emitWheelEvent(event);
 }
 
 void KRect::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -33,53 +43,63 @@ void KRect::mousePressEvent(QGraphicsSceneMouseEvent *event)
 	isDrag = true;
 	dx_sum = 0;
 	dy_sum = 0;
+	body->SetAwake(false);
+	base_step = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
 }
 
 void KRect::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
 	(void)event;
+	size_t step_count = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
+	size_t step_diff = step_count - base_step + 1;
 #ifdef K_USING_BOX2D
 	QPointF lspos = event->lastScreenPos();
 	//fprintf(stderr, "lsx: [%f], lsy:[%f]\n", lspos.x(), lspos.y());
 	if (!isStatic) {
 		qreal dx = lspos.x() - prev_x;
 		qreal dy = lspos.y() - prev_y;
-		//fprintf(stderr, "dx: [%d], dy:[%d]\n", dx, dy);
-		//fprintf(stderr, "x: [%d], y:[%d]\n", dx + x, dy + y);
-		gr->translate(dx, dy);
-		//const b2Transform t = body->GetTransform();
-		//b2Vec2 position = t.position;
-		//body->SetTransform(*(new b2Vec2(position.x - dx, position.y - dy)), body->GetAngle());
-		dx_sum += dx;
-		dy_sum += dy;
-		//gr->setPos(lspos.x() - prev_x + x, lspos.y() - prev_y + y);
+		//fprintf(stderr, "dx: [%f], dy:[%f]\n", dx, dy);
+		dx_sum = (dx_sum + dx) / step_diff;
+		dy_sum = (dy_sum + dy) / step_diff;
+		gr->setPos(gr->pos() + QPointF(dx, dy));
+		body->SetTransform(body->GetPosition() + b2Vec2(dx, -dy), body->GetAngle());
 	}
 	prev_x = lspos.x();
 	prev_y = lspos.y();
 	isDrag = true;
+	body->SetAwake(false);
 #endif
+	base_step = step_count;
 }
 
 void KRect::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 	(void)event;
 	isDrag = false;
-	/*
-	const b2Transform t = body->GetTransform();
-	b2Vec2 position = t.position;
-	fprintf(stderr, "================\n");
-	fprintf(stderr, "dx_sum = [%f], dy_sum = [%f]\n", dx_sum, dy_sum);
-	//fprintf(stderr, "gx = [%f], gy = [%f]\n", gr->x(), gr->y());
-	fprintf(stderr, "pos.x = [%f], -pos.y = [%f]\n", position.x, -position.y);
-	//body->SetTransform(*(new b2Vec2(gr->x() - position.x, -gr->y() - -position.y)), angle);
-	//body->SetTransform(*(new b2Vec2(x + dx, -dy - y)), angle);
-	x = gr->x() + dx_sum;
-	y = gr->y() + dy_sum;
-	fprintf(stderr, "x = [%d], y = [%d]\n", x, y);
-	b2Vec2 pos = body->GetWorldPoint(*(new b2Vec2(x, y)));
-	fprintf(stderr, "pos.x = [%f], -pos.y = [%f]\n", pos.x, -pos.y);
-	body->SetTransform(*(new b2Vec2(position.x - x, position.y - y)), body->GetAngle());
-	*/
+#ifdef K_USING_BOX2D
+	isDrag = false;
+	body->SetAwake(true);
+	size_t step_count = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
+	size_t step_release = step_count - base_step + 1;
+	qreal force_x = dx_sum / step_release;
+	qreal force_y = dy_sum / step_release;
+	force_x = ((dx_sum > 0) ? 1 : -1) * force_x * force_x * 10000.0;
+	force_y = ((dy_sum > 0) ? -1 : 1) * force_y * force_y * 10000.0;
+	body->ApplyForce(b2Vec2(force_x, force_y), body->GetWorldCenter());
+	//body->ApplyLinearImpulse(b2Vec2(force_x, force_y), body->GetWorldCenter());
+	//body->SetLinearVelocity(b2Vec2(force_x, force_y));
+	body->SetAwake(true);
+#endif
+}
+
+void KRect::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+	(void)event;
+#ifdef K_USING_BOX2D
+	body->SetLinearVelocity(b2Vec2(0, 200.0));
+	//body->ApplyForce(b2Vec2(0, 20.0f), body->GetWorldCenter());
+	//body->ApplyLinearImpulse(b2Vec2(0, 20.0f), body->GetWorldCenter());
+#endif
 }
 
 void KRect::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
@@ -87,6 +107,18 @@ void KRect::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 	fprintf(stderr, "KRect::dragEnterEvent\n");
 	(void)event;
 	//event->setAccepted(event->mimeData()->hasFormat("text/plain"));
+}
+
+void KRect::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+	qreal dx = 0, dy = 0;
+	int delta = event->delta();
+	if (event->orientation() == Qt::Horizontal) {
+		dx = -(qreal)delta;
+	} else {
+		dy = (qreal)delta;
+	}
+	fprintf(stderr, "wheel_event dx: %f, dy: %f\n", dx, dy);
 }
 
 KRect::KRect(int x_, int y_, int width_, int height_)
@@ -105,8 +137,12 @@ KRect::KRect(int x_, int y_, int width_, int height_)
 			this, SLOT(mouseMoveEvent(QGraphicsSceneMouseEvent*)));
 	connect(gr, SIGNAL(emitMouseReleaseEvent(QGraphicsSceneMouseEvent*)),
 			this, SLOT(mouseReleaseEvent(QGraphicsSceneMouseEvent*)));
+	connect(gr, SIGNAL(emitMouseDoubleClickEvent(QGraphicsSceneMouseEvent*)),
+			this, SLOT(mouseDoubleClickEvent(QGraphicsSceneMouseEvent*)));
 	connect(gr, SIGNAL(emitDragEnterEvent(QGraphicsSceneDragDropEvent*)),
 			this, SLOT(dragEnterEvent(QGraphicsSceneDragDropEvent*)));
+	connect(gr, SIGNAL(emitWheelEvent(QGraphicsSceneWheelEvent*)),
+			this, SLOT(wheelEvent(QGraphicsSceneWheelEvent*)));
 	setObjectName("KRect");
 #ifdef K_USING_BOX2D
 	isStatic = true;
@@ -150,8 +186,7 @@ void KRect::addToWorld(KWorld *w)
 	bodyDef.angle = -(gr->rotation() * (2 * M_PI)) / 360.0;
 	body = world->CreateBody(&bodyDef);
 	b2PolygonShape *shape = new b2PolygonShape();
-	shape->SetAsBox(width / 2, height / 2,
-					*(new b2Vec2(x + width / 2, -y - height / 2)), 0.0);
+	shape->SetAsBox(width / 2, height / 2, b2Vec2(x + width / 2, -y - height / 2), 0.0);
 	shapeDef->shape = shape;
 	//fprintf(stderr, "density = [%f]\n", shapeDef->density);
 	body->CreateFixture(shapeDef);
@@ -159,6 +194,7 @@ void KRect::addToWorld(KWorld *w)
 	memset(data, 0, sizeof(knh_GraphicsUserData_t));
 	data->cid = cid;
 	data->o = (QObject *)this;
+	data->step_count = &(w->step_count);
 	body->SetUserData((void *)data);
 	//fprintf(stderr, "this = [%p]\n", this);
 	//fprintf(stderr, "body = [%p]\n", body);

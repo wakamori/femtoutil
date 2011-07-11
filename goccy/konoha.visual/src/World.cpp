@@ -27,6 +27,7 @@ KWorld::KWorld(int width, int height)
 	//joml = new JointObjectManagerList();
 	center_x = width / 2;
 	center_y = height / 2;
+	step_count = 0;
 	contact = new KContact();
 	world->SetContactListener(contact);
 }
@@ -110,6 +111,7 @@ void KWorld::timerEvent(QTimerEvent *event)
 			t->adjust();
 		}
 	}
+	step_count++;
 	QObject::timerEvent(event);
 }
 
