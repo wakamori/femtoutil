@@ -15,7 +15,7 @@ int main (String[] args)
 	OUT <<< EOL;
 	Cgi cgi = new Cgi();
 	OUT <<< cgi.method <<< EOL;
-	OUT <<< cgi.fs.storage["method"] <<< EOL
-
+	print cgi.fs.storage;
+//	OUT <<< cgi.fs.storage["method"] <<< EOL;
 	return 0;
 }
