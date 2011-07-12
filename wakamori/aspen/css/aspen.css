@@ -14,11 +14,11 @@ body {
 }
 
 h1 {
-	background-image: url("../img/ks_icon.jpg");
+	background-image: url("../img/ks_icon.png");
 	background-repeat: no-repeat;
 	background-position: left center;
 	font-family: arial;
-	font-size: 40pt;
+	font-size: 20pt;
 	margin: 0px;
 	padding-left: 90px;
 }
