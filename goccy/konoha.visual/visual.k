@@ -114,7 +114,7 @@ Shadow Shadow.new();
 Camera Camera.new(int camera_num);
 Texture Camera.queryFrame();
 
-Point Point.new();
+Point Point.new(int x, int y);
 int Point.getX();
 int Point.getY();
 

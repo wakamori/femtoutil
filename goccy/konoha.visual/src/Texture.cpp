@@ -524,7 +524,7 @@ static Triangle draw_subdiv_facet(CvSubdiv2DEdge edge, CvRect rect)
 {
 	CvSubdiv2DEdge t = edge;
 	int i, count = 0;
-	Triangle buf = {0};
+	Triangle buf = {{{0, 0}}};
 	do {
 		count++;
 		t = cvSubdiv2DGetEdge(t, CV_NEXT_AROUND_LEFT);
@@ -577,7 +577,7 @@ static void Array_add(Triarray *tris, Triangle tri)
 static Triarray draw_subdiv(CvSubdiv2D *subdiv, int vnum, CvRect rect)
 {
 	CvSeqReader reader;
-	int i, j, k, total = subdiv->edges->total;
+	int i, j, total = subdiv->edges->total;
 	int elem_size = subdiv->edges->elem_size;
 	Triangle buf;
 	Triarray tris;
@@ -629,26 +629,22 @@ static int getTriangles(CvPoint ***tris, KPoint **pts, int vnum, CvRect rect)
 	return retsize;
 }
 
-KComplexItem::KComplexItem(void){}
-KMETHOD ComplexItem_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
+KComplexItem::KComplexItem(knh_Array_t *a)
 {
-	NO_WARNING();
-	knh_Array_t *a = sfp[1].a;
-	int asize = knh_Array_size(a);
 	CvPoint **tris = NULL;
-	CvRect rect = {0, 0, 1300, 800};
-	//CvPoint pts[asize];
+	CvRect rect = {0, 0, 600, 600};
+	int asize = knh_Array_size(a);
 	KPoint *pts[asize];
 	for (int i = 0; i < asize; i++) {
 		knh_RawPtr_t *o = (knh_RawPtr_t *)a->list[i];
 		KPoint *p = (KPoint *)o->rawptr;
 		//CvPoint c(p->x, p->y);
 		pts[i] = p;
-		//fprintf(stderr, "(x, y) = (%d, %d)\n", p->x, p->y);
+		fprintf(stderr, "(x, y) = (%d, %d)\n", p->x, p->y);
 	}
 	int size = getTriangles(&tris, pts, asize, rect);
-	//fprintf(stderr, "size = [%d]\n", size);
-	QList<QGraphicsPolygonItem *> *gp_list = new QList<QGraphicsPolygonItem *>();
+	fprintf(stderr, "size = [%d]\n", size);
+	gp_list = new QList<QGraphicsPolygonItem *>();
 	for (int i = 0; i < size; i++) {
 		CvPoint *triangle = tris[i];
 		QPolygonF p;
@@ -660,14 +656,92 @@ KMETHOD ComplexItem_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 		gp->setPolygon(p);
 		gp_list->append(gp);
 		free(tris[i]);
-		//puts("");
 	}
 	free(tris);
-	KComplexItem *c = new KComplexItem();
-	c->gp_list = gp_list;
+	isDrag = false;
+	setObjectName("KComplexItem");
+#ifdef K_USING_BOX2D
+	isStatic = true;
+	shapeDef = new b2FixtureDef();
+#endif
+#ifdef K_USING_OPENCV
+	//setTrackData(filepath_);
+#endif
+}
+
+KMETHOD ComplexItem_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	knh_Array_t *a = sfp[1].a;
+	KComplexItem *c = new KComplexItem(a);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, c);
 	RETURN_(p);
 }
+
+void KComplexItem::addToWorld(KWorld *w)
+{
+	b2World *world = w->world;
+	b2BodyDef bodyDef;
+	if (!isStatic) {
+		bodyDef.type = b2_dynamicBody;
+	}
+	bodyDef.position.Set(x, -y);
+	//bodyDef.angle = -(gp_list->at(0)->rotation() * (2 * M_PI)) / 360.0;
+	body = world->CreateBody(&bodyDef);
+	int gp_length = gp_list->size();
+	//fprintf(stderr, "length ==%d\n", gp_length);
+	for (int i = 0; i < gp_length; i++) {
+	  b2PolygonShape *shape = new b2PolygonShape();
+		const QGraphicsPolygonItem *gp = gp_list->at(i);
+		QPolygonF poly = gp->polygon();
+		int n = poly.size();
+		b2Vec2 *vers = (b2Vec2*)malloc(sizeof(b2Vec2) * n);
+		fprintf(stderr, "points == %d\n", n);
+		for (int j = 0; j < n; j++) {
+			const QPointF &p = poly.at(j);
+			fprintf(stderr, "[%d] x: %f, y: %f\n", j, p.x(), p.y());
+			vers[j].Set(p.x(), -p.y());
+		}
+		shape->Set(vers, n);
+		shapeDef->shape = shape;
+		body->CreateFixture(shapeDef);
+	}
+	//fprintf(stderr, "density = [%f]\n", shapeDef->density);
+	//body->CreateFixture(shapeDef);
+	knh_GraphicsUserData_t *data = (knh_GraphicsUserData_t *)malloc(sizeof(knh_GraphicsUserData_t));
+	memset(data, 0, sizeof(knh_GraphicsUserData_t));
+	data->cid = cid;
+	data->o = (QObject *)this;
+	body->SetUserData((void *)data);
+}
+
+void KComplexItem::setClassID(CTX ctx)
+{
+	knh_ClassTBL_t *ct = NULL;
+	const knh_ClassTBL_t **cts = ctx->share->ClassTBL;
+	size_t size = ctx->share->sizeClassTBL;
+	for (size_t i = 0; i < size; i++) {
+		if (!strncmp("ComplexItem", S_tochar(cts[i]->sname), sizeof("ComplexItem"))) {
+			ct = (knh_ClassTBL_t *)cts[i];
+			break;
+		}
+	}
+	if (ct == NULL) fprintf(stderr, "ERROR: UNKNOWN CLASS: ComplexItem\n");
+	cid = ct->cid;
+}
+
+void KComplexItem::adjust(void)
+{
+  b2Vec2 position = body->GetPosition();
+  float32 angle = body->GetAngle();
+  int gp_length = gp_list->length();
+  for (int i = 0; i < gp_length; i++) {
+    QGraphicsPolygonItem *gp = gp_list->at(i);
+    gp->setPos(position.x, -position.y);
+    gp->setRotation(-(angle * 360.0) / (2 * M_PI));
+  }
+}
+
 #endif
 
 static void Texture_free(CTX ctx, knh_RawPtr_t *p)

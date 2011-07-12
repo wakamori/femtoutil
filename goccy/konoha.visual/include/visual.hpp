@@ -94,6 +94,7 @@ class KRect;
 class KEllipse;
 class KTexture;
 class KText;
+class KComplexItem;
 
 typedef struct _knh_GraphicsUserData_t {
 	QObject *o;
@@ -128,6 +129,7 @@ public:
 	QList<KEllipse*> *ellipse_list;
 	QList<KTexture*> *texture_list;
 	QList<KText*> *text_list;
+	QList<KComplexItem*> *complex_list;
 	b2Body *root;
 	//JointObjectManagerList *joml;
 	b2World *world;
@@ -286,16 +288,16 @@ public:
 	b2Body *body;
 #endif
 	
-	KComplexItem(void);
-	//void setClassID(CTX ctx);
+	KComplexItem(knh_Array_t *a);
+	void setClassID(CTX ctx);
 	//void setPosition(int x, int y);
 #ifdef K_USING_BOX2D
 	//void setRotation(qreal rotation_);
 	//void setDensity(qreal density_);
 	//void setFriction(qreal friction_);
 	//void setRestitution(qreal restitution_);
-	//void addToWorld(KWorld *w);
-	//void adjust(void);
+	void addToWorld(KWorld *w);
+	void adjust(void);
 #endif
 };
 

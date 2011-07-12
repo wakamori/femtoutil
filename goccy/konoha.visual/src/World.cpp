@@ -16,6 +16,7 @@ KWorld::KWorld(int width, int height)
 	ellipse_list = new QList<KEllipse*>();
 	texture_list = new QList<KTexture*>();
 	text_list = new QList<KText*>();
+	complex_list = new QList<KComplexItem*>();
 	world = new b2World(b2Vec2(0.0f, -10.0f), true);
 	//scene = new QGraphicsScene();
 	//scene->setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -46,6 +47,10 @@ void KWorld::addObj(void *obj)
 	} else if (name == "KText") {
 		text_list->append((KText *)o);
 	} else if (name == "KGroup") {
+		
+	} else if (name == "KComplexItem") {
+		complex_list->append((KComplexItem *)o);
+	} else {
 		fprintf(stderr, "STILL NOT SUPPORTED\n");
 	}
 }
@@ -94,6 +99,7 @@ void KWorld::timerEvent(QTimerEvent *event)
 		int ellipse_list_size = ellipse_list->size();
 		int texture_list_size = texture_list->size();
 		int text_list_size = text_list->size();
+		int complex_list_size = complex_list->size();
 		for (int i = 0; i < rect_list_size; i++) {
 			KRect *r = rect_list->at(i);
 			r->adjust();
@@ -109,6 +115,10 @@ void KWorld::timerEvent(QTimerEvent *event)
 		for (int i = 0; i < text_list_size; i++) {
 			KText *t = text_list->at(i);
 			t->adjust();
+		}
+		for (int i = 0; i < complex_list_size; i++) {
+			KComplexItem *c = complex_list->at(i);
+			c->adjust();
 		}
 	}
 	step_count++;
@@ -148,6 +158,10 @@ KMETHOD World_add(Ctx *ctx, knh_sfp_t *sfp _RIX)
 		KText *t = RawPtr_to(KText *, sfp[1]);
 		t->addToWorld(world);
 		world->addObj(t);
+	} else if (name == "KComplexItem") {
+		KComplexItem *c = RawPtr_to(KComplexItem *, sfp[1]);
+		c->addToWorld(world);
+		world->addObj(c);
 	} else {
 		fprintf(stderr, "World: [WARNING] UNNOWN OBJECT\n");
 	}
