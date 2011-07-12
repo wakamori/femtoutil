@@ -1,12 +1,12 @@
 /* aspen style */
 
 #titleheader {
-	background: #022d23;
-	color: #e8db9e;
+	background: #304d44;
+	color: #feefa8;
 	text-shadow: black 2px 2px 2px;
-	padding: 10px 10px 10px 10px;
-	border-top: 5px #594 solid;
-	border-bottom: 5px #594 solid;
+	padding: 2px 2px 2px 2px;
+	border-top: 3px #594 solid;
+	border-bottom: 3px #594 solid;
 }
 
 body {
@@ -18,9 +18,9 @@ h1 {
 	background-repeat: no-repeat;
 	background-position: left center;
 	font-family: arial;
-	font-size: 20pt;
+	font-size: 22pt;
 	margin: 0px;
-	padding-left: 90px;
+	padding-left: 55px;
 }
 
 #info {
