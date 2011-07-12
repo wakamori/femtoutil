@@ -24,6 +24,8 @@ class FieldStrage {
 		String[] queries = str.split("=");
 		int size = |queries|;
 		int range;
+		if (size == 1) { return ; }
+
 		if (size % 2 == 0) {
 			range = size /2;
 		} else {
@@ -39,6 +41,7 @@ class FieldStrage {
 class Cgi {
 	String method;
 	FieldStrage fs;
+
 	Cgi () {
 		this.method = $env.REQUEST_METHOD;
 		fs = new FieldStorage();
@@ -46,5 +49,3 @@ class Cgi {
 	}
 
 }
-
-
