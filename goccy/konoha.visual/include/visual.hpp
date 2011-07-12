@@ -7,6 +7,7 @@
 #include <highgui.h>
 #endif
 #include <iostream>
+#define K_INTERNAL
 #include <konoha1.h>
 
 using namespace std;
@@ -21,6 +22,16 @@ public:
 	void signalConnect(QTimeLine *t, int signal, knh_Func_t *fo, knh_context_t *ctx, knh_sfp_t *sfp);
 public slots:
 	void slot_func(qreal val);
+};
+
+class KPoint {
+public:
+	int x;
+	int y;
+	KPoint(int x_, int y_) {
+		x = x_;
+		y = y_;
+	}
 };
 
 class KGraphicsRectItem : public QObject, public QGraphicsRectItem {
@@ -208,6 +219,8 @@ public:
 #endif
 };
 
+typedef QList<QList<KPoint*>*> ObjPointList;
+
 class KTexture : public QObject {
 	Q_OBJECT;
 public:
@@ -227,10 +240,13 @@ public:
 	b2BodyDef *bodyDef;
 	b2Body *body;
 #endif
-	
-	KTexture(QString filepath);
+#ifdef K_USING_OPENCV
+	IplImage *ipl;
+#endif
+	KTexture(const char *filepath);
 	KTexture(QImage *image);
 	KTexture(QPixmap *image);
+	void setTrackData(const char *filepath);
 	void setConnect(void);
 	QList<KTexture*> *split(int row, int col);
 	void setRect(KRect *r);
@@ -250,6 +266,37 @@ public slots:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+};
+
+class KComplexItem : public QObject {
+	Q_OBJECT;
+public:
+	QList<QGraphicsPolygonItem*> *gp_list;
+	bool isDrag;
+	int x;
+	int y;
+	int width;
+	int height;
+	knh_class_t cid;
+#ifdef K_USING_BOX2D
+	bool isStatic;
+	qreal rotation;
+	b2FixtureDef *shapeDef;
+	b2BodyDef *bodyDef;
+	b2Body *body;
+#endif
+	
+	KComplexItem(void);
+	//void setClassID(CTX ctx);
+	//void setPosition(int x, int y);
+#ifdef K_USING_BOX2D
+	//void setRotation(qreal rotation_);
+	//void setDensity(qreal density_);
+	//void setFriction(qreal friction_);
+	//void setRestitution(qreal restitution_);
+	//void addToWorld(KWorld *w);
+	//void adjust(void);
+#endif
 };
 
 class KText : public QObject {

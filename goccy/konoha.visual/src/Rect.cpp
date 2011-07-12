@@ -77,7 +77,6 @@ void KRect::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	(void)event;
 	isDrag = false;
 #ifdef K_USING_BOX2D
-	isDrag = false;
 	body->SetAwake(true);
 	size_t step_count = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
 	size_t step_release = step_count - base_step + 1;

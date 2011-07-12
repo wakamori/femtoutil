@@ -1,12 +1,14 @@
 include nativelink;
 
 @Native class Visual;
+class Point;
 class Item;
 class Group extends Item;
 class Ellipse extends Item;
 class Rect extends Item;
 @Native class Texture extends Item;
 class Text extends Item;
+class ComplexItem extends Item;
 @Native class TimeLine;
 class Transform;
 class Connector;
@@ -61,6 +63,7 @@ void Texture.setDensity(float density);
 void Texture.setFriction(float friction);
 void Texture.setRestitution(float restitution);
 Texture[] Texture.split(int row, int col);
+Array<Array<Point>> Texture.detectHuman(Texture background);
 
 Text Text.new(String text);
 void Text.setPosition(int x, int y);
@@ -84,6 +87,7 @@ void Scene.setItemIndexMethod(int idx);
 void Scene.setBackgroundColor(Color color);
 void Scene.setSceneRect(int x, int y, int width, int height);
 void Scene.addItem(Item i);
+void Scene.addComplexItem(ComplexItem c);
 //void Scene.setMousePressEvent();
 
 View View.new(Scene scene);
@@ -110,3 +114,8 @@ Shadow Shadow.new();
 Camera Camera.new(int camera_num);
 Texture Camera.queryFrame();
 
+Point Point.new();
+int Point.getX();
+int Point.getY();
+
+ComplexItem ComplexItem.new(Array<Point> obj);

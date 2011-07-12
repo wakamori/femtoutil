@@ -51,8 +51,55 @@ void KTexture::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 	//event->setAccepted(event->mimeData()->hasFormat("text/plain"));
 }
 
-KTexture::KTexture(QString filepath)
+#ifdef K_USING_OPENCV
+#include <legacy/legacy.hpp>
+typedef struct parameter Parameter;
+struct parameter {
+	float alpha;
+	float beta;
+	float gamma;
+};
+void KTexture::setTrackData(const char *filepath)
 {
+	Parameter snake_param = {0.45, 0.35, 0.2};
+	IplImage *src = cvLoadImage(filepath, CV_LOAD_IMAGE_GRAYSCALE);
+	IplImage *dst = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U, 3);
+	//cvInitFont(&font, CV_FONT_HERSHEY_DUPLEX, 0.7, 0.7);
+	CvPoint center;
+	center.x = src->width / 2;
+	center.y = src->height / 2;
+	int length = 50;
+	CvPoint *contour = (CvPoint *)cvAlloc(sizeof(CvPoint) * length);
+	for (int i = 0; i < length; i++) {
+		contour[i].x = (int)(center.x * cos(2 * CV_PI * i / length) + center.x);
+		contour[i].y = (int)(center.y * sin(2 * CV_PI * i / length) + center.y);
+	}
+	cvCvtColor(src, dst, CV_GRAY2RGB);
+	for (int i = 0; i < length - 1; i++) {
+		cvLine(dst, contour[i], contour[i + 1], CV_RGB(255, 0, 0), 2, 8, 0);
+	}
+	for (int i = 0; i < 50; i++) {
+		cvSnakeImage(src, contour, length, &snake_param.alpha, &snake_param.beta, &snake_param.gamma,
+					 CV_VALUE, cvSize(15, 15), cvTermCriteria (CV_TERMCRIT_ITER, 1, 0.0), 1);
+		cvCvtColor(src, dst, CV_GRAY2RGB);
+		for (int j = 0; j < length - 1; j++) {
+			cvLine(dst, contour[j], contour[j + 1], CV_RGB(255, 0, 0), 2);
+		}
+		cvLine(dst, contour[length - 1], contour[0], CV_RGB(255, 0, 0), 2);
+		//cvPutText (dst_img, iter, cvPoint (15, 30), &font, CV_RGB (0, 0, 255));
+	}
+	for (int i = 0; i < length; i++) {
+		fprintf(stderr, "(x, y) = (%d, %d)\n", contour[i].x, contour[i].y);
+	}
+	//cvNamedWindow ("Snakes", CV_WINDOW_AUTOSIZE);
+	//cvShowImage("Snakes", dst);
+	//int c = cvWaitKey (0);
+}
+#endif
+
+KTexture::KTexture(const char *filepath_)
+{
+	QString filepath(filepath_);
 	p = new QPixmap(filepath);
 	gp = new KGraphicsPixmapItem();
 	gp->setPixmap(*p);
@@ -63,6 +110,9 @@ KTexture::KTexture(QString filepath)
 #ifdef K_USING_BOX2D
 	isStatic = true;
 	shapeDef = new b2FixtureDef();
+#endif
+#ifdef K_USING_OPENCV
+	//setTrackData(filepath_);
 #endif
 }
 
@@ -93,6 +143,9 @@ KTexture::KTexture(QImage *image)
 	isStatic = true;
 	shapeDef = new b2FixtureDef();
 #endif
+#ifdef K_USING_OPENCV
+	//setTrackData();
+#endif
 }
 
 KTexture::KTexture(QPixmap *image)
@@ -107,6 +160,9 @@ KTexture::KTexture(QPixmap *image)
 #ifdef K_USING_BOX2D
 	isStatic = true;
 	shapeDef = new b2FixtureDef();
+#endif
+#ifdef K_USING_OPENCV
+	//setTrackData();
 #endif
 }
 
@@ -245,7 +301,7 @@ void KTexture::setColor(QColor *c)
 KMETHOD Texture_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
-	QString filepath = String_to(QString, sfp[1]);
+	const char *filepath = String_to(const char *, sfp[1]);
 	KTexture *t = new KTexture(filepath);
 	t->setClassID(ctx);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, t);
@@ -333,6 +389,284 @@ KMETHOD Texture_setRestitution(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	qreal restitution = Float_to(qreal, sfp[1]);
 	t->setRestitution(restitution);
 	RETURNvoid_();
+}
+#endif
+
+#ifdef K_USING_OPENCV
+static ObjPointList *getDetectObjectPointList(IplImage *src, IplImage *background)
+{
+	CvMemStorage* storage = cvCreateMemStorage(0);
+	CvSeq* find_contour = NULL;
+	const int w = src->width;
+    const int h = src->height;
+	IplImage *imgResult = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
+	IplImage *hsvImage = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 3);
+	IplImage *hueImage = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
+	IplImage *saturationImage = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
+	IplImage *valueImage = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
+	IplImage *thresholdImage1 = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
+	IplImage *thresholdImage2 = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
+	IplImage *thresholdImage3 = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U, 1);
+	IplImage *grayImage = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U,1);
+	IplImage *differenceImage = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U,1);
+    IplImage *backgroundImage = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U,1);
+	//IplImage *prevImage = cvCreateImage(cvSize(w, h), IPL_DEPTH_8U,1);
+	//cvCvtColor(src, prevImage,CV_BGR2GRAY);
+	cvCvtColor(background, backgroundImage, CV_BGR2GRAY);
+	cvCvtColor(src, grayImage, CV_BGR2GRAY);
+	//cvAbsDiff(grayImage, prevImage, differenceImage);
+	cvAbsDiff(grayImage, backgroundImage, differenceImage);
+	cvCvtColor(src, hsvImage, CV_BGR2HSV);
+	cvSplit(hsvImage, hueImage, saturationImage, valueImage, NULL);
+	cvThreshold(hueImage, thresholdImage1, 0, 255, CV_THRESH_BINARY);
+	cvThreshold(hueImage, thresholdImage2, 96, 255, CV_THRESH_BINARY_INV);
+	cvAnd(thresholdImage1, thresholdImage2, thresholdImage3, NULL);
+	cvAnd(differenceImage, thresholdImage3, imgResult, NULL);
+	cvErode(imgResult, imgResult, NULL, 1);
+	cvDilate(imgResult, imgResult, NULL, 1);
+	//=====================================================================//
+	//IplImage *dst = cvCloneImage(imgResult);
+	IplImage *tmp_img = cvCreateImage(cvGetSize(imgResult), IPL_DEPTH_8U, 1);
+	cvThreshold(imgResult, tmp_img, 40, 255, CV_THRESH_BINARY);
+	cvDilate(tmp_img, tmp_img, NULL, 20);
+	int num = cvFindContours(tmp_img, storage, &find_contour, sizeof(CvContour), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+	fprintf(stderr, "num = [%d]\n", num);
+    cvDrawContours(src, find_contour, CV_RGB(255, 0, 0), CV_RGB(255, 0, 0), 1, 2, CV_AA, cvPoint(0, 0));
+    cvShowImage("hoge", src);
+	//=====================================================================//
+	ObjPointList *objs = new ObjPointList();
+	while (1) {
+		if (find_contour == NULL) break;
+		//fprintf(stderr, "=============START=============\n");
+		QList<KPoint *> *obj = new QList<KPoint *>();
+		for (int i = 0; i < find_contour->total; i++) {
+			CvPoint *point = CV_GET_SEQ_ELEM(CvPoint, find_contour, i);
+			KPoint *p = new KPoint(point->x, point->y);
+			obj->append(p);
+			//fprintf(stderr, "lib:(x, y) = (%d, %d)\n", point->x, point->y);
+		}
+		//fprintf(stderr, "=============END=============\n");
+		objs->append(obj);
+		if (find_contour->h_next == NULL) break;
+		find_contour = find_contour->h_next;
+	}
+	cvReleaseImage(&imgResult);
+	cvReleaseImage(&hsvImage);
+	cvReleaseImage(&hueImage);
+	cvReleaseImage(&saturationImage);
+	cvReleaseImage(&valueImage);
+	cvReleaseImage(&thresholdImage1);
+	cvReleaseImage(&thresholdImage2);
+	cvReleaseImage(&thresholdImage3);
+	cvReleaseImage(&grayImage);
+	cvReleaseImage(&differenceImage);
+    cvReleaseImage(&backgroundImage);
+	cvReleaseImage(&tmp_img);
+	cvReleaseMemStorage(&storage);
+	return objs;
+	//cvShowImage(winNameCapture, img);
+	//cvShowImage(winNameResult, dst);
+	//cvShowImage(winNameResult, imgResult);
+}
+
+KMETHOD Texture_detectHuman(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KTexture *t = RawPtr_to(KTexture *, sfp[0]);
+	KTexture *background = RawPtr_to(KTexture *, sfp[1]);
+	ObjPointList *objs = getDetectObjectPointList(t->ipl, background->ipl);
+	int objs_size = objs->size();
+//fprintf(stderr, "objs_size = [%d]\n", objs_size);
+	knh_Array_t *a = new_Array0(ctx, objs_size);
+	for (int i = 0; i < objs_size; i++) {
+		QList<KPoint *> *obj = objs->at(i);
+		int obj_size = obj->size();
+		//fprintf(stderr, "obj_size = [%d]\n", obj_size);
+		knh_Array_t *elem = new_Array0(ctx, obj_size);
+		for (int j = 0; j < obj_size; j++) {
+			KPoint *p = obj->at(j);
+			//fprintf(stderr, "detectHuman: (x, y) = (%d, %d)\n", p->x, p->y);
+			knh_Array_add(ctx, elem, (Object *)new_RawPtr(ctx, sfp[1].p, new KPoint(p->x, p->y)));
+			delete p;
+		}
+		knh_Array_add(ctx, a, (Object *)elem);
+        delete obj;
+	}
+    delete objs;
+	RETURN_(a);
+}
+
+//=========================Presented by Takuma Wakamori====================//
+#define Array_size(a) (sizeof(a) / sizeof(a[0]))
+
+typedef struct {
+	CvPoint v[3];
+} Triangle;
+
+typedef struct {
+	Triangle *t;
+	int size;
+} Triarray;
+
+#define Triarray_size(a) ((a).size)
+static CvSubdiv2D *init_delaunay(CvMemStorage *storage, CvRect rect)
+{
+	CvSubdiv2D* subdiv;
+	subdiv = cvCreateSubdiv2D(CV_SEQ_KIND_SUBDIV2D, sizeof(*subdiv),
+			sizeof(CvSubdiv2DPoint),
+			sizeof(CvQuadEdge2D),
+			storage);
+	cvInitSubdivDelaunay2D(subdiv, rect);
+	return subdiv;
+}
+
+static Triangle draw_subdiv_facet(CvSubdiv2DEdge edge, CvRect rect)
+{
+	CvSubdiv2DEdge t = edge;
+	int i, count = 0;
+	Triangle buf = {0};
+	do {
+		count++;
+		t = cvSubdiv2DGetEdge(t, CV_NEXT_AROUND_LEFT);
+	} while (t != edge);
+	t = edge;
+	for (i = 0; i < count; i++) {
+		CvSubdiv2DPoint* pt = cvSubdiv2DEdgeOrg(t);
+		if (!pt) break;
+		if (pt->pt.x < rect.x || pt->pt.y < rect.y || pt->pt.x > rect.width || pt->pt.y > rect.height) break;
+		buf.v[i] = cvPoint(cvRound(pt->pt.x), cvRound(pt->pt.y));
+		t = cvSubdiv2DGetEdge(t, CV_NEXT_AROUND_LEFT);
+	}
+	if(i == count) {
+		return buf;
+	}
+	buf.v[0].x = -1;
+	return buf;
+}
+
+static int Triangle_equals(Triangle t1, Triangle t2)
+{
+	int i, j;
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			if (t1.v[i].x == t2.v[j].x && t1.v[i].y == t2.v[j].y) {
+				break;
+			}
+		}
+		if (j == 3) return 0;
+	}
+	return 1;
+}
+
+static int Array_contains(Triarray tris, Triangle tri)
+{
+	for (int i = 0; i < Triarray_size(tris); i++) {
+		if (Triangle_equals(tris.t[i], tri)) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static void Array_add(Triarray *tris, Triangle tri)
+{
+	(*tris).t[Triarray_size(*tris)] = tri;
+	Triarray_size(*tris) += 1;
+}
+
+static Triarray draw_subdiv(CvSubdiv2D *subdiv, int vnum, CvRect rect)
+{
+	CvSeqReader reader;
+	int i, j, k, total = subdiv->edges->total;
+	int elem_size = subdiv->edges->elem_size;
+	Triangle buf;
+	Triarray tris;
+	tris.t = (Triangle *)malloc((total - vnum + 2) * sizeof(Triangle));
+	tris.size = 0;
+	cvStartReadSeq((CvSeq *)(subdiv->edges), &reader, 0);
+	for(i = 0; i < total; i++) {
+		CvQuadEdge2D *edge = (CvQuadEdge2D *)(reader.ptr);
+		if(CV_IS_SET_ELEM(edge)) {
+			CvSubdiv2DEdge e = (CvSubdiv2DEdge)edge;
+			for (j = 0; j < 3; j += 2) {
+				buf = draw_subdiv_facet(cvSubdiv2DRotateEdge(e, 0), rect);
+				if (buf.v[0].x > 0 && !Array_contains(tris, buf)) {
+					Array_add(&tris, buf);
+				}
+			}
+		}
+		CV_NEXT_SEQ_ELEM(elem_size, reader);
+	}
+	return tris;
+}
+
+static int getTriangles(CvPoint ***tris, KPoint **pts, int vnum, CvRect rect)
+{
+	int i;
+	CvSubdiv2D *subdiv;
+    CvMemStorage *storage = cvCreateMemStorage(0);
+	subdiv = init_delaunay(storage, rect);
+	for (i = 0; i < vnum; i++) {
+		CvPoint2D32f fp = cvPoint2D32f((float)pts[i]->x, (float)pts[i]->y);
+		//fprintf(stderr, "fp = (%f, %f)\n", fp.x, fp.y);
+		if (fp.x < rect.width && fp.y < rect.height) {
+			cvSubdivDelaunay2DInsert(subdiv, fp);
+		}
+	}
+
+	Triarray a = draw_subdiv(subdiv, vnum, rect);
+	cvReleaseMemStorage(&storage);
+	int retsize = Triarray_size(a);
+	(*tris) = (CvPoint **)malloc(Triarray_size(a) * sizeof(CvPoint *));
+	for (i = 0; i < Triarray_size(a); i++) {
+		(*tris)[i] = (CvPoint *)malloc(3 * sizeof(CvPoint));
+		int j;
+		for (j = 0; j < 3; j++) {
+			(*tris)[i][j] = a.t[i].v[j];
+		}
+	}
+	free(a.t);
+	return retsize;
+}
+
+KComplexItem::KComplexItem(void){}
+KMETHOD ComplexItem_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	knh_Array_t *a = sfp[1].a;
+	int asize = knh_Array_size(a);
+	CvPoint **tris = NULL;
+	CvRect rect = {0, 0, 1300, 800};
+	//CvPoint pts[asize];
+	KPoint *pts[asize];
+	for (int i = 0; i < asize; i++) {
+		knh_RawPtr_t *o = (knh_RawPtr_t *)a->list[i];
+		KPoint *p = (KPoint *)o->rawptr;
+		//CvPoint c(p->x, p->y);
+		pts[i] = p;
+		//fprintf(stderr, "(x, y) = (%d, %d)\n", p->x, p->y);
+	}
+	int size = getTriangles(&tris, pts, asize, rect);
+	//fprintf(stderr, "size = [%d]\n", size);
+	QList<QGraphicsPolygonItem *> *gp_list = new QList<QGraphicsPolygonItem *>();
+	for (int i = 0; i < size; i++) {
+		CvPoint *triangle = tris[i];
+		QPolygonF p;
+		for (int j = 0; j < 3; j++) {
+			//fprintf(stderr, "(x, y) = (%d, %d) ", triangle[j].x, triangle[j].y);
+			p << QPoint(triangle[j].x, triangle[j].y);
+		}
+		QGraphicsPolygonItem *gp = new QGraphicsPolygonItem();
+		gp->setPolygon(p);
+		gp_list->append(gp);
+		free(tris[i]);
+		//puts("");
+	}
+	free(tris);
+	KComplexItem *c = new KComplexItem();
+	c->gp_list = gp_list;
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, c);
+	RETURN_(p);
 }
 #endif
 

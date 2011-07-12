@@ -1,6 +1,6 @@
 CC = g++
 QTDIR ?= /usr/local/Trolltech/Qt-4.7.3
-INCPATH = -I$(QTDIR)/mkspecs/macx-g++ -I. -I$(QTDIR)/lib/QtCore.framework/Versions/4/Headers -I$(QTDIR)/include/QtCore -I$(QTDIR)/lib/QtGui.framework/Versions/4/Headers -I$(QTDIR)/include/QtGui -I$(QTDIR)/include -I. -I. -F$(QTDIR)/lib -I/usr/local/include/Box2D -I/usr/local/include/opencv/
+INCPATH = -I$(QTDIR)/mkspecs/macx-g++ -I. -I$(QTDIR)/lib/QtCore.framework/Versions/4/Headers -I$(QTDIR)/include/QtCore -I$(QTDIR)/lib/QtGui.framework/Versions/4/Headers -I$(QTDIR)/include/QtGui -I$(QTDIR)/include -I. -I. -F$(QTDIR)/lib -I/usr/local/include/Box2D -I/usr/local/include/opencv/ -I/usr/local/include/opencv2/
 LFLAGS = -headerpad_max_install_names -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5
 OPENCV_LIBS = -lopencv_calib3d -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_objdetect -lopencv_ts -lopencv_video
 LIBS = -F$(QTDIR)/lib -L$(QTDIR)/lib -framework QtGui -L$(QTDIR)/lib -F$(QTDIR)/lib -framework QtCore $(OPENCV_LIBS)
@@ -31,7 +31,8 @@ objs = build/visual.o\
 	build/Text.o\
 	build/Contact.o\
 	build/Shadow.o\
-	build/Camera.o
+	build/Camera.o\
+	build/Point.o
 
 .PHONY: all
 all: $(library)
@@ -86,6 +87,9 @@ build/Transform.o: src/Transform.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Painter.o: src/Painter.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+build/Point.o: src/Point.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Timer.o: src/Timer.cpp

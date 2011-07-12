@@ -8,14 +8,13 @@ KMETHOD Application_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	knh_Array_t *args = (knh_Array_t *)sfp[1].o;
-	int args_size = knh_Array_size(args);
+	static int args_size = knh_Array_size(args);
 #ifdef K_USING_MINGW
 	char **value0 = (char **)malloc(args_size * sizeof(char*));
 #else
-	char **value0 = (char **)alloca(args_size * sizeof(char*));
+	char **value0 = (char **)malloc(args_size * sizeof(char*));
 #endif
-	int i = 0;
-	for (i = 0; i < args_size; i++) {
+	for (int i = 0; i < args_size; i++) {
 		knh_String_t *s = (knh_String_t *)args->list[i];
 		value0[i] = (char *)s->str.text;
 	}
