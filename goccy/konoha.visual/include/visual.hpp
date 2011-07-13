@@ -302,10 +302,10 @@ public:
 	
 	KComplexItem(knh_Array_t *a);
 	void setClassID(CTX ctx);
-	//void setPosition(int x, int y);
+	void setPosition(int x, int y);
 #ifdef K_USING_BOX2D
 	//void setRotation(qreal rotation_);
-	//void setDensity(qreal density_);
+	void setDensity(qreal density_);
 	//void setFriction(qreal friction_);
 	//void setRestitution(qreal restitution_);
 	void addToWorld(KWorld *w);
