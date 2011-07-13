@@ -402,6 +402,39 @@ KMETHOD Rect_setMouseMoveEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 
 #endif
 
+static void Rect_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "Rect:free\n");
+	KRect *r = (KRect *)p->rawptr;
+	delete r;
+}
+
+static void Rect_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "Rect:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
+DEFAPI(void) defRect(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	NO_WARNING2();
+	cdef->name = "Rect";
+	cdef->free = Rect_free;
+	cdef->reftrace = Rect_reftrace;
+}
+
+DEFAPI(void) constRect(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *kapi)
+{
+	(void)ctx;
+	(void)cid;
+	(void)kapi;
+	//kapi->loadIntClassConst(ctx, cid, TimeLineConstInt);
+}
+
 #ifdef __cplusplus
 }
 #endif

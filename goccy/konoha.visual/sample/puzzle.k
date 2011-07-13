@@ -7,10 +7,12 @@ class Puzzle {
 	int timer_id;
 	Point prev_point;
 	Rect[] panels;
-
+	//World world;
+	
 	Puzzle() {
 		app = new Application();
 		window = new Scene();
+		//world = new World();
 		window.setItemIndexMethod(Scene.NoIndex);
 		window.setSceneRect(0, 0, 600, 600);
 		window.setBackgroundColor(new Color("black"));
@@ -23,7 +25,12 @@ class Puzzle {
 			panel.setMouseMoveEvent(delegate(this, mouseMoveEvent));
 			panels.add(panel);
 			window.addItem(panel);
+			//panel.setDensity(1);
+			//world.add(panel);
 		}
+		//ground = new Rect(0, 590, 600, 10);
+		//world.add(ground);
+		//window.addItem(ground);
 		int panel_num = 0;
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
@@ -40,6 +47,7 @@ class Puzzle {
 		view.setViewportUpdateMode(View.FullViewportUpdate);
 		view.setRenderHint(Painter.Antialiasing);
 		view.show();
+		//world.start();
 		app.exec();
 	}
 

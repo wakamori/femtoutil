@@ -39,10 +39,29 @@ KMETHOD View_show(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
+static void View_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "View:free\n");
+	QGraphicsView *view = (QGraphicsView *)p->rawptr;
+	delete view;
+}
+
+static void View_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "View:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
 DEFAPI(void) defView(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 {
 	NO_WARNING2();
 	cdef->name = "View";
+	cdef->free = View_free;
+	cdef->reftrace = View_reftrace;
 }
 
 static knh_IntData_t ViewConstInt[] = {

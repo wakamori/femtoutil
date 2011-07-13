@@ -24,6 +24,39 @@ KMETHOD Item_setTransform(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
+static void Item_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	(void)p;
+	fprintf(stderr, "Item:free\n");
+	//KItem *i = (KItem *)p->rawptr;
+}
+
+static void Item_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "Item:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
+DEFAPI(void) defItem(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	NO_WARNING2();
+	cdef->name = "Item";
+	cdef->free = Item_free;
+	cdef->reftrace = Item_reftrace;
+}
+
+DEFAPI(void) constItem(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *kapi)
+{
+	(void)ctx;
+	(void)cid;
+	(void)kapi;
+	//kapi->loadIntClassConst(ctx, cid, TimeLineConstInt);
+}
+
 #ifdef __cplusplus
 }
 #endif

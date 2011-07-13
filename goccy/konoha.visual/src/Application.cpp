@@ -31,6 +31,38 @@ KMETHOD Application_exec(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
+static void Application_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "Application:free\n");
+	QApplication *app = (QApplication *)p->rawptr;
+	delete app;
+}
+
+static void Application_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)tail_;
+	fprintf(stderr, "Application:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
+DEFAPI(void) defApplication(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	NO_WARNING2();
+	cdef->name = "Application";
+	cdef->free = Application_free;
+	cdef->reftrace = Application_reftrace;
+}
+
+DEFAPI(void) constApplication(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *kapi)
+{
+	(void)ctx;
+	(void)cid;
+	(void)kapi;
+	//kapi->loadIntClassConst(ctx, cid, TimeLineConstInt);
+}
+
 #ifdef __cplusplus
 }
 #endif

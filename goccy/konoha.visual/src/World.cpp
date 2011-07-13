@@ -200,6 +200,39 @@ KMETHOD World_setEndContactEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 
 #endif
 
+static void World_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "World:free\n");
+	KWorld *w = (KWorld *)p->rawptr;
+	delete w;
+}
+
+static void World_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "World:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
+DEFAPI(void) defWorld(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	NO_WARNING2();
+	cdef->name = "World";
+	cdef->free = World_free;
+	cdef->reftrace = World_reftrace;
+}
+
+DEFAPI(void) constWorld(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *kapi)
+{
+	(void)ctx;
+	(void)cid;
+	(void)kapi;
+	//kapi->loadIntClassConst(ctx, cid, TimeLineConstInt);
+}
+
 #ifdef __cplusplus
 }
 #endif

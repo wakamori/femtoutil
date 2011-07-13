@@ -86,10 +86,29 @@ KMETHOD Scene_removeComplexItem(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
+static void Scene_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "Scene:free\n");
+	QGraphicsScene *s = (QGraphicsScene *)p->rawptr;
+	delete s;
+}
+
+static void Scene_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "Scene:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
 DEFAPI(void) defScene(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 {
 	NO_WARNING2();
 	cdef->name = "Scene";
+	cdef->free = Scene_free;
+	cdef->reftrace = Scene_reftrace;
 }
 
 static knh_IntData_t SceneConstInt[] = {

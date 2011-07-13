@@ -37,6 +37,38 @@ KMETHOD Connector_connect(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
+static void Connector_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "Connector:free\n");
+	Connector *c = (Connector *)p->rawptr;
+	delete c;
+}
+
+static void Connector_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)tail_;
+	fprintf(stderr, "Connector:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
+DEFAPI(void) defConnector(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	NO_WARNING2();
+	cdef->name = "Connector";
+	cdef->free = Connector_free;
+	cdef->reftrace = Connector_reftrace;
+}
+
+DEFAPI(void) constConnector(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *kapi)
+{
+	(void)ctx;
+	(void)cid;
+	(void)kapi;
+	//kapi->loadIntClassConst(ctx, cid, TimeLineConstInt);
+}
+
 #ifdef __cplusplus
 }
 #endif

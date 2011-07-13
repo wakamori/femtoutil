@@ -1,6 +1,6 @@
 using konoha.visual.*;
 
-class Puzzle {
+class AR {
 	Scene window;
 	Application app;
 	Camera c;
@@ -9,7 +9,7 @@ class Puzzle {
 	int count;
 	ComplexItem[] prev_list;
 
-	Puzzle() {
+	AR() {
 		app = new Application();
 		window = new Scene();
 		window.setItemIndexMethod(Scene.NoIndex);
@@ -18,7 +18,7 @@ class Puzzle {
 		//window.setMousePressEvent(delegate(this, mousePressEvent));
 		//window.setMouseReleaseEvent(delegate(this, mouseReleaseEvent));
 		//window.setMouseMoveEvent(delegate(this, mouseMoveEvent));
-		Timer t = new Timer(1 / 60.0, delegate(this, capture));
+		Timer t = new Timer(100, delegate(this, capture));
 		c = new Camera(0);
 		count = 0;
 		background = c.queryFrame();
@@ -78,6 +78,6 @@ class Puzzle {
 
 void main(String[] args)
 {
-	Puzzle p = new Puzzle();
-	p.show();
+	AR ar = new AR();
+	ar.show();
 }
