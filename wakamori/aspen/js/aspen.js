@@ -157,7 +157,6 @@ var Aspen = new Class({
 		if (Cookie.read("UID") == null || Cookie.read("SID") == null) {
 			// show login dialog
 			document.id("titleheader").hide();
-			document.id("info").hide();
 			document.id("topmenu").hide();
 			document.id("result").hide();
 			document.id("file").hide();
