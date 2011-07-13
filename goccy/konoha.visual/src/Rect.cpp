@@ -305,6 +305,15 @@ KMETHOD Rect_setColor(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
+KMETHOD Rect_setZValue(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KGraphicsRectItem *r = (KGraphicsRectItem *)KITEM_to(sfp[0].p);
+	int val = Int_to(int, sfp[1]);
+	r->setZValue(val);
+	RETURNvoid_();
+}
+
 #ifdef K_USING_BOX2D
 KMETHOD Rect_setRotation(CTX ctx, knh_sfp_t *sfp _RIX)
 {

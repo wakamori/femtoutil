@@ -481,7 +481,7 @@ static ObjPointList *getDetectObjectPointList(IplImage *src, IplImage *backgroun
 	cvThreshold(imgResult, tmp_img, 40, 255, CV_THRESH_BINARY);
 	cvDilate(tmp_img, tmp_img, NULL, 20);
 	int num = cvFindContours(tmp_img, storage, &find_contour, sizeof(CvContour), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
-	fprintf(stderr, "num = [%d]\n", num);
+	//fprintf(stderr, "num = [%d]\n", num);
     cvDrawContours(src, find_contour, CV_RGB(255, 0, 0), CV_RGB(255, 0, 0), 1, 2, CV_AA, cvPoint(0, 0));
     //cvShowImage("hoge", src);
 	//=====================================================================//
@@ -592,10 +592,10 @@ static void Texture_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)tail_;
 	fprintf(stderr, "Texture:reftrace\n");
-	KTexture *t = (KTexture *)p->rawptr;
-	KNH_ADDREF(ctx, t->mouse_press_func);
-	KNH_ADDREF(ctx, t->mouse_move_func);
-	KNH_ADDREF(ctx, t->mouse_release_func);
+	//KTexture *t = (KTexture *)p->rawptr;
+	//KNH_ADDREF(ctx, t->mouse_press_func);
+	//KNH_ADDREF(ctx, t->mouse_move_func);
+	//KNH_ADDREF(ctx, t->mouse_release_func);
 }
 
 DEFAPI(void) defTexture(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

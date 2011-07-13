@@ -14,6 +14,7 @@ KComplexItem::KComplexItem(knh_Array_t *a)
 		knh_RawPtr_t *o = (knh_RawPtr_t *)a->list[i];
 		KPoint *p = (KPoint *)o->rawptr;
 		pts.push_back(Vec2f(p->x, p->y));
+		delete p;
 		//fprintf(stderr, "(x, y) = (%d, %d)\n", p->x, p->y);
 	}
 	std::vector<Triangle> tris = triangulate(pts, asize);
@@ -27,7 +28,7 @@ KComplexItem::KComplexItem(knh_Array_t *a)
 		gp->setPolygon(p);
 		//gp->setBrush(QColor((int)triIt->a.x, (int)triIt->b.x, (int)triIt->c.x));
 		gp_list->append(gp);
-		fprintf(stderr, "(%f, %f), (%f, %f), (%f, %f)\n", triIt->a.x, triIt->a.y, triIt->b.x, triIt->b.y, triIt->c.x, triIt->c.y);
+		//fprintf(stderr, "(%f, %f), (%f, %f), (%f, %f)\n", triIt->a.x, triIt->a.y, triIt->b.x, triIt->b.y, triIt->c.x, triIt->c.y);
 	}
 	isDrag = false;
 	setObjectName("KComplexItem");

@@ -54,6 +54,7 @@ void KWorld::addObj(void *obj)
 		fprintf(stderr, "STILL NOT SUPPORTED\n");
 	}
 }
+
 /*
 void KWorld::addJointObjectManager(JointObjectManager *jom)
 {
@@ -162,6 +163,64 @@ KMETHOD World_add(Ctx *ctx, knh_sfp_t *sfp _RIX)
 		KComplexItem *c = RawPtr_to(KComplexItem *, sfp[1]);
 		c->addToWorld(world);
 		world->addObj(c);
+	} else {
+		fprintf(stderr, "World: [WARNING] UNNOWN OBJECT\n");
+	}
+	RETURNvoid_();
+}
+
+KMETHOD World_remove(Ctx *ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KWorld *w = RawPtr_to(KWorld *, sfp[0]);
+	QObject *o = RawPtr_to(QObject *, sfp[1]);
+	QString name = o->objectName();
+	b2World *world = w->world;
+	if (name == "KRect") {
+		KRect *r = RawPtr_to(KRect *, sfp[1]);
+		QList<KRect *> *rect_list = w->rect_list;
+		int rect_list_size = rect_list->size();
+		b2Body *body = r->body;
+		bool success = rect_list->removeOne(r);
+		//fprintf(stderr, "sccess = [%d]\n", success);
+		world->DestroyBody(body);
+		//for (int i = 0; i < rect_list_size; i++) {
+		//if (r == rect_list[i]) {
+		//
+		//}
+		//}
+	} else if (name == "KEllipse") {
+		KEllipse *e = RawPtr_to(KEllipse *, sfp[1]);
+		QList<KEllipse *> *ellipse_list = w->ellipse_list;
+		int ellispe_list_size = ellipse_list->size();
+		b2Body *body = e->body;
+		bool success = ellipse_list->removeOne(e);
+		//fprintf(stderr, "sccess = [%d]\n", success);
+		world->DestroyBody(body);
+	} else if (name == "KTexture") {
+		KTexture *t = RawPtr_to(KTexture *, sfp[1]);
+		QList<KTexture *> *texture_list = w->texture_list;
+		int texture_list_size = texture_list->size();
+		b2Body *body = t->body;
+		bool success = texture_list->removeOne(t);
+		//fprintf(stderr, "sccess = [%d]\n", success);
+		world->DestroyBody(body);
+	} else if (name == "KText") {
+		KText *t = RawPtr_to(KText *, sfp[1]);
+		QList<KText *> *text_list = w->text_list;
+		int text_list_size = text_list->size();
+		b2Body *body = t->body;
+		bool success = text_list->removeOne(t);
+		//fprintf(stderr, "sccess = [%d]\n", success);
+		world->DestroyBody(body);
+	} else if (name == "KComplexItem") {
+		KComplexItem *c = RawPtr_to(KComplexItem *, sfp[1]);
+		QList<KComplexItem *> *complex_list = w->complex_list;
+		int complex_list_size = complex_list->size();
+		b2Body *body = c->body;
+		bool success = complex_list->removeOne(c);
+		//fprintf(stderr, "sccess = [%d]\n", success);
+		world->DestroyBody(body);
 	} else {
 		fprintf(stderr, "World: [WARNING] UNNOWN OBJECT\n");
 	}

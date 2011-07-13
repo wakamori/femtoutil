@@ -56,6 +56,7 @@ void Rect.setRestitution(float restitution);
 void Rect.setShadow(Shadow s);
 void Rect.setTexture(Texture t);
 boolean Rect.isStatic();
+void Rect.setZValue(int val);
 void Rect.setMousePressEvent(Func<Rect,MouseEvent=>void> func);
 void Rect.setMouseMoveEvent(Func<Rect,MouseEvent=>void> func);
 void Rect.setMouseReleaseEvent(Func<Rect,MouseEvent=>void> func);
@@ -118,6 +119,7 @@ void World.add(Item i);
 void World.start();
 void World.setBeginContactEvent(Func<dynamic,dynamic=>void> contact);
 void World.setEndContactEvent(Func<dynamic,dynamic=>void> contact);
+void World.remove(Item i);
 
 Shadow Shadow.new();
 

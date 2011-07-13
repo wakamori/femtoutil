@@ -14,4 +14,3 @@ void main(String[] args)
 	view.show();
 	app.exec();
 }
-

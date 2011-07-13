@@ -48,7 +48,6 @@ class PhysicsWorld {
 			world.add(rect);
 			scene.addItem(rect);
 		}
-		
 		Ellipse e = new Ellipse();
 		e.setRect(new Rect(250, 300, 20, 20));
 		e.setColor(new Color("#eeee00"));

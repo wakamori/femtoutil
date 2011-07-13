@@ -42,6 +42,7 @@ static void Application_free(CTX ctx, knh_RawPtr_t *p)
 static void Application_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 {
 	(void)ctx;
+	(void)p;
 	(void)tail_;
 	fprintf(stderr, "Application:reftrace\n");
 	//QApplication *app = (QApplication *)p->rawptr;
