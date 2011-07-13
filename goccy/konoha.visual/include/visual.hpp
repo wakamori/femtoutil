@@ -299,10 +299,11 @@ public:
 	b2BodyDef *bodyDef;
 	b2Body *body;
 #endif
-	
 	KComplexItem(knh_Array_t *a);
 	void setClassID(CTX ctx);
 	void setPosition(int x, int y);
+	void setColor(QColor *c);
+	~KComplexItem(void);
 #ifdef K_USING_BOX2D
 	//void setRotation(qreal rotation_);
 	void setDensity(qreal density_);

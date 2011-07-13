@@ -133,5 +133,6 @@ int Point.getY();
 ComplexItem ComplexItem.new(Array<Point> obj);
 void ComplexItem.setDensity(float f);
 void ComplexItem.setPosition(int x, int y);
+void ComplexItem.setColor(Color c);
 
 Point MouseEvent.lastScreenPos();

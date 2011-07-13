@@ -26,6 +26,7 @@ KComplexItem::KComplexItem(knh_Array_t *a)
 		p << QPoint(triIt->c.x, triIt->c.y);
 		QGraphicsPolygonItem *gp = new QGraphicsPolygonItem();
 		gp->setPolygon(p);
+		gp->setPen(Qt::NoPen);
 		//gp->setBrush(QColor((int)triIt->a.x, (int)triIt->b.x, (int)triIt->c.x));
 		gp_list->append(gp);
 		//fprintf(stderr, "(%f, %f), (%f, %f), (%f, %f)\n", triIt->a.x, triIt->a.y, triIt->b.x, triIt->b.y, triIt->c.x, triIt->c.y);
@@ -39,6 +40,15 @@ KComplexItem::KComplexItem(knh_Array_t *a)
 #ifdef K_USING_OPENCV
 	//setTrackData(filepath_);
 #endif
+}
+
+KComplexItem::~KComplexItem(void)
+{
+	int gp_length = gp_list->size();
+	for (int i = 0; i < gp_length; i++) {
+		QGraphicsPolygonItem *gp = gp_list->at(i);
+		delete gp;
+	}
 }
 
 void KComplexItem::addToWorld(KWorld *w)
@@ -90,6 +100,15 @@ void KComplexItem::setClassID(CTX ctx)
 	cid = ct->cid;
 }
 
+void KComplexItem::setColor(QColor *c)
+{
+	int gp_length = gp_list->size();
+	for (int i = 0; i < gp_length; i++) {
+		QGraphicsPolygonItem *gp = gp_list->at(i);
+		gp->setBrush(*c);
+	}
+}
+
 void KComplexItem::setDensity(qreal density_)
 {
 	shapeDef->density = density_;
@@ -136,6 +155,15 @@ KMETHOD ComplexItem_setPosition(CTX ctx, knh_sfp_t *sfp _RIX)
 	int x = Int_to(int, sfp[1]);
 	int y = Int_to(int, sfp[2]);
 	c->setPosition(x, y);
+	RETURNvoid_();
+}
+
+KMETHOD ComplexItem_setColor(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KComplexItem *c = RawPtr_to(KComplexItem *, sfp[0]);
+	QColor *clr = RawPtr_to(QColor *, sfp[1]);
+	c->setColor(clr);
 	RETURNvoid_();
 }
 

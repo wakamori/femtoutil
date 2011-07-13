@@ -6,12 +6,13 @@ Scene scene = new ();
 scene.setSceneRect(0, 0, 500, 500);
 
 Array<Point> a = new (0);
-//a <<< new Point(100, 0); a <<< new Point(0, 173); a <<< new Point(200, 173); a <<< new Point(100, 0);
+a <<< new Point(100, 0); a <<< new Point(0, 173); a <<< new Point(200, 173); a <<< new Point(100, 0);
 a <<< new Point(100, 173); a <<< new Point(0, 200); a <<< new Point(0, 0); a <<< new Point(100, 173);
-//a <<< new Point(0, 0); a <<< new Point(100, 0); a <<< new Point(100, 100); a <<< new Point(0, 100);
-//a <<< new Point(60, 200); a <<< new Point(140, 150); a <<< new Point(150, 100);
+a <<< new Point(0, 0); a <<< new Point(100, 0); a <<< new Point(100, 100); a <<< new Point(0, 100);
+a <<< new Point(60, 200); a <<< new Point(140, 150); a <<< new Point(150, 100);
 
 ComplexItem c = new ComplexItem(a);
+c.setColor(new Color("blue"));
 c.setDensity(1);
 world.add(c);
 scene.addComplexItem(c);
