@@ -134,7 +134,7 @@ class Aspen:
 		shutil.copyfile(filename, exefilename)
 		# exec konoha as subprocess
 		starttime = time.time()
-		command = '/usr/local/bin/konoha ' + exefilename
+		command = '/usr/local/bin/konoha -a ' + exefilename
 		p = subprocess.Popen(command, shell=True,
 				stdin=subprocess.PIPE, stdout=subprocess.PIPE,
 				stderr=subprocess.PIPE, close_fds=True)
@@ -288,7 +288,7 @@ a bug. Sorry.')
 		if os.path.isfile(filename):
 			sys.stdout.write(open(filename, 'r').read())
 
-	def getUserInfomation(self):
+	def getUserInformation(self):
 		name = self.lm.getAccountInfo(
 				self.cookie['access_token'].value,
 				self.cookie['access_token_secret'].value
@@ -328,7 +328,7 @@ a bug. Sorry.')
 				self.authWithSID()
 				self.printScript()
 			elif mtype == 'getInfo':
-				self.getUserInfomation()
+				self.getUserInformation()
 			else:
 				raise Exception('No such method in GET.')
 		else:
