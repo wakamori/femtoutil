@@ -269,7 +269,7 @@ var Aspen = new Class({
 					}
 				}
 				setTimeout(function(){document.id("eval").setProperty("disabled", false)}, 1000);
-			},
+			}
 		});
 		req.send();
 	}
