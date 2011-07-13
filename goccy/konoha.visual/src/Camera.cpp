@@ -145,7 +145,7 @@ KMETHOD Camera_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	int n = Int_to(int, sfp[1]);
 	CvCapture *c = cvCaptureFromCAM(n);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, c);
-	cvNamedWindow("hoge", CV_WINDOW_AUTOSIZE);
+	//cvNamedWindow("hoge", CV_WINDOW_AUTOSIZE);
 	RETURN_(p);
 }
 
@@ -155,6 +155,7 @@ KMETHOD Camera_queryFrame(CTX ctx, knh_sfp_t *sfp _RIX)
 	IplImage *frame = cvQueryFrame(c);
 	QImage *image = IplImage_convertToQImage(frame, 0.0, 0.0);
 	KTexture *t = new KTexture(image);
+	t->setClassID(ctx);
 	t->ipl = cvCloneImage(frame);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, t);
 	RETURN_(p);

@@ -51,6 +51,15 @@ KMETHOD Scene_addItem(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
+KMETHOD Scene_removeItem(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	QGraphicsScene *s = RawPtr_to(QGraphicsScene *, sfp[0]);
+	QGraphicsItem *i = KITEM_to(sfp[1].p);
+	s->removeItem(i);
+	RETURNvoid_();
+}
+
 KMETHOD Scene_addComplexItem(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
@@ -60,6 +69,19 @@ KMETHOD Scene_addComplexItem(CTX ctx, knh_sfp_t *sfp _RIX)
 	int size = gp_list->size();
 	for (int i = 0; i < size; i++) {
 		s->addItem(gp_list->at(i));
+	}
+	RETURNvoid_();
+}
+
+KMETHOD Scene_removeComplexItem(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	QGraphicsScene *s = RawPtr_to(QGraphicsScene *, sfp[0]);
+	KComplexItem *c = RawPtr_to(KComplexItem *, sfp[1]);
+	QList<QGraphicsPolygonItem*> *gp_list = c->gp_list;
+	int size = gp_list->size();
+	for (int i = 0; i < size; i++) {
+		s->removeItem(gp_list->at(i));
 	}
 	RETURNvoid_();
 }

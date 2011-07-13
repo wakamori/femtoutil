@@ -23,6 +23,7 @@ class TimerEvent;
 class World;
 class Shadow;
 class Camera;
+class MouseEvent;
 
 TimeLine TimeLine.new();
 void TimeLine.setDuration(int duration);
@@ -53,7 +54,11 @@ void Rect.setDensity(float density);
 void Rect.setFriction(float friction);
 void Rect.setRestitution(float restitution);
 void Rect.setShadow(Shadow s);
+void Rect.setTexture(Texture t);
 boolean Rect.isStatic();
+void Rect.setMousePressEvent(Func<Rect,MouseEvent=>void> func);
+void Rect.setMouseMoveEvent(Func<Rect,MouseEvent=>void> func);
+void Rect.setMouseReleaseEvent(Func<Rect,MouseEvent=>void> func);
 
 Texture Texture.new(String filepath);
 void Texture.setRect(Rect r);
@@ -64,6 +69,9 @@ void Texture.setFriction(float friction);
 void Texture.setRestitution(float restitution);
 Texture[] Texture.split(int row, int col);
 Array<Array<Point>> Texture.detectHuman(Texture background);
+void Texture.setMousePressEvent(Func<Texture,MouseEvent=>void> func);
+void Texture.setMouseMoveEvent(Func<Texture,MouseEvent=>void> func);
+void Texture.setMouseReleaseEvent(Func<Texture,MouseEvent=>void> func);
 
 Text Text.new(String text);
 void Text.setPosition(int x, int y);
@@ -87,7 +95,9 @@ void Scene.setItemIndexMethod(int idx);
 void Scene.setBackgroundColor(Color color);
 void Scene.setSceneRect(int x, int y, int width, int height);
 void Scene.addItem(Item i);
+void Scene.removeItem(Item i);
 void Scene.addComplexItem(ComplexItem c);
+void Scene.removeComplexItem(ComplexItem c);
 //void Scene.setMousePressEvent();
 
 View View.new(Scene scene);
@@ -119,3 +129,5 @@ int Point.getX();
 int Point.getY();
 
 ComplexItem ComplexItem.new(Array<Point> obj);
+
+Point MouseEvent.lastScreenPos();

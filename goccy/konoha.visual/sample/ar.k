@@ -7,6 +7,8 @@ class Puzzle {
 	int timer_id;
 	Texture background;
 	int count;
+	ComplexItem[] prev_list;
+
 	Puzzle() {
 		app = new Application();
 		window = new Scene();
@@ -22,6 +24,7 @@ class Puzzle {
 		background = c.queryFrame();
 		window.addItem(background);
 		timer_id = t.start();
+		prev_list = [];
 	}
 
 	void show() {
@@ -38,15 +41,18 @@ class Puzzle {
 		Array<Array<Point>> objs = t.detectHuman(background);
 		int objs_size = |objs|;
 		//print objs_size;
+		for (int i = 0; i < |prev_list|; i++) {
+			window.removeComplexItem(prev_list[i]);
+		}
+		prev_list = [];
+		window.addItem(t);
 		for (int i = 0; i < objs_size; i++) {
 			Array<Point> obj = objs[i];
 			int obj_size = |obj|;
 			//print obj_size;
 			ComplexItem item = new ComplexItem(obj);
-			if (count == 10) {
-				window.addComplexItem(item);
-				//System.exit(0);
-			}
+			window.addComplexItem(item);
+			prev_list.add(item);
 			//for (int j = 0; j < obj_size; j++) {
 			//Point p = obj[j];
 				//print "(x, y) = " + "(" + p.x + ", " + p.y + ")";

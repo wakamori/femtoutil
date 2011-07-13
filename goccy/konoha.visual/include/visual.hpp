@@ -162,7 +162,13 @@ public:
 	qreal dx_sum;
 	qreal dy_sum;
 	knh_class_t cid;
+	knh_class_t mouse_event_cid;
 	QGraphicsDropShadowEffect *se;
+	knh_Func_t *mouse_press_func;
+	knh_Func_t *mouse_move_func;
+	knh_Func_t *mouse_release_func;
+	knh_context_t *ctx;
+	knh_sfp_t *sfp;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -234,7 +240,13 @@ public:
 	int width;
 	int height;
 	knh_class_t cid;
+	knh_class_t mouse_event_cid;
 	QGraphicsColorizeEffect *ce;
+	knh_Func_t *mouse_press_func;
+	knh_Func_t *mouse_move_func;
+	knh_Func_t *mouse_release_func;
+	knh_context_t *ctx;
+	knh_sfp_t *sfp;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -250,7 +262,7 @@ public:
 	KTexture(QPixmap *image);
 	void setTrackData(const char *filepath);
 	void setConnect(void);
-	QList<KTexture*> *split(int row, int col);
+	QList<KTexture*> *split(CTX ctx, int row, int col);
 	void setRect(KRect *r);
 	void setColor(QColor *c);
 	void setClassID(CTX ctx);

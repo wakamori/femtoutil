@@ -36,26 +36,42 @@ void KGraphicsRectItem::wheelEvent(QGraphicsSceneWheelEvent *event)
 
 void KRect::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	QPointF spos = event->lastScreenPos();
-	//fprintf(stderr, "sx: [%f], sy:[%f]\n", spos.x(), spos.y());
-	prev_x = spos.x();
-	prev_y = spos.y();
-	isDrag = true;
-	dx_sum = 0;
-	dy_sum = 0;
-	body->SetAwake(false);
-	base_step = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
+	if (!isStatic) {
+		QPointF spos = event->lastScreenPos();
+		//fprintf(stderr, "sx: [%f], sy:[%f]\n", spos.x(), spos.y());
+		prev_x = spos.x();
+		prev_y = spos.y();
+		isDrag = true;
+		dx_sum = 0;
+		dy_sum = 0;
+		body->SetAwake(false);
+		base_step = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
+	}
+	if (ctx != NULL && sfp != NULL && mouse_press_func != NULL) {
+		const knh_ClassTBL_t *ct1 = ClassTBL(cid);
+		const knh_ClassTBL_t *ct2 = ClassTBL(mouse_event_cid);
+		if (ct1 == NULL || ct2 == NULL) return;
+		knh_RawPtr_t *p1 = (knh_RawPtr_t*)new_hObject_(ctx, ct1);
+		p1->rawptr = this;
+		KNH_SETv(ctx, sfp[5].o, UPCAST(p1));
+		knh_RawPtr_t *p2 = (knh_RawPtr_t*)new_hObject_(ctx, ct2);
+		p2->rawptr = event;
+		KNH_SETv(ctx, sfp[6].o, UPCAST(p2));
+		if (mouse_press_func->baseNULL != NULL) {
+			KNH_SETv(ctx, sfp[K_CALLDELTA].o, mouse_press_func->baseNULL);
+		}
+		KNH_SCALL(ctx, sfp, 0, mouse_press_func->mtd, 3);
+	}
 }
 
 void KRect::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-	(void)event;
-	size_t step_count = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
-	size_t step_diff = step_count - base_step + 1;
 #ifdef K_USING_BOX2D
-	QPointF lspos = event->lastScreenPos();
 	//fprintf(stderr, "lsx: [%f], lsy:[%f]\n", lspos.x(), lspos.y());
 	if (!isStatic) {
+		QPointF lspos = event->lastScreenPos();
+		size_t step_count = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
+		size_t step_diff = step_count - base_step + 1;
 		qreal dx = lspos.x() - prev_x;
 		qreal dy = lspos.y() - prev_y;
 		//fprintf(stderr, "dx: [%f], dy:[%f]\n", dx, dy);
@@ -63,41 +79,74 @@ void KRect::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		dy_sum = (dy_sum + dy) / step_diff;
 		gr->setPos(gr->pos() + QPointF(dx, dy));
 		body->SetTransform(body->GetPosition() + b2Vec2(dx, -dy), body->GetAngle());
+		prev_x = lspos.x();
+		prev_y = lspos.y();
+		isDrag = true;
+		body->SetAwake(false);
+		base_step = step_count;
 	}
-	prev_x = lspos.x();
-	prev_y = lspos.y();
-	isDrag = true;
-	body->SetAwake(false);
 #endif
-	base_step = step_count;
+	if (ctx != NULL && sfp != NULL && mouse_move_func != NULL) {
+		const knh_ClassTBL_t *ct1 = ClassTBL(cid);
+		const knh_ClassTBL_t *ct2 = ClassTBL(mouse_event_cid);
+		if (ct1 == NULL || ct2 == NULL) return;
+		knh_RawPtr_t *p1 = (knh_RawPtr_t*)new_hObject_(ctx, ct1);
+		p1->rawptr = this;
+		KNH_SETv(ctx, sfp[5].o, UPCAST(p1));
+		knh_RawPtr_t *p2 = (knh_RawPtr_t*)new_hObject_(ctx, ct2);
+		p2->rawptr = event;
+		KNH_SETv(ctx, sfp[6].o, UPCAST(p2));
+		if (mouse_move_func->baseNULL != NULL) {
+			KNH_SETv(ctx, sfp[K_CALLDELTA].o, mouse_move_func->baseNULL);
+		}
+		KNH_SCALL(ctx, sfp, 0, mouse_move_func->mtd, 3);
+	}
 }
 
 void KRect::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	(void)event;
-	isDrag = false;
 #ifdef K_USING_BOX2D
-	body->SetAwake(true);
-	size_t step_count = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
-	size_t step_release = step_count - base_step + 1;
-	qreal force_x = dx_sum / step_release;
-	qreal force_y = dy_sum / step_release;
-	force_x = ((dx_sum > 0) ? 1 : -1) * force_x * force_x * 10000.0;
-	force_y = ((dy_sum > 0) ? -1 : 1) * force_y * force_y * 10000.0;
-	body->ApplyForce(b2Vec2(force_x, force_y), body->GetWorldCenter());
-	//body->ApplyLinearImpulse(b2Vec2(force_x, force_y), body->GetWorldCenter());
-	//body->SetLinearVelocity(b2Vec2(force_x, force_y));
-	body->SetAwake(true);
+	if (!isStatic) {
+		isDrag = false;
+		body->SetAwake(true);
+		size_t step_count = *(size_t*)(((knh_GraphicsUserData_t*)(body->GetUserData()))->step_count);
+		size_t step_release = step_count - base_step + 1;
+		qreal force_x = dx_sum / step_release;
+		qreal force_y = dy_sum / step_release;
+		force_x = ((dx_sum > 0) ? 1 : -1) * force_x * force_x * 10000.0;
+		force_y = ((dy_sum > 0) ? -1 : 1) * force_y * force_y * 10000.0;
+		body->ApplyForce(b2Vec2(force_x, force_y), body->GetWorldCenter());
+		//body->ApplyLinearImpulse(b2Vec2(force_x, force_y), body->GetWorldCenter());
+		//body->SetLinearVelocity(b2Vec2(force_x, force_y));
+		body->SetAwake(true);
+	}
 #endif
+	if (ctx != NULL && sfp != NULL && mouse_release_func != NULL) {
+		const knh_ClassTBL_t *ct1 = ClassTBL(cid);
+		const knh_ClassTBL_t *ct2 = ClassTBL(mouse_event_cid);
+		if (ct1 == NULL || ct2 == NULL) return;
+		knh_RawPtr_t *p1 = (knh_RawPtr_t*)new_hObject_(ctx, ct1);
+		p1->rawptr = this;
+		KNH_SETv(ctx, sfp[5].o, UPCAST(p1));
+		knh_RawPtr_t *p2 = (knh_RawPtr_t*)new_hObject_(ctx, ct2);
+		p2->rawptr = event;
+		KNH_SETv(ctx, sfp[6].o, UPCAST(p2));
+		if (mouse_release_func->baseNULL != NULL) {
+			KNH_SETv(ctx, sfp[K_CALLDELTA].o, mouse_release_func->baseNULL);
+		}
+		KNH_SCALL(ctx, sfp, 0, mouse_release_func->mtd, 3);
+	}
 }
 
 void KRect::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
 	(void)event;
 #ifdef K_USING_BOX2D
-	body->SetLinearVelocity(b2Vec2(0, 200.0));
-	//body->ApplyForce(b2Vec2(0, 20.0f), body->GetWorldCenter());
-	//body->ApplyLinearImpulse(b2Vec2(0, 20.0f), body->GetWorldCenter());
+	if (!isStatic) {
+		body->SetLinearVelocity(b2Vec2(0, 200.0));
+		//body->ApplyForce(b2Vec2(0, 20.0f), body->GetWorldCenter());
+		//body->ApplyLinearImpulse(b2Vec2(0, 20.0f), body->GetWorldCenter());
+	}
 #endif
 }
 
@@ -130,6 +179,7 @@ KRect::KRect(int x_, int y_, int width_, int height_)
 	isDrag = false;
 	gr = new KGraphicsRectItem();
 	gr->setRect(*r);
+	mouse_event_cid = 0;
 	connect(gr, SIGNAL(emitMousePressEvent(QGraphicsSceneMouseEvent*)),
 			this, SLOT(mousePressEvent(QGraphicsSceneMouseEvent*)));
 	connect(gr, SIGNAL(emitMouseMoveEvent(QGraphicsSceneMouseEvent*)),
@@ -217,16 +267,20 @@ void KRect::adjust(void)
 void KRect::setClassID(CTX ctx)
 {
 	knh_ClassTBL_t *ct = NULL;
+	knh_ClassTBL_t *mouse_event_ct = NULL;
 	const knh_ClassTBL_t **cts = ctx->share->ClassTBL;
 	size_t size = ctx->share->sizeClassTBL;
 	for (size_t i = 0; i < size; i++) {
 		if (!strncmp("Rect", S_tochar(cts[i]->sname), sizeof("Rect"))) {
 			ct = (knh_ClassTBL_t *)cts[i];
-			break;
+		} else if (!strncmp("MouseEvent", S_tochar(cts[i]->sname), sizeof("MouseEvent"))) {
+			mouse_event_ct = (knh_ClassTBL_t *)cts[i];
 		}
 	}
 	if (ct == NULL) fprintf(stderr, "ERROR: UNKNOWN CLASS: Rect\n");
+	if (mouse_event_ct == NULL) fprintf(stderr, "ERROR: UNKNOWN CLASS: MouseEvent\n");
 	cid = ct->cid;
+	mouse_event_cid = mouse_event_ct->cid;
 }
 
 KMETHOD Rect_new(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -302,6 +356,48 @@ KMETHOD Rect_setShadow(CTX ctx, knh_sfp_t *sfp _RIX)
 	QGraphicsDropShadowEffect *se = RawPtr_to(QGraphicsDropShadowEffect *, sfp[1]);
 	gr->setGraphicsEffect(se);
 	RETURNvoid_();
+}
+
+KMETHOD Rect_setTexture(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KGraphicsRectItem *gr = (KGraphicsRectItem *)KITEM_to(sfp[0].p);
+	KTexture *t = RawPtr_to(KTexture *, sfp[1]);
+	KGraphicsPixmapItem *gp = t->gp;
+	QPixmap p = gp->pixmap();
+	QBrush b(p);
+	gr->setBrush(b);
+	RETURNvoid_();
+}
+
+KMETHOD Rect_setMousePressEvent(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KRect *r = RawPtr_to(KRect *, sfp[0]);
+	knh_Func_t *fo = sfp[1].fo;
+	r->mouse_press_func = fo;
+	r->ctx = (knh_context_t *)ctx;
+	r->sfp = sfp;
+}
+
+KMETHOD Rect_setMouseReleaseEvent(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KRect *r = RawPtr_to(KRect *, sfp[0]);
+	knh_Func_t *fo = sfp[1].fo;
+	r->mouse_release_func = fo;
+	r->ctx = (knh_context_t *)ctx;
+	r->sfp = sfp;
+}
+
+KMETHOD Rect_setMouseMoveEvent(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KRect *r = RawPtr_to(KRect *, sfp[0]);
+	knh_Func_t *fo = sfp[1].fo;
+	r->mouse_move_func = fo;
+	r->ctx = (knh_context_t *)ctx;
+	r->sfp = sfp;
 }
 
 #endif
