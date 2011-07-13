@@ -419,6 +419,28 @@ public:
 	}
 };
 
+class Vec2f {
+public:
+	float x;
+	float y;
+	Vec2f() {
+		this->x = 0;
+		this->y = 0;
+	};
+	Vec2f(float x, float y) {
+		this->x = x;
+		this->y = y;
+	}
+};
+
+typedef struct {
+	Vec2f a;
+	Vec2f b;
+	Vec2f c;
+} Triangle;
+
+extern "C" std::vector<Triangle> triangulate(const std::vector<Vec2f> & points, float resolution);
+
 #define KMETHOD  void  CC_FASTCALL_
 #define NO_WARNING() (void)ctx; (void)sfp; (void)_rix;
 #define NO_WARNING2() (void)ctx; (void)cid;

@@ -4,175 +4,31 @@
 extern "C" {
 #endif
 
-//=========================Presented by Takuma Wakamori====================//
-#define Array_size(a) (sizeof(a) / sizeof(a[0]))
-
-typedef struct {
-	CvPoint v[3];
-} Triangle;
-
-typedef struct {
-	Triangle *t;
-	int size;
-} Triarray;
-
-#define Triarray_size(a) ((a).size)
-static CvSubdiv2D *init_delaunay(CvMemStorage *storage, CvRect rect)
-{
-	CvSubdiv2D* subdiv;
-	subdiv = cvCreateSubdiv2D(CV_SEQ_KIND_SUBDIV2D, sizeof(*subdiv),
-			sizeof(CvSubdiv2DPoint),
-			sizeof(CvQuadEdge2D),
-			storage);
-	cvInitSubdivDelaunay2D(subdiv, rect);
-	return subdiv;
-}
-
-static Triangle draw_subdiv_facet(CvSubdiv2DEdge edge, CvRect rect)
-{
-	CvSubdiv2DEdge t = edge;
-	int i, count = 0;
-	Triangle buf = {{{0, 0}}};
-	do {
-		count++;
-		t = cvSubdiv2DGetEdge(t, CV_NEXT_AROUND_LEFT);
-	} while (t != edge);
-	t = edge;
-	for (i = 0; i < count; i++) {
-		CvSubdiv2DPoint* pt = cvSubdiv2DEdgeOrg(t);
-		if (!pt) break;
-		if (pt->pt.x < rect.x || pt->pt.y < rect.y || pt->pt.x > rect.width || pt->pt.y > rect.height) break;
-		buf.v[i] = cvPoint(cvRound(pt->pt.x), cvRound(pt->pt.y));
-		t = cvSubdiv2DGetEdge(t, CV_NEXT_AROUND_LEFT);
-	}
-	if(i == count) {
-		return buf;
-	}
-	buf.v[0].x = -1;
-	return buf;
-}
-
-static int Triangle_equals(Triangle t1, Triangle t2)
-{
-	int i, j;
-	for (i = 0; i < 3; i++) {
-		for (j = 0; j < 3; j++) {
-			if (t1.v[i].x == t2.v[j].x && t1.v[i].y == t2.v[j].y) {
-				break;
-			}
-		}
-		if (j == 3) return 0;
-	}
-	return 1;
-}
-
-static int Array_contains(Triarray tris, Triangle tri)
-{
-	for (int i = 0; i < Triarray_size(tris); i++) {
-		if (Triangle_equals(tris.t[i], tri)) {
-			return 1;
-		}
-	}
-	return 0;
-}
-
-static void Array_add(Triarray *tris, Triangle tri)
-{
-	(*tris).t[Triarray_size(*tris)] = tri;
-	Triarray_size(*tris) += 1;
-}
-
-static Triarray draw_subdiv(CvSubdiv2D *subdiv, int vnum, CvRect rect)
-{
-	CvSeqReader reader;
-	int i, j, total = subdiv->edges->total;
-	int elem_size = subdiv->edges->elem_size;
-	Triangle buf;
-	Triarray tris;
-	tris.t = (Triangle *)malloc((total - vnum + 2) * sizeof(Triangle));
-	tris.size = 0;
-	cvStartReadSeq((CvSeq *)(subdiv->edges), &reader, 0);
-	for(i = 0; i < total; i++) {
-		CvQuadEdge2D *edge = (CvQuadEdge2D *)(reader.ptr);
-		if(CV_IS_SET_ELEM(edge)) {
-			CvSubdiv2DEdge e = (CvSubdiv2DEdge)edge;
-			for (j = 0; j < 3; j += 2) {
-				buf = draw_subdiv_facet(cvSubdiv2DRotateEdge(e, 0), rect);
-				if (buf.v[0].x > 0 && !Array_contains(tris, buf)) {
-					Array_add(&tris, buf);
-				}
-			}
-		}
-		CV_NEXT_SEQ_ELEM(elem_size, reader);
-	}
-	return tris;
-}
-
-static int getTriangles(CvPoint ***tris, KPoint **pts, int vnum, CvRect rect)
-{
-	int i;
-	CvSubdiv2D *subdiv;
-	CvMemStorage *storage = cvCreateMemStorage(0);
-	subdiv = init_delaunay(storage, rect);
-	for (i = 0; i < vnum; i++) {
-		CvPoint2D32f fp = cvPoint2D32f((float)pts[i]->x, (float)pts[i]->y);
-		fprintf(stderr, "fp = (%f, %f)\n", fp.x, fp.y);
-		if (fp.x < rect.width && fp.y < rect.height) {
-			cvSubdivDelaunay2DInsert(subdiv, fp);
-		}
-	}
-
-	Triarray a = draw_subdiv(subdiv, vnum, rect);
-	cvReleaseMemStorage(&storage);
-	int retsize = Triarray_size(a);
-	(*tris) = (CvPoint **)malloc(Triarray_size(a) * sizeof(CvPoint *));
-	for (i = 0; i < Triarray_size(a); i++) {
-		(*tris)[i] = (CvPoint *)malloc(3 * sizeof(CvPoint));
-		int j;
-		for (j = 0; j < 3; j++) {
-			(*tris)[i][j] = a.t[i].v[j];
-		}
-	}
-	free(a.t);
-	return retsize;
-}
-
 KComplexItem::KComplexItem(knh_Array_t *a)
 {
-	CvPoint **tris = NULL;
 	x = 0;
 	y = 0;
-	CvRect rect = {0, 0, 1300, 800};
 	int asize = knh_Array_size(a);
-	KPoint *pts[asize];
+	std::vector<Vec2f> pts;
 	for (int i = 0; i < asize; i++) {
 		knh_RawPtr_t *o = (knh_RawPtr_t *)a->list[i];
 		KPoint *p = (KPoint *)o->rawptr;
-		pts[i] = p;
+		pts.push_back(Vec2f(p->x, p->y));
 		//fprintf(stderr, "(x, y) = (%d, %d)\n", p->x, p->y);
 	}
-	int size = getTriangles(&tris, pts, asize, rect);
-	fprintf(stderr, "size = [%d]\n", size);
+	std::vector<Triangle> tris = triangulate(pts, asize);
 	gp_list = new QList<QGraphicsPolygonItem *>();
-	for (int i = 0; i < size; i++) {
-		CvPoint *triangle = tris[i];
+	for (std::vector<Triangle>::iterator triIt = tris.begin(); triIt != tris.end(); ++triIt) {
 		QPolygonF p;
-		for (int j = 0; j < 3; j++) {
-			//fprintf(stderr, "(x, y) = (%d, %d)\n", triangle[j].x, triangle[j].y);
-			p << QPoint(triangle[j].x, -triangle[j].y);
-		}
+		p << QPoint(triIt->a.x, triIt->a.y);
+		p << QPoint(triIt->b.x, triIt->b.y);
+		p << QPoint(triIt->c.x, triIt->c.y);
 		QGraphicsPolygonItem *gp = new QGraphicsPolygonItem();
 		gp->setPolygon(p);
-		//gp->scale(-1, 1); // mirroring for x-axis
-		gp->setBrush(QColor(triangle[0].x, triangle[1].x, triangle[2].x));
+		//gp->setBrush(QColor((int)triIt->a.x, (int)triIt->b.x, (int)triIt->c.x));
 		gp_list->append(gp);
-		fprintf(stderr, "(%d, %d), (%d, %d), (%d, %d)\n",
-			triangle[0].x, triangle[0].y,
-			triangle[1].x, triangle[1].y,
-			triangle[2].x, triangle[2].y);
-		free(tris[i]);
+		fprintf(stderr, "(%f, %f), (%f, %f), (%f, %f)\n", triIt->a.x, triIt->a.y, triIt->b.x, triIt->b.y, triIt->c.x, triIt->c.y);
 	}
-	free(tris);
 	isDrag = false;
 	setObjectName("KComplexItem");
 #ifdef K_USING_BOX2D
@@ -197,25 +53,15 @@ void KComplexItem::addToWorld(KWorld *w)
 	int gp_length = gp_list->size();
 	//fprintf(stderr, "length ==%d\n", gp_length);
 	for (int i = 0; i < gp_length; i++) {
-		b2PolygonShape shape;
-		const QGraphicsPolygonItem *gp = gp_list->at(i);
-		QPolygonF poly = gp->polygon();
+		QPolygonF poly = gp_list->at(i)->polygon();
 		b2Vec2 vers[3];
 		const QPointF p0 = poly.at(0);
-		float x0 = p0.x(), y0 = -p0.y();
 		const QPointF p1 = poly.at(1);
-		float x1 = p1.x(), y1 = -p1.y();
 		const QPointF p2 = poly.at(2);
-		float x2 = p2.x(), y2 = -p2.y();
-		if (((x0 * y1 - x1 * y0) + (x1 * y2 - x2 * y1)) > 0) {
-			vers[0].Set(x0, y0);
-			vers[1].Set(x1, y1);
-			vers[2].Set(x2, y2);
-		} else {
-			vers[0].Set(x0, y0);
-			vers[1].Set(x2, y2);
-			vers[2].Set(x1, y1);
-		}
+		vers[2].Set(p0.x(), -p0.y());
+		vers[1].Set(p1.x(), -p1.y());
+		vers[0].Set(p2.x(), -p2.y());
+		b2PolygonShape shape;
 		shape.Set(vers, 3);
 		shapeDef->shape = &shape;
 		body->CreateFixture(shapeDef);

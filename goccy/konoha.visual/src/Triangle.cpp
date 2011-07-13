@@ -2,40 +2,23 @@
 #include <del_interface.hpp>
 //====================== Written by Takuma Wakamori =========================//
 
-using namespace std;
-class Vec2f {
-public:
-	float x;
-	float y;
-	Vec2f() {
-		this->x = 0;
-		this->y = 0;
-	};
-	Vec2f(float x, float y) {
-		this->x = x;
-		this->y = y;
-	}
-};
-
-typedef struct {
-	Vec2f a;
-	Vec2f b;
-	Vec2f c;
-} Triangle;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //static vector<Triangle> triangulate(const vector<Vec2f> & points, float resolution = 50.0f);
 
 #define fMIN(x, y) (((x) < (y)) ? x : y)
 #define fMAX(x, y) (((x) < (y)) ? y : x)
 
-vector<Triangle> triangulate(const vector<Vec2f> & points, float resolution = 50.0f)
+std::vector<Triangle> triangulate(const std::vector<Vec2f> & points, float resolution = 50.0f)
 {
-	vector<Triangle> mTriangles;
-	vector<Vec2f> mPoints = points;
+	std::vector<Triangle> mTriangles;
+	std::vector<Vec2f> mPoints = points;
 	float mSize = mPoints.size();
 	float mCount = fMIN(resolution, mSize);
 	tpp::Delaunay::Point mPoint;
-	vector<tpp::Delaunay::Point> mVertices;
+	std::vector<tpp::Delaunay::Point> mVertices;
 	for (int32_t i = 0; i < mCount; i++) {
 		int32_t mId = (int32_t)((float)i / mCount * mSize);
 		mPoint[0] = mPoints[mId].x;
@@ -94,3 +77,7 @@ vector<Triangle> triangulate(const vector<Vec2f> & points, float resolution = 50
 	}
 	return mTriangles;
 }
+
+#ifdef __cplusplus
+}
+#endif
