@@ -33,57 +33,17 @@
 	<body>
 
 		<!-- header -->
-		<header id="titleheader">
+		<header>
 			<h1>Aspen: KonohaScript Editor</h1>
 		</header>
-						<!--
-						<form id="newform" class="inlineform" name="newform" action="%(cgipath)s/aspen.cgi" method="get">
-							<input type="hidden" name="method" value="new" />
-							<input class="normalbutton" type="submit" id="new" value="New" />
-						</form>
-						-->
-						<!--<input type="button" class="fixedbutton" id="save" alt="save the current buffer at remote server" value="Save" />
-						<input type="button" class="fixedbutton" id="load" alt="load a script from your server" value="Load" />
-						<input type="button" class="fixedbutton" id="save" alt="open your script" value="Open" onclick='javascript:{ if ($("#file").css("display") == "none") { $("#file").css("display", "inline");} else { $("#file").css("display", "none"); }};' />
-						<input style="display:none" type="file" id="file" name="file" />-->
-
-		<!-- information -->
-		<div id="info">
-			<span id="user"></span>
-		</div>
-
-		<!--
-		<form id="logoutform" class="inlineform" name="logoutform" action="./cgi-bin/aspen.cgi" method="get">
-			<input type="hidden" name="method" value="logout" />
-		</form>
-		-->
 
 		<!-- menu -->
-		<menu type="toolbar" id="topmenu">
-			<button class="menubutton" type="submit" id="logout">Sign out</button>
-			<button class="menubutton" type="button" id="new">New</button>
-			<button class="menubutton" type="button" id="eval">Run</button>
-		</menu>
-
-		<!-- tabs -->
-		<!--
-		<div id="doclist">
-			<h2>Documents</h2>
-			<ul id="documents">
-				<li><a href="#" rel="Document1" title="This is the content of Document1">Document1</a></li>
-				<li><a href="#" rel="Document2" title="This is the content of Document2">Document2</a></li>
-				<li><a href="#" rel="Document3" title="This is the content of Document3">Document3</a></li>
-				<li><a href="#" rel="Document4" title="This is the content of Document4">Document4</a></li>
-				<li><a href="#" rel="Document5" title="This is the content of Document5">Document5</a></li>
-			</ul>
+		<div id="topmenu">
+			<div class="userinfo" id="user"></div>
+			<div class="menubutton" id="new">New</div>
+			<div class="menubutton" id="eval">Run</div>
+			<div class="menubutton" id="sign_out">Sign out</div>
 		</div>
-		<div id="wrapper">
-			<ul id="tabs">
-			</ul>
-			<div id="content">
-			</div>
-		</div>
-		-->
 
 		<!-- result -->
 		<div id="result">
@@ -101,13 +61,11 @@
 
 		<!-- footer -->
 		<footer id="footer" class="info">
-			<p>
-			Copyright (c) <a href="http://konoha.sourceforge.jp/">Konoha Project</a>
+			<h3 class="footer">
+			Copyright (c)
+			<a href="http://konoha.sourceforge.jp/" class="noul">Konoha Project</a>
 			2008-2011. All rights reserved.
-			</p>
-			<p>
-			Contact: <img src="./img/gmail.png" id="mail" alt="wakamori111 at gmail.com">
-			</p>
+			</h3>
 		</footer>
 	</body>
 </html>

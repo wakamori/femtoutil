@@ -128,7 +128,7 @@ var Aspen = new Class({
 			});
 			req.send();
 		});
-		document.id("logout").addEvent("click", function() {
+		document.id("sign_out").addEvent("click", function() {
 			var req = new Request({
 				url: self.cgi_dir + "/aspen.cgi",
 				method: "get",
@@ -153,18 +153,6 @@ var Aspen = new Class({
 				onSuccess: changeScript
 			});
 			req.send();
-		});
-		function converter(m) {
-			var str = "";
-			for (var i = 0; i < m.length; i++) {
-				str += String.fromCharCode(m.charCodeAt(i) + 1);
-			}
-			return str;
-		}
-		document.id("mail").addEvent("click", function() {
-			eval(String.fromCharCode(108,111,99,97,116,105,111,110,46,104,114,101,102,32,61,32,39,109,97,105,108,116,111,58)
-			+ converter(String.fromCharCode(118,96,106,96,108,110,113,104,48,48,48,63,102,108,96,104,107,45,98,110,108,62,114,116,97,105,100,98,115,60))
-			+ "'");
 		});
 		if (Cookie.read("UID") == null || Cookie.read("SID") == null) {
 			// show login dialog
@@ -193,8 +181,8 @@ var Aspen = new Class({
 							"vertical-align": "middle"
 						}
 					});
-					img.inject("info", "top");
 					document.id("user").set("html", json["name"] + " @" + json["screen_name"]);
+					img.inject("user", "top");
 				}
 			});
 			req.send();
