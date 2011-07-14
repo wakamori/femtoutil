@@ -8,12 +8,8 @@ KMETHOD View_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KScene *s = RawPtr_to(KScene *, sfp[1]);
-	//QGraphicsScene *ss = (QGraphicsScene*)s->gs; //up-cast
-	printf("%d\n", s->gs->n);
-	//QGraphicsScene *ss = new QGraphicsScene();
-	//QGraphicsView *v = new QGraphicsView(ss);
 	QGraphicsView *v = new QGraphicsView(s->gs);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, v);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[2].p, v);
 	RETURN_(p);
 }
 
@@ -47,8 +43,11 @@ static void View_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
 	fprintf(stderr, "View:free\n");
-	QGraphicsView *view = (QGraphicsView *)p->rawptr;
-	delete view;
+	if (p->rawptr != NULL) {
+		QGraphicsView *view = (QGraphicsView *)p->rawptr;
+		(void)view;
+		delete view;
+	}
 }
 
 static void View_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)

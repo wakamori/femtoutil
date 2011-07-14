@@ -141,7 +141,7 @@ KMETHOD World_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	int width = Int_to(int, sfp[1]);
 	int height = Int_to(int, sfp[2]);
 	KWorld *w = new KWorld(width, height);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, w);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[3].p, w);
 	RETURN_(p);
 }
 
@@ -191,55 +191,38 @@ KMETHOD World_remove(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	if (name == "KRect") {
 		KRect *r = RawPtr_to(KRect *, sfp[1]);
 		QList<KRect *> *rect_list = w->rect_list;
-		int rect_list_size = rect_list->size();
 		b2Body *body = r->body;
-		bool success = rect_list->removeOne(r);
-		//fprintf(stderr, "sccess = [%d]\n", success);
+		rect_list->removeOne(r);
 		world->DestroyBody(body);
-		//for (int i = 0; i < rect_list_size; i++) {
-		//if (r == rect_list[i]) {
-		//
-		//}
-		//}
 	} else if (name == "KEllipse") {
 		KEllipse *e = RawPtr_to(KEllipse *, sfp[1]);
 		QList<KEllipse *> *ellipse_list = w->ellipse_list;
-		int ellispe_list_size = ellipse_list->size();
 		b2Body *body = e->body;
-		bool success = ellipse_list->removeOne(e);
-		//fprintf(stderr, "sccess = [%d]\n", success);
+		ellipse_list->removeOne(e);
 		world->DestroyBody(body);
 	} else if (name == "KTexture") {
 		KTexture *t = RawPtr_to(KTexture *, sfp[1]);
 		QList<KTexture *> *texture_list = w->texture_list;
-		int texture_list_size = texture_list->size();
 		b2Body *body = t->body;
-		bool success = texture_list->removeOne(t);
-		//fprintf(stderr, "sccess = [%d]\n", success);
+		texture_list->removeOne(t);
 		world->DestroyBody(body);
 	} else if (name == "KText") {
 		KText *t = RawPtr_to(KText *, sfp[1]);
 		QList<KText *> *text_list = w->text_list;
-		int text_list_size = text_list->size();
 		b2Body *body = t->body;
-		bool success = text_list->removeOne(t);
-		//fprintf(stderr, "sccess = [%d]\n", success);
+		text_list->removeOne(t);
 		world->DestroyBody(body);
 	} else if (name == "KLine") {
 		KLine *l = RawPtr_to(KLine *, sfp[1]);
 		QList<KLine *> *line_list = w->line_list;
-		int line_list_size = line_list->size();
 		b2Body *body = l->body;
-		bool success = line_list->removeOne(l);
-		//fprintf(stderr, "sccess = [%d]\n", success);
+		line_list->removeOne(l);
 		world->DestroyBody(body);
 	} else if (name == "KComplexItem") {
 		KComplexItem *c = RawPtr_to(KComplexItem *, sfp[1]);
 		QList<KComplexItem *> *complex_list = w->complex_list;
-		int complex_list_size = complex_list->size();
 		b2Body *body = c->body;
-		bool success = complex_list->removeOne(c);
-		//fprintf(stderr, "sccess = [%d]\n", success);
+		complex_list->removeOne(c);
 		world->DestroyBody(body);
 	} else {
 		fprintf(stderr, "World: [WARNING] UNNOWN OBJECT\n");

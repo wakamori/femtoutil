@@ -27,19 +27,19 @@ class Line extends Item;
 @Native class Camera;
 @Native class MouseEvent;
 
-TimeLine TimeLine.new();
+TimeLine TimeLine.new(TimeLine _);
 void TimeLine.setDuration(int duration);
 void TimeLine.setCurveShape(int shape);
 void TimeLine.valueChanged();
 void TimeLine.start();
 
-Transform Transform.new();
+Transform Transform.new(Transform _);
 void Transform.translate(int x, int y);
 void Transform.rotate(int angle, int axis);
 
 void Connector.connect(TimeLine from_func, int type, dynamic to_func);
 
-Ellipse Ellipse.new();
+Ellipse Ellipse.new(Ellipse _);
 void Ellipse.setRect(Rect r);
 void Ellipse.setColor(Color c);
 void Ellipse.setZValue(int val);
@@ -49,7 +49,7 @@ void Ellipse.setDensity(float density);
 void Ellipse.setFriction(float friction);
 void Ellipse.setRestitution(float restitution);
 
-Rect Rect.new(int x, int y, int width, int height);
+Rect Rect.new(int x, int y, int width, int height, Rect _);
 void Rect.setColor(Color c);
 void Rect.setRotation(float rotation);
 void Rect.setDensity(float density);
@@ -63,7 +63,7 @@ void Rect.setMousePressEvent(Func<Rect,MouseEvent=>void> func);
 void Rect.setMouseMoveEvent(Func<Rect,MouseEvent=>void> func);
 void Rect.setMouseReleaseEvent(Func<Rect,MouseEvent=>void> func);
 
-Texture Texture.new(String filepath);
+Texture Texture.new(String filepath, Texture _);
 void Texture.setRect(Rect r);
 void Texture.setColor(Color c);
 void Texture.setRotation(float rotation);
@@ -71,12 +71,12 @@ void Texture.setDensity(float density);
 void Texture.setFriction(float friction);
 void Texture.setRestitution(float restitution);
 Texture[] Texture.split(int row, int col);
-Array<Array<Point>> Texture.detectHuman(Texture background);
+Array<Array<Point>> Texture.detectHuman(Texture background, Point _);
 void Texture.setMousePressEvent(Func<Texture,MouseEvent=>void> func);
 void Texture.setMouseMoveEvent(Func<Texture,MouseEvent=>void> func);
 void Texture.setMouseReleaseEvent(Func<Texture,MouseEvent=>void> func);
 
-Text Text.new(String text);
+Text Text.new(String text, Text _);
 void Text.setPosition(int x, int y);
 void Text.setColor(Color c);
 void Text.setRotation(float rotation);
@@ -84,7 +84,7 @@ void Text.setDensity(float density);
 void Text.setFriction(float friction);
 void Text.setRestitution(float restitution);
 
-Line Line.new(int x1, int y1, int x2, int y2);
+Line Line.new(int x1, int y1, int x2, int y2, Line _);
 void Line.setColor(Color c);
 void Line.setPen(Pen pen);
 void Line.setRotation(float rotation);
@@ -94,10 +94,10 @@ void Line.setRestitution(float restitution);
 void Line.setShadow(Shadow s);
 boolean Line.isStatic();
 
-Color Color.new(String color);
-Brush Brush.new(String color);
+Color Color.new(String color, Color _);
+Brush Brush.new(String color, Brush _);
 
-Pen   Pen.new();
+Pen Pen.new(Pen _);
 void Pen.setColor(Color color);
 void Pen.setWidth(float width);
 void Pen.setStyle(int style);
@@ -107,10 +107,10 @@ void Pen.setJoinStyle(int style);
 void Item.translate(int x, int y);
 void Item.setTransform(Transform t, boolean b);
 
-Group Group.new();
+Group Group.new(Group _);
 void Group.addToGroup(Item i);
 
-Scene Scene.new();
+Scene Scene.new(Scene _);
 void Scene.setItemIndexMethod(int idx);
 void Scene.setBackgroundColor(Color color);
 void Scene.setSceneRect(int x, int y, int width, int height);
@@ -118,47 +118,43 @@ void Scene.addItem(Item i);
 void Scene.removeItem(Item i);
 void Scene.addComplexItem(ComplexItem c);
 void Scene.removeComplexItem(ComplexItem c);
-void Scene.mousePressEvent(this, MouseEvent event);
-void Scene.mouseMoveEvent(this, MouseEvent event);
-void Scene.mouseReleaseEvent(this, MouseEvent event);
-
 void Scene.setMousePressEvent(Func<Scene,MouseEvent=>void> func);
 void Scene.setMouseMoveEvent(Func<Scene,MouseEvent=>void> func);
 void Scene.setMouseReleaseEvent(Func<Scene,MouseEvent=>void> func);
 
-View View.new(Scene scene);
+View View.new(Scene scene, View _);
 void View.setViewportUpdateMode(int mode);
 void View.setRenderHint(int hint);
 void View.show();
 
-Painter Painter.new();
+Painter Painter.new(Painter _);
 
-Application Application.new(String[] args);
+Application Application.new(String[] args, Application _);
 void Application.exec();
 
-Timer Timer.new(int interval, Func<TimerEvent=>void> func);
+Timer Timer.new(int interval, Func<TimerEvent=>void> func, Timer _);
 int Timer.start();
 
-World World.new(int width, int height);
+World World.new(int width, int height, World _);
 void World.add(Item i);
 void World.start();
 void World.setBeginContactEvent(Func<dynamic,dynamic=>void> contact);
 void World.setEndContactEvent(Func<dynamic,dynamic=>void> contact);
 void World.remove(Item i);
 
-Shadow Shadow.new();
+Shadow Shadow.new(Shadow _);
 
-Camera Camera.new(int camera_num);
-Texture Camera.queryFrame();
+Camera Camera.new(int camera_num, Camera _);
+Texture Camera.queryFrame(Texture _);
 
-Point Point.new(int x, int y);
+Point Point.new(int x, int y, Point _);
 int Point.getX();
 int Point.getY();
 
-ComplexItem ComplexItem.new(Array<Point> obj);
+ComplexItem ComplexItem.new(Array<Point> obj, ComplexItem _);
 void ComplexItem.setDensity(float f);
 void ComplexItem.setPosition(int x, int y);
 void ComplexItem.setColor(Color c);
 
-Point MouseEvent.lastScreenPos();
-Point MouseEvent.scenePos();
+Point MouseEvent.lastScreenPos(Point _);
+Point MouseEvent.scenePos(Point _);

@@ -17,7 +17,7 @@ KMETHOD MouseEvent_scenePos(CTX ctx, knh_sfp_t *sfp _RIX)
 	QGraphicsSceneMouseEvent *event = RawPtr_to(QGraphicsSceneMouseEvent *, sfp[0]);
 	QPointF spos = event->scenePos();
 	KPoint *p = new KPoint(spos.x(), spos.y());
-	printf("x: %lf, y: %lf\n", spos.x(), spos.y());
+	//printf("x: %lf, y: %lf\n", spos.x(), spos.y());
 	RETURN_(new_RawPtr(ctx, sfp[1].p, p));
 }
 
@@ -25,8 +25,11 @@ static void MouseEvent_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
 	fprintf(stderr, "MouseEvent:free\n");
-	QGraphicsSceneMouseEvent *event = (QGraphicsSceneMouseEvent *)p->rawptr;
-	delete event;
+	if (p->rawptr != NULL) {
+		QGraphicsSceneMouseEvent *event = (QGraphicsSceneMouseEvent *)p->rawptr;
+		(void)event;
+		//delete event;
+	}
 }
 
 static void MouseEvent_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)

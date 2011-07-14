@@ -53,7 +53,7 @@ class AR {
 		Array<Array<Point>> objs = t.detectHuman(background);
 		int objs_size = |objs|;
 		for (int i = 0; i < |prev_list|; i++) {
-			window.removeComplexItem(prev_list[i]);
+			//window.removeComplexItem(prev_list[i]);
 			world.remove(prev_list[i]);
 		}
 		prev_list = [];
@@ -62,7 +62,7 @@ class AR {
 			Array<Point> obj = objs[i];
 			int obj_size = |obj|;
 			ComplexItem item = new ComplexItem(obj);
-			window.addComplexItem(item);
+			//window.addComplexItem(item);
 			world.add(item);
 			prev_list.add(item);
 		}

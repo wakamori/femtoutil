@@ -214,13 +214,13 @@ KTexture::KTexture(QPixmap *image)
 
 KTexture::~KTexture(void)
 {
-	delete p;
-	delete gp;
-	delete ce;
+	//delete p;
+	//delete gp;
+	//delete ce;
 #ifdef K_USING_BOX2D
-	delete shapeDef;
+	//delete shapeDef;
 	if (bodyDef) {
-		delete bodyDef;
+		//delete bodyDef;
 	}
 #endif
 }
@@ -356,7 +356,7 @@ KMETHOD Texture_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	const char *filepath = String_to(const char *, sfp[1]);
 	KTexture *t = new KTexture(filepath);
 	t->setClassID(ctx);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, t);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[2].p, t);
 	RETURN_(p);
 }
 
@@ -388,7 +388,7 @@ KMETHOD Texture_split(CTX ctx, knh_sfp_t *sfp _RIX)
 	int size = row * col;
 	knh_Array_t *a = new_Array0(ctx, size);
 	for (int i = 0; i < size; i++) {
-		knh_Array_add(ctx, a, (Object *)new_RawPtr(ctx, sfp[1].p, panels->at(i)));
+		knh_Array_add(ctx, a, (Object *)new_RawPtr(ctx, sfp[0].p, panels->at(i)));
 	}
 	RETURN_(a);
 }
@@ -480,7 +480,7 @@ static ObjPointList *getDetectObjectPointList(IplImage *src, IplImage *backgroun
 	IplImage *tmp_img = cvCreateImage(cvGetSize(imgResult), IPL_DEPTH_8U, 1);
 	cvThreshold(imgResult, tmp_img, 40, 255, CV_THRESH_BINARY);
 	cvDilate(tmp_img, tmp_img, NULL, 20);
-	int num = cvFindContours(tmp_img, storage, &find_contour, sizeof(CvContour), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+	cvFindContours(tmp_img, storage, &find_contour, sizeof(CvContour), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
 	//fprintf(stderr, "num = [%d]\n", num);
     cvDrawContours(src, find_contour, CV_RGB(255, 0, 0), CV_RGB(255, 0, 0), 1, 2, CV_AA, cvPoint(0, 0));
     //cvShowImage("hoge", src);
@@ -537,7 +537,7 @@ KMETHOD Texture_detectHuman(CTX ctx, knh_sfp_t *sfp _RIX)
 		for (int j = 0; j < obj_size; j++) {
 			KPoint *p = obj->at(j);
 			//fprintf(stderr, "detectHuman: (x, y) = (%d, %d)\n", p->x, p->y);
-			knh_Array_add(ctx, elem, (Object *)new_RawPtr(ctx, sfp[1].p, new KPoint(p->x, p->y)));
+			knh_Array_add(ctx, elem, (Object *)new_RawPtr(ctx, sfp[2].p, new KPoint(p->x, p->y)));
 			delete p;
 		}
 		knh_Array_add(ctx, a, (Object *)elem);
@@ -555,6 +555,7 @@ KMETHOD Texture_setMousePressEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 	t->mouse_press_func = fo;
 	t->ctx = (knh_context_t *)ctx;
 	t->sfp = sfp;
+	RETURNvoid_();
 }
 
 KMETHOD Texture_setMouseReleaseEvent(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -565,6 +566,7 @@ KMETHOD Texture_setMouseReleaseEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 	t->mouse_release_func = fo;
 	t->ctx = (knh_context_t *)ctx;
 	t->sfp = sfp;
+	RETURNvoid_();
 }
 
 KMETHOD Texture_setMouseMoveEvent(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -575,6 +577,7 @@ KMETHOD Texture_setMouseMoveEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 	t->mouse_move_func = fo;
 	t->ctx = (knh_context_t *)ctx;
 	t->sfp = sfp;
+	RETURNvoid_();
 }
 
 #endif
@@ -583,13 +586,17 @@ static void Texture_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
 	fprintf(stderr, "Texture:free\n");
-	KTexture *t = (KTexture *)p->rawptr;
-	delete t;
+	if (p->rawptr != NULL) {
+		KTexture *t = (KTexture *)p->rawptr;
+		(void)t;
+		//delete t;
+	}
 }
 
 static void Texture_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 {
 	(void)ctx;
+	(void)p;
 	(void)tail_;
 	fprintf(stderr, "Texture:reftrace\n");
 	//KTexture *t = (KTexture *)p->rawptr;

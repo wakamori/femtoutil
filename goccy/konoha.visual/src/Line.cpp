@@ -243,7 +243,7 @@ KMETHOD Line_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	int y2 = Int_to(int, sfp[4]);
 	KLine *l = new KLine(x1, y1, x2, y2);
 	l->setClassID(ctx);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, l);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[5].p, l);
 	RETURN_(p);
 }
 
@@ -304,7 +304,7 @@ KMETHOD Line_setRestitution(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
-KMETHOD Line_isStatic(CTX ctx, knh_sfp_t *sfp _RIX)
+KMETHOD Line_isSTatic(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	KLine *r = RawPtr_to(KLine *, sfp[0]);

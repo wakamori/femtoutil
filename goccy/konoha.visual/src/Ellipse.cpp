@@ -190,8 +190,11 @@ static void Ellipse_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
 	fprintf(stderr, "Ellipse:free\n");
-	KEllipse *e = (KEllipse *)p->rawptr;
-	delete e;
+	if (p->rawptr != NULL) {
+		KEllipse *e = (KEllipse *)p->rawptr;
+		(void)e;
+		//delete e;
+	}
 }
 
 static void Ellipse_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)

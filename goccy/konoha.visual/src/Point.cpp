@@ -10,7 +10,7 @@ KMETHOD Point_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	int x = Int_to(int, sfp[1]);
 	int y = Int_to(int, sfp[2]);
 	KPoint *point = new KPoint(x, y);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, point);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[3].p, point);
 	RETURN_(p);
 }
 
@@ -32,8 +32,11 @@ static void Point_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
 	fprintf(stderr, "Point:free\n");
-	KPoint *point = (KPoint *)p->rawptr;
-	delete point;
+	if (p->rawptr != NULL) {
+		KPoint *point = (KPoint *)p->rawptr;
+		(void)point;
+		//delete point;
+	}
 }
 
 static void Point_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)

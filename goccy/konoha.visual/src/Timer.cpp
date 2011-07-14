@@ -10,7 +10,7 @@ KMETHOD Timer_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	int interval = Int_to(int, sfp[1]);
 	knh_Func_t *fo = (knh_Func_t *)sfp[2].fo;
 	KTimer *t = new KTimer(interval, fo);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, t);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[3].p, t);
 	RETURN_(p);
 }
 

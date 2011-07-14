@@ -6,16 +6,19 @@ extern "C" {
 
 void KGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+	QGraphicsScene::mousePressEvent(event);
 	emit emitMousePressEvent(event);
 }
 
 void KGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+	QGraphicsScene::mouseReleaseEvent(event);
 	emit emitMouseReleaseEvent(event);
 }
 
 void KGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
+	QGraphicsScene::mouseMoveEvent(event);
 	emit emitMouseMoveEvent(event);
 }
 
@@ -113,6 +116,7 @@ KMETHOD Scene_setMouseMoveEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 	s->ctx = (knh_context_t *)ctx;
 	s->sfp = sfp;
 }
+
 KMETHOD Scene_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
@@ -175,9 +179,9 @@ KMETHOD Scene_addItem(CTX ctx, knh_sfp_t *sfp _RIX)
 KMETHOD Scene_removeItem(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
-	QGraphicsScene *s = RawPtr_to(QGraphicsScene *, sfp[0]);
+	KScene *s = RawPtr_to(KScene *, sfp[0]);
 	QGraphicsItem *i = KITEM_to(sfp[1].p);
-	s->removeItem(i);
+	s->gs->removeItem(i);
 	RETURNvoid_();
 }
 
@@ -209,24 +213,6 @@ KMETHOD Scene_removeComplexItem(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
-static void Scene_free(CTX ctx, knh_RawPtr_t *p)
-{
-	(void)ctx;
-	fprintf(stderr, "Scene:free\n");
-	KScene* s = (KScene*)p->rawptr;
-	KGraphicsScene *gs = s->gs;
-	delete gs;
-}
-
-static void Scene_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
-{
-	(void)ctx;
-	(void)p;
-	(void)tail_;
-	fprintf(stderr, "Scene:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
-}
-
 void KScene::setClassID(CTX ctx)
 {
 	knh_ClassTBL_t *ct = NULL;
@@ -244,6 +230,26 @@ void KScene::setClassID(CTX ctx)
 	if (mouse_event_ct == NULL) fprintf(stderr, "ERROR: UNKNOWN CLASS: MouseEvent\n");
 	cid = ct->cid;
 	mouse_event_cid = mouse_event_ct->cid;
+}
+
+static void Scene_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "Scene:free\n");
+	if (p->rawptr != NULL) {
+		KScene* s = (KScene*)p->rawptr;
+		(void)s;
+		//delete s;
+	}
+}
+
+static void Scene_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "Scene:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
 }
 
 DEFAPI(void) defScene(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

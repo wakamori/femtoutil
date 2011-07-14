@@ -48,6 +48,7 @@ static void Connector_free(CTX ctx, knh_RawPtr_t *p)
 static void Connector_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 {
 	(void)ctx;
+	(void)p;
 	(void)tail_;
 	fprintf(stderr, "Connector:reftrace\n");
 	//QApplication *app = (QApplication *)p->rawptr;

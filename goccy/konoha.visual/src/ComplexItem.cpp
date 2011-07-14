@@ -144,7 +144,7 @@ KMETHOD ComplexItem_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	NO_WARNING();
 	knh_Array_t *a = sfp[1].a;
 	KComplexItem *c = new KComplexItem(a);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, c);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[2].p, c);
 	RETURN_(p);
 }
 

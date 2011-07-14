@@ -19,7 +19,7 @@ KMETHOD Application_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 		value0[i] = (char *)s->str.text;
 	}
 	QApplication *app = new QApplication(args_size, value0);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, app);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[2].p, app);
 	RETURN_(p);
 }
 
@@ -35,8 +35,10 @@ static void Application_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
 	fprintf(stderr, "Application:free\n");
-	QApplication *app = (QApplication *)p->rawptr;
-	delete app;
+	if (p->rawptr != NULL) {
+		QApplication *app = (QApplication *)p->rawptr;
+		delete app;
+	}
 }
 
 static void Application_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
@@ -63,7 +65,7 @@ DEFAPI(void) constApplication(CTX ctx, knh_class_t cid, const knh_PackageLoaderA
 	(void)kapi;
 	//kapi->loadIntClassConst(ctx, cid, TimeLineConstInt);
 }
-
+	
 #ifdef __cplusplus
 }
 #endif

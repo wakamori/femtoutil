@@ -9,7 +9,7 @@ KMETHOD Color_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	NO_WARNING();
 	QString s = String_to(QString, sfp[1]);
 	QColor *c = new QColor(s);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, c);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[2].p, c);
 	RETURN_(p);
 }
 
@@ -24,6 +24,7 @@ static void Color_free(CTX ctx, knh_RawPtr_t *p)
 static void Color_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 {
 	(void)ctx;
+	(void)p;
 	(void)tail_;
 	fprintf(stderr, "Color:reftrace\n");
 	//QApplication *app = (QApplication *)p->rawptr;

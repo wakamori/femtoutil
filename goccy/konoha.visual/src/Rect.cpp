@@ -292,7 +292,7 @@ KMETHOD Rect_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	int height = Int_to(int, sfp[4]);
 	KRect *r = new KRect(x, y, width, height);
 	r->setClassID(ctx);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, r);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[5].p, r);
 	RETURN_(p);
 }
 
@@ -387,6 +387,7 @@ KMETHOD Rect_setMousePressEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 	r->mouse_press_func = fo;
 	r->ctx = (knh_context_t *)ctx;
 	r->sfp = sfp;
+	RETURNvoid_();
 }
 
 KMETHOD Rect_setMouseReleaseEvent(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -397,6 +398,7 @@ KMETHOD Rect_setMouseReleaseEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 	r->mouse_release_func = fo;
 	r->ctx = (knh_context_t *)ctx;
 	r->sfp = sfp;
+	RETURNvoid_();
 }
 
 KMETHOD Rect_setMouseMoveEvent(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -407,6 +409,7 @@ KMETHOD Rect_setMouseMoveEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 	r->mouse_move_func = fo;
 	r->ctx = (knh_context_t *)ctx;
 	r->sfp = sfp;
+	RETURNvoid_();
 }
 
 #endif
@@ -415,8 +418,11 @@ static void Rect_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
 	fprintf(stderr, "Rect:free\n");
-	KRect *r = (KRect *)p->rawptr;
-	delete r;
+	if (p->rawptr != NULL) {
+		KRect *r = (KRect *)p->rawptr;
+		(void)r;
+		//delete r;
+	}
 }
 
 static void Rect_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)

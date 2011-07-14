@@ -144,7 +144,7 @@ KMETHOD Camera_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	NO_WARNING();
 	int n = Int_to(int, sfp[1]);
 	CvCapture *c = cvCaptureFromCAM(n);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, c);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[2].p, c);
 	//cvNamedWindow("hoge", CV_WINDOW_AUTOSIZE);
 	RETURN_(p);
 }

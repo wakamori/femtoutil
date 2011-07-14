@@ -111,7 +111,7 @@ KMETHOD Text_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	QString text = String_to(QString, sfp[1]);
 	KText *t = new KText(text);
 	t->setClassID(ctx);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, t);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[2].p, t);
 	RETURN_(p);
 }
 
@@ -178,8 +178,11 @@ static void Text_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
 	fprintf(stderr, "Text:free\n");
-	KText *t = (KText *)p->rawptr;
-	delete t;
+	if (p->rawptr != NULL) {
+		KText *t = (KText *)p->rawptr;
+		(void)t;
+		//delete t;
+	}
 }
 
 static void Text_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)

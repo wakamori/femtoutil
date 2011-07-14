@@ -1,7 +1,8 @@
 using konoha.visual.*;
 
-class DrawScene {
-	Scene scene;
+class DrawWindow {
+	Application app;
+	Scene window;
 	Pen pen;
 	int start_x;
 	int start_y;
@@ -11,61 +12,63 @@ class DrawScene {
 	Array<Point> obj;
 	World world;
 
-	DrawScene () {
-		this.scene = new Scene();
-		this.pen = createPen();
-		this.scene.setSceneRect(0, 0, 600, 600);
-		this.scene.setMousePressEvent(delegate(this, mousePressEvent));
-		this.scene.setMouseReleaseEvent(delegate(this, mouseReleaseEvent));
-		this.scene.setMouseMoveEvent(delegate(this, mouseMoveEvent));
-		this.drawable = false;
-		this.world = new World();
-		this.obj = [];
+	DrawWindow () {
+		app = new Application();
+		window = new Scene();
+		pen = createPen();
+		window.setSceneRect(0, 0, 600, 600);
+		window.setMousePressEvent(delegate(this, mousePressEvent));
+		window.setMouseReleaseEvent(delegate(this, mouseReleaseEvent));
+		window.setMouseMoveEvent(delegate(this, mouseMoveEvent));
+		drawable = false;
+		world = new World();
+		obj = [];
 	}
 
 	void drawLineTo(int x, int y) {
-		line = new Line(prev_x, prev_y, x, y);
-		line.setPen(this.pen);
-		this.scene.addItem(line);
+		Line line = new Line(prev_x, prev_y, x, y);
+		line.setPen(pen);
+		window.addItem(line);
 		Point p = obj[obj.size-1];
 		//print "Obj (" + p.x + "," + p.y + ")";
 		prev_x = x;
 		prev_y = y;
 	}
 
-	void mousePressEvent(Scene scene, MouseEvent event) {
-		print scene.class;
+	void mousePressEvent(Scene window, MouseEvent event) {
 		Point p = event.scenePos();
 		start_x = p.x;
 		start_y = p.y;
 		obj.add(p);
 		prev_x = p.x;
 		prev_y = p.y;
-		this.drawable = true;
+		drawable = true;
 	}
 	
-	void mouseMoveEvent(Scene scene, MouseEvent event) {
+	void mouseMoveEvent(Scene window, MouseEvent event) {
 		if (drawable) {
 			Point p = event.scenePos();
 			obj.add(p);
 			drawLineTo(p.x, p.y);
 		}
 	}
-	void mouseReleaseEvent(Scene scene, MouseEvent event) {
+
+	void mouseReleaseEvent(Scene w, MouseEvent event) {
 		Point p = event.scenePos();
 		drawLineTo(p.x, p.y);
 		drawLineTo(start_x, start_y);
 		this.drawable = false
-
 		obj.add(p);
 		//for(int i = 0; i < obj.size; i++) {
 		//	OUT <<< "(" <<< obj[i].x <<< "," <<< obj[i].y <<< ")" <<< EOL;
 		//}
-		o = new ComplexItem(obj);
+		print |obj|;
+		ComplexItem c = new ComplexItem(obj);
+		c.setColor(new Color("lightblue"));
+		c.setDensity(1);
+		world.add(c);
+		window.addComplexItem(c);
 		obj = [];
-		o.setDensity(1);
-		this.world.add(o);
-		this.scene.addComplexItem(o);
 	}
 
 	Pen createPen() {
@@ -77,15 +80,18 @@ class DrawScene {
 		pen.setCapStyle(Pen.FlatCap);
 		return pen;
 	}
+	
+	void show() {
+		View view = new View(window);
+		view.setRenderHint(Painter.Antialiasing);
+		view.show();
+		world.start();
+		app.exec();
+	}
 }
 
 void main(String[] args)
 {
-	app = new Application();
-	dscene = new DrawScene();
-
-	view = new View(dscene.scene);
-	view.show();
-	dscene.world.start();
-	app.exec();
+	window = new DrawWindow();
+	window.show();
 }

@@ -204,6 +204,11 @@ public:
 
 	KScene() {
 		gs = new KGraphicsScene();
+		ctx = NULL;
+		sfp = NULL;
+		mouse_press_func = NULL;
+		mouse_move_func = NULL;
+		mouse_release_func = NULL;
 	}
 
 	void setClassID(CTX ctx);
