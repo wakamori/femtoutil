@@ -238,6 +238,18 @@ KMETHOD World_start(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
+KMETHOD World_setGravity(Ctx *ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	KWorld *w = RawPtr_to(KWorld *, sfp[0]);
+	float x = Float_to(float, sfp[1]);
+	float y = Float_to(float, sfp[2]);
+	if (w->world != NULL) {
+		w->world->SetGravity(b2Vec2(x, y));
+	}
+	RETURNvoid_();
+}
+
 KMETHOD World_setBeginContactEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();

@@ -140,6 +140,7 @@ void World.add(Item i);
 void World.start();
 void World.setBeginContactEvent(Func<dynamic,dynamic=>void> contact);
 void World.setEndContactEvent(Func<dynamic,dynamic=>void> contact);
+void World.setGravity(float x, float y);
 void World.remove(Item i);
 
 Shadow Shadow.new(Shadow _);
