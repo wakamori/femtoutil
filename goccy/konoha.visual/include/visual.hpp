@@ -34,6 +34,43 @@ public:
 	}
 };
 
+class KGraphicsLineItem : public QObject, public QGraphicsLineItem {
+	Q_OBJECT;
+public:
+	KGraphicsLineItem() {}
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+	//void wheelEvent(QGraphicsSceneWheelEvent *event);
+signals:
+	void emitMousePressEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
+	//void emitWheelEvent(QGraphicsSceneWheelEvent *event);
+};
+
+class KGraphicsScene : public QGraphicsScene {
+	Q_OBJECT;
+public:
+	int n;
+	KGraphicsScene() {}
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	//void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	//void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+signals:
+	void emitMousePressEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	//void emitMouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	//void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
+};
+
 class KGraphicsRectItem : public QObject, public QGraphicsRectItem {
 	Q_OBJECT;
 public:
@@ -91,6 +128,7 @@ signals:
 
 #ifdef K_USING_BOX2D
 class KRect;
+class KLine;
 class KEllipse;
 class KTexture;
 class KText;
@@ -129,6 +167,7 @@ public:
 	QList<KEllipse*> *ellipse_list;
 	QList<KTexture*> *texture_list;
 	QList<KText*> *text_list;
+	QList<KLine*> *line_list;
 	QList<KComplexItem*> *complex_list;
 	b2Body *root;
 	//JointObjectManagerList *joml;
@@ -146,6 +185,80 @@ public:
 };
 
 #endif
+
+class KGraphicsScene;
+
+class KScene : public QObject {
+	Q_OBJECT;
+public:
+	knh_Func_t *mouse_press_func;
+	knh_Func_t *mouse_move_func;
+	knh_Func_t *mouse_release_func;
+	//knh_Func_t *mouse_dragEnter_func;
+	knh_class_t cid;
+	knh_class_t mouse_event_cid;
+	knh_context_t *ctx;
+	knh_sfp_t *sfp;
+	knh_Method_t *mtd;
+	KGraphicsScene *gs;
+
+	KScene() {
+		gs = new KGraphicsScene();
+	}
+
+	void setClassID(CTX ctx);
+
+public slots:
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	//void mouseDragEnterEvent(QGraphicsSceneEvent *event);
+};
+
+class KLine : public QObject {
+	Q_OBJECT;
+public:
+	QLine *l;
+	KGraphicsLineItem *gl;
+	QPen *pen;
+	bool isDrag;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int width;
+	int height;
+	qreal prev_x;
+	qreal prev_y;
+	qreal dx_sum;
+	qreal dy_sum;
+	knh_class_t cid;
+	QGraphicsDropShadowEffect *se;
+
+#ifdef K_USING_BOX2D
+	bool isStatic;
+	qreal rotation;
+	b2FixtureDef *shapeDef;
+	b2BodyDef *bodyDef;
+	b2Body *body;
+#endif
+	KLine(int x1, int y1, int x2, int y2);
+	void setClassID(CTX ctx);
+#ifdef K_USING_BOX2D
+	void setRotation(qreal rotation_);
+	void setDensity(qreal density_);
+	void setFriction(qreal friction_);
+	void setRestitution(qreal restitution_);
+	void addToWorld(KWorld *w);
+	void adjust(void);
+#endif
+public slots:
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+};
 
 class KRect : public QObject {
 	Q_OBJECT;
@@ -374,6 +487,11 @@ static inline QGraphicsItem *KITEM_to(knh_RawPtr_t *p)
 		return (QGraphicsItem *)((KTexture *)o)->gp;
 	} else if (name == "KText") {
 		return (QGraphicsItem *)((KText *)o)->gt;
+	} else if (name == "KLine") {
+		return (QGraphicsItem *)((KLine *)o)->gl;
+	} else if (name == "KComplexItem") {
+		return (QGraphicsItem *)((KComplexItem *)o)->gp_list;
+
 	} else {
 		fprintf(stderr, "CANNNOT CONVERT TO QGraphicsItem\n");
 	}

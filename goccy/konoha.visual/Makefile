@@ -37,7 +37,9 @@ objs = build/visual.o\
 	build/Point.o\
 	build/MouseEvent.o\
 	build/Triangle.o\
-	build/ComplexItem.o
+	build/ComplexItem.o\
+	build/Pen.o\
+	build/Line.o
 
 .PHONY: all
 all: $(library)
@@ -76,7 +78,13 @@ build/Ellipse.o: src/Ellipse.cpp
 build/Group.o: src/Group.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
+build/Line.o: src/Line.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
+
 build/MouseEvent.o: src/MouseEvent.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+build/Pen.o: src/Pen.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/Rect.o: src/Rect.cpp

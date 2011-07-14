@@ -16,6 +16,7 @@ KWorld::KWorld(int width, int height)
 	ellipse_list = new QList<KEllipse*>();
 	texture_list = new QList<KTexture*>();
 	text_list = new QList<KText*>();
+	line_list = new QList<KLine*>();
 	complex_list = new QList<KComplexItem*>();
 	world = new b2World(b2Vec2(0.0f, -10.0f), true);
 	//scene = new QGraphicsScene();
@@ -46,6 +47,8 @@ void KWorld::addObj(void *obj)
 		texture_list->append((KTexture *)o);
 	} else if (name == "KText") {
 		text_list->append((KText *)o);
+	} else if (name == "KLine") {
+		line_list->append((KLine *)o);
 	} else if (name == "KGroup") {
 		
 	} else if (name == "KComplexItem") {
@@ -100,6 +103,7 @@ void KWorld::timerEvent(QTimerEvent *event)
 		int ellipse_list_size = ellipse_list->size();
 		int texture_list_size = texture_list->size();
 		int text_list_size = text_list->size();
+		int line_list_size = line_list->size();
 		int complex_list_size = complex_list->size();
 		for (int i = 0; i < rect_list_size; i++) {
 			KRect *r = rect_list->at(i);
@@ -116,6 +120,10 @@ void KWorld::timerEvent(QTimerEvent *event)
 		for (int i = 0; i < text_list_size; i++) {
 			KText *t = text_list->at(i);
 			t->adjust();
+		}
+		for (int i = 0; i < line_list_size; i++) {
+			KLine *l = line_list->at(i);
+			l->adjust();
 		}
 		for (int i = 0; i < complex_list_size; i++) {
 			KComplexItem *c = complex_list->at(i);
@@ -159,6 +167,10 @@ KMETHOD World_add(Ctx *ctx, knh_sfp_t *sfp _RIX)
 		KText *t = RawPtr_to(KText *, sfp[1]);
 		t->addToWorld(world);
 		world->addObj(t);
+	} else if (name == "KLine") {
+		KLine *l = RawPtr_to(KLine *, sfp[1]);
+		l->addToWorld(world);
+		world->addObj(l);
 	} else if (name == "KComplexItem") {
 		KComplexItem *c = RawPtr_to(KComplexItem *, sfp[1]);
 		c->addToWorld(world);
@@ -211,6 +223,14 @@ KMETHOD World_remove(Ctx *ctx, knh_sfp_t *sfp _RIX)
 		int text_list_size = text_list->size();
 		b2Body *body = t->body;
 		bool success = text_list->removeOne(t);
+		//fprintf(stderr, "sccess = [%d]\n", success);
+		world->DestroyBody(body);
+	} else if (name == "KLine") {
+		KLine *l = RawPtr_to(KLine *, sfp[1]);
+		QList<KLine *> *line_list = w->line_list;
+		int line_list_size = line_list->size();
+		b2Body *body = l->body;
+		bool success = line_list->removeOne(l);
 		//fprintf(stderr, "sccess = [%d]\n", success);
 		world->DestroyBody(body);
 	} else if (name == "KComplexItem") {

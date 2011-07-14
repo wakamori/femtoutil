@@ -7,8 +7,12 @@ extern "C" {
 KMETHOD View_new(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
-	QGraphicsScene *s = RawPtr_to(QGraphicsScene *, sfp[1]);
-	QGraphicsView *v = new QGraphicsView(s);
+	KScene *s = RawPtr_to(KScene *, sfp[1]);
+	//QGraphicsScene *ss = (QGraphicsScene*)s->gs; //up-cast
+	printf("%d\n", s->gs->n);
+	//QGraphicsScene *ss = new QGraphicsScene();
+	//QGraphicsView *v = new QGraphicsView(ss);
+	QGraphicsView *v = new QGraphicsView(s->gs);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, v);
 	RETURN_(p);
 }

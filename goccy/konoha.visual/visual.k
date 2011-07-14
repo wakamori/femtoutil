@@ -9,9 +9,11 @@ include nativelink;
 @Native class Texture extends Item;
 @Native class Text extends Item;
 @Native class ComplexItem extends Item;
+class Line extends Item;
 @Native class TimeLine;
 @Native class Transform;
 @Native class Connector;
+@Native class Pen;
 @Native class Color;
 @Native class Brush;
 @Native class Scene;
@@ -82,8 +84,25 @@ void Text.setDensity(float density);
 void Text.setFriction(float friction);
 void Text.setRestitution(float restitution);
 
+Line Line.new(int x1, int y1, int x2, int y2);
+void Line.setColor(Color c);
+void Line.setPen(Pen pen);
+void Line.setRotation(float rotation);
+void Line.setDensity(float density);
+void Line.setFriction(float friction);
+void Line.setRestitution(float restitution);
+void Line.setShadow(Shadow s);
+boolean Line.isStatic();
+
 Color Color.new(String color);
 Brush Brush.new(String color);
+
+Pen   Pen.new();
+void Pen.setColor(Color color);
+void Pen.setWidth(float width);
+void Pen.setStyle(int style);
+void Pen.setCapStyle(int style);
+void Pen.setJoinStyle(int style);
 
 void Item.translate(int x, int y);
 void Item.setTransform(Transform t, boolean b);
@@ -99,7 +118,13 @@ void Scene.addItem(Item i);
 void Scene.removeItem(Item i);
 void Scene.addComplexItem(ComplexItem c);
 void Scene.removeComplexItem(ComplexItem c);
-//void Scene.setMousePressEvent();
+void Scene.mousePressEvent(this, MouseEvent event);
+void Scene.mouseMoveEvent(this, MouseEvent event);
+void Scene.mouseReleaseEvent(this, MouseEvent event);
+
+void Scene.setMousePressEvent(Func<Scene,MouseEvent=>void> func);
+void Scene.setMouseMoveEvent(Func<Scene,MouseEvent=>void> func);
+void Scene.setMouseReleaseEvent(Func<Scene,MouseEvent=>void> func);
 
 View View.new(Scene scene);
 void View.setViewportUpdateMode(int mode);
@@ -136,3 +161,4 @@ void ComplexItem.setPosition(int x, int y);
 void ComplexItem.setColor(Color c);
 
 Point MouseEvent.lastScreenPos();
+Point MouseEvent.scenePos();
