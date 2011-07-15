@@ -1,4 +1,4 @@
-include nativelink;
+include lib:gluelink;
 
 @Native class Visual;
 @Native class Point;
@@ -125,6 +125,7 @@ void Scene.setMouseReleaseEvent(Func<Scene,MouseEvent=>void> func);
 View View.new(Scene scene, View _);
 void View.setViewportUpdateMode(int mode);
 void View.setRenderHint(int hint);
+void View.setBackgroundOpacity(int alpha);
 void View.show();
 
 Painter Painter.new(Painter _);

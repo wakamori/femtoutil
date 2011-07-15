@@ -13,6 +13,18 @@ KMETHOD View_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURN_(p);
 }
 
+KMETHOD View_setBackgroundOpacity(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	NO_WARNING();
+	QGraphicsView *v = RawPtr_to(QGraphicsView *, sfp[0]);
+	int alpha = Int_to(int, sfp[1]);
+	size_t s_max = sizeof("QGraphicsView { background-color: rgba(0, 0, 0, ___); }");
+	char style[s_max];
+	sprintf(style, "QGraphicsView { background-color: rgba(0, 0, 0, %d); }", alpha);
+	v->setStyleSheet(style);
+	RETURNvoid_();
+}
+
 KMETHOD View_setViewportUpdateMode(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();

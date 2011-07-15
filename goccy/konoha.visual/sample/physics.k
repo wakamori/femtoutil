@@ -69,6 +69,7 @@ class PhysicsWorld {
 	void show() {
 		View view = new View(scene);
 		view.setRenderHint(Painter.Antialiasing);
+        view.setBackgroundOpacity(7);
 		view.show();
 		world.start();
 	}
