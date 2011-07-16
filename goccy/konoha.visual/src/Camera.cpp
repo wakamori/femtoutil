@@ -144,7 +144,8 @@ KMETHOD Camera_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	NO_WARNING();
 	int n = Int_to(int, sfp[1]);
 	CvCapture *c = cvCaptureFromCAM(n);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, c);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[2].p, c);
+	//cvNamedWindow("hoge", CV_WINDOW_AUTOSIZE);
 	RETURN_(p);
 }
 
@@ -154,8 +155,43 @@ KMETHOD Camera_queryFrame(CTX ctx, knh_sfp_t *sfp _RIX)
 	IplImage *frame = cvQueryFrame(c);
 	QImage *image = IplImage_convertToQImage(frame, 0.0, 0.0);
 	KTexture *t = new KTexture(image);
+	t->setClassID(ctx);
+	t->ipl = cvCloneImage(frame);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, t);
 	RETURN_(p);
+}
+
+static void Camera_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "Camera:free\n");
+	CvCapture *c = (CvCapture *)p->rawptr;
+	(void)c;
+}
+
+static void Camera_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "Camera:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
+DEFAPI(void) defCamera(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	NO_WARNING2();
+	cdef->name = "Camera";
+	cdef->free = Camera_free;
+	cdef->reftrace = Camera_reftrace;
+}
+
+DEFAPI(void) constCamera(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *kapi)
+{
+	(void)ctx;
+	(void)cid;
+	(void)kapi;
+	//kapi->loadIntClassConst(ctx, cid, TimeLineConstInt);
 }
 
 #endif

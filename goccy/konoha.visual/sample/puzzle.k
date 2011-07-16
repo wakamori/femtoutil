@@ -5,18 +5,40 @@ class Puzzle {
 	Application app;
 	Camera c;
 	int timer_id;
+	Point prev_point;
+	Rect[] panels;
+	//World world;
 	
 	Puzzle() {
 		app = new Application();
 		window = new Scene();
+		//world = new World();
 		window.setItemIndexMethod(Scene.NoIndex);
 		window.setSceneRect(0, 0, 600, 600);
 		window.setBackgroundColor(new Color("black"));
-		//window.setMousePressEvent(delegate(this, mousePressEvent));
-		//window.setMouseReleaseEvent(delegate(this, mouseReleaseEvent));
-		//window.setMouseMoveEvent(delegate(this, mouseMoveEvent));
-		Timer t = new Timer(1 / 60, delegate(this, capture));
+		Timer t = new Timer(100, delegate(this, capture));
 		c = new Camera(0);
+		for (int i = 0; i < 9; i++) {
+			Rect panel = new Rect(0, 0, 100, 100);
+			panel.setMousePressEvent(delegate(this, mousePressEvent));
+			panel.setMouseReleaseEvent(delegate(this, mouseReleaseEvent));
+			panel.setMouseMoveEvent(delegate(this, mouseMoveEvent));
+			panels.add(panel);
+			window.addItem(panel);
+			//panel.setDensity(1);
+			//world.add(panel);
+		}
+		//ground = new Rect(0, 590, 600, 10);
+		//world.add(ground);
+		//window.addItem(ground);
+		int panel_num = 0;
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (panel_num > 9) break;
+				panels[panel_num].translate(110 * i + 50, 110 * j + 50);
+				panel_num++;
+			}
+		}
 		timer_id = t.start();
 	}
 
@@ -25,38 +47,34 @@ class Puzzle {
 		view.setViewportUpdateMode(View.FullViewportUpdate);
 		view.setRenderHint(Painter.Antialiasing);
 		view.show();
+		//world.start();
 		app.exec();
 	}
 
 	void capture(TimerEvent event) {
 		Texture t = c.queryFrame();
-		Texture[] panels = t.split(3, 3);
-		int half_size = |panels| / 2 - 1;
-		int panel_num = 0;
-		for (int i = 0; i < half_size; i++) {
-			for (int j = 0; j < half_size; j++) {
-				if (panel_num > |panels|) break;
-				panels[panel_num].setRect(new Rect(0, 0, 100, 100));
-				panels[panel_num].translate(110 * i + 50, 110 * j + 50);
-				window.addItem(panels[panel_num]);
-				panel_num++;
-			}
+		Texture[] textures = t.split(3, 3);
+		for (int i = 0; i < |textures|; i++) {
+			textures[i].setRect(new Rect(0, 0, 100, 100));
+			panels[i].setTexture(textures[i]);
 		}
 	}
 
-	void mousePressEvent(dynamic o, MouseEvent event) {
-		print "mousePressEvent";
-		print o.class;
+	void mousePressEvent(Rect o, MouseEvent event) {
+		Point p = event.lastScreenPos();
+		prev_point = p;
 	}
 
-	void mouseReleaseEvent(dynamic o, MouseEvent event) {
-		print "mouseReleaseEvent";
-		print o.class;
+	void mouseMoveEvent(Rect o, MouseEvent event) {
+		Point p = event.lastScreenPos();
+		int dx = p.x - prev_point.x;
+		int dy = p.y - prev_point.y;
+		o.translate(dx, dy);
+		prev_point = p;
 	}
 
-	void mouseMoveEvent(dynamic o, MouseEvent event) {
-		print "mouseMoveEvent";
-		print o.class;
+	void mouseReleaseEvent(Rect o, MouseEvent event) {
+		//Point p = event.lastScreenPos();
 	}
 }
 

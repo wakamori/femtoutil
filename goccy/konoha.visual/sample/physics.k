@@ -25,7 +25,7 @@ class PhysicsWorld {
 		right_block.setShadow(new Shadow());
 		Ellipse e = new Ellipse();
 		e.setRect(new Rect(300, 300, 20, 20));
-		e.setColor(new QColor("#999900"));
+		e.setColor(new Color("#999900"));
 		ground.setRestitution(0);
 		scene.addItem(ground);
 		scene.addItem(left_block);
@@ -48,7 +48,6 @@ class PhysicsWorld {
 			world.add(rect);
 			scene.addItem(rect);
 		}
-		
 		Ellipse e = new Ellipse();
 		e.setRect(new Rect(250, 300, 20, 20));
 		e.setColor(new Color("#eeee00"));
@@ -70,6 +69,7 @@ class PhysicsWorld {
 	void show() {
 		View view = new View(scene);
 		view.setRenderHint(Painter.Antialiasing);
+        view.setBackgroundOpacity(7);
 		view.show();
 		world.start();
 	}

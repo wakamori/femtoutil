@@ -43,10 +43,29 @@ KMETHOD TimeLine_start(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 
+static void TimeLine_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "TimeLine:free\n");
+	QTimeLine *t = (QTimeLine *)p->rawptr;
+	delete t;
+}
+
+static void TimeLine_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "TimeLine:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
 DEFAPI(void) defTimeLine(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 {
 	NO_WARNING2();
 	cdef->name = "TimeLine";
+	cdef->free = TimeLine_free;
+	cdef->reftrace = TimeLine_reftrace;
 }
 
 static knh_IntData_t TimeLineConstInt[] = {

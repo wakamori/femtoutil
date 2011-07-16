@@ -191,7 +191,7 @@ class GameEngine {
 	}
 
 	void init(String[] args) {
-		app = new Application(args);
+		app = new Application([""]);
 		window = new GameWindow(500, 500);
 		Board board = new Board();
 		window.addBoard(board);

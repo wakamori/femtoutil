@@ -111,7 +111,7 @@ KMETHOD Text_new(CTX ctx, knh_sfp_t *sfp _RIX)
 	QString text = String_to(QString, sfp[1]);
 	KText *t = new KText(text);
 	t->setClassID(ctx);
-	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[1].p, t);
+	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[2].p, t);
 	RETURN_(p);
 }
 
@@ -173,6 +173,42 @@ KMETHOD Text_setRestitution(Ctx *ctx, knh_sfp_t *sfp _RIX)
 	RETURNvoid_();
 }
 #endif
+
+static void Text_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "Text:free\n");
+	if (p->rawptr != NULL) {
+		KText *t = (KText *)p->rawptr;
+		(void)t;
+		//delete t;
+	}
+}
+
+static void Text_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "Text:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
+DEFAPI(void) defText(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	NO_WARNING2();
+	cdef->name = "Text";
+	cdef->free = Text_free;
+	cdef->reftrace = Text_reftrace;
+}
+
+DEFAPI(void) constText(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *kapi)
+{
+	(void)ctx;
+	(void)cid;
+	(void)kapi;
+	//kapi->loadIntClassConst(ctx, cid, TimeLineConstInt);
+}
 
 #ifdef __cplusplus
 }

@@ -85,6 +85,39 @@ void KContact::PostSolve(b2Contact *contact, const b2ContactImpulse *impulse)
 	(void)impulse;
 }
 
+static void Contact_free(CTX ctx, knh_RawPtr_t *p)
+{
+	(void)ctx;
+	fprintf(stderr, "Contact:free\n");
+	KContact *c = (KContact *)p->rawptr;
+	delete c;
+}
+
+static void Contact_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
+{
+	(void)ctx;
+	(void)p;
+	(void)tail_;
+	fprintf(stderr, "Contact:reftrace\n");
+	//QApplication *app = (QApplication *)p->rawptr;
+}
+
+DEFAPI(void) defContact(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+{
+	NO_WARNING2();
+	cdef->name = "Contact";
+	cdef->free = Contact_free;
+	cdef->reftrace = Contact_reftrace;
+}
+
+DEFAPI(void) constContact(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *kapi)
+{
+	(void)ctx;
+	(void)cid;
+	(void)kapi;
+	//kapi->loadIntClassConst(ctx, cid, TimeLineConstInt);
+}
+
 #endif
 
 #ifdef __cplusplus

@@ -7,6 +7,7 @@
 #include <highgui.h>
 #endif
 #include <iostream>
+#define K_INTERNAL
 #include <konoha1.h>
 
 using namespace std;
@@ -21,6 +22,53 @@ public:
 	void signalConnect(QTimeLine *t, int signal, knh_Func_t *fo, knh_context_t *ctx, knh_sfp_t *sfp);
 public slots:
 	void slot_func(qreal val);
+};
+
+class KPoint {
+public:
+	int x;
+	int y;
+	KPoint(int x_, int y_) {
+		x = x_;
+		y = y_;
+	}
+};
+
+class KGraphicsLineItem : public QObject, public QGraphicsLineItem {
+	Q_OBJECT;
+public:
+	KGraphicsLineItem() {}
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+	//void wheelEvent(QGraphicsSceneWheelEvent *event);
+signals:
+	void emitMousePressEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
+	//void emitWheelEvent(QGraphicsSceneWheelEvent *event);
+};
+
+class KGraphicsScene : public QGraphicsScene {
+	Q_OBJECT;
+public:
+	int n;
+	KGraphicsScene() {}
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	//void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	//void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+signals:
+	void emitMousePressEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void emitMouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	//void emitMouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	//void emitDragEnterEvent(QGraphicsSceneDragDropEvent *event);
 };
 
 class KGraphicsRectItem : public QObject, public QGraphicsRectItem {
@@ -80,9 +128,11 @@ signals:
 
 #ifdef K_USING_BOX2D
 class KRect;
+class KLine;
 class KEllipse;
 class KTexture;
 class KText;
+class KComplexItem;
 
 typedef struct _knh_GraphicsUserData_t {
 	QObject *o;
@@ -117,6 +167,8 @@ public:
 	QList<KEllipse*> *ellipse_list;
 	QList<KTexture*> *texture_list;
 	QList<KText*> *text_list;
+	QList<KLine*> *line_list;
+	QList<KComplexItem*> *complex_list;
 	b2Body *root;
 	//JointObjectManagerList *joml;
 	b2World *world;
@@ -134,6 +186,85 @@ public:
 
 #endif
 
+class KGraphicsScene;
+
+class KScene : public QObject {
+	Q_OBJECT;
+public:
+	knh_Func_t *mouse_press_func;
+	knh_Func_t *mouse_move_func;
+	knh_Func_t *mouse_release_func;
+	//knh_Func_t *mouse_dragEnter_func;
+	knh_class_t cid;
+	knh_class_t mouse_event_cid;
+	knh_context_t *ctx;
+	knh_sfp_t *sfp;
+	knh_Method_t *mtd;
+	KGraphicsScene *gs;
+
+	KScene() {
+		gs = new KGraphicsScene();
+		ctx = NULL;
+		sfp = NULL;
+		mouse_press_func = NULL;
+		mouse_move_func = NULL;
+		mouse_release_func = NULL;
+	}
+
+	void setClassID(CTX ctx);
+
+public slots:
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	//void mouseDragEnterEvent(QGraphicsSceneEvent *event);
+};
+
+class KLine : public QObject {
+	Q_OBJECT;
+public:
+	QLine *l;
+	KGraphicsLineItem *gl;
+	QPen *pen;
+	bool isDrag;
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+	int width;
+	int height;
+	qreal prev_x;
+	qreal prev_y;
+	qreal dx_sum;
+	qreal dy_sum;
+	knh_class_t cid;
+	QGraphicsDropShadowEffect *se;
+
+#ifdef K_USING_BOX2D
+	bool isStatic;
+	qreal rotation;
+	b2FixtureDef *shapeDef;
+	b2BodyDef *bodyDef;
+	b2Body *body;
+#endif
+	KLine(int x1, int y1, int x2, int y2);
+	void setClassID(CTX ctx);
+#ifdef K_USING_BOX2D
+	void setRotation(qreal rotation_);
+	void setDensity(qreal density_);
+	void setFriction(qreal friction_);
+	void setRestitution(qreal restitution_);
+	void addToWorld(KWorld *w);
+	void adjust(void);
+#endif
+public slots:
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+};
+
 class KRect : public QObject {
 	Q_OBJECT;
 public:
@@ -149,7 +280,13 @@ public:
 	qreal dx_sum;
 	qreal dy_sum;
 	knh_class_t cid;
+	knh_class_t mouse_event_cid;
 	QGraphicsDropShadowEffect *se;
+	knh_Func_t *mouse_press_func;
+	knh_Func_t *mouse_move_func;
+	knh_Func_t *mouse_release_func;
+	knh_context_t *ctx;
+	knh_sfp_t *sfp;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -208,6 +345,8 @@ public:
 #endif
 };
 
+typedef QList<QList<KPoint*>*> ObjPointList;
+
 class KTexture : public QObject {
 	Q_OBJECT;
 public:
@@ -219,7 +358,13 @@ public:
 	int width;
 	int height;
 	knh_class_t cid;
+	knh_class_t mouse_event_cid;
 	QGraphicsColorizeEffect *ce;
+	knh_Func_t *mouse_press_func;
+	knh_Func_t *mouse_move_func;
+	knh_Func_t *mouse_release_func;
+	knh_context_t *ctx;
+	knh_sfp_t *sfp;
 #ifdef K_USING_BOX2D
 	bool isStatic;
 	qreal rotation;
@@ -227,12 +372,15 @@ public:
 	b2BodyDef *bodyDef;
 	b2Body *body;
 #endif
-	
-	KTexture(QString filepath);
+#ifdef K_USING_OPENCV
+	IplImage *ipl;
+#endif
+	KTexture(const char *filepath);
 	KTexture(QImage *image);
 	KTexture(QPixmap *image);
+	void setTrackData(const char *filepath);
 	void setConnect(void);
-	QList<KTexture*> *split(int row, int col);
+	QList<KTexture*> *split(CTX ctx, int row, int col);
 	void setRect(KRect *r);
 	void setColor(QColor *c);
 	void setClassID(CTX ctx);
@@ -250,6 +398,38 @@ public slots:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+};
+
+class KComplexItem : public QObject {
+	Q_OBJECT;
+public:
+	QList<QGraphicsPolygonItem*> *gp_list;
+	bool isDrag;
+	int x;
+	int y;
+	int width;
+	int height;
+	knh_class_t cid;
+#ifdef K_USING_BOX2D
+	bool isStatic;
+	qreal rotation;
+	b2FixtureDef *shapeDef;
+	b2BodyDef *bodyDef;
+	b2Body *body;
+#endif
+	KComplexItem(knh_Array_t *a);
+	void setClassID(CTX ctx);
+	void setPosition(int x, int y);
+	void setColor(QColor *c);
+	~KComplexItem(void);
+#ifdef K_USING_BOX2D
+	//void setRotation(qreal rotation_);
+	void setDensity(qreal density_);
+	//void setFriction(qreal friction_);
+	//void setRestitution(qreal restitution_);
+	void addToWorld(KWorld *w);
+	void adjust(void);
+#endif
 };
 
 class KText : public QObject {
@@ -312,6 +492,11 @@ static inline QGraphicsItem *KITEM_to(knh_RawPtr_t *p)
 		return (QGraphicsItem *)((KTexture *)o)->gp;
 	} else if (name == "KText") {
 		return (QGraphicsItem *)((KText *)o)->gt;
+	} else if (name == "KLine") {
+		return (QGraphicsItem *)((KLine *)o)->gl;
+	} else if (name == "KComplexItem") {
+		return (QGraphicsItem *)((KComplexItem *)o)->gp_list;
+
 	} else {
 		fprintf(stderr, "CANNNOT CONVERT TO QGraphicsItem\n");
 	}
@@ -357,6 +542,28 @@ public:
 		KNH_SCALL(ctx, sfp, 0, fo->mtd, 2);
 	}
 };
+
+class Vec2f {
+public:
+	float x;
+	float y;
+	Vec2f() {
+		this->x = 0;
+		this->y = 0;
+	};
+	Vec2f(float x, float y) {
+		this->x = x;
+		this->y = y;
+	}
+};
+
+typedef struct {
+	Vec2f a;
+	Vec2f b;
+	Vec2f c;
+} Triangle;
+
+extern "C" std::vector<Triangle> triangulate(const std::vector<Vec2f> & points, float resolution);
 
 #define KMETHOD  void  CC_FASTCALL_
 #define NO_WARNING() (void)ctx; (void)sfp; (void)_rix;
