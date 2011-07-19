@@ -30,6 +30,7 @@
 //
 // **************************************************************************
 
+#define K_INTERNAL
 #include <konoha1.h>
 #include <pthread.h>
 #include <dirent.h>
@@ -57,7 +58,7 @@ typedef struct knh_Message_t {
 
 typedef struct knh_MailBox_t {
 	knh_Message_t **msgs;
-	int end;
+	volatile int end;
 } knh_MailBox_t;
 
 typedef struct knh_ActorEX_t {
@@ -404,14 +405,47 @@ METHOD CActor_addMessageToMailBox(CTX ctx, knh_sfp_t *sfp _RIX)
 	knh_MailBox_pushMessage(a->mailbox, &m);
 }
 
+static void addIndent(char* buf, const char* src)
+{
+	size_t j,i = 0, prev_count = 1, bracket_count = 1;
+	size_t c = 1, src_count = strlen(src);
+	char line[256], prev = 0, t = src[1];
+	while (c <= src_count) {
+		if (t == '{') {
+			bracket_count++;
+		}
+		else if (t == '}') {
+			bracket_count--;
+		}
+		if (prev == '\n') {
+			memset(buf, '\t', prev_count);
+			buf += prev_count;
+			strncpy(buf, line, i);
+			buf += i;
+			memset(line, '\0', i);
+			i = 0;
+			prev_count = bracket_count;
+		}
+		line[i++] = t;
+		prev = t;
+		t = src[++c];
+		//printf("t: %c, prev: %c\n", t, prev);
+	}
+}
+
 #define MAX_SCRIPT_SIZE 4096
 METHOD CActor_getOriginalScript(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_Array_t *a = sfp[1].a;
+	const char *actor_name = String_to(const char*, sfp[2]);
 	int i = 0;
 	int asize = a->size;
 	char script[MAX_SCRIPT_SIZE] = {0};
+	char src_buf[MAX_SCRIPT_SIZE] = {0};
 	char *scr = script;
+	const char* pkg_name = "using konoha.actor.*;\n";
+	snprintf(scr, MAX_SCRIPT_SIZE, "%s", pkg_name);
+	scr += strlen(pkg_name);
 	for (i = 0; i < asize; i++) {
 		knh_Func_t *fo = (knh_Func_t *)a->list[i];
 		knh_Method_t *mtd = fo->mtd;
@@ -419,11 +453,15 @@ METHOD CActor_getOriginalScript(CTX ctx, knh_sfp_t *sfp _RIX)
 		const char *type_name = S_tochar(ClassTBL(DP(mtd)->mp->p0.type)->sname);
 		const char *arg_name = S_tochar(knh_getFieldName(ctx, DP(mtd)->mp->p0.fn));
 		const char *src = S_tochar(fo->mtd->b->kcode->source);
-		size_t size = strlen(mtd_name) + strlen(type_name) + strlen(arg_name) + strlen(src) + 4;
-		if (size > MAX_SCRIPT_SIZE) fprintf(stderr, "ERROR: too large script size");
-		snprintf(scr, size + 18, "void %s(%s %s)\n{\n%s\n}\n", mtd_name, type_name, arg_name, src);
-		scr += size + 18;
+		addIndent(src_buf, src);
+		int wcount = snprintf(scr, MAX_SCRIPT_SIZE - strlen(scr), "\nvoid %s(%s %s)\n{\n%s}\n", mtd_name, type_name, arg_name, src_buf);
+		if (wcount < 0) {
+			fprintf(stderr, "ERROR: too large script size");
+		}
+		scr += wcount;
+		memset(src_buf, '\0', MAX_SCRIPT_SIZE);
 	}
+	snprintf(scr, MAX_SCRIPT_SIZE - strlen(scr), "Actor.act(\"%s\");", actor_name);
 	RETURN_(new_String(ctx, script));
 }
 
@@ -449,41 +487,22 @@ METHOD CActor_changeToWorkingDir(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNb_(ret);
 }
 
-static void addIndent(char* buf, const char* src)
-{
-	size_t j,i = 0, prev_count = 1, bracket_count = 1;
- 	size_t c = 1, src_count = strlen(src);
- 	char line[256], prev = 0, t = src[1];
- 	char* tmp_buf = buf;
- 	while (c <= src_count) {
- 		if (t == '{') {
- 			bracket_count++;
- 		} else if (t == '}') {
-			bracket_count--;
- 		}
- 		if (prev == '\n') {
- 			memset(buf, '\t', prev_count);
- 			buf += prev_count;
- 			strncpy(buf, line, i);
- 			buf += i;
- 			memset(line, '\0', i);
- 			i = 0;
- 			prev_count = bracket_count;
- 		}
- 		line[i++] = t;
- 		prev = t;
- 		t = src[++c];
- 	}
-}
-
 METHOD CActor_activateActor(CTX ctx, knh_sfp_t *sfp _RIX)
 {
-	const char *script_name = String_to(const char *, sfp[1]);
-	int pid;
+	const char *dir_name = String_to(const char *, sfp[1]);
+	const char *script_name = String_to(const char *, sfp[2]);
 	char buf[128] = {0};
-	if ((pid = fork()) == 0) {
-		snprintf(buf, 128, "konoha %s", script_name);
-		//system(buf);
+	int pid = fork();
+	char *argv[2];
+	snprintf(buf, 128, "/usr/local/bin/konoha %s/%s", dir_name, script_name);
+	//argv[0] = buf;
+	//argv[1] = 0;
+	if (pid == 0) {
+		system(buf);
+		exit(0);
+		//fprintf(stderr, "buf=%s\n", buf);
+		//execve("/usr/bin/konoha", argv, NULL);
+		//exit(0);
 		//exec();
 	} else {
 		//snprintf(buf, 128, "kill -9 %d", pid);

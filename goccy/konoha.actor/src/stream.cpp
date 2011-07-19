@@ -1,3 +1,4 @@
+#define K_INTERNAL
 #include <konoha1.h>
 
 #define LIBNAME "libc"

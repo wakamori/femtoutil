@@ -5,7 +5,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 if(USE_ACTOR)
 project(actor)
-set(PACKAGE_SOURCE_CODE src/actor.c src/stream.c)
+set(PACKAGE_SOURCE_CODE src/actor.cpp src/stream.cpp)
 
 set(PACKAGE_SCRIPT_CODE actor.k)
 
@@ -16,6 +16,7 @@ set(KONOHA_PACKAGE_DIR konoha/package/${KONOHA_VERSION}/konoha.${PROJECT_NAME})
 
 set(INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}/include  ${CMAKE_CURRENT_BINARY_DIR}
+		/usr/lib/jvm/java-6-openjdk/include
 		${KONOHA_INCLUDE_DIRS})
 include_directories(${INCLUDE_DIRS})
 
