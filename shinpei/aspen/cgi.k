@@ -12,7 +12,7 @@ class Cookie {
 	}
 };
 
-class FieldStrage {
+class FieldStorage {
 	Map storage;
 
 	FieldStorage () {
@@ -40,12 +40,11 @@ class FieldStrage {
 
 class Cgi {
 	String method;
-	FieldStrage fs;
+	FieldStorage fs;
 
 	Cgi () {
 		this.method = $env.REQUEST_METHOD;
 		fs = new FieldStorage();
 		fs.readQuery($env.QUERY_STRING);
 	}
-
 }
