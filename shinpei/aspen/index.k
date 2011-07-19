@@ -124,8 +124,9 @@ html_main = """
 int main (String args) {
 	OUT <<< 'Content-Type: text/html;charset=UTF-8' <<< EOL;
 	OUT <<< EOL;
-	OUT <<< $env.HTTP_COOKIE <<< EOL;
+	OUT <<< "'" <<< $env.HTTP_COOKIE <<< "'" <<< EOL;
 	OUT <<< html_login <<< EOL;
+//	OUT <<< html_main <<< EOL;
 	return 0;
 }
 
