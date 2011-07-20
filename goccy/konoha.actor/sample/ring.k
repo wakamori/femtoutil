@@ -1,42 +1,62 @@
 using konoha.actor.*;
+using konoha.posix.*;
 
 int i;
-void start() {
-	i = System.getTime();
-	Actor.sendToActor();
+
+void endAll(String msg) {
+	//print "endall";
+	print System.getTime() - i;
+	//CActor.exit();
 }
 
-void end() {
-	int j = System.getTime();
-	print j - i;
-}
-
-void receive(Tuple<String,int,int> msg)
+void exitRing(RingMessage msg)
 {
-	print "receive!!!";
-	String name = msg[0];
-	int actor_num = msg[1];
-	int loop_count = msg[2];
-	String actor_name = "";
-	if (actor_num == 10) {
-		loop_count--;
-		actor_num = 1;
-	} else if (loop_count == 0) {
-		Actor.sendToActor("actor1", "end", "exit");
+	if (msg.actor_num != msg.actor_count) {
+		msg.actor_num += 1;
+		Actor.sendToActor((string)(msg.name + msg.actor_num), "exitRing", msg);
 	} else {
-		actor_num++;
+		Actor.sendToActor("kick", "endAll", "");
+		//print "endAll";
 	}
-	actor_name = name + actor_num;
-	Actor.sendToActor(actor_name, "receive", (name, actor_num, loop_count));
+	CActor.exit();
+}
+
+void receive(RingMessage msg)
+{
+	//print "receive!!";
+	//print msg;
+	if (msg.actor_num == msg.actor_count) {
+		msg.loop_count -= 1;
+		msg.actor_num = 1;
+		if (msg.loop_count == 0) {
+			Actor.sendToActor("actor1", "exitRing", msg);
+		}
+	} else {
+		msg.actor_num += 1;
+	}
+	String actor_name = msg.name + msg.actor_num;
+	//print actor_name;
+	//print msg;
+	Actor.sendToActor(actor_name, "receive", msg);
 }
 
 void main(String[] args)
 {
+	int actor_count = 3;
+	int loop_count = 10;
+	if (|args| == 2) {
+		actor_count = (int)args[0];
+		loop_count = (int)args[1];
+	}
 	Array<Func<dynamic=>void>> func_list = [];
 	func_list.add(receive);
-	for (int i = 1; i <= 2; i++) {
+	func_list.add(exitRing);
+	for (int i = 1; i <= actor_count; i++) {
 		String name = "actor" + i;
 		Actor.spawn(name, func_list);//generate script
+		sleep(1);
 	}
-	Actor.sendToActor("actor1", "receive", ("actor", 1, 3));
+	i = System.getTime();   
+	Actor.sendToActor("actor1", "receive", new RingMessage("actor", 1, actor_count, loop_count));
+	Actor.act("kick");
 }
