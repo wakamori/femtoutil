@@ -31,11 +31,12 @@ KMETHOD Point_getY(CTX ctx, knh_sfp_t *sfp _RIX)
 static void Point_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Point:free\n");
-	if (p->rawptr != NULL) {
+	if (p->rawptr != NULL && O_cTBL(p)->total < 4) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Point:free\n");
+#endif
 		KPoint *point = (KPoint *)p->rawptr;
-		(void)point;
-		//delete point;
+		delete point;
 	}
 }
 
@@ -44,8 +45,11 @@ static void Point_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "Point:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Point:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defPoint(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

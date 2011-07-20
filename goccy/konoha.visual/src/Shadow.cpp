@@ -15,9 +15,13 @@ KMETHOD Shadow_new(CTX ctx, knh_sfp_t *sfp _RIX)
 static void Shadow_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Shadow:free\n");
-	QGraphicsDropShadowEffect *e = (QGraphicsDropShadowEffect *)p->rawptr;
-	delete e;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Shadow:free\n");
+#endif
+		QGraphicsDropShadowEffect *e = (QGraphicsDropShadowEffect *)p->rawptr;
+		delete e;
+	}
 }
 
 static void Shadow_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
@@ -25,8 +29,11 @@ static void Shadow_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "Shadow:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Shadow:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defShadow(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

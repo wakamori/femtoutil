@@ -16,9 +16,13 @@ KMETHOD Color_new(CTX ctx, knh_sfp_t *sfp _RIX)
 static void Color_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Color:free\n");
-	QColor *c = (QColor *)p->rawptr;
-	delete c;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Color:free\n");
+#endif
+		QColor *c = (QColor *)p->rawptr;
+		delete c;
+	}
 }
 
 static void Color_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
@@ -26,8 +30,11 @@ static void Color_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "Color:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Color:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defColor(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

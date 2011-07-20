@@ -1,5 +1,4 @@
-#define K_INTERNAL
-#include <konoha1.h>
+#include <konoha_actor.hpp>
 
 #define LIBNAME "libc"
 //============================  MSGPACK  =============================//
@@ -237,18 +236,18 @@ static Object *knh_msgpack_getClassObject(CTX ctx, knh_ClassTBL_t *c, msgpack_ob
 	const char *class_name = _value.via.raw.ptr;
 	//fprintf(stderr, "class_name = [%s]\n", class_name);
 	//fprintf(stderr, "c->sname->str.text = [%s]\n", S_tochar(c->sname));
-	if (strncmp(class_name, (char *)c->sname->str.text, sizeof(class_name))) {
-		int i = 0;
+	if (strncmp(class_name, (char *)S_tochar(c->sname), strlen(class_name) + 1)) {
+		size_t i = 0;
 		const knh_ClassTBL_t **cts = ctx->share->ClassTBL;
 		for (i = 0; i < ctx->share->sizeClassTBL; i++) {
-			if (!strncmp(class_name, S_tochar(cts[i]->sname), sizeof(class_name))) {
+			if (!strncmp(class_name, S_tochar(cts[i]->sname), strlen(class_name) + 1)) {
 				c = (knh_ClassTBL_t *)cts[i];
 				break;
 			}
 			
 		}
 	}
-	if (!strncmp(class_name, (char *)c->sname->str.text, sizeof(class_name))) {
+	if (!strncmp(class_name, (char *)S_tochar(c->sname), strlen(class_name) + 1)) {
 		o = (Object *)new_Object_init2(ctx, c);
 		knh_FieldInfo_t info = {0, 0, 0};
 		map++;
@@ -381,11 +380,31 @@ static knh_PackSPI_t *knh_getPackSPI()
 
 /* ------------------------------------------------------------------------ */
 //## method void OutputStream.writeObject(Object data, NameSpace ns);
-
 METHOD OutputStream_writeObject(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	knh_OutputStream_t *w = sfp[0].w;
 	Object *o = sfp[1].o;
+	knh_OutputStream_writeObject(ctx, w, o);
+	RETURNvoid_();
+}
+
+/* ------------------------------------------------------------------------ */
+
+//## method dyn InputStream.readObject(Class c, NameSpace ns);
+METHOD InputStream_readObject(CTX ctx, knh_sfp_t *sfp _RIX)
+{
+	knh_InputStream_t *in = sfp[0].in;
+	knh_Class_t *cls = sfp[1].c;
+	knh_Object_t *o = knh_InputStream_readObject(ctx, in, cls->cTBL);
+	RETURN_(o);
+}
+
+#ifdef __cplusplus
+}
+#endif
+
+void knh_OutputStream_writeObject(CTX ctx, knh_OutputStream_t *w, knh_Object_t *o)
+{
 	//knh_NameSpace_t *ns = sfp[2].ns; //needs getPackSPI
 	knh_PackSPI_t *packspi = knh_getPackSPI();
 	knh_packer_t packer = {w, NULL, NULL};
@@ -396,20 +415,13 @@ METHOD OutputStream_writeObject(CTX ctx, knh_sfp_t *sfp _RIX)
 		O_cTBL(o)->cdef->wdata(ctx, pkr, RAWPTR(o), packspi);
 	}
 	packspi->pack_flushfree(ctx, pkr);
-	RETURNvoid_();
 }
 
-/* ------------------------------------------------------------------------ */
-//## method dyn InputStream.readObject(Class c, NameSpace ns);
-
-METHOD InputStream_readObject(CTX ctx, knh_sfp_t *sfp _RIX)
+knh_Object_t *knh_InputStream_readObject(CTX ctx, knh_InputStream_t *in, const knh_ClassTBL_t *ct)
 {
 	BEGIN_LOCAL(ctx, lsfp, 1);
-	knh_InputStream_t *in = sfp[0].in;
-	knh_Class_t *cls = sfp[1].c;
-	//knh_NameSpace_t *ns = sfp[2].ns; //needs getPackSPI
 	knh_PackSPI_t *packspi = knh_getPackSPI();
-	knh_type_t type = packspi->unpack(ctx, (knh_ClassTBL_t *)cls->cTBL, in, lsfp);
+	knh_type_t type = packspi->unpack(ctx, (knh_ClassTBL_t *)ct, in, lsfp);
 	Object *o;
 	if (type != TYPE_void) {
 		KNH_SETv(ctx, o, lsfp[0].o);
@@ -417,9 +429,5 @@ METHOD InputStream_readObject(CTX ctx, knh_sfp_t *sfp _RIX)
 		KNH_SETv(ctx, o, KNH_NULL);
 	}
 	END_LOCAL(ctx, lsfp, o);
-	RETURN_(o);
+	return o;
 }
-
-#ifdef __cplusplus
-}
-#endif

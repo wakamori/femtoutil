@@ -189,8 +189,10 @@ KMETHOD Ellipse_setRestitution(Ctx *ctx, knh_sfp_t *sfp _RIX)
 static void Ellipse_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Ellipse:free\n");
 	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Ellipse:free\n");
+#endif
 		KEllipse *e = (KEllipse *)p->rawptr;
 		(void)e;
 		//delete e;
@@ -202,8 +204,11 @@ static void Ellipse_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "Ellipse:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Ellipse:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defEllipse(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

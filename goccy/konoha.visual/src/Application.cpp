@@ -34,8 +34,10 @@ KMETHOD Application_exec(Ctx *ctx, knh_sfp_t *sfp _RIX)
 static void Application_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Application:free\n");
 	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Application:free\n");
+#endif
 		QApplication *app = (QApplication *)p->rawptr;
 		delete app;
 	}
@@ -46,8 +48,11 @@ static void Application_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
 	fprintf(stderr, "Application:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+#endif
+	}
 }
 
 DEFAPI(void) defApplication(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

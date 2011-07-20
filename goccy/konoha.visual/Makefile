@@ -2,7 +2,7 @@ CC = g++
 QTDIR ?= /usr/local/Trolltech/Qt-4.7.3
 INCPATH = -I$(QTDIR)/mkspecs/macx-g++ -I. -I$(QTDIR)/lib/QtCore.framework/Versions/4/Headers -I$(QTDIR)/include/QtCore -I$(QTDIR)/lib/QtGui.framework/Versions/4/Headers -I$(QTDIR)/include/QtGui -I$(QTDIR)/include -I. -I. -F$(QTDIR)/lib -I/usr/local/include/Box2D -I/usr/local/include/opencv2 -I/opt/local/include/opencv2 -I/usr/local/include/opencv -I./lib/triangle++/include/
 LFLAGS = -headerpad_max_install_names -arch x86_64 -Xarch_x86_64 -mmacosx-version-min=10.5
-OPENCV_LIBS = `pkg-config opencv --libs`
+#OPENCV_LIBS = `pkg-config opencv --libs`
 OPENCV_LIBS = -lopencv_calib3d -lopencv_core -lopencv_features2d -lopencv_flann -lopencv_gpu -lopencv_highgui -lopencv_imgproc -lopencv_legacy -lopencv_ml -lopencv_objdetect -lopencv_ts -lopencv_video
 OPENCV_FLAGS = #`pkg-config opencv --cflags`
 LIBS = -F$(QTDIR)/lib -L$(QTDIR)/lib -framework QtGui -L$(QTDIR)/lib -F$(QTDIR)/lib -framework QtCore $(OPENCV_LIBS) -L./lib/triangle++/lib/
@@ -39,7 +39,8 @@ objs = build/visual.o\
 	build/Triangle.o\
 	build/ComplexItem.o\
 	build/Pen.o\
-	build/Line.o
+	build/Line.o\
+	build/Video.o
 
 .PHONY: all
 all: $(library)
@@ -127,6 +128,9 @@ build/View.o: src/View.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 build/World.o: src/World.cpp
+	$(CC) $(CFLAGS) -o $@ -c $^
+
+build/Video.o: src/Video.cpp
 	$(CC) $(CFLAGS) -o $@ -c $^
 
 $(library): $(objs)

@@ -8,7 +8,9 @@ KMETHOD Timer_new(Ctx *ctx, knh_sfp_t *sfp _RIX)
 {
 	NO_WARNING();
 	int interval = Int_to(int, sfp[1]);
-	knh_Func_t *fo = (knh_Func_t *)sfp[2].fo;
+	//knh_Func_t *fo = (knh_Func_t *)sfp[2].fo;
+	knh_Func_t *fo = (knh_Func_t *)malloc(sizeof(knh_Func_t));
+	memcpy(fo, sfp[2].fo, sizeof(knh_Func_t));
 	KTimer *t = new KTimer(interval, fo);
 	knh_RawPtr_t *p = new_RawPtr(ctx, sfp[3].p, t);
 	RETURN_(p);
@@ -25,9 +27,15 @@ KMETHOD Timer_start(Ctx *ctx, knh_sfp_t *sfp _RIX)
 static void Timer_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Timer:free\n");
-	KTimer *t = (KTimer *)p->rawptr;
-	delete t;
+	if (p->rawptr != NULL && O_cTBL(p)->total < 4) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Timer:free\n");
+#endif
+		KTimer *t = (KTimer *)p->rawptr;
+		//fprintf(stderr, "fo->mtd->fcall_1 = [%p]\n", t->fo->mtd->fcall_1);
+		(void)t;
+		//delete t;
+	}
 }
 
 static void Timer_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
@@ -35,8 +43,13 @@ static void Timer_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "Timer:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Timer:reftrace\n");
+#endif
+		KTimer *t = (KTimer *)p->rawptr;
+		KNH_ADDREF(ctx, t->fo);
+	}
 }
 
 DEFAPI(void) defTimer(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
@@ -58,9 +71,12 @@ DEFAPI(void) constTimer(CTX ctx, knh_class_t cid, const knh_PackageLoaderAPI_t *
 static void TimerEvent_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "TimerEvent:free\n");
-	QTimerEvent *t = (QTimerEvent *)p->rawptr;
-	delete t;
+	if (p->rawptr != NULL && O_cTBL(p)->total < 4) {
+		fprintf(stderr, "TimerEvent:free\n");
+		QTimerEvent *t = (QTimerEvent *)p->rawptr;
+		(void)t;
+		//delete t;
+	}
 }
 
 static void TimerEvent_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)

@@ -18,10 +18,12 @@ KMETHOD View_setBackgroundOpacity(CTX ctx, knh_sfp_t *sfp _RIX)
 	NO_WARNING();
 	QGraphicsView *v = RawPtr_to(QGraphicsView *, sfp[0]);
 	int alpha = Int_to(int, sfp[1]);
-	size_t s_max = sizeof("QGraphicsView { background-color: rgba(0, 0, 0, ___); }");
-	char style[s_max];
-	sprintf(style, "QGraphicsView { background-color: rgba(0, 0, 0, %d); }", alpha);
-	v->setStyleSheet(style);
+	if (alpha < 256) {
+		size_t s_max = sizeof("QGraphicsView { background-color: rgba(0, 0, 0, ___); }");
+		char style[s_max];
+		sprintf(style, "QGraphicsView { background-color: rgba(0, 0, 0, %d); }", alpha);
+		v->setStyleSheet(style);
+	}
 	RETURNvoid_();
 }
 
@@ -54,10 +56,11 @@ KMETHOD View_show(CTX ctx, knh_sfp_t *sfp _RIX)
 static void View_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "View:free\n");
-	if (p->rawptr != NULL) {
+	if (p->rawptr != NULL && O_cTBL(p)->total < 4) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "View:free\n");
+#endif
 		QGraphicsView *view = (QGraphicsView *)p->rawptr;
-		(void)view;
 		delete view;
 	}
 }
@@ -67,8 +70,11 @@ static void View_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "View:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "View:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defView(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

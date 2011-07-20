@@ -4,6 +4,7 @@ class Puzzle {
 	Scene window;
 	Application app;
 	Camera c;
+	Video v;
 	int timer_id;
 	Point prev_point;
 	Rect[] panels;
@@ -14,12 +15,13 @@ class Puzzle {
 		window = new Scene();
 		//world = new World();
 		window.setItemIndexMethod(Scene.NoIndex);
-		window.setSceneRect(0, 0, 600, 600);
-		window.setBackgroundColor(new Color("black"));
+		window.setSceneRect(0, 0, 1200, 700);
+		//window.setBackgroundColor(new Color("black"));
 		Timer t = new Timer(100, delegate(this, capture));
-		c = new Camera(0);
+		//c = new Camera(0);
+		v = new Video("sample/sample.avi");
 		for (int i = 0; i < 9; i++) {
-			Rect panel = new Rect(0, 0, 100, 100);
+			Rect panel = new Rect(0, 0, 150, 150);
 			panel.setMousePressEvent(delegate(this, mousePressEvent));
 			panel.setMouseReleaseEvent(delegate(this, mouseReleaseEvent));
 			panel.setMouseMoveEvent(delegate(this, mouseMoveEvent));
@@ -35,7 +37,7 @@ class Puzzle {
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				if (panel_num > 9) break;
-				panels[panel_num].translate(110 * i + 50, 110 * j + 50);
+				panels[panel_num].translate(160 * i + 50, 160 * j + 50);
 				panel_num++;
 			}
 		}
@@ -52,10 +54,11 @@ class Puzzle {
 	}
 
 	void capture(TimerEvent event) {
-		Texture t = c.queryFrame();
+		Texture t = v.queryFrame();
+		//Texture t = c.queryFrame();
 		Texture[] textures = t.split(3, 3);
 		for (int i = 0; i < |textures|; i++) {
-			textures[i].setRect(new Rect(0, 0, 100, 100));
+			textures[i].setRect(new Rect(0, 0, 150, 150));
 			panels[i].setTexture(textures[i]);
 		}
 	}

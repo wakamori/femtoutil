@@ -235,8 +235,10 @@ void KScene::setClassID(CTX ctx)
 static void Scene_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Scene:free\n");
-	if (p->rawptr != NULL) {
+	if (p->rawptr != NULL && O_cTBL(p)->total < 4) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Scene:free\n");
+#endif
 		KScene* s = (KScene*)p->rawptr;
 		(void)s;
 		//delete s;
@@ -248,8 +250,11 @@ static void Scene_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "Scene:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Scene:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defScene(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

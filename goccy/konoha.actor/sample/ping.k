@@ -4,7 +4,7 @@ void start()
 {
 	//p = new Person("yoan", 23);
 	r = new RingMessage("name", 1, 2, 3);
-	Actor.sendToActor("actor2", "ping", r);
+	Actor.send("actor2", "ping", r);
 	//Actor.sendToActor("actor2", "hoge", 4);
 }
 

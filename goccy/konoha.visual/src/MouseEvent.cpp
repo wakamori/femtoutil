@@ -24,8 +24,10 @@ KMETHOD MouseEvent_scenePos(CTX ctx, knh_sfp_t *sfp _RIX)
 static void MouseEvent_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "MouseEvent:free\n");
 	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "MouseEvent:free\n");
+#endif
 		QGraphicsSceneMouseEvent *event = (QGraphicsSceneMouseEvent *)p->rawptr;
 		(void)event;
 		//delete event;
@@ -37,8 +39,11 @@ static void MouseEvent_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "MouseEvent:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "MouseEvent:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defMouseEvent(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

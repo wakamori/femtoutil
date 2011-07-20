@@ -26,7 +26,7 @@ void KGraphicsPixmapItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 
 void KTexture::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	fprintf(stderr, "KTexture::mousePressEvent\n");
+	//fprintf(stderr, "KTexture::mousePressEvent\n");
 	isDrag = true;
 	if (ctx != NULL && sfp != NULL && mouse_press_func != NULL) {
 		const knh_ClassTBL_t *ct1 = ClassTBL(cid);
@@ -47,7 +47,7 @@ void KTexture::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void KTexture::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-	fprintf(stderr, "KTexture::mouseMoveEvent\n");
+	//fprintf(stderr, "KTexture::mouseMoveEvent\n");
 	isDrag = true;
 	if (ctx != NULL && sfp != NULL && mouse_move_func != NULL) {
 		const knh_ClassTBL_t *ct1 = ClassTBL(cid);
@@ -68,7 +68,7 @@ void KTexture::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void KTexture::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	fprintf(stderr, "KTexture::mouseReleaseEvent\n");
+	//fprintf(stderr, "KTexture::mouseReleaseEvent\n");
 	isDrag = false;
 	if (ctx != NULL && sfp != NULL && mouse_release_func != NULL) {
 		const knh_ClassTBL_t *ct1 = ClassTBL(cid);
@@ -151,6 +151,9 @@ KTexture::KTexture(const char *filepath_)
 	ce = new QGraphicsColorizeEffect();
 	setConnect();
 	mouse_event_cid = 0;
+	mouse_press_func = NULL;
+	mouse_release_func = NULL;
+	mouse_move_func = NULL;
 #ifdef K_USING_BOX2D
 	isStatic = true;
 	shapeDef = new b2FixtureDef();
@@ -184,6 +187,9 @@ KTexture::KTexture(QImage *image)
 	ce = new QGraphicsColorizeEffect();
 	setConnect();
 	mouse_event_cid = 0;
+	mouse_press_func = NULL;
+	mouse_release_func = NULL;
+	mouse_move_func = NULL;
 #ifdef K_USING_BOX2D
 	isStatic = true;
 	shapeDef = new b2FixtureDef();
@@ -203,6 +209,9 @@ KTexture::KTexture(QPixmap *image)
 	ce = new QGraphicsColorizeEffect();
 	setConnect();
 	mouse_event_cid = 0;
+	mouse_press_func = NULL;
+	mouse_release_func = NULL;
+	mouse_move_func = NULL;
 #ifdef K_USING_BOX2D
 	isStatic = true;
 	shapeDef = new b2FixtureDef();
@@ -585,11 +594,12 @@ KMETHOD Texture_setMouseMoveEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 static void Texture_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Texture:free\n");
-	if (p->rawptr != NULL) {
+	if (p->rawptr != NULL && O_cTBL(p)->total < 4) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Texture:free\n");
+#endif
 		KTexture *t = (KTexture *)p->rawptr;
-		(void)t;
-		//delete t;
+		delete t;
 	}
 }
 
@@ -598,11 +608,15 @@ static void Texture_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "Texture:reftrace\n");
-	//KTexture *t = (KTexture *)p->rawptr;
-	//KNH_ADDREF(ctx, t->mouse_press_func);
-	//KNH_ADDREF(ctx, t->mouse_move_func);
-	//KNH_ADDREF(ctx, t->mouse_release_func);
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Texture:reftrace\n");
+#endif
+		//KTexture *t = (KTexture *)p->rawptr;
+		//KNH_ADDREF(ctx, t->mouse_press_func);
+		//KNH_ADDREF(ctx, t->mouse_move_func);
+		//KNH_ADDREF(ctx, t->mouse_release_func);
+	}
 }
 
 DEFAPI(void) defTexture(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

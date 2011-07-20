@@ -184,9 +184,13 @@ KMETHOD ComplexItem_setDensity(Ctx *ctx, knh_sfp_t *sfp _RIX)
 static void ComplexItem_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "ComplexItem:free\n");
-	KComplexItem *t = (KComplexItem *)p->rawptr;
-	delete t;
+	if (p->rawptr != NULL && O_cTBL(p)->total < 4) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "ComplexItem:free\n");
+#endif
+		KComplexItem *t = (KComplexItem *)p->rawptr;
+		delete t;
+	}
 }
 
 static void ComplexItem_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
@@ -194,8 +198,11 @@ static void ComplexItem_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "ComplexItem:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "ComplexItem:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defComplexItem(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

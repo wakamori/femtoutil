@@ -277,9 +277,13 @@ KMETHOD World_setEndContactEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 static void World_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "World:free\n");
-	KWorld *w = (KWorld *)p->rawptr;
-	delete w;
+	if (p->rawptr != NULL && O_cTBL(p)->total < 4) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "World:free\n");
+#endif
+		KWorld *w = (KWorld *)p->rawptr;
+		delete w;
+	}
 }
 
 static void World_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
@@ -287,8 +291,11 @@ static void World_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "World:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "World:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defWorld(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

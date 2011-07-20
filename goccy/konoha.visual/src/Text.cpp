@@ -11,7 +11,7 @@ KText::KText(QString text)
 	setObjectName("KText");
 	isDrag = false;
 	//TODO
-	width = text.size() * 7;
+	width = text.size() * 70;
 	height = 10;
 #ifdef K_USING_BOX2D
 	isStatic = true;
@@ -177,8 +177,10 @@ KMETHOD Text_setRestitution(Ctx *ctx, knh_sfp_t *sfp _RIX)
 static void Text_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Text:free\n");
 	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Text:free\n");
+#endif
 		KText *t = (KText *)p->rawptr;
 		(void)t;
 		//delete t;
@@ -190,8 +192,11 @@ static void Text_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "Text:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Text:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defText(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

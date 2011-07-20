@@ -180,6 +180,9 @@ KRect::KRect(int x_, int y_, int width_, int height_)
 	gr = new KGraphicsRectItem();
 	gr->setRect(*r);
 	mouse_event_cid = 0;
+	mouse_press_func = NULL;
+	mouse_release_func = NULL;
+	mouse_move_func = NULL;
 	connect(gr, SIGNAL(emitMousePressEvent(QGraphicsSceneMouseEvent*)),
 			this, SLOT(mousePressEvent(QGraphicsSceneMouseEvent*)));
 	connect(gr, SIGNAL(emitMouseMoveEvent(QGraphicsSceneMouseEvent*)),
@@ -417,11 +420,12 @@ KMETHOD Rect_setMouseMoveEvent(CTX ctx, knh_sfp_t *sfp _RIX)
 static void Rect_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Rect:free\n");
-	if (p->rawptr != NULL) {
+	if (p->rawptr != NULL && O_cTBL(p)->total < 4) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Rect:free\n");
+#endif
 		KRect *r = (KRect *)p->rawptr;
-		(void)r;
-		//delete r;
+		delete r;
 	}
 }
 
@@ -430,8 +434,11 @@ static void Rect_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
-	fprintf(stderr, "Rect:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Rect:reftrace\n");
+#endif
+	}
 }
 
 DEFAPI(void) defRect(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

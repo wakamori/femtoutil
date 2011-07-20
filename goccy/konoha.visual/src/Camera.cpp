@@ -164,9 +164,13 @@ KMETHOD Camera_queryFrame(CTX ctx, knh_sfp_t *sfp _RIX)
 static void Camera_free(CTX ctx, knh_RawPtr_t *p)
 {
 	(void)ctx;
-	fprintf(stderr, "Camera:free\n");
-	CvCapture *c = (CvCapture *)p->rawptr;
-	(void)c;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
+		fprintf(stderr, "Camera:free\n");
+#endif
+		CvCapture *c = (CvCapture *)p->rawptr;
+		(void)c;
+	}
 }
 
 static void Camera_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
@@ -174,8 +178,11 @@ static void Camera_reftrace(CTX ctx, knh_RawPtr_t *p FTRARG)
 	(void)ctx;
 	(void)p;
 	(void)tail_;
+	if (p->rawptr != NULL) {
+#ifdef DEBUG_MODE
 	fprintf(stderr, "Camera:reftrace\n");
-	//QApplication *app = (QApplication *)p->rawptr;
+#endif
+	}
 }
 
 DEFAPI(void) defCamera(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)

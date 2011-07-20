@@ -26,6 +26,7 @@ class Line extends Item;
 @Native class Shadow;
 @Native class Camera;
 @Native class MouseEvent;
+@Native class Video;
 
 TimeLine TimeLine.new(TimeLine _);
 void TimeLine.setDuration(int duration);
@@ -148,6 +149,9 @@ Shadow Shadow.new(Shadow _);
 
 Camera Camera.new(int camera_num, Camera _);
 Texture Camera.queryFrame(Texture _);
+
+Video Video.new(String filename, Camera _);
+Texture Video.queryFrame(Texture _);
 
 Point Point.new(int x, int y, Point _);
 int Point.getX();

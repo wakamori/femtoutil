@@ -23,6 +23,9 @@ class DrawWindow {
 		window.setMouseMoveEvent(delegate(this, mouseMoveEvent));
 		drawable = false;
 		world = new World();
+		Rect r = new Rect(0, 500, 600, 10);
+		world.add(r);
+		window.addItem(r);
 		obj = [];
 		lines = [];
 	}
