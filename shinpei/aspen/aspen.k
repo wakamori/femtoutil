@@ -16,23 +16,27 @@ class Aspen {
 		quert = "";
 	}
 
-	void run (String method, String command) {
+	void run (String method, String command, Map query) {
 		if (method == "GET") {
 			print command;
 			switch (command) {
 			case "login":
-				OUT <<< "hi" <<< EOL;
+				onLogin(query);
 				break;
-
 			}
 		} else if (method == "POST") {
-			print command;
+			OUT <<< "POST" <<< EOL
 			switch (command) {
 			case "login":
-				OUT <<< "hi" <<< EOL;
+				onLogin(query);
 				break;
 			}
 		}
+	}
+
+	void onLogin(Map q) {
+		OUT <<< q["password"] <<< EOL;
+
 	}
 }
 
@@ -41,8 +45,11 @@ int main (String[] args)
 	OUT <<< "Content-Type: text/html;charset=UTF-8" <<< EOL;
 	OUT <<< EOL;
 	Cgi cgi = new Cgi();
+	cgi.printEnvironment();
 	aspen = new Aspen();
-	OUT <<< cgi.fs.storage["method"] <<< EOL;
-	aspen.run(cgi.method, cgi.fs.storage["method"]);
+	if (cgi.modeCgi) {
+		OUT <<< cgi.fs.storage["method"] <<< EOL;
+		aspen.run(cgi.requestMethod, cgi.fs.storage["method"], cgi.fs.storage);
+	}
 	return 0;
 }
