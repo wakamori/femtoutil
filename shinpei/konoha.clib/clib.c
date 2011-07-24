@@ -303,14 +303,14 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_param_t *rp = knh_ParamArray_rget(DP(mtd)->mp, 0);
   knh_type_t rtype = rp->type;
   knh_ClibFunc_t *clibfunc = (knh_ClibFunc_t*)(((fo->mtd)->b)->cfunc);
-  fprintf(stderr, "wrapFunc,idx:%d ftype:%s, rtype:%s\n", clibfunc->idx, TYPE__(O_cid(fo)), TYPE__(rtype));
-  fprintf(stderr, "cfunc:%p\n", clibfunc->fptr);
+  //  fprintf(stderr, "wrapFunc,idx:%d ftype:%s, rtype:%s\n", clibfunc->idx, TYPE__(O_cid(fo)), TYPE__(rtype));
+  //  fprintf(stderr, "cfunc:%p\n", clibfunc->fptr);
   int idx = 0;
   // push arg values
   for (idx = 0; idx < clibfunc->argCount; idx++) {
 	if (IS_DGLUE_UNBOXED(clibfunc->argT_original[idx])) {
 	  clibfunc->argV[idx] = &(sfp[idx+1].ndata);
-	  fprintf(stderr, "val:%d:%d\n", idx+1, sfp[idx+1].ivalue);
+	  //	  fprintf(stderr, "val:%d:%d\n", idx+1, sfp[idx+1].ivalue);
 	} else {
 	  //TODO: now, we cannot distinguish object from string
 	  if (IS_TYPE_STRING(clibfunc->argT_original[idx])) {
