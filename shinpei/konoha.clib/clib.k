@@ -4,7 +4,8 @@
  *  Process : process wrapper generator.
  */
 
-include nativelink;
+//include nativelink;
+include "lib:gluelink";
 
 @Native class Clib;
 @Native Clib Clib.new(String libname, Clib _);
