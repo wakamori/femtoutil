@@ -8,6 +8,7 @@
 #include <konoha1/inlinelibs.h>
 
 
+
 #if defined(K_USING_MACOSX_)
 //#define MACOSX
 #include <ffi/ffi.h>
@@ -19,6 +20,7 @@
 extern "C" {
 #endif
 
+#define DFFI_MODE
 /* ------------------------------------------------------------------------ */
 /* [Glue] */
 #include <dglue.h> // for DEOS
@@ -149,6 +151,11 @@ static void ClibGlue_free(CTX ctx, void *ptr)
 {
   if (ptr != NULL) {
 	knh_ClibGlue_t *cglue = (knh_ClibGlue_t*)ptr;
+	int i = 0;
+	for (i = 0; i < cglue->num_func ; i++) {
+	  KNH_FREE(ctx, (cglue->funcs[i]), sizeof(knh_ClibFunc_t));
+	}
+	KNH_FREE(ctx, cglue->funcs, sizeof(knh_ClibFunc_t *) * CLIBFUNC_MAX);
 	KNH_FREE(ctx, cglue, sizeof(knh_ClibGlue_t));
 	ptr = NULL;
   }
@@ -328,36 +335,58 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 	if(IS_Tunbox(rtype)) {
 	  if (rtype == TYPE_Int || rtype == TYPE_Boolean) {
 		knh_int_t return_i = 0;
+		
 		if (ffi_prep_cif(&(clibfunc->cif), FFI_DEFAULT_ABI, clibfunc->argCount,
 						 clibfunc->retT, clibfunc->argT) == FFI_OK) {
+#if defined(DFFI_MODE)
+		  LOGDATA = {pDATA("funcptr", &(clibfunc->cif))};
+		  NOTE_OK("D-FFI");
+#endif
 		  ffi_call(&(clibfunc->cif), clibfunc->fptr, &(clibfunc->retV), clibfunc->argV);
 		  return_i = *(knh_int_t*)(&clibfunc->retV);
 		} else {
-		  fprintf(stderr, "prep_cif FAILED\n:");
+#if defined(DFFI_MODE)
+		  LOGDATA = {pDATA("funcptr", &(clibfunc->cif))};
+		  NOTE_Failed("D-FFI");
+#endif
 		}
 		RETURNi_(return_i);
 	  } else if (rtype == TYPE_Float) {
 		double return_f = 0.0;
 		if (ffi_prep_cif(&(clibfunc->cif), FFI_DEFAULT_ABI, clibfunc->argCount,
 						 clibfunc->retT, clibfunc->argT) == FFI_OK) {
+#if defined(DFFI_MODE)
+		  LOGDATA = {pDATA("funcptr", &(clibfunc->cif))};
+		  NOTE_OK("D-FFI");
+#endif
 		  ffi_call(&(clibfunc->cif), clibfunc->fptr, &(clibfunc->retV), clibfunc->argV);
 		  return_f = *(double*)(&clibfunc->retV);
 		} else {
-		  fprintf(stderr, "prep_cif FAILED\n:");
+#if defined(DFFI_MODE)
+		  LOGDATA = {pDATA("funcptr", &(clibfunc->cif))};
+		  NOTE_Failed("D-FFI");
+#endif
 		}
 		RETURNf_(return_f);
 	  } 
 	} else { // IS not unbox 
-	  fprintf(stderr, "ffi called\n");
+	  
 	  if (rtype == TYPE_String) {
 		// its String
 		char *return_s = NULL;
 		if (ffi_prep_cif(&(clibfunc->cif), FFI_DEFAULT_ABI, clibfunc->argCount,
 						 clibfunc->retT, clibfunc->argT) == FFI_OK) {
+#if defined(DFFI_MODE)
+		  LOGDATA = {pDATA("funcptr", &(clibfunc->cif))};
+		  NOTE_OK("D-FFI");
+#endif
 		  ffi_call(&(clibfunc->cif), clibfunc->fptr, &(clibfunc->retV), clibfunc->argV);
 		  return_s = *(char**)(&clibfunc->retV);
 		} else {
-		  fprintf(stderr, "prep_cif FAILED\n:");
+#if defined(DFFI_MODE)
+		  LOGDATA = {pDATA("funcptr", &(clibfunc->cif))};
+		  NOTE_Failed("D-FFI");
+#endif
 		}
 		RETURN_(new_String(ctx, return_s));
 	  } else {
@@ -366,12 +395,18 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 		void *return_ptr = NULL;
 		if (ffi_prep_cif(&(clibfunc->cif), FFI_DEFAULT_ABI, clibfunc->argCount,
 						 clibfunc->retT, clibfunc->argT) == FFI_OK) {
+#if defined(DFFI_MODE)
+		  LOGDATA = {pDATA("funcptr", &(clibfunc->cif))};
+		  NOTE_OK("D-FFI");
+#endif
 		  ffi_call(&(clibfunc->cif), clibfunc->fptr, &(clibfunc->retV), clibfunc->argV);
 		  return_ptr = *(void**)(&clibfunc->retV);
 		} else {
-		  fprintf(stderr, "prep_cif FAILED\n:");
+#if defined(DFFI_MODE)
+		  LOGDATA = {pDATA("funcptr", &(clibfunc->cif))};
+		  NOTE_Failed("D-FFI");
+#endif
 		}
-		fprintf(stderr, "rawptr:'%p'\n", return_ptr);
 		RETURN_(new_RawPtr(ctx, (knh_RawPtr_t*)KNH_NULVAL(CLASS_Tvar), return_ptr));
 	  }
 	} // end of IS_Tunbox 
