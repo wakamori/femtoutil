@@ -21,6 +21,8 @@ extern "C" {
 #endif
 
 #define DFFI_MODE
+
+
 /* ------------------------------------------------------------------------ */
 /* [Glue] */
 #include <dglue.h> // for DEOS
@@ -301,23 +303,44 @@ METHOD Clib_new(CTX ctx, knh_sfp_t *sfp _RIX)
   RETURN_(po);
 }
 
+// signal
+static void  SIGSEGV_handler(int sig, siginfo_t *si, void *sc)
+{
+  CTX ctx = knh_getCurrentContext();
+  if (ctx != NULL) {
+	//	char *dlog = dffi_getRecord();
+	//	LOGSFPDATA = {sDATA("", g_DFFILogBuf)};
+	//	NOTE_Failed("dffi:SEGV!!");
+  }
+  _Exit(0);
+}
+
+#undef NOTE_OK
+extern FILE *dlog;
+
+inline void dffi_record(knh_logdata_t _logdata[], char* str);
+  //#define NOTE_OK(s) fprintf(dlog, s)
+#define NOTE_OK(s) dffi_record(_logdata, s)
+
 static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 {
-  //  knh_type_t rtype = knh_ParamArray_rtype(DP(sfp[K_MTDIDX].mtdNC)->mp);
-  //  knh_param_t *rp = knh_ParamArray_rget(DP(sfp[K_MTDIDX].mtdNC)->mp, 0);
   knh_Func_t *fo = sfp[0].fo;
   knh_Method_t *mtd = fo->mtd;
   knh_param_t *rp = knh_ParamArray_rget(DP(mtd)->mp, 0);
   knh_type_t rtype = rp->type;
   knh_ClibFunc_t *clibfunc = (knh_ClibFunc_t*)(((fo->mtd)->b)->cfunc);
-  //  fprintf(stderr, "wrapFunc,idx:%d ftype:%s, rtype:%s\n", clibfunc->idx, TYPE__(O_cid(fo)), TYPE__(rtype));
-  //  fprintf(stderr, "cfunc:%p\n", clibfunc->fptr);
+  
   int idx = 0;
   // push arg values
+
+  //  char *g_ptr = g_DFFILogBuf;
+  //  bzero(g_ptr, DFFI_LOGBUFSIZ);
+  //  sprintf(g_ptr, "retType:%s, ", TYPE__(rtype));
+  //  g_ptr += strlen(TYPE__(rtype)) + 2;
   for (idx = 0; idx < clibfunc->argCount; idx++) {
 	if (IS_DGLUE_UNBOXED(clibfunc->argT_original[idx])) {
 	  clibfunc->argV[idx] = &(sfp[idx+1].ndata);
-	  //	  fprintf(stderr, "val:%d:%d\n", idx+1, sfp[idx+1].ivalue);
+	  //	  sprintf(g_ptr, "%d:%s", idx, "number");
 	} else {
 	  //TODO: now, we cannot distinguish object from string
 	  if (IS_TYPE_STRING(clibfunc->argT_original[idx])) {
@@ -330,6 +353,12 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 	  }
 	}
   } /* for loop for argT*/
+
+  struct sigaction act_segv;
+  sigemptyset(&act_segv.sa_mask);
+  act_segv.sa_handler = SIGSEGV_handler;
+  act_segv.sa_flags = SA_NOCLDSTOP | SA_RESTART;
+  sigaction(SIGSEGV, &act_segv, NULL);
 
   if(rtype != TYPE_void) {
 	if(IS_Tunbox(rtype)) {
@@ -359,6 +388,7 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 		  LOGDATA = {pDATA("funcptr", &(clibfunc->cif))};
 		  NOTE_OK("D-FFI");
 #endif
+
 		  ffi_call(&(clibfunc->cif), clibfunc->fptr, &(clibfunc->retV), clibfunc->argV);
 		  return_f = *(double*)(&clibfunc->retV);
 		} else {
@@ -391,7 +421,6 @@ static METHOD Fmethod_wrapCLib(CTX ctx, knh_sfp_t *sfp _RIX)
 		RETURN_(new_String(ctx, return_s));
 	  } else {
 		// its Object
-		fprintf(stderr, "returning rawptr\n");
 		void *return_ptr = NULL;
 		if (ffi_prep_cif(&(clibfunc->cif), FFI_DEFAULT_ABI, clibfunc->argCount,
 						 clibfunc->retT, clibfunc->argT) == FFI_OK) {
@@ -421,7 +450,8 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
   knh_CLib_t *clib = (knh_CLib_t*)glue->componentInfo;
 
   if (clib == NULL) {
-	fprintf(stderr, "invalid Dglue\n");
+	LOGDATA = {sDATA("clib", "hoge")};
+	NOTE_Failed("D-FFI:InternalError!!, invalid dglue");
 	return (knh_RawPtr_t*)(sfp[3].o);
   }
   const char *symstr = String_to(const char *, sfp[1]);
@@ -432,12 +462,15 @@ static knh_RawPtr_t *ClibGlue_getFunc(CTX ctx, knh_sfp_t *sfp _RIX)
 
   knh_ClibFunc_t *clibfunc = new_ClibFunc(ctx);
   if ((clibfunc->idx = ClibGlue_add_ClibFunc(ctx, cglue, clibfunc)) == -1) {
-	fprintf(stderr, "cannot add clibfunc, there are %ld funcs already.\n", cglue->num_func);
+	LOGDATA = {sDATA("clib", "hoge")};
+	NOTE_Failed("D-FFI:InternalError!!, cannot add clibfunc");
+	//	fprintf(stderr, "cannot add clibfunc, there are %ld funcs already.\n", cglue->num_func);
 	return (knh_RawPtr_t*)(sfp[3].o);
   }
 
   if ((clibfunc->fptr = knh_dlsym(ctx, clib->handler, symstr, 0))== NULL) {
-	fprintf(stderr, "dlsym_ERROR!!!\n");
+	LOGDATA = {sDATA("symstr", symstr)};
+	NOTE_Failed("D-FFI:InterfaceError!!");
   }
   // type a method from requested type
   size_t argCount = pa->psize;
