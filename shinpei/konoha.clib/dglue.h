@@ -2,12 +2,19 @@
 #define _DGLUE_H_
 
 
-
+// globals
+#define DFFI_LOGBUFSIZ (128)
+char g_DFFILogBuf[DFFI_LOGBUFSIZ];
 
 #define GLUE_TYPE_UNKNOWN 0
 #define GLUE_TYPE_INTERNAL 1
 #define GLUE_TYPE_LOCAL 2
 #define GLUE_TYPE_REMOTE 3
+
+
+/* ------------------------------------------------------------------------ */
+
+char *dffi_getRecord(void);
 
 /* ------------------------------------------------------------------------ */
 /* [Dependable Glue] */
