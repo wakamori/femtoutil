@@ -18,7 +18,7 @@ static void *knh_msgpack_init(CTX ctx, knh_packer_t *pk)
 static void knh_msgpack_flushfree(CTX ctx, knh_packer_t *pk)
 {
 	msgpack_sbuffer *sbuffer = (msgpack_sbuffer *)pk->sbuffer;
-	pk->w->dspi->fwriteSPI(ctx, DP(pk->w)->fio, sbuffer->data, sbuffer->size);
+	pk->w->dpi->fwriteSPI(ctx, DP(pk->w)->fio, sbuffer->data, sbuffer->size);
 }
 
 static void knh_msgpack_null(CTX ctx, void *pk)
@@ -347,7 +347,7 @@ static knh_type_t knh_msgpack_unpack(CTX ctx, knh_ClassTBL_t *c, struct knh_Inpu
 	char buf[MAX_MSG_BUFFER_SIZE] = {0};
 	msgpack_unpacker upk;
 	msgpack_unpacked result;
-	in->dspi->freadSPI(ctx, DP(in)->fio, buf, MAX_MSG_BUFFER_SIZE);
+	in->dpi->freadSPI(ctx, DP(in)->fio, buf, MAX_MSG_BUFFER_SIZE);
 	knh_msgapck_setUnpacker(&upk, &result, buf);
 	msgpack_unpacker_next(&upk, &result);
 	Object *o = knh_msgpack_getObject(ctx, c, &result, 0);

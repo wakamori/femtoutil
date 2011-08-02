@@ -92,7 +92,12 @@ static void memcached_setValue(memcached_st *memc, const char *key, const char *
 
 //===================================== Socket Library =======================================//
 
-static knh_io_t SOCKET_open(CTX ctx, const char *ph, const char *mode)
+static knh_bool_t SOCKET_exists(CTX ctx, knh_Path_t *pth)
+{
+	return 0; // dummy
+}
+
+static knh_io_t SOCKET_open(CTX ctx, knh_Path_t *pth, const char *mode)
 {
 	return IO_NULL; // Always opened by external
 }
@@ -114,6 +119,7 @@ static void SOCKET_close(CTX ctx, knh_io_t fd)
 
 static knh_StreamDPI_t SOCKET_DSPI = {
 	K_DSPI_STREAM, "socket",  K_OUTBUF_MAXSIZ,
+	SOCKET_exists,
 	SOCKET_open, SOCKET_open, SOCKET_read, SOCKET_write, SOCKET_close,
 };
 
@@ -167,12 +173,12 @@ static knh_io_t knh_Socket_open(CTX ctx, knh_sfp_t *sfp, const char *ip_or_host,
 
 static knh_InputStream_t *knh_Socket_getInputStream(CTX ctx, knh_io_t sd)
 {
-	return new_InputStreamDPI(ctx, sd, &SOCKET_DSPI);
+	return new_InputStreamDPI(ctx, sd, &SOCKET_DSPI, KNH_TNULL(Path));
 }
 
 static knh_OutputStream_t *knh_Socket_getOutputStream(CTX ctx, knh_io_t sd)
 {
-	return new_OutputStreamDPI(ctx, sd, &SOCKET_DSPI);
+	return new_OutputStreamDPI(ctx, sd, &SOCKET_DSPI, KNH_TNULL(Path));
 }
 
 static knh_io_t knh_ServerSocket_open(CTX ctx, knh_sfp_t *sfp, int port, int backlog)
@@ -332,7 +338,7 @@ static int knh_Actor_getPortNum(memcached_st *memc)
 static void knh_Actor_addMemcached(CTX ctx, knh_Actor_t *a)
 {
 	const char *actor_name = DP(a)->actor_name;
-	knh_String_t *p = ctx->script->ns->rpath;
+	knh_String_t *p = ctx->script->ns->path->urn;
 	const char *path = p->str.text;
 	memcached_st *memc = new_memcached("localhost");
 	int port = knh_Actor_getPortNum(memc);
@@ -567,7 +573,7 @@ METHOD Actor_spawn(CTX ctx, knh_sfp_t *sfp _RIX)
 {
 	const char *actor_name = String_to(const char *, sfp[1]);
 	knh_Array_t *func_list = sfp[2].a;
-	const char *path = S_tochar(ctx->script->ns->rpath);
+	const char *path = S_tochar(ctx->script->ns->path->urn);
 	int len = strlen(path);
 	char dir[len];
 	char cmd[len + 6];
