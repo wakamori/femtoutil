@@ -7,20 +7,6 @@
   modifed by chen_ji, shinpei_NKT
 */
 
-window.onload = function() {
-	Shadowbox.init();
-	if (Cookie.read("UID") == null || Cookie.read("SID") == null) {
-		Shadowbox.open({
-			content: '<form id="login" action="./cgi-bin/aspen.cgi?method=login" method="post">'
-			+ '<div class="info">Aspenを使用するには、Twitterアカウントでの認証が必要です。</div>'
-			+ '<input id="sign_in_button" type="image" src="./img/sign-in-with-twitter-d.png" alt="Twitterで認証する"></form>',
-			player: "html",
-			height: 100
-		});
-		document.id("sb-nav").hide();
-	}
-};
-
 var Aspen = new Class({
 	cm: null,
 	cgi_dir: null,
@@ -29,7 +15,7 @@ var Aspen = new Class({
 
 	initialize: function() {
 		var self = this;
-		this.cgi_dir = "./cgi-bin";
+		this.cgi_dir = ".";
 		var keyEvent = function(editor, key) {
 			if (key.type == "keydown" && key.keyCode == 13 && key.shiftKey) {
 				if (document.id("eval").getProperty("disabled") == false) {
@@ -116,6 +102,7 @@ var Aspen = new Class({
 				self.cm.setValue(responseText);
 			}
 		};
+		/*
 		document.id("forward").addEvent("click", function() {
 			var req = new Request({
 				url: self.cgi_dir + "/aspen.cgi",
@@ -128,6 +115,7 @@ var Aspen = new Class({
 			});
 			req.send();
 		});
+		*/
 		document.id("sign_out").addEvent("click", function() {
 			var req = new Request({
 				url: self.cgi_dir + "/aspen.cgi",
@@ -137,11 +125,12 @@ var Aspen = new Class({
 					"time": new Date().getTime() // for IE
 				},
 				onSuccess: function() {
-					location.reload();
+					document.location = "../";
 				}
 			});
 			req.send();
 		});
+		/*
 		document.id("rewind").addEvent("click", function() {
 			var req = new Request({
 				url: self.cgi_dir + "/aspen.cgi",
@@ -154,6 +143,8 @@ var Aspen = new Class({
 			});
 			req.send();
 		});
+		*/
+		/*
 		if (Cookie.read("UID") == null || Cookie.read("SID") == null) {
 			// show login dialog
 			document.id("titleheader").hide();
@@ -186,6 +177,7 @@ var Aspen = new Class({
 			});
 			req.send();
 		}
+		*/
 	},
 
 	// escape text

@@ -71,16 +71,12 @@ class Aspen:
 
 	def authWithSID(self):
 		self.astorage = aspendb.AspenStorage()
-		self.asession = self.astorage.authenticateWithSID(
-				self.cookie['UID'].value,
-				self.cookie['SID'].value)
-		if self.asession == None:
+		if self.astorage.getUID(self.cookie['SID'].value) == None:
 			raise Exception('Failed to authenticate.')
 
 	def authWithSIDAndRenewSession(self):
 		self.astorage = aspendb.AspenStorage()
 		self.asession = self.astorage.authenticateWithSIDAndRenewSession(
-				self.cookie['UID'].value,
 				self.cookie['SID'].value)
 		if self.asession == None:
 			raise Exception('Failed to authenticate and renew.')
@@ -127,7 +123,7 @@ class Aspen:
 		self.storeScript()
 		self.setKonohaRevision()
 		self.setAspenVersion()
-		foldername = 'scripts/' + self.cookie['UID'].value
+		foldername = 'scripts/' + self.astorage.getUID(self.cookie['SID'].value)
 		# copy script file for execution
 		filename = foldername + '/' + 'us_' + self.cookie['SID'].value + '.k'
 		exefilename = foldername + '/aspen.k'
@@ -201,7 +197,8 @@ a bug. Sorry.')
 
 			# copy script to 'bugs' dir
 			bugdir = 'bugs'
-			bugfoldername = bugdir + '/' + self.cookie['UID'].value
+			bugfoldername = bugdir + '/' + \
+				self.astorage.getUID(self.cookie['SID'].value)
 			if not os.path.exists(bugfoldername):
 				os.makedirs(bugfoldername)
 			shutil.copy(filename, bugfoldername)
@@ -228,10 +225,10 @@ a bug. Sorry.')
 		]})
 
 	def logoutWithTwitter(self):
-		keys = ['request_token', 'request_token_secret', 'access_token',
-		'access_token_secret', 'UID', 'SID']
+		keys = ['SID']
 		self.deleteCookie(keys)
-		print "Location: ../\n"
+		#print "Location: %s\n" % self.conf.get('path', 'base')
+		self.printText("OK")
 
 	def replyToRewind(self):
 		self.astorage = aspendb.AspenStorage()
@@ -266,7 +263,8 @@ a bug. Sorry.')
 		kscript = self.field.getvalue('kscript')
 		# create script dir
 		scrdir = 'scripts'
-		foldername = scrdir + '/' + self.cookie['UID'].value
+		foldername = scrdir + '/' + \
+				self.astorage.getUID(self.cookie['SID'].value)
 		if not os.path.exists(foldername):
 			os.makedirs(foldername)
 		# settle script filename
@@ -279,7 +277,7 @@ a bug. Sorry.')
 
 	def printScript(self, uid=None, sid=None):
 		if uid == None:
-			uid = self.cookie['UID'].value
+			uid = self.astorage.getUID(self.cookie['SID'].value)
 		if sid == None:
 			sid = self.cookie['SID'].value
 		foldername = 'scripts/' + uid
