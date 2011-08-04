@@ -43,6 +43,9 @@ class Aspen:
 		self.conf.read('settings.ini')
 		self.konohapath = self.conf.get('path', 'konoha')
 		self.gitpath = self.conf.get('path', 'git')
+		self.base = self.conf.get('path', 'base')
+		self.uid = None
+		self.astorage = aspendb.AspenStorage()
 
 	def printText(self, text):
 		print 'Content-Type: text/plain\n'
@@ -70,12 +73,14 @@ class Aspen:
 		self.lm.redirectToProvider()
 
 	def authWithSID(self):
-		self.astorage = aspendb.AspenStorage()
-		if self.astorage.getUID(self.cookie['SID'].value) == None:
+		uid = self.astorage.getUID(self.cookie['SID'].value)
+		if not uid:
 			raise Exception('Failed to authenticate.')
+		else:
+			self.uid = uid
+
 
 	def authWithSIDAndRenewSession(self):
-		self.astorage = aspendb.AspenStorage()
 		self.asession = self.astorage.authenticateWithSIDAndRenewSession(
 				self.cookie['SID'].value)
 		if self.asession == None:
@@ -123,7 +128,7 @@ class Aspen:
 		self.storeScript()
 		self.setKonohaRevision()
 		self.setAspenVersion()
-		foldername = 'scripts/' + self.astorage.getUID(self.cookie['SID'].value)
+		foldername = self.base + 'scripts/' + self.uid
 		# copy script file for execution
 		filename = foldername + '/' + 'us_' + self.cookie['SID'].value + '.k'
 		exefilename = foldername + '/aspen.k'
@@ -196,9 +201,8 @@ a bug. Sorry.')
 			errfile.close()
 
 			# copy script to 'bugs' dir
-			bugdir = 'bugs'
-			bugfoldername = bugdir + '/' + \
-				self.astorage.getUID(self.cookie['SID'].value)
+			bugdir = self.base + 'bugs'
+			bugfoldername = bugdir + '/' + self.uid
 			if not os.path.exists(bugfoldername):
 				os.makedirs(bugfoldername)
 			shutil.copy(filename, bugfoldername)
@@ -227,11 +231,9 @@ a bug. Sorry.')
 	def logoutWithTwitter(self):
 		keys = ['SID']
 		self.deleteCookie(keys)
-		#print "Location: %s\n" % self.conf.get('path', 'base')
-		self.printText("OK")
+		print
 
 	def replyToRewind(self):
-		self.astorage = aspendb.AspenStorage()
 		fromsid = self.astorage.rewindSID(self.cookie['SID'].value)
 		if fromsid != 'none' and fromsid != '':
 			self.saveCookie([('SID', fromsid)])
@@ -240,7 +242,6 @@ a bug. Sorry.')
 			self.printText('oldest')
 
 	def replyToForward(self):
-		self.astorage = aspendb.AspenStorage()
 		tosid = self.astorage.forwardSID(self.cookie['SID'].value)
 		if tosid is not '':
 			self.saveCookie([('SID', tosid)])
@@ -262,9 +263,8 @@ a bug. Sorry.')
 	def storeScript(self):
 		kscript = self.field.getvalue('kscript')
 		# create script dir
-		scrdir = 'scripts'
-		foldername = scrdir + '/' + \
-				self.astorage.getUID(self.cookie['SID'].value)
+		scrdir = self.base + 'scripts'
+		foldername = scrdir + '/' + self.uid
 		if not os.path.exists(foldername):
 			os.makedirs(foldername)
 		# settle script filename
@@ -277,10 +277,10 @@ a bug. Sorry.')
 
 	def printScript(self, uid=None, sid=None):
 		if uid == None:
-			uid = self.astorage.getUID(self.cookie['SID'].value)
+			uid = self.uid
 		if sid == None:
 			sid = self.cookie['SID'].value
-		foldername = 'scripts/' + uid
+		foldername = self.base + 'scripts/' + uid
 		filename = foldername + '/us_' + sid + '.k'
 		print 'Content-Type: text/plain\n'
 		if os.path.isfile(filename):
@@ -289,52 +289,48 @@ a bug. Sorry.')
 	def getUserInformation(self):
 		name = self.lm.getAccountInfo(
 				self.cookie['access_token'].value,
-				self.cookie['access_token_secret'].value
-				)
+				self.cookie['access_token_secret'].value)
 		print 'Content-Type: application/json;charset=UTF-8\n'
 		print json.dumps(name)
 
-	def run(self):
-		mtype = self.field.getvalue('method')
-		if self.method == 'POST':
-			if mtype == 'eval':
-				self.authWithSID()
-				self.evalScript()
-			elif mtype == 'name':
-				self.authWithSID()
-				self.name()
-			elif mtype == 'login':
-				self.loginWithTwitter()
-			elif mtype == 'save':
-				self.authWithSID()
-				self.store()
-			else:
-				raise Exception('No such method in POST.')
-		elif self.method == 'GET':
-			if mtype == 'new':
-				self.authWithSIDAndRenewSession()
-				self.new()
-			elif mtype == 'rewind':
-				self.authWithSID()
-				self.replyToRewind()
-			elif mtype == 'forward':
-				self.authWithSID()
-				self.replyToForward()
-			elif mtype == 'logout':
-				self.logoutWithTwitter()
-			elif mtype == 'load':
-				self.authWithSID()
-				self.printScript()
-			elif mtype == 'getInfo':
-				self.getUserInformation()
-			else:
-				raise Exception('No such method in GET.')
-		else:
-			raise Exception('No such method.')
-
 def main():
 	a = Aspen()
-	a.run()
+	mtype = a.field.getvalue('method')
+	if a.method == 'POST':
+		if mtype == 'eval':
+			a.authWithSID()
+			a.evalScript()
+		elif mtype == 'name':
+			a.authWithSID()
+			a.name()
+		elif mtype == 'login':
+			a.loginWithTwitter()
+		elif mtype == 'save':
+			a.authWithSID()
+			a.store()
+		else:
+			raise Exception('No such method in POST.')
+	elif a.method == 'GET':
+		if mtype == 'new':
+			a.authWithSIDAndRenewSession()
+			a.new()
+		elif mtype == 'rewind':
+			a.authWithSID()
+			a.replyToRewind()
+		elif mtype == 'forward':
+			a.authWithSID()
+			a.replyToForward()
+		elif mtype == 'logout':
+			a.logoutWithTwitter()
+		elif mtype == 'load':
+			a.authWithSID()
+			a.printScript()
+		elif mtype == 'getInfo':
+			a.getUserInformation()
+		else:
+			raise Exception('No such method in GET.')
+	else:
+		raise Exception('No such method.')
 
 if __name__ == '__main__':
 	main()

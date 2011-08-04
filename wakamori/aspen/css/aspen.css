@@ -3,24 +3,14 @@
 header {
 	background: #304d44;
 	color: #feefa8;
-	text-shadow: black 2px 2px 2px;
-	padding: 2px 2px 2px 2px;
-	border-top: 3px #594 solid;
-	border-bottom: 3px #594 solid;
+	/*text-shadow: black 2px 2px 2px;*/
+	padding: 3px;
+	/*border-top: 3px #594 solid;*/
+	border-bottom: 2px #594 solid;
 }
 
 body {
 	margin: 0px;
-}
-
-h1 {
-	background-image: url("../img/ks_icon.png");
-	background-repeat: no-repeat;
-	background-position: left center;
-	font-family: arial;
-	font-size: 22pt;
-	margin: 0px;
-	padding-left: 55px;
 }
 
 #info {
@@ -55,72 +45,25 @@ h1 {
 }
 
 .menubutton {
-	cursor: default;
+	cursor: pointer;
 	display: inline;
-	color: #fff;
-	background-color: #22AAbb;
-	border: 1px solid #AADDFF;
-	border-radius: 5px; /* CSS3 */
 	padding: 2px;
+	margin: 1px;
 }
 
 .menubutton:hover {
-	opacity: 0.9;
-	-webkit-box-shadow: 0px 0px 5px #999;  /* Safari */
-	box-shadow: 0px 0px 5px #999;  /* CSS3 */
+	color: #fff0e0;
 }
 
-.headbutton {
-	width: 30px;
-	line-height: 8px;
-	height: 20px;
-	text-align: center;
-	color:#111;
-	background-color: #cccccc;
-	border: 1px solid #aaaaaa;
-	-moz-border-radius: 5px;  /* Firefox */
-	-webkit-border-radius: 5px;  /* Safari */
-	border-radius: 5px; /* CSS3 */
-	padding: 2px;
+#topmenu_l {
+	float: left;
+	text-align: left;
 }
 
-.inlineform {
-	display: inline;
-}
-
-.mail {
-	font-size: small;
-}
-
-#login {
-	padding: 10px;
-	text-align: center;
-}
-
-#sign_in_button {
-	padding-top: 15px;
-}
-
-#footer {
-	/*margin-top: 10px;
-	border-top: 1px gray dashed;*/
-	font-size: small;
-	color: gray;
-	text-align: center;
-}
-
-#topmenu {
-	display: inline;
+#topmenu_r {
+	text-align: right;
 }
 
 .userinfo {
 	display: inline;
-}
-
-h3.footer {
-	font-size: 12px;
-}
-
-.noul {
-	text-decoration: none;
 }

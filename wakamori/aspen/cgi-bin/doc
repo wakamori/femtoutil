@@ -42,16 +42,16 @@ html = '''<!DOCTYPE html>
 		<link rel="stylesheet" href="%(p)scss/aspen.css">
 	</head>
 	<body>
-		<!-- debug -->
-		<div id="debug">
-			%(d)s
-		</div>
 		<!-- header menu -->
 		<header>
-			<div id="topmenu">
-				<div class="userinfo" id="user"></div>
+			<div id="topmenu_l">
 				<div class="menubutton" id="new">New</div>
 				<div class="menubutton" id="eval">Run</div>
+			</div>
+			<div id="topmenu_r">
+				<img src="http://img.tweetimag.es/i/%(user)s_m" alt="%(user)s"
+				align="top" />
+				<div class="userinfo" id="user">%(user)s</div>
 				<div class="menubutton" id="sign_out">Sign out</div>
 			</div>
 		</header>
@@ -66,11 +66,14 @@ html = '''<!DOCTYPE html>
 	</body>
 </html>'''
 
-def main():
-	cookie = Cookie.SimpleCookie()
-	string_cookie = os.environ.get('HTTP_COOKIE')
-	cookie.load(string_cookie)
+def redirect():
+	lm = login.LoginManager()
+	rtoken = lm.getRequestToken()
+	lm.saveRequestCookie(rtoken)
+	lm.redirectToProvider(rtoken['oauth_token'])
 
+def main():
+	cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
 	if cookie.has_key('SID'):
 		astorage = aspendb.AspenStorage()
 		name = astorage.getScreenName(cookie['SID'].value)
@@ -78,19 +81,16 @@ def main():
 			conf = ConfigParser.SafeConfigParser()
 			conf.read('settings.ini')
 			print 'Content-Type: text/html\n'
-			print (html % {"p": conf.get('path', 'base'), "d": ("sid=" +
-				cookie['SID'].value + ",name=" + name)})
-			return
+			print (html % {'p': conf.get('path', 'base'), 'user': name})
 		else:
-			# remove cookie and redirect
+			# remove cookie SID
 			cookie['SID']['expires'] = datetime.datetime.now() + \
 				datetime.timedelta(days=-1)
 			cookie['SID']['path'] = '/'
 			print cookie
-
-	lm = login.LoginManager()
-	lm.getRequestToken()
-	lm.redirectToProvider()
+			redirect()
+	else:
+		redirect()
 
 if __name__ == '__main__':
 	main()

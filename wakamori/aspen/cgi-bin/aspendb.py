@@ -93,10 +93,10 @@ class AspenStorage:
         return row[0]
 
     def getUID(self, sid):
-        return self.selectRecord("uid", sid)
+        return self.selectRecord('uid', sid)
 
     def getScreenName(self, sid):
-        return self.selectRecord("screen_name", sid)
+        return self.selectRecord('screen_name', sid)
 
     def renewSession(self, uid):
         query = "update %s set sid=? where uid=?;" % user_tbl_name
@@ -106,6 +106,10 @@ class AspenStorage:
         self.cur.execute(query, (sid, uid))
         self.con.commit()
         return sid
+
+    def getAccessToken(self, sid):
+        return [self.selectRecord('access_token', sid),
+            self.selectRecord('access_token_secret', sid)]
 
     def createUserWithToken(self, uid, screen_name, access_token,
             access_token_secret):

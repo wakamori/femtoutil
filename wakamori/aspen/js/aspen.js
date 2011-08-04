@@ -2,7 +2,7 @@
   aspen.js: Aspen js library
   
  version:
-  0.0.3 : added shadowbox (chen_ji)
+  0.0.4 : removed shadowbox (chen_ji)
   started by utrhira
   modifed by chen_ji, shinpei_NKT
 */
@@ -76,11 +76,13 @@ var Aspen = new Class({
 		//var mySlide = new Fx.Slide("result");
 		//mySlide.hide();
 		document.id("eval").addEvent("click", function() {
-			//mySlide.slideIn();
-			var text = self.cm.getValue();
-			//console.log(text);
-			if (text.length > 0) {
-				self.postScript(text);
+			if (document.id("eval").getProperty("disabled") == false) {
+				//mySlide.slideIn();
+				var text = self.cm.getValue();
+				//console.log(text);
+				if (text.length > 0) {
+					self.postScript(text);
+				}
 			}
 		});
 		document.id("new").addEvent("click", function() {
@@ -124,7 +126,7 @@ var Aspen = new Class({
 					"method": "logout",
 					"time": new Date().getTime() // for IE
 				},
-				onSuccess: function() {
+				onSuccess: function(data) {
 					document.location = "../";
 				}
 			});
