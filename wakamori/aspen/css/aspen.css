@@ -9,17 +9,17 @@ header {
 	border-bottom: 2px #594 solid;
 }
 
+header a {
+	color: #feefa8;
+	text-decoration: none;
+}
+
+header a:hover {
+	color: #fff0e0;
+}
+
 body {
 	margin: 0px;
-}
-
-#info {
-	margin: 8px;
-}
-
-#file {
-	margin-left: 8px;
-	margin-right: 8px;
 }
 
 #result {
@@ -45,14 +45,9 @@ body {
 }
 
 .menubutton {
-	cursor: pointer;
 	display: inline;
 	padding: 2px;
 	margin: 1px;
-}
-
-.menubutton:hover {
-	color: #fff0e0;
 }
 
 #topmenu_l {
@@ -66,4 +61,28 @@ body {
 
 .userinfo {
 	display: inline;
+}
+
+.filelist {
+	list-style-type: none;
+}
+
+#filemanager a {
+	text-decoration: none;
+}
+
+a.dir {
+	color: blue;
+}
+
+a.dir:hover {
+	color: navy;
+}
+
+a.file {
+	color: black;
+}
+
+a.file:hover {
+	color: gray;
 }

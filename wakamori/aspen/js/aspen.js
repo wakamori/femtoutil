@@ -1,42 +1,51 @@
 /*
   aspen.js: Aspen js library
-  
+
  version:
-  0.0.4 : removed shadowbox (chen_ji)
+  0.0.5 : reverted shadowbox (chen_ji)
   started by utrhira
   modifed by chen_ji, shinpei_NKT
 */
 
 var Aspen = new Class({
-	cm: null,
-	cgi_dir: null,
-	loadReq: null,
-	newReq: null,
-
-	initialize: function() {
+	initialize: function(opt) {
 		var self = this;
-		this.cgi_dir = ".";
+		var url = opt["url"];
+		var codeElem = opt["code"];
+		if (cgipath) {
+			var cgipath = opt["cgipath"];
+		} else {
+			var cgipath = url + "cgi-bin/";
+		}
+		var evalElem = opt["eval"];
+		var newElem = opt["new"];
+		var openElem = opt["open"];
+		var signoutElem = opt["signout"];
+		var resultElem = opt["result"];
+
 		var keyEvent = function(editor, key) {
 			if (key.type == "keydown" && key.keyCode == 13 && key.shiftKey) {
-				if (document.id("eval").getProperty("disabled") == false) {
+				if (evalElem.getProperty("disabled") == false) {
 					//var mySlide = new Fx.Slide("result");
 					//mySlide.slideIn();
 					var text = editor.getValue();
 					if (text.length > 0) {
-						self.postScript(text);
+						self.postScript(evalElem, resultElem, cgipath, text);
 					}
 				}
 				key.returnValue = false;
 			}
 		};
-		this.cm = CodeMirror.fromTextArea(document.id("code"), {
+		var editor = CodeMirror.fromTextArea(codeElem, {
 			lineNumbers: true,
 			matchBrackets: true,
 			mode: "text/konoha",
 			onKeyEvent: keyEvent
 		});
-		this.loadReq = new Request({
-			url: self.cgi_dir + "/aspen.cgi",
+
+		// load script from aspen db
+		var loadReq = new Request({
+			url: cgipath + "aspen.cgi",
 			method: "get",
 			data: {
 				"method": "load",
@@ -44,50 +53,87 @@ var Aspen = new Class({
 			},
 			onSuccess: function(responseText) {
 				if (responseText == "") {
-					self.cm.setValue("print \"hello, Konoha\";");
+					editor.setValue("print \"hello, Konoha\";");
 				} else {
-					self.cm.setValue(responseText);
+					editor.setValue(responseText);
 				}
 			}
 		});
-		this.newReq = new Request({
-			url: self.cgi_dir + "/aspen.cgi",
-			method: "get",
-			data: {
-				"method": "new",
-				"time": new Date().getTime() // for IE
-			},
-			onSuccess: function() {
-				self.cm.setValue("print \"hello, Konoha\";");
+		loadReq.send();
+
+		// set actions
+		evalElem.addEvent("click", function() {
+			if (evalElem.getProperty("disabled") == false) {
+				//mySlide.slideIn();
+				var text = editor.getValue();
+				//console.log(text);
+				if (text.length > 0) {
+					self.postScript(evalElem, resultElem, cgipath, text);
+				}
 			}
 		});
-		this.loadScriptFromDB();
-		this.setActions();
+		newElem.addEvent("click", function() {
+			var req = new Request({
+				url: cgipath + "aspen.cgi",
+				method: "get",
+				data: {
+					"method": "new",
+					"time": new Date().getTime() // for IE
+				},
+				onSuccess: function() {
+					editor.setValue("print \"hello, Konoha\";");
+				}
+			});
+			req.send();
+		});
+		openElem.addEvent("click", function() {
+			var req = new Request({
+				url: cgipath + "aspen.cgi",
+				method: "get",
+				data: {
+					"method": "open",
+					"time": new Date().getTime() // for IE
+				},
+				onSuccess: function(data) {
+					Shadowbox.init({
+						onFinish: function() {
+							var dirs = document.getElements("a.dir");
+							for (var i = 0; i < dirs.length; i++) {
+								dirs[i].addEvent("click", function() {
+									this.getParent().getElement("ul").toggle();
+								});
+							}
+						}
+					});
+					Shadowbox.open({
+						content: '<div id="filemanager">' + self.getULStringfromArray(JSON.decode(data)["item"]) + "</div>",
+						player: "html",
+						title: "Open file"
+					});
+				}
+			});
+			req.send();
+		});
+		signoutElem.addEvent("click", function() {
+			var req = new Request({
+				url: cgipath + "aspen.cgi",
+				method: "get",
+				data: {
+					"method": "logout",
+					"time": new Date().getTime() // for IE
+				},
+				onSuccess: function(data) {
+					document.location = url;
+				}
+			});
+			req.send();
+		});
 	},
 
-	// load script from aspen db
-	loadScriptFromDB: function() {
-		this.loadReq.send();
-	},
-
+	/*
 	// set dom actions
 	setActions: function() {
 		var self = this;
-		//var mySlide = new Fx.Slide("result");
-		//mySlide.hide();
-		document.id("eval").addEvent("click", function() {
-			if (document.id("eval").getProperty("disabled") == false) {
-				//mySlide.slideIn();
-				var text = self.cm.getValue();
-				//console.log(text);
-				if (text.length > 0) {
-					self.postScript(text);
-				}
-			}
-		});
-		document.id("new").addEvent("click", function() {
-			self.newReq.send();
-		});
 		var changeScript = function(responseText) {
 			//console.log(Cookie.read("UID"));
 			//console.log(Cookie.read("SID"));
@@ -104,6 +150,7 @@ var Aspen = new Class({
 				self.cm.setValue(responseText);
 			}
 		};
+		*/
 		/*
 		document.id("forward").addEvent("click", function() {
 			var req = new Request({
@@ -117,70 +164,8 @@ var Aspen = new Class({
 			});
 			req.send();
 		});
-		*/
-		document.id("sign_out").addEvent("click", function() {
-			var req = new Request({
-				url: self.cgi_dir + "/aspen.cgi",
-				method: "get",
-				data: {
-					"method": "logout",
-					"time": new Date().getTime() // for IE
-				},
-				onSuccess: function(data) {
-					document.location = "../";
-				}
-			});
-			req.send();
-		});
-		/*
-		document.id("rewind").addEvent("click", function() {
-			var req = new Request({
-				url: self.cgi_dir + "/aspen.cgi",
-				method: "get",
-				data: {
-					"method": "rewind",
-					"time": new Date().getTime() // for IE
-				},
-				onSuccess: changeScript
-			});
-			req.send();
-		});
-		*/
-		/*
-		if (Cookie.read("UID") == null || Cookie.read("SID") == null) {
-			// show login dialog
-			document.id("titleheader").hide();
-			document.id("topmenu").hide();
-			document.id("result").hide();
-			document.id("file").hide();
-			this.cm.toTextArea();
-			document.id("code").hide();
-			document.id("footer").hide();
-		} else {
-			// hide login dialog and show login status
-			var req = new Request({
-				url: self.cgi_dir + "/aspen.cgi",
-				method: "get",
-				data: {
-					"method": "getInfo",
-					"time": new Date().getTime() // for IE
-				},
-				onSuccess: function(responseText) {
-					var json = JSON.decode(responseText);
-					var img = new Element("img", {
-						src: json["profile_image_url"],
-						styles: {
-							"vertical-align": "middle"
-						}
-					});
-					document.id("user").set("html", json["name"] + " @" + json["screen_name"]);
-					img.inject("user", "top");
-				}
-			});
-			req.send();
-		}
-		*/
 	},
+	*/
 
 	// escape text
 	escapeText: function(text) {
@@ -194,19 +179,58 @@ var Aspen = new Class({
 		return text;
 	},
 
+	// get ul element string from array
+	getULStringfromArray: function(data) {
+		// console.log(data);
+		var ret = new Element("ul", {
+			html: '<li id="dir_/">/</li>'
+		});
+		for (var i = 0; i < data.length; i++) {
+			if (i == 0) {
+				var dirname = data[i][0]; // /
+			} else {
+				var dirname = data[i][0] + "/"; // /dir1/
+			}
+			var childdirs = data[i][1]; // dir1, dir2
+			var childfiles = data[i][2]; // xxx.k, ...
+			var dir = ret.getElementById("dir_" + data[i][0]); // dir_/dir1
+			if (i == 0) {
+				dir.set("html", dir.get("html") + '<ul id="filelist" class="filelist"></ul>');
+			} else {
+				dir.set("html", dir.get("html") + '<ul class="filelist" style="display: none;"></ul>');
+			}
+			// console.log(dir);
+			for (var j = 0; j < childdirs.length; j++) {
+				dir.getElement("ul").grab(new Element("li", {
+					id: "dir_" + dirname + childdirs[j],
+					html: '<a href="#" class="dir">' + childdirs[j] + "/</a>"
+				}));
+			}
+			for (var j = 0; j < childfiles.length; j++) {
+				dir.getElement("ul").grab(new Element("li", {
+					html: '<a href="#" class="file">' + childfiles[j] + "</a>"
+				}));
+			}
+		}
+		// console.log(ret.getElementById("filelist"));
+		var tmp = new Element("div");
+		tmp.grab(ret.getElementById("filelist"));
+		return tmp.get("html");
+	},
+
 	// post script and eval
-	postScript: function(text) {
+	postScript: function(evalElem, resultElem, cgipath, text) {
 		var self = this;
-		document.id("result").set("html", "");
+		resultElem.set("html", "");
 		var inputtxt = new Element("span", {
 			"class": "message",
 			html: "Running ..."
 		});
-		inputtxt.inject("result");
-		document.id("eval").setProperty("disabled", true);
+		inputtxt.inject(resultElem);
+		evalElem.setProperty("disabled", true);
 		var periodical;
 		var req = new Request({
-			url: self.cgi_dir + "/aspen.cgi",
+			url: cgipath + "aspen.cgi",
 			method: "post",
 			data: {
 				"method": "eval",
@@ -214,26 +238,26 @@ var Aspen = new Class({
 			},
 			onRequest: function() {
 				periodical = new Request({
-					url: self.cgi_dir + "/scripts/" + Cookie.read("UID") + "/us_" + Cookie.read("SID") + ".out",
+					url: cgipath + "scripts/" + Cookie.read("UID") + "/us_" + Cookie.read("SID") + ".out",
 					method: "get",
 					initialDelay: 1000,
 					delay: 1000,
 					limit: 8000,
 					onComplete: function(responseText) {
 						//console.log("complete");
-						document.id("result").set("html", "");
+						resultElem.set("html", "");
 						var inputtxt = new Element("span", {
 							"class": "stdout",
 							html: self.escapeText(responseText)
 						});
-						inputtxt.inject("result");
+						inputtxt.inject(resultElem);
 					}
 				});
 				periodical.startTimer();
 			},
 			onSuccess: function(data) {
 				periodical.stopTimer();
-				document.id("result").set("html", "");
+				resultElem.set("html", "");
 				var json = JSON.decode(data)["item"];
 				for (var i = 0; i < json.length; i++) {
 					var key = json[i].key;
@@ -244,12 +268,12 @@ var Aspen = new Class({
 							"class": key,
 							html: self.escapeText(val)
 						});
-						inputtxt.inject("result");
+						inputtxt.inject(resultElem);
 						var br = new Element("br");
-						br.inject("result");
+						br.inject(resultElem);
 					}
 				}
-				setTimeout(function(){document.id("eval").setProperty("disabled", false)}, 1000);
+				setTimeout(function(){evalElem.setProperty("disabled", false)}, 1000);
 			}
 		});
 		req.send();
@@ -257,5 +281,14 @@ var Aspen = new Class({
 });
 
 window.addEvent("domready", function() {
-	var aspen = new Aspen();
+	var aspen = new Aspen({
+		url: "http://localhost/aspen/",
+		cgipath: "http://localhost/aspen/cgi-bin/",
+		code: document.id("code"),
+		eval: document.id("eval"),
+		new: document.id("new"),
+		open: document.id("open"),
+		signout: document.id("sign_out"),
+		result: document.id("result")
+	});
 });

@@ -32,6 +32,7 @@ def alarm_handler(signum, frame):
 	raise Alarm
 
 class Aspen:
+	uid = None
 
 	def __init__(self):
 		self.cookie = Cookie.SimpleCookie(os.environ.get('HTTP_COOKIE', ''))
@@ -43,9 +44,10 @@ class Aspen:
 		self.conf.read('settings.ini')
 		self.konohapath = self.conf.get('path', 'konoha')
 		self.gitpath = self.conf.get('path', 'git')
-		self.base = self.conf.get('path', 'base')
-		self.uid = None
 		self.astorage = aspendb.AspenStorage()
+		self.base = 'data'
+		self.scriptdir = self.base + '/scripts'
+		self.bugdir = self.base + '/bugs'
 
 	def printText(self, text):
 		print 'Content-Type: text/plain\n'
@@ -54,10 +56,9 @@ class Aspen:
 	def deleteCookie(self, cookie_keys):
 		cookie = Cookie.SimpleCookie()
 		exptime = self.time + datetime.timedelta(days=-1)
-		exp = exptime.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
 		for key in cookie_keys:
 			cookie[key] = ''
-			cookie[key]['expires'] = exp
+			cookie[key]['expires'] = exptime
 			cookie[key]['path'] = '/'
 		print cookie
 
@@ -128,7 +129,7 @@ class Aspen:
 		self.storeScript()
 		self.setKonohaRevision()
 		self.setAspenVersion()
-		foldername = self.base + 'scripts/' + self.uid
+		foldername = self.scriptdir + '/' + self.uid
 		# copy script file for execution
 		filename = foldername + '/' + 'us_' + self.cookie['SID'].value + '.k'
 		exefilename = foldername + '/aspen.k'
@@ -201,8 +202,7 @@ a bug. Sorry.')
 			errfile.close()
 
 			# copy script to 'bugs' dir
-			bugdir = self.base + 'bugs'
-			bugfoldername = bugdir + '/' + self.uid
+			bugfoldername = self.bugdir + '/' + self.uid
 			if not os.path.exists(bugfoldername):
 				os.makedirs(bugfoldername)
 			shutil.copy(filename, bugfoldername)
@@ -263,8 +263,7 @@ a bug. Sorry.')
 	def storeScript(self):
 		kscript = self.field.getvalue('kscript')
 		# create script dir
-		scrdir = self.base + 'scripts'
-		foldername = scrdir + '/' + self.uid
+		foldername = self.scriptdir + '/' + self.uid
 		if not os.path.exists(foldername):
 			os.makedirs(foldername)
 		# settle script filename
@@ -280,7 +279,7 @@ a bug. Sorry.')
 			uid = self.uid
 		if sid == None:
 			sid = self.cookie['SID'].value
-		foldername = self.base + 'scripts/' + uid
+		foldername = self.scriptdir + '/' + uid
 		filename = foldername + '/us_' + sid + '.k'
 		print 'Content-Type: text/plain\n'
 		if os.path.isfile(filename):
@@ -292,6 +291,15 @@ a bug. Sorry.')
 				self.cookie['access_token_secret'].value)
 		print 'Content-Type: application/json;charset=UTF-8\n'
 		print json.dumps(name)
+
+	def printFileList(self):
+		userdir = self.scriptdir + '/' + self.uid
+		ret = []
+		for (root, dirs, files) in os.walk(userdir):
+			ret.append(('/' + '/'.join(root.split('/')[3:]), dirs, files))
+		print 'Content-Type: application/json;charset=UTF-8\n'
+		print json.dumps({'item': ret})
+
 
 def main():
 	a = Aspen()
@@ -327,6 +335,9 @@ def main():
 			a.printScript()
 		elif mtype == 'getInfo':
 			a.getUserInformation()
+		elif mtype == 'open':
+			a.authWithSID()
+			a.printFileList()
 		else:
 			raise Exception('No such method in GET.')
 	else:

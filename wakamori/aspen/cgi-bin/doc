@@ -37,6 +37,10 @@ html = '''<!DOCTYPE html>
 		<script src="%(p)sjs/mootools-core-1.3.2-full-compat.js"></script>
 		<script src="%(p)sjs/mootools-more-1.3.2.1.js"></script>
 
+		<!-- shadowbox -->
+		<script src="%(p)slib/shadowbox-3.0.3/shadowbox.js"></script>
+		<link rel="stylesheet" href="%(p)slib/shadowbox-3.0.3/shadowbox.css">
+
 		<!-- aspen -->
 		<script src="%(p)sjs/aspen.js"></script>
 		<link rel="stylesheet" href="%(p)scss/aspen.css">
@@ -45,14 +49,16 @@ html = '''<!DOCTYPE html>
 		<!-- header menu -->
 		<header>
 			<div id="topmenu_l">
-				<div class="menubutton" id="new">New</div>
-				<div class="menubutton" id="eval">Run</div>
+				<div class="menubutton"><a id="new" href="#new">New</a></div>
+				<div class="menubutton"><a id="open" href="#open">Open</a></div>
+				<div class="menubutton"><a id="eval" href="#run">Run</a></div>
 			</div>
 			<div id="topmenu_r">
 				<img src="http://img.tweetimag.es/i/%(user)s_m" alt="%(user)s"
 				align="top" />
 				<div class="userinfo" id="user">%(user)s</div>
-				<div class="menubutton" id="sign_out">Sign out</div>
+				<div class="menubutton"><a id="sign_out" href="#signout">Sign
+				out</a></div>
 			</div>
 		</header>
 
@@ -81,7 +87,7 @@ def main():
 			conf = ConfigParser.SafeConfigParser()
 			conf.read('settings.ini')
 			print 'Content-Type: text/html\n'
-			print (html % {'p': conf.get('path', 'base'), 'user': name})
+			print (html % {'p': conf.get('path', 'url'), 'user': name})
 		else:
 			# remove cookie SID
 			cookie['SID']['expires'] = datetime.datetime.now() + \
@@ -93,4 +99,8 @@ def main():
 		redirect()
 
 if __name__ == '__main__':
-	main()
+	args = os.environ.get('PATH_INFO', '').split('/')
+	if len(args) <= 1:
+		print 'Location: ./doc/\n'
+	else:
+		main()

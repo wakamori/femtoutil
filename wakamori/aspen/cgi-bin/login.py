@@ -99,7 +99,7 @@ class LoginManager:
 			raise Exception("Invalid response %s." % resp['status'])
 
 	def redirectToIndex(self):
-		print "Location: %s\n" % self.conf.get('path', 'base')
+		print "Location: %s\n" % self.conf.get('path', 'url')
 
 	def redirectToDoc(self):
 		print 'Location: ./doc\n'
