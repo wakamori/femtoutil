@@ -90,7 +90,6 @@ div.file:hover {
 }
 
 #tabpane {
-	/**/
 	margin-left: 8px;
 	margin-right: 8px;
 }
@@ -101,12 +100,17 @@ ul.tabs {
 }
 
 li.tab {
+	cursor: default;
 	display: inline;
 	padding: 4px 0.4em 2px 0.4em;
 	list-style: none;
 	background-color: #888;
 	border: 1px #333 solid;
 	border-radius: 4px 4px 0 0;
+}
+
+li.tab:hover {
+	opacity: 0.9;
 }
 
 li.tab.active {
@@ -118,4 +122,12 @@ li.tab .remove {
 	cursor: pointer;
 	color: #900;
 	margin-left: 0.4em;
+}
+
+#eval.evaluating {
+	color: #555;
+}
+
+input.tabedit {
+	background: #EEE;
 }

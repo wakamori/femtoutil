@@ -264,6 +264,8 @@ a bug. Sorry.')
 	def storeScript(self, filename, script):
 		# create script dir
 		foldername = self.scriptdir + '/' + self.uid
+		if not os.path.exists(foldername):
+			os.makedirs(foldername)
 		# settle script filename
 		filepath = foldername + '/' + filename
 		# create script file
@@ -319,8 +321,10 @@ def main():
 		elif mtype == 'login':
 			a.loginWithTwitter()
 		elif mtype == 'save':
+			name = a.field.getvalue('name')
 			a.authWithSID()
-			a.store()
+			a.storeScript(name, a.field.getvalue('kscript'))
+			a.printText('Script "%s" was saved successfully.' % name);
 		else:
 			raise Exception('No such method in POST.')
 	elif a.method == 'GET':

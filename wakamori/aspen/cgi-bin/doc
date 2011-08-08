@@ -54,6 +54,7 @@ html = '''<!DOCTYPE html>
 			<div id="topmenu_l">
 				<div class="menubutton"><a id="new" href="#new">New</a></div>
 				<div class="menubutton"><a id="open" href="#open">Open</a></div>
+				<div class="menubutton"><a id="save" href="#save">Save</a></div>
 				<div class="menubutton"><a id="eval" href="#run">Run</a></div>
 			</div>
 			<div id="topmenu_r">

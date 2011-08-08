@@ -17,19 +17,21 @@ var Aspen = new Class({
 		eval: null,
 		new: null,
 		open: null,
+		save: null,
 		signout: null,
 		result: null,
 		codemirror: new Array()
 	},
 
 	isEventAdded: false,
+	isEvalCompleted: true,
 
 	initialize: function(options) {
 		var self = this;
 		this.setOptions(options);
 		console.log(self.options);
 
-		self.addTab("noname.k", 'print "hello, noname";');
+		self.addTab("noname.k", 'print "hello, konoha";');
 
 		var myTabPane = new TabPane(self.options.tabpane.get("id"), {
 			contentSelector: "div.CodeMirror"
@@ -57,12 +59,7 @@ var Aspen = new Class({
 		self.options.eval.addEvent("click", function() {
 			if (this.getProperty("disabled") == false) {
 				//mySlide.slideIn();
-				var tabs = self.options.tabpane.getElements("li.tab");
-				console.log(tabs);
-				var activeTab = self.options.tabpane.getElement("li.tab.active");
-				console.log(activeTab);
-				console.log(tabs.indexOf(activeTab));
-				var editor = self.options.codemirror[tabs.indexOf(activeTab)];
+				var editor = self.options.codemirror[self.getActiveTabIndex()];
 				console.log(editor);
 				var text = editor.getValue();
 				console.log(text);
@@ -72,27 +69,16 @@ var Aspen = new Class({
 			}
 		});
 		self.options.new.addEvent("click", function() {
-			var req = new Request({
-				url: self.options.cgipath,
-				method: "get",
-				data: {
-					"method": "new",
-					"time": new Date().getTime() // for IE
-				},
-				onSuccess: function() {
-					editor.setValue("print \"hello, Konoha\";");
-				}
-			});
-			req.send();
+			self.addTab("noname.k", "");
 		});
 		self.options.tabpane.addEvent("click:relay(.remove)", function(e) {
+			e.stop();
 			if (self.options.codemirror.length <= 1) {
 				// don't remove tab but clear it
 				self.options.codemirror[0].setValue("");
-				this.getParent().set("text", "noname.k");
+				this.getParent().set("html", 'noname.k<span class="remove">&times</span>');
 			} else {
-				new Event(e).stop();
-				var parent = this.getParent("li.tab");
+				var parent = this.getParent();
 				var index = self.options.tabpane.getElements("li.tab").indexOf(parent);
 				var textarea = self.options.tabpane.getElements(".dummy")[index];
 				textarea.destroy();
@@ -102,9 +88,44 @@ var Aspen = new Class({
 		});
 		self.options.tabpane.addEvent("click:relay(.tab)", function(e) {
 			console.log("relaytab");
-			var index = this.getParent().getElements("li.tab").indexOf(this);
+			console.log("resize");
+			var index = self.getActiveTabIndex();
 			window.fireEvent("resize", index);
+			console.log("refresh");
 			self.options.codemirror[index].refresh();
+		});
+		self.options.tabpane.addEvent("dblclick:relay(.tab)", function() {
+			// name file
+			var tab = this;
+			var orig = tab.get("text").slice(0, -1);
+			tab.set("html", "");
+			var input = new Element("input", {
+				"class": "box tabedit",
+				"value": orig
+			});
+			input.addEvent("keydown", function(e) {
+				console.log("keydown");
+				console.log(e.key);
+				if (e.key == "enter") {
+					console.log("blur");
+					this.fireEvent("blur");
+				}
+			});
+			input.addEvent("blur", function() {
+				console.log("blurred!");
+				var val = input.get("value").trim();
+				if (val.match(/\/| |\.\.|\`/)) {
+					alert("You cannot use '" + val + "' as filename.");
+				} else {
+					this.destroy();
+					if (val != "") {
+						tab.set("html", val + '<span class="remove">&times</span>');
+					} else {
+						tab.set("html", orig + '<span class="remove">&times</span>');
+					}
+				}
+			});
+			input.inject(tab).select();
 		});
 		self.options.open.addEvent("click", function() {
 			var req = new Request({
@@ -118,10 +139,6 @@ var Aspen = new Class({
 					Shadowbox.init({
 						onFinish: function() {
 							self.setActions();
-							if (!self.isEventAdded) {
-								self.isEventAdded = true;
-								self.addLoadEvent();
-							}
 						}
 					});
 					Shadowbox.open({
@@ -147,18 +164,51 @@ var Aspen = new Class({
 			});
 			req.send();
 		});
+		self.options.save.addEvent("click", function() {
+			var req = new Request({
+				url: self.options.cgipath,
+				method: "post",
+				data: {
+					"method": "save",
+					"name": document.getElement("li.tab.active").get("text").slice(0, -1),
+					"kscript": self.options.codemirror[self.getActiveTabIndex()].getValue()
+				},
+				onSuccess: function(data) {
+					console.log(data);
+					self.options.result.set("html", "");
+					var inputtxt = new Element("span", {
+						"class": "message",
+						html: data
+					}).inject(self.options.result);
+				}
+			});
+			req.send();
+		});
+	},
+
+	// get active editor from codemirror array
+	getActiveTabIndex: function() {
+		var tabs = this.options.tabpane.getElements("li.tab");
+		console.log(tabs);
+		var activeTab = this.options.tabpane.getElement("li.tab.active");
+		console.log(activeTab);
+		console.log(tabs.indexOf(activeTab));
+		return tabs.indexOf(activeTab);
 	},
 
 	// add new tab
 	addTab: function(tabname, content) {
 		var self = this;
+		if (self.options.codemirror.length > 10) {
+			// too many tabs, addTab request rejected
+			return;
+		}
 		var keyEvent = function(editor, key) {
 			if (key.type == "keydown" && key.keyCode == 13 && key.shiftKey) {
 				if (self.options.eval.getProperty("disabled") == false) {
 					//var mySlide = new Fx.Slide("result");
 					//mySlide.slideIn();
 					var text = editor.getValue();
-					console.log("text="+text);
 					if (text.length > 0) {
 						self.postScript(text);
 					}
@@ -171,7 +221,7 @@ var Aspen = new Class({
 			"class": "dummy"
 		});
 		tabpane.grab(textarea);
-		console.log(tabpane);
+		//console.log(tabpane);
 		var myeditor = CodeMirror.fromTextArea(textarea, {
 			lineNumbers: true,
 			matchBrackets: true,
@@ -185,13 +235,6 @@ var Aspen = new Class({
 			"class": "remove",
 			html: "&times"
 		}));
-		/*
-		tabli.addEvent("click", function() {
-			console.log("refresh");
-			window.fireEvent("resize", this.getParent().getElements(".tab").indexOf(this));
-			myeditor.refresh();
-		});
-		*/
 		tabpane.getElement("ul").grab(tabli);
 		myeditor.getWrapperElement().setStyle("display", "none");
 		//console.log(myeditor.getValue());
@@ -204,41 +247,15 @@ var Aspen = new Class({
 	// set filemanager action
 	setActions: function() {
 		var self = this;
-		var dirs = document.getElements("div.dir");
-		for (var i = 0; i < dirs.length; i++) {
-			dirs[i].addEvent("click", function() {
+		document.getElements("div.dir").each(function(el) {
+			el.addEvent("click", function() {
 				this.getParent().getElement("ul").toggle();
 			});
-		}
+		});
 		var files = document.getElements("div.file");
-		for (var i = 0; i < files.length; i++) {
-			files[i].addEvent("click", function() {
-				var parents = this.getParents("li");
-				if (parents.length <= 1) {
-					document.id("sb-nav-filename").set("value", this.get("text"));
-				} else {
-					document.id("sb-nav-filename").set("value", this.getParents("li")[1].get("id").substring(5) + "/" + this.get("text"));
-				}
-				for (var j = 0; j < files.length; j++) {
-					if (files[j].get("selected") == true) {
-						files[j].set("selected", false);
-						files[j].setStyle("background-color", "transparent");
-						break;
-					}
-				}
-				this.set("selected", true);
-				this.setStyle("background-color", "yellow");
-				console.log(files.get("selected"));
-			});
-		}
-	},
-
-	// add fileload event into generated dom objects
-	addLoadEvent: function() {
-		var self = this;
-		document.id("sb-nav-open").addEvent("click", function() {
-			if (this.getProperty("disabled") == true) return;
-			this.setProperty("disabled", true);
+		var openfunc = function(el) {
+			if (el.getProperty("disabled") == true) return;
+			el.setProperty("disabled", true);
 			var filename = document.id("sb-nav-filename").get("value");
 			var req = new Request({
 				url: self.options.cgipath,
@@ -254,10 +271,39 @@ var Aspen = new Class({
 			});
 			req.send();
 			Shadowbox.close();
-			this.setProperty("disabled", false);
+			el.setProperty("disabled", false);
+		};
+		files.each(function (file) {
+			file.addEvent("click", function() {
+				var parents = this.getParents("li");
+				if (parents.length <= 1) {
+					document.id("sb-nav-filename").set("value", this.get("text"));
+				} else {
+					document.id("sb-nav-filename").set("value", this.getParents("li")[1].get("id").substring(5) + "/" + this.get("text"));
+				}
+				for (var i = 0; i < files.length; i++) {
+					if (files[i].get("selected") == true) {
+						files[i].set("selected", false);
+						files[i].setStyle("background-color", "transparent");
+						break;
+					}
+				}
+				this.set("selected", true);
+				this.setStyle("background-color", "yellow");
+				//console.log(files.get("selected"));
+			});
+			file.addEvent("dblclick", function() {
+				openfunc(this);
+			});
+		});
+		if (self.isEventAdded) return;
+
+		// following code is executed once
+		self.isEventAdded = true;
+		document.id("sb-nav-open").addEvent("click", function() {
+			openfunc(this);
 		});
 	},
-
 
 	// escape text
 	escapeText: function(text) {
@@ -272,38 +318,38 @@ var Aspen = new Class({
 	},
 
 	// get ul element string from array
-	getULStringfromArray: function(data) {
+	getULStringfromArray: function(array) {
 		// console.log(data);
 		var ret = new Element("ul", {
 			html: '<li id="dir_/">/</li>'
 		});
-		for (var i = 0; i < data.length; i++) {
-			if (i == 0) {
-				var dirname = data[i][0]; // /
+		array.each(function (data) {
+			if (data[0] == "/") {
+				var dirname = "/";
 			} else {
-				var dirname = data[i][0] + "/"; // /dir1/
+				var dirname = data[0] + "/"; // /dir1/
 			}
-			var childdirs = data[i][1]; // dir1, dir2
-			var childfiles = data[i][2]; // xxx.k, ...
-			var dir = ret.getElementById("dir_" + data[i][0]); // dir_/dir1
-			if (i == 0) {
+			var childdirs = data[1]; // dir1, dir2
+			var childfiles = data[2]; // xxx.k, ...
+			var dir = ret.getElementById("dir_" + data[0]); // dir_/dir1
+			if (data[0] == "/") {
 				dir.set("html", dir.get("html") + '<ul id="filelist" class="filelist"></ul>');
 			} else {
 				dir.set("html", dir.get("html") + '<ul class="filelist" style="display: none;"></ul>');
 			}
 			// console.log(dir);
-			for (var j = 0; j < childdirs.length; j++) {
+			childdirs.each(function (childdir) {
 				dir.getElement("ul").grab(new Element("li", {
-					id: "dir_" + dirname + childdirs[j],
-					html: '<div class="dir">' + childdirs[j] + "/</div>"
+					id: "dir_" + dirname + childdir,
+					html: '<div class="dir">' + childdir + "/</div>"
 				}));
-			}
-			for (var j = 0; j < childfiles.length; j++) {
+			});
+			childfiles.each(function (childfile) {
 				dir.getElement("ul").grab(new Element("li", {
-					html: '<div class="file">' + childfiles[j] + "</div>"
+					html: '<div class="file">' + childfile + "</div>"
 				}));
-			}
-		}
+			});
+		});
 		// console.log(ret.getElementById("filelist"));
 		var tmp = new Element("div");
 		tmp.grab(ret.getElementById("filelist"));
@@ -320,6 +366,7 @@ var Aspen = new Class({
 		});
 		inputtxt.inject(self.options.result);
 		self.options.eval.setProperty("disabled", true);
+		self.options.eval.addClass("evaluating");
 		var periodical = null;
 		var req = new Request({
 			url: self.options.cgipath,
@@ -337,6 +384,7 @@ var Aspen = new Class({
 						"method": "getUID"
 					},
 					onSuccess: function(retUID) {
+						self.isEvalCompleted = false;
 						periodical = new Request({
 							url: self.options.cgipath.slice(0, -9) + "data/tmp/" + retUID + ".out",
 							method: "get",
@@ -345,6 +393,12 @@ var Aspen = new Class({
 							limit: 8000,
 							onComplete: function(responseText) {
 								//console.log("complete");
+								//console.log(self.isEvalCompleted);
+								if (self.isEvalCompleted) {
+									// kill itself
+									this.stopTimer();
+									return;
+								}
 								self.options.result.set("html", "");
 								var inputtxt = new Element("span", {
 									"class": "stdout",
@@ -359,12 +413,12 @@ var Aspen = new Class({
 				getreq.send();
 			},
 			onSuccess: function(data) {
-				periodical.stopTimer();
+				self.isEvalCompleted = true;
 				self.options.result.set("html", "");
 				var json = JSON.decode(data)["item"];
-				for (var i = 0; i < json.length; i++) {
-					var key = json[i].key;
-					var val = json[i].value;
+				json.each(function (e) {
+					var key = e.key;
+					var val = e.value;
 					if (val.length > 0) {
 						//console.log("add result " + key + val);
 						var inputtxt = new Element("span", {
@@ -375,8 +429,11 @@ var Aspen = new Class({
 						var br = new Element("br");
 						br.inject(self.options.result);
 					}
-				}
-				setTimeout(function(){self.options.eval.setProperty("disabled", false)}, 1000);
+				});
+				setTimeout(function() {
+					self.options.eval.setProperty("disabled", false);
+					self.options.eval.removeClass("evaluating");
+				}, 1000);
 			}
 		});
 		req.send();
@@ -391,22 +448,24 @@ window.addEvent("domready", function() {
 		eval: document.id("eval"),
 		new: document.id("new"),
 		open: document.id("open"),
+		save: document.id("save"),
 		signout: document.id("sign_out"),
 		result: document.id("result")
 	});
+	console.log("resize");
 	window.fireEvent("resize", 0);
 });
 
 window.addEvent("resize", function(index) {
 	var height = window.getSize().y;
 	if (height >= 275) {
+		var editors = document.getElements(".CodeMirror");
 		if (index == undefined) {
-			var editors = document.getElements(".CodeMirror");
-			for (var i = 0; i < editors.length; i++) {
-				editors[i].setStyle("height", (height - 236) + "px");
-			}
-		} else {
-			document.getElements(".CodeMirror")[index].setStyle("height", (height - 236) + "px");
+			editors.each(function(editor) {
+				editor.setStyle("height", (height - 236) + "px");
+			});
+		} else if (editors.length > index) {
+			editors[index].setStyle("height", (height - 236) + "px");
 		}
 	}
 });
