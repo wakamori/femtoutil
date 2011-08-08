@@ -1,17 +1,16 @@
 .CodeMirror {
 	overflow: auto;
-	height: 300px;
-	/*width:75%;*/
 	background-color: #dddddd;
 	color: #111111;
 	line-height: 1em;
 	font-size:12pt;
 	font-family: monospace;
-	margin-left: 8px;
-	margin-right: 8px;
-	/*background-image: url("../aspen2.png");
-	background-repeat: no-repeat;
-	background-position: right bottom;*/
+	border: 1px solid #333;
+	/*
+	border-right: 1px solid #333;
+	border-bottom: 1px solid #333;
+	border-left: 1px solid #333;
+	*/
 }
 
 .CodeMirror-gutter {

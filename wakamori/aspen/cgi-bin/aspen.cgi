@@ -48,6 +48,7 @@ class Aspen:
 		self.base = 'data'
 		self.scriptdir = self.base + '/scripts'
 		self.bugdir = self.base + '/bugs'
+		self.tmpdir = self.base + '/tmp'
 
 	def printText(self, text):
 		print 'Content-Type: text/plain\n'
@@ -125,23 +126,23 @@ class Aspen:
 		br.reportBugs(body, result)
 
 	# store and evaluate current text
-	def evalScript(self):
-		self.storeScript()
+	def evalScript(self, filename, script):
+		filepath = self.storeScript(filename, script)
 		self.setKonohaRevision()
 		self.setAspenVersion()
-		foldername = self.scriptdir + '/' + self.uid
-		# copy script file for execution
-		filename = foldername + '/' + 'us_' + self.cookie['SID'].value + '.k'
-		exefilename = foldername + '/aspen.k'
-		shutil.copyfile(filename, exefilename)
+		## copy script file for execution
+		#filename = foldername + '/' + 'us_' + self.cookie['SID'].value + '.k'
+		#exefilename = foldername + '/aspen.k'
+		#shutil.copyfile(filename, exefilename)
 		# exec konoha as subprocess
 		starttime = time.time()
-		command = '/usr/local/bin/konoha -a ' + exefilename
+		command = '/usr/local/bin/konoha -a ' + filepath
 		p = subprocess.Popen(command, shell=True,
 				stdin=subprocess.PIPE, stdout=subprocess.PIPE,
 				stderr=subprocess.PIPE, close_fds=True)
-		outfilename = filename[0:-1] + 'out'
-		errfilename = filename[0:-1] + 'err'
+		tmpdir = self.tmpdir + '/'
+		outfilename = tmpdir + self.uid + '.out'
+		errfilename = tmpdir + self.uid + '.err'
 		# output result
 		outfile = open(outfilename, 'w')
 		errfile = open(errfilename, 'w')
@@ -237,7 +238,7 @@ a bug. Sorry.')
 		fromsid = self.astorage.rewindSID(self.cookie['SID'].value)
 		if fromsid != 'none' and fromsid != '':
 			self.saveCookie([('SID', fromsid)])
-			self.printScript(sid=fromsid)
+			self.printScriptWithSID(sid=fromsid)
 		else:
 			self.printText('oldest')
 
@@ -245,7 +246,7 @@ a bug. Sorry.')
 		tosid = self.astorage.forwardSID(self.cookie['SID'].value)
 		if tosid is not '':
 			self.saveCookie([('SID', tosid)])
-			self.printScript(sid=tosid)
+			self.printScriptWithSID(sid=tosid)
 		else:
 			self.printText('latest')
 
@@ -259,22 +260,27 @@ a bug. Sorry.')
 			nameSID(self.asession, fname)
 		raise Exception('Failed to name a file.')
 
-	# store current text as a file (named 'us_SID.k')
-	def storeScript(self):
-		kscript = self.field.getvalue('kscript')
+	# store current text as a file (named 'filename.k')
+	def storeScript(self, filename, script):
 		# create script dir
 		foldername = self.scriptdir + '/' + self.uid
-		if not os.path.exists(foldername):
-			os.makedirs(foldername)
 		# settle script filename
-		filename = foldername + '/us_' + self.cookie['SID'].value
+		filepath = foldername + '/' + filename
 		# create script file
-		filename = filename + '.k'
-		userscript = open(filename, 'w')
-		userscript.write(kscript)
-		userscript.close()
+		scriptfile = open(filepath, 'w')
+		scriptfile.write(script)
+		scriptfile.close()
+		return filepath
 
-	def printScript(self, uid=None, sid=None):
+	def printScript(self, filename):
+		dirname = self.scriptdir + '/' + self.uid
+		filepath = dirname + '/' + str(filename)
+		print 'Content-Type: text/plain\n'
+		if os.path.isfile(filepath):
+			sys.stdout.write(open(filepath, 'r').read())
+
+
+	def printScriptWithSID(self, uid=None, sid=None):
 		if uid == None:
 			uid = self.uid
 		if sid == None:
@@ -285,12 +291,12 @@ a bug. Sorry.')
 		if os.path.isfile(filename):
 			sys.stdout.write(open(filename, 'r').read())
 
-	def getUserInformation(self):
-		name = self.lm.getAccountInfo(
-				self.cookie['access_token'].value,
-				self.cookie['access_token_secret'].value)
-		print 'Content-Type: application/json;charset=UTF-8\n'
-		print json.dumps(name)
+	#def getUserInformation(self):
+	#	name = self.lm.getAccountInfo(
+	#			self.cookie['access_token'].value,
+	#			self.cookie['access_token_secret'].value)
+	#	print 'Content-Type: application/json;charset=UTF-8\n'
+	#	print json.dumps(name)
 
 	def printFileList(self):
 		userdir = self.scriptdir + '/' + self.uid
@@ -300,14 +306,13 @@ a bug. Sorry.')
 		print 'Content-Type: application/json;charset=UTF-8\n'
 		print json.dumps({'item': ret})
 
-
 def main():
 	a = Aspen()
 	mtype = a.field.getvalue('method')
 	if a.method == 'POST':
 		if mtype == 'eval':
 			a.authWithSID()
-			a.evalScript()
+			a.evalScript(a.field.getvalue('name'), a.field.getvalue('kscript'))
 		elif mtype == 'name':
 			a.authWithSID()
 			a.name()
@@ -332,9 +337,10 @@ def main():
 			a.logoutWithTwitter()
 		elif mtype == 'load':
 			a.authWithSID()
-			a.printScript()
-		elif mtype == 'getInfo':
-			a.getUserInformation()
+			a.printScript(a.field.getvalue('file'))
+		elif mtype == 'getUID':
+			a.authWithSID()
+			a.printText(a.uid)
 		elif mtype == 'open':
 			a.authWithSID()
 			a.printFileList()

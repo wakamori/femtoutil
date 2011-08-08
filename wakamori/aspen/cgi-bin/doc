@@ -41,6 +41,9 @@ html = '''<!DOCTYPE html>
 		<script src="%(p)slib/shadowbox-3.0.3/shadowbox.js"></script>
 		<link rel="stylesheet" href="%(p)slib/shadowbox-3.0.3/shadowbox.css">
 
+		<!-- tab pane -->
+		<script src="%(p)sjs/TabPane.js"></script>
+
 		<!-- aspen -->
 		<script src="%(p)sjs/aspen.js"></script>
 		<link rel="stylesheet" href="%(p)scss/aspen.css">
@@ -68,7 +71,10 @@ html = '''<!DOCTYPE html>
 		</div>
 
 		<!-- editor body -->
-		<textarea id="code" name="code"></textarea>
+		<div id="tabpane">
+			<ul id="tabs" class="tabs">
+			</ul>
+		</div>
 	</body>
 </html>'''
 
