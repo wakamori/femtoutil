@@ -120,8 +120,7 @@ class Aspen:
 		br.setEnvironments(
 				self.konoha_rev,
 				self.aspen_ver,
-				self.lm.getAccountInfo(self.cookie['access_token'].value,
-					self.cookie['access_token_secret'].value)['name'].decode('utf-8'),
+				self.astorage.getScreenName(self.cookie['SID'].value),
 				self.time)
 		br.reportBugs(body, result)
 
@@ -202,7 +201,7 @@ a bug. Sorry.')
 			bugfoldername = self.bugdir + '/' + self.uid
 			if not os.path.exists(bugfoldername):
 				os.makedirs(bugfoldername)
-			shutil.copy(filename, bugfoldername)
+			shutil.copy(filepath, bugfoldername)
 		elif self.isSignal(r, signal.SIGTERM):
 			pass
 		elif self.isSignal(r, signal.SIGABRT):
@@ -288,13 +287,6 @@ a bug. Sorry.')
 		print 'Content-Type: text/plain\n'
 		if os.path.isfile(filename):
 			sys.stdout.write(open(filename, 'r').read())
-
-	#def getUserInformation(self):
-	#	name = self.lm.getAccountInfo(
-	#			self.cookie['access_token'].value,
-	#			self.cookie['access_token_secret'].value)
-	#	print 'Content-Type: application/json;charset=UTF-8\n'
-	#	print json.dumps(name)
 
 	def printFileList(self):
 		userdir = self.scriptdir + '/' + self.uid
