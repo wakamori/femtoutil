@@ -130,10 +130,6 @@ class Aspen:
 		filepath = self.storeScript(filename, script)
 		self.setKonohaRevision()
 		self.setAspenVersion()
-		## copy script file for execution
-		#filename = foldername + '/' + 'us_' + self.cookie['SID'].value + '.k'
-		#exefilename = foldername + '/aspen.k'
-		#shutil.copyfile(filename, exefilename)
 		# exec konoha as subprocess
 		starttime = time.time()
 		command = '/usr/local/bin/konoha -a ' + filepath
@@ -194,7 +190,7 @@ too long (over 50 KB).')
 			#msg = 'Konoha exited normally. <br />'
 			pass
 		elif self.isSignal(r, signal.SIGSEGV):
-			self.reportBugs(open(exefilename, 'r').read(),
+			self.reportBugs(open(filepath, 'r').read(),
 					'[stdout]\n' + open(outfilename, 'r').read() +
 					'\n[stderr]\n' + open(errfilename, 'r').read())
 			errfile = open(errfilename, 'a')
