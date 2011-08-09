@@ -16,11 +16,12 @@ import random
 globals
 """
 
-db_name = "./db/aspen.sqlite3"
+db_name = "../db/aspen.sqlite3"
 table_name = "aspen"
 personal_tbl_name = "personal"
 session_tbl_name = "sessions"
 flow_tbl_name = "flows"
+user_tbl_name = "users"
 
 """
  class AspenSession
@@ -69,27 +70,84 @@ class AspenStorage:
             return True;
         return False;
 
+    # ======== added by wakamori ========
+    def hasUser(self, uid):
+        query = "select * from %s where uid=?;" % user_tbl_name
+        self.cur.execute(query, (uid,))
+        row = self.cur.fetchone()
 
-    # ahthenticate with a pair of uid, and sid
-    def authenticateWithSID (self, uid, sid):
+        if row == None:
+            return False
+
+        return True
+
+    def selectRecord(self, record, sid):
+        query = "select %s from %s where sid=?;" % (record, user_tbl_name)
+        self.cur.execute(query, (sid,))
+        row = self.cur.fetchone()
+
+        if row == None:
+            # no user has specified session
+            return None
+
+        return row[0]
+
+    def getUID(self, sid):
+        return self.selectRecord('uid', sid)
+
+    def getScreenName(self, sid):
+        return self.selectRecord('screen_name', sid)
+
+    def renewSession(self, uid):
+        query = "update %s set sid=? where uid=?;" % user_tbl_name
+        asession = AspenSession(uid, '')
+        asession.generateSID()
+        sid = str(asession.getSID())
+        self.cur.execute(query, (sid, uid))
+        self.con.commit()
+        return sid
+
+    def getAccessToken(self, sid):
+        return [self.selectRecord('access_token', sid),
+            self.selectRecord('access_token_secret', sid)]
+
+    def createUserWithToken(self, uid, screen_name, access_token,
+            access_token_secret):
+        query = "insert into %s values(?,?,?,?,?);" % user_tbl_name
+
+        try:
+            self.cur.execute(query, (uid, '', screen_name, access_token,
+                access_token_secret))
+            self.con.commit()
+        except sqlite.IntegrityError, err:
+            sys.stderr.write("ERROR: %s\n" % str(err))
+            sys.stderr.write("'%s' is probably already exests in database.\n" %
+                    (uid))
+            return False
+
+        return True
+    # ===================================
+
+    # authenticate with a pair of uid, and sid
+    def authenticateWithUSID (self, uid, sid):
         # validate uid, sid;
         query = 'select uid from ' + session_tbl_name;
         query = query + ' where sid="' + sid + '";';
         self.cur.execute(query);
         for row in self.cur:
-            luid = row[0];
+            luid = str(row[0]);
             if luid == uid:
                 retSession = AspenSession(uid, "");
                 return retSession;
         return None;
 
-    def authenticateWithSIDAndRenewSession (self, uid, sid):
+    def authenticateWithUSIDAndRenewSession (self, uid, sid):
         # validate uid, sid;
         query = 'select uid from ' + session_tbl_name;
         query = query + ' where sid="' + sid + '";';
         self.cur.execute(query);
         for row in self.cur:
-            luid = row[0];
+            luid = str(row[0]);
             if luid == uid:
                 retSession = AspenSession(uid, "");
                 retSession.generateSID();

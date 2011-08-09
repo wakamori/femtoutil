@@ -1,23 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
+'''
 Aspen Bugreporter:
   for reporting bugs via e-mail
   copyright (c) wakamori <wakamori111 at gmail.com> Twitter:@chen_ji
-"""
+'''
 
 import smtplib
 from email.MIMEText import MIMEText
 from email.Utils import formatdate
+import ConfigParser
 
 class BugReporter:
 
 	def __init__(self):
 		self.subject = '[Aspen BugReporter] Konoha rev:%s bug report'
-		self.from_addr = 'from@example.com'
-		self.to_addr = 'to@example.com'
-		self.s = smtplib.SMTP('mail.example.com', 25)
+		conf = ConfigParser.SafeConfigParser()
+		conf.read('settings.ini')
+		self.from_addr = conf.get('reporter', 'from_addr')
+		self.to_addr = conf.get('reporter', 'to_addr')
+		self.s = smtplib.SMTP(conf.get('reporter', 'smtp'), conf.get('reporter', 'port'))
 		self.msg = """ === Konoha bug report by Aspen BugReporter ===
 Konoha revision: %s
 Aspen version: %s
