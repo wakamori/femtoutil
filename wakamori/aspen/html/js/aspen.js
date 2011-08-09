@@ -14,11 +14,11 @@ var Aspen = new Class({
 		url: "http://localhost/aspen/",
 		cgipath: "http://localhost/aspen/cgi-bin/aspen.cgi",
 		tabpane: null,
-		eval: null,
-		new: null,
-		open: null,
-		save: null,
-		signout: null,
+		runbtn: null,
+		"newbtn": null,
+		openbtn: null,
+		savebtn: null,
+		signoutbtn: null,
 		result: null,
 		codemirror: new Array()
 	},
@@ -29,7 +29,7 @@ var Aspen = new Class({
 	initialize: function(options) {
 		var self = this;
 		this.setOptions(options);
-		console.log(self.options);
+		//console.log(self.options);
 
 		self.addTab("noname.k", 'print "hello, konoha";');
 
@@ -56,19 +56,19 @@ var Aspen = new Class({
 		//loadReq.send();
 
 		// set actions
-		self.options.eval.addEvent("click", function() {
+		self.options.runbtn.addEvent("click", function() {
 			if (this.getProperty("disabled") == false) {
 				//mySlide.slideIn();
 				var editor = self.options.codemirror[self.getActiveTabIndex()];
-				console.log(editor);
+				//console.log(editor);
 				var text = editor.getValue();
-				console.log(text);
+				//console.log(text);
 				if (text.length > 0) {
 					self.postScript(text);
 				}
 			}
 		});
-		self.options.new.addEvent("click", function() {
+		self.options.newbtn.addEvent("click", function() {
 			self.addTab("noname.k", "");
 		});
 		self.options.tabpane.addEvent("click:relay(.remove)", function(e) {
@@ -87,11 +87,11 @@ var Aspen = new Class({
 			}
 		});
 		self.options.tabpane.addEvent("click:relay(.tab)", function(e) {
-			console.log("relaytab");
-			console.log("resize");
+			//console.log("relaytab");
+			//console.log("resize");
 			var index = self.getActiveTabIndex();
 			window.fireEvent("resize", index);
-			console.log("refresh");
+			//console.log("refresh");
 			self.options.codemirror[index].refresh();
 		});
 		self.options.tabpane.addEvent("dblclick:relay(.tab)", function() {
@@ -104,15 +104,15 @@ var Aspen = new Class({
 				"value": orig
 			});
 			input.addEvent("keydown", function(e) {
-				console.log("keydown");
-				console.log(e.key);
+				//console.log("keydown");
+				//console.log(e.key);
 				if (e.key == "enter") {
-					console.log("blur");
+					//console.log("blur");
 					this.fireEvent("blur");
 				}
 			});
 			input.addEvent("blur", function() {
-				console.log("blurred!");
+				//console.log("blurred!");
 				var val = input.get("value").trim();
 				if (val.match(/\/| |\.\.|\`/)) {
 					alert("You cannot use '" + val + "' as filename.");
@@ -127,7 +127,7 @@ var Aspen = new Class({
 			});
 			input.inject(tab).select();
 		});
-		self.options.open.addEvent("click", function() {
+		self.options.openbtn.addEvent("click", function() {
 			var req = new Request({
 				url: self.options.cgipath,
 				method: "get",
@@ -150,7 +150,7 @@ var Aspen = new Class({
 			});
 			req.send();
 		});
-		self.options.signout.addEvent("click", function() {
+		self.options.signoutbtn.addEvent("click", function() {
 			var req = new Request({
 				url: self.options.cgipath,
 				method: "get",
@@ -164,7 +164,7 @@ var Aspen = new Class({
 			});
 			req.send();
 		});
-		self.options.save.addEvent("click", function() {
+		self.options.savebtn.addEvent("click", function() {
 			var req = new Request({
 				url: self.options.cgipath,
 				method: "post",
@@ -174,7 +174,7 @@ var Aspen = new Class({
 					"kscript": self.options.codemirror[self.getActiveTabIndex()].getValue()
 				},
 				onSuccess: function(data) {
-					console.log(data);
+					//console.log(data);
 					self.options.result.set("html", "");
 					var inputtxt = new Element("span", {
 						"class": "message",
@@ -189,10 +189,10 @@ var Aspen = new Class({
 	// get active editor from codemirror array
 	getActiveTabIndex: function() {
 		var tabs = this.options.tabpane.getElements("li.tab");
-		console.log(tabs);
+		//console.log(tabs);
 		var activeTab = this.options.tabpane.getElement("li.tab.active");
-		console.log(activeTab);
-		console.log(tabs.indexOf(activeTab));
+		//console.log(activeTab);
+		//console.log(tabs.indexOf(activeTab));
 		return tabs.indexOf(activeTab);
 	},
 
@@ -205,7 +205,7 @@ var Aspen = new Class({
 		}
 		var keyEvent = function(editor, key) {
 			if (key.type == "keydown" && key.keyCode == 13 && key.shiftKey) {
-				if (self.options.eval.getProperty("disabled") == false) {
+				if (self.options.runbtn.getProperty("disabled") == false) {
 					//var mySlide = new Fx.Slide("result");
 					//mySlide.slideIn();
 					var text = editor.getValue();
@@ -236,11 +236,14 @@ var Aspen = new Class({
 			html: "&times"
 		}));
 		tabpane.getElement("ul").grab(tabli);
-		myeditor.getWrapperElement().setStyle("display", "none");
-		//console.log(myeditor.getValue());
 		myeditor.setValue(content);
-		//console.log(myeditor.getValue());
 		self.options.codemirror.push(myeditor);
+
+		// codemirror.getWrapperElement() doesn't work on IE
+		// myeditor.getWrapperElement().setStyle("display", "none");
+		var editordiv = document.getElements(".CodeMirror")[self.options.codemirror.length - 1];
+		editordiv.setStyle("display", "none");
+
 		//console.log(self.options.codemirror);
 	},
 
@@ -365,8 +368,8 @@ var Aspen = new Class({
 			html: "Running ..."
 		});
 		inputtxt.inject(self.options.result);
-		self.options.eval.setProperty("disabled", true);
-		self.options.eval.addClass("evaluating");
+		self.options.runbtn.setProperty("disabled", true);
+		self.options.runbtn.addClass("evaluating");
 		var periodical = null;
 		var req = new Request({
 			url: self.options.cgipath,
@@ -431,8 +434,8 @@ var Aspen = new Class({
 					}
 				});
 				setTimeout(function() {
-					self.options.eval.setProperty("disabled", false);
-					self.options.eval.removeClass("evaluating");
+					self.options.runbtn.setProperty("disabled", false);
+					self.options.runbtn.removeClass("evaluating");
 				}, 1000);
 			}
 		});
@@ -445,14 +448,14 @@ window.addEvent("domready", function() {
 		url: "http://localhost/aspen/",
 		cgipath: "http://localhost/aspen/cgi-bin/aspen.cgi",
 		tabpane: document.id("tabpane"),
-		eval: document.id("eval"),
-		new: document.id("new"),
-		open: document.id("open"),
-		save: document.id("save"),
-		signout: document.id("sign_out"),
+		runbtn: document.id("eval"),
+		"newbtn": document.id("new"),
+		openbtn: document.id("open"),
+		savebtn: document.id("save"),
+		signoutbtn: document.id("sign_out"),
 		result: document.id("result")
 	});
-	console.log("resize");
+	//console.log("resize");
 	window.fireEvent("resize", 0);
 });
 
