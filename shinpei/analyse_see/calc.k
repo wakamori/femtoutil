@@ -59,12 +59,14 @@ class LogStream {
 
 	String nextLine () {
 		return _ins.readLine();
+
 	}
 
 	void doFilter(String filterName) {
 //		Filter f = _filters[0];
 		StreamAnalyzer a = _analyzers[0];
 		String ret, line;
+
 		if (a != null) {
 			while (true) {
 				line = nextLine();
@@ -291,7 +293,6 @@ class MyFilter extends StreamFilter {
 	}
 }
 
-FILENAME = "log.txt";
 int main (String[] args)
 {
 	if (|args| < 1) {
@@ -303,8 +304,8 @@ int main (String[] args)
 	String filter_name = "myfilter";
 	ous = new OutputStream("result.txt", "w");
 //	Filter filter = new MyFilter(filter_name);
-	StreamAnalyzer ana = new HisStreamAnalyzer();
-	los = new LogStream(FILENAME);
+	StreamAnalyzer ana = new MyStreamAnalyzer();
+	los = new LogStream(filename);
 //	los.addFilter(filter);
 	los.addStreamAnalyzer(ana);
 	los.setOus(ous);
