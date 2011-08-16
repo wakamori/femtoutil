@@ -174,17 +174,20 @@ class DataMapStreamAnalyzer extends StreamAnalyzer {
 	
 	@Override void doneStreamAnalyze (OutputStream ous) {
 		print "done analyze, start post process...";
+		ous <<< "Created object: " <<< createobj <<< EOL;
 		float average_live = live_sumtime / createobj;
-		OUT<<< "Avarage  live-time: " <<< average_live <<< EOL;
-		print classcount;
+		ous <<< "Avarage  live-time: " <<< average_live <<< EOL;
+//		ous <<< classcount <<< EOL;
+//		print classcount;
 		for (int i = 0; i < |livelog|; i++) {
 			time = (int)livelog[i];
 			variance_live += Math.pow((time - average_live), 2.0);
 		}
 		variance_live /= (createobj - 1);
-		OUT <<< "Variance: " <<< variance_live <<< EOL;
+		ous <<< "Variance: " <<< variance_live <<< EOL;
 		float standard_deviation = Math.sqrt(variance_live);
-		OUT <<< "Deviation(std): " <<< standard_deviation <<< EOL;
+		ous <<< "Deviation(std): " <<< standard_deviation <<< EOL;
+		ous.flush();
 	}
 }
 
@@ -208,7 +211,8 @@ int main (String[] args)
 	OUT <<< "LAF: v0.1, " <<< EOL;
 	OUT <<< "using file: " <<< filename <<<", start streaming..." <<< EOL;
 	String filter_name = "myfilter";
-	ous = new OutputStream("result.txt", "w");
+	
+	ous = new OutputStream("res." + filename, "w");
 //	Filter filter = new MyFilter(filter_name);
 	StreamAnalyzer ana = new DataMapStreamAnalyzer();
 //	StreamAnalyzer ana = new StartsWithStreamAnalyzer();
