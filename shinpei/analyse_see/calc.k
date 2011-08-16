@@ -16,20 +16,14 @@ class Filter {
 
 }
 
+class StreamFilter extends Filter;
 
-class StreamFilter extends Filter {
-
-}
-
-class SamplingFilter extends Filter {
-
-}
+class SamplingFilter extends Filter;
 
 class StreamAnalyzer {
 	@Virtual void analyze (String line);
-	@Virtual String doneStreamAnalyze(OutputStream ous);
+	@Virtual void doneStreamAnalyze(OutputStream ous);
 }
-
 
 class LogStream {
 	@Private InputStream ins;
@@ -88,66 +82,13 @@ class LogStream {
 }
 
 
-class MyStreamAnalyzer extends StreamAnalyzer {
-	int fastmal;
-	int fastfree;
-	int fastreal;
-	int valloc;
-	int vfree;
-	int createobj;
-	int delobj;
-
-	@Override void analyze (String line) {
-		if (line.search("[fastmalloc]") != -1) {
-			fastmal++;
-		}
-
-		if (line.search("[fastfree]") != -1) {
-			fastfree++;
-		}
-		if (line.search("[fastrealloc]") != -1) {
-			fastreal++;
-		}
-
-		if (line.search("[valloc]") != -1) {
-			valloc++
-		}
-
-		if (line.search("[vfree]") != -1) {
-			vfree++;
-		}
-
-		if (line.search("[new_Object]") != -1) {
-			createobj++;
-		}
-
-		if (line.search("[~Object]") != -1) {
-			delobj++;
-		}
-	}
-	
-	@Override String doneStreamAnalyze (OutputStream ous) {
-		ret = "fastmalloc: " + fastmal + "\n";
-		ret += "fastfree: " + fastfree + "\n";
-		ret += "fastrealloc: " + fastreal + "\n";
-		ret += "valloc: " + valloc + "\n";
-		ret += "vfree: " + vfree + "\n";
-		ret += "new_Object: " + createobj + "\n";
-		ret += "~Object: " + delobj + "\n";
-		ous <<< ret;
-		ous.flush();
-
-		return ret;
-	}
-	
-}
-
 class AnalyzeData;
 
 class LogRawData extends AnalyzeData {
 	String event;
-	String time;
+    int time;
 	int address;
+	String s_address;
 	int i_data;
 	String s_data;
 
@@ -164,7 +105,7 @@ class VfreeData extends LogRawData;
 class CreateObjectData extends LogRawData;
 class DeleteObjectData extends LogRawData;
 
-class HisStreamAnalyzer extends StreamAnalyzer {
+class DataMapStreamAnalyzer extends StreamAnalyzer {
 	int fastmal;
 	int fastfree;
 	int fastreal;
@@ -174,114 +115,67 @@ class HisStreamAnalyzer extends StreamAnalyzer {
 	int delobj;
 
 	LogRawData[] log_array;
+	Map<String,int> livetime;
+	Map<String, int> classcount;
+	float average_live;
+	String[] livelog;
+	DataMapStreamAnalyzer () {
+		livetime = {};
+		classcount = {};
+		livelog = [];
+	}
 
 	@Override void analyze (String line) {
 		/* first make class */
-		LogRawData data;
-
-		if (line.indexOf("[fastmalloc] ") != -1) {
-			data = new LogRawData("fastmalloc");
-			int offset = |"[fastmalloc] T"|;
-			substr = line[offset to];
-			map = substr.split(",");
-			data.time = map[0][1 to ];
-			data.address = (int)(map[1][5 to]);
-			data.i_data = (int)(map[2][6 to]);
-			fastmal++;
-			log_array.add(data);
-			return;
-		}
-
-		if (line.indexOf("[fastfree] ") != -1) {
-			data = new LogRawData("fastfree");
-			int offset = |"[fastfree] T"|;
-			substr = line[offset to];
-			map = substr.split(",");
-			data.time = map[0][1 to ];
-			data.address = (int)(map[1][5 to]);
-			data.i_data = (int)(map[2][6 to]);
-			fastfree++;
-			log_array.add(data);
-			return;
-		}
-
-		if (line.indexOf("[fastrealloc] ") != -1) {
-			data = new LogRawData("realloc");
-			int offset = |"[fastrealloc] T"|;
-			substr = line[offset to];
-			map = substr.split(",");
-			data.time = map[0][1 to ];
-			data.address = (int)(map[1][5 to]);
-			data.i_data = (int)(map[2][6 to]);
-			fastreal++;
-			log_array.add(data);
-			return;
-		}
-
-		if (line.indexOf("[valloc]") != -1) {
-			data = new LogRawData("valloc");
-			int offset = |"[valloc] T"|;
-			substr = line[offset to];
-			map = substr.split(",");
-			data.time = map[0][1 to ];
-			data.address = (int)(map[1][5 to]);
-			data.i_data = (int)(map[2][6 to]);
-			valloc++;
-			log_array.add(data);
-			return;
-		}
-
-		if (line.indexOf("[vfree]") != -1) {
-			data = new LogRawData("vfree");
-			int offset = |"[vfree] T"|;
-			substr = line[offset to];
-			map = substr.split(",");
-			data.time = map[0][1 to ];
-			data.address = (int)(map[1][5 to]);
-			data.i_data = (int)(map[2][6 to]);
-			vfree++;
-			log_array.add(data);
-			return;
-		}
-
-		if (line.indexOf("[new_Object]") != -1) {
+		if (line.startsWith("[new_Object]") == true) {
 			data = new LogRawData("creatobj");
 			int offset = |"[new_Object] T"|;
-			substr = line[offset to];
-			map = substr.split(",");
-			data.time = map[0][1 to ];
-			data.address = (int)(map[1][5 to]);
-			data.s_data = (map[2][7 to]);
+			int lastidx = |line| - 1;
+			substr = line[offset to lastidx];
+			String[] map = substr.split(",");
+			data.time = (int)map[0];
+			String[] a = map[1].replace(" ", "").split("=");
+			data.s_address = a[1];
+			a  = map[2].replace(" ", "").split("=");
+			data.s_data = a[1];
 			createobj++;
-			log_array.add(data);
+			String s = data.s_address;
+			String classname = data.s_data;
+			livetime[s] = data.time
+			classcount[classname] += 1;
 			return;
 		}
 
-		if (line.indexOf("[~Object]") != -1) {
-			data = new LogRawData("creatobj");
+		if (line.startsWith("[~Object]") == true) {
+			data = new LogRawData("deleteobj");
 			int offset = |"[~Object] T"|;
-			substr = line[offset to];
+			int lastidx = |line| - 1;
+			substr = line[offset to lastidx];
 			map = substr.split(",");
-			data.time = map[0][1 to ];
-			data.address = (int)(map[1][5 to]);
-			data.s_data = (map[2][7 to]);
+			data.time = (int)map[0];
+			String[] a = map[1].replace(" ", "").split("=");
+			data.s_address = a[1];
+			a  = map[2].replace(" ", "").split("=");
+			data.s_data = a[1];
 			delobj++;
-			log_array.add(data);
+			livetime[data.s_address] -= data.time;
+//			print livetime[data.s_address];
+			str = (String)(livetime[data.s_address]);
+//			print str;
+			livelog.add("livetime:class: " + data.s_data + ", time=" + str);
 			return;
 		}
 	}
 	
-	@Override String doneStreamAnalyze (OutputStream ous) {
-		ret = "fastmalloc: " + fastmal + "\n";
-		ret += "fastfree: " + fastfree + "\n";
-		ret += "fastrealloc: " + fastreal + "\n";
-		ret += "valloc: " + valloc + "\n";
-		ret += "vfree: " + vfree + "\n";
-		ret += "new_Object: " + createobj + "\n";
-		ret += "~Object: " + delobj + "\n";
-		ous <<< ret;
-		ous.flush();
-		return ret;
+	@Override void doneStreamAnalyze (OutputStream ous) {
+		print "done analyze";
+		//log_arra  --> malloc map
+		print classcount;
+		for (int i = 0; i < |livelog|; i++) {
+			str = livelog[i];
+			ous <<< str <<< EOL;
+			ous.flush();
+		}
 	}
 }
 
@@ -295,16 +189,21 @@ class MyFilter extends StreamFilter {
 
 int main (String[] args)
 {
+	String filename = "log.txt";
 	if (|args| < 1) {
 		OUT <<< "warining!! you need logfile name." <<< EOL;
 		OUT <<< "usage : konoha calk.k $(logfile)" <<< EOL;
-		return 0;
+		
+	} else {
+		filename = args[0];
 	}
-	String filename = args[0];
+
 	String filter_name = "myfilter";
 	ous = new OutputStream("result.txt", "w");
 //	Filter filter = new MyFilter(filter_name);
-	StreamAnalyzer ana = new MyStreamAnalyzer();
+	StreamAnalyzer ana = new DataMapStreamAnalyzer();
+//	StreamAnalyzer ana = new StartsWithStreamAnalyzer();
+//	StreamAnalyzer ana = new IndexOfStreamAnalyzer();
 	los = new LogStream(filename);
 //	los.addFilter(filter);
 	los.addStreamAnalyzer(ana);
