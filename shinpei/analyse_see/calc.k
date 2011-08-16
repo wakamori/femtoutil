@@ -1,5 +1,7 @@
 #!/usr/local/bin/konoha
 
+using konoha.math.*;
+
 class Filter {
 	String name;
 	Func filterFunc;
@@ -116,13 +118,15 @@ class DataMapStreamAnalyzer extends StreamAnalyzer {
 	LogRawData[] log_array;
 	Map<String,int> livetime;
 	Map<String, int> classcount;
-	float average_live;
+	float live_sumtime;
+	float variance_live;
 	String[] livelog;
 	DataMapStreamAnalyzer () {
 		livetime = {};
 		classcount = {};
 		livelog = [];
-		average_live = 0.0;
+		live_sumtime = 0.0;
+		variance_live = 0.0;
 	}
 
 	@Override void analyze (String line) {
@@ -161,21 +165,26 @@ class DataMapStreamAnalyzer extends StreamAnalyzer {
 			livetime[data.s_address] -= data.time;
 			livetime[data.s_address] *= (-1);
 			str = (String)(livetime[data.s_address]);
-			average_live += livetime[data.s_address];
-			livelog.add("livetime:class: " + data.s_data + ", time=" + str);
+			live_sumtime += livetime[data.s_address];
+			livelog.add(str);
+//			livelog.add("livetime:class: " + data.s_data + ", time=" + str);
 			return;
 		}
 	}
 	
 	@Override void doneStreamAnalyze (OutputStream ous) {
 		print "done analyze, start post process...";
-		OUT<<< "Avarage  live-time: " <<< average_live / createobj <<< EOL;
+		float average_live = live_sumtime / createobj;
+		OUT<<< "Avarage  live-time: " <<< average_live <<< EOL;
 		print classcount;
 		for (int i = 0; i < |livelog|; i++) {
-			str = livelog[i];
-			ous <<< str <<< EOL;
-			ous.flush();
+			time = (int)livelog[i];
+			variance_live += Math.pow((time - average_live), 2.0);
 		}
+		variance_live /= (createobj - 1);
+		OUT <<< "Variance: " <<< variance_live <<< EOL;
+		float standard_deviation = Math.sqrt(variance_live);
+		OUT <<< "Deviation(std): " <<< standard_deviation <<< EOL;
 	}
 }
 
