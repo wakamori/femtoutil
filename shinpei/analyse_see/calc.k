@@ -1,5 +1,4 @@
 #!/usr/local/bin/konoha
-/* from see2.k */
 
 class Filter {
 	String name;
@@ -123,12 +122,13 @@ class DataMapStreamAnalyzer extends StreamAnalyzer {
 		livetime = {};
 		classcount = {};
 		livelog = [];
+		average_live = 0.0;
 	}
 
 	@Override void analyze (String line) {
 		/* first make class */
 		if (line.startsWith("[new_Object]") == true) {
-			data = new LogRawData("creatobj");
+			data = new LogRawData("createobj");
 			int offset = |"[new_Object] T"|;
 			int lastidx = |line| - 1;
 			substr = line[offset to lastidx];
@@ -159,17 +159,17 @@ class DataMapStreamAnalyzer extends StreamAnalyzer {
 			data.s_data = a[1];
 			delobj++;
 			livetime[data.s_address] -= data.time;
-//			print livetime[data.s_address];
+			livetime[data.s_address] *= (-1);
 			str = (String)(livetime[data.s_address]);
-//			print str;
+			average_live += livetime[data.s_address];
 			livelog.add("livetime:class: " + data.s_data + ", time=" + str);
 			return;
 		}
 	}
 	
 	@Override void doneStreamAnalyze (OutputStream ous) {
-		print "done analyze";
-		//log_arra  --> malloc map
+		print "done analyze, start post process...";
+		OUT<<< "Avarage  live-time: " <<< average_live / createobj <<< EOL;
 		print classcount;
 		for (int i = 0; i < |livelog|; i++) {
 			str = livelog[i];
@@ -193,11 +193,11 @@ int main (String[] args)
 	if (|args| < 1) {
 		OUT <<< "warining!! you need logfile name." <<< EOL;
 		OUT <<< "usage : konoha calk.k $(logfile)" <<< EOL;
-		
 	} else {
 		filename = args[0];
 	}
-
+	OUT <<< "LAF: v0.1, " <<< EOL;
+	OUT <<< "using file: " <<< filename <<<", start streaming..." <<< EOL;
 	String filter_name = "myfilter";
 	ous = new OutputStream("result.txt", "w");
 //	Filter filter = new MyFilter(filter_name);
