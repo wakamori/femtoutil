@@ -114,7 +114,7 @@ var Aspen = new Class({
 			input.addEvent("blur", function() {
 				//console.log("blurred!");
 				var val = input.get("value").trim();
-				if (val.match(/\/| |\.\.|\`/)) {
+				if (!val.match(/^[a-zA-Z0-9\.\-_]+$/)) {
 					alert("You cannot use '" + val + "' as filename.");
 				} else {
 					this.destroy();
