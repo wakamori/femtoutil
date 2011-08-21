@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="_pWkK4bUKEeCN_uC0asM98g">
+  <bpmn2:collaboration id="_pWkx8LUKEeCN_uC0asM98g">
+    <bpmn2:participant id="_pWkx8bUKEeCN_uC0asM98g" name="Internal" processRef="_pXKn0LUKEeCN_uC0asM98g"/>
+  </bpmn2:collaboration>
+  <bpmn2:process id="_pXKn0LUKEeCN_uC0asM98g" name="Process for Internal">
+    <bpmn2:task id="_CSi3MLwlEeCS1_z37DQacQ" name="Stop Webserver  ">
+      <bpmn2:incoming>_cxmI4bwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_Hz5m8bwlEeCS1_z37DQacQ</bpmn2:outgoing>
+      <bpmn2:outgoing>_IgGloLwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="_F5DD0LwlEeCS1_z37DQacQ" name="Stop application Server   ">
+      <bpmn2:incoming>_Hz5m8bwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_P1BkwbwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="_GpMuYLwlEeCS1_z37DQacQ" name="Stop Database    ">
+      <bpmn2:incoming>_IgGloLwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_Qbpf4bwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_Hz5m8bwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_CSi3MLwlEeCS1_z37DQacQ" targetRef="_F5DD0LwlEeCS1_z37DQacQ"/>
+    <bpmn2:sequenceFlow id="_IgGloLwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_CSi3MLwlEeCS1_z37DQacQ" targetRef="_GpMuYLwlEeCS1_z37DQacQ"/>
+    <bpmn2:task id="_LQNVwLwlEeCS1_z37DQacQ" name="Start Database   ">
+      <bpmn2:incoming>_RPcUUbwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:incoming>_RzDXsLwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_SV93gbwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="_MoiaoLwlEeCS1_z37DQacQ" name="Start Webserver    ">
+      <bpmn2:incoming>_S0eYcLwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_vUus4LwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="_MM3LQLwlEeCS1_z37DQacQ" name="Start Application server   ">
+      <bpmn2:incoming>_SV93gbwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_S0eYcLwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_P1BkwbwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_F5DD0LwlEeCS1_z37DQacQ" targetRef="_J0ciYLwlEeCS1_z37DQacQ"/>
+    <bpmn2:sequenceFlow id="_Qbpf4bwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_GpMuYLwlEeCS1_z37DQacQ" targetRef="_KjkSMLwlEeCS1_z37DQacQ"/>
+    <bpmn2:sequenceFlow id="_SV93gbwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_LQNVwLwlEeCS1_z37DQacQ" targetRef="_MM3LQLwlEeCS1_z37DQacQ"/>
+    <bpmn2:sequenceFlow id="_S0eYcLwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_MM3LQLwlEeCS1_z37DQacQ" targetRef="_MoiaoLwlEeCS1_z37DQacQ"/>
+    <bpmn2:task id="_KjkSMLwlEeCS1_z37DQacQ" name="Back up  ">
+      <bpmn2:incoming>_Qbpf4bwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_RzDXsLwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_RzDXsLwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_KjkSMLwlEeCS1_z37DQacQ" targetRef="_LQNVwLwlEeCS1_z37DQacQ"/>
+    <bpmn2:startEvent id="_A6gGMLwlEeCS1_z37DQacQ" name="Start">
+      <bpmn2:outgoing>_cxmI4bwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:sequenceFlow id="_cxmI4bwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_A6gGMLwlEeCS1_z37DQacQ" targetRef="_CSi3MLwlEeCS1_z37DQacQ"/>
+    <bpmn2:task id="_J0ciYLwlEeCS1_z37DQacQ" name="Recover action by operator   ">
+      <bpmn2:incoming>_P1BkwbwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_RPcUUbwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_RPcUUbwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_J0ciYLwlEeCS1_z37DQacQ" targetRef="_LQNVwLwlEeCS1_z37DQacQ"/>
+    <bpmn2:endEvent id="_Ob9gELwlEeCS1_z37DQacQ" name="End">
+      <bpmn2:incoming>_vUus4LwlEeCS1_z37DQacQ</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="_vUus4LwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_MoiaoLwlEeCS1_z37DQacQ" targetRef="_Ob9gELwlEeCS1_z37DQacQ"/>
+    <bpmn2:task id="_l0BJ0LUNEeCgUpvnpA407g" name="Stop Database ">
+      <bpmn2:incoming>_zZHvYLwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_1VIwIbwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_1VIwIbwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_l0BJ0LUNEeCgUpvnpA407g" targetRef="_O3x3kLUNEeCgUpvnpA407g"/>
+    <bpmn2:task id="_ZJDTELUNEeCgUpvnpA407g" name="Start Application server     ">
+      <bpmn2:incoming>_yWkisLwkEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_wtvscbUNEeCgUpvnpA407g</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_wtvscbUNEeCgUpvnpA407g" name="Sequence Flow" sourceRef="_ZJDTELUNEeCgUpvnpA407g" targetRef="_dR_eYLUNEeCgUpvnpA407g"/>
+    <bpmn2:endEvent id="_hDYsYLUNEeCgUpvnpA407g" name="End">
+      <bpmn2:incoming>_xGh_4LUNEeCgUpvnpA407g</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:task id="_lTZwELUNEeCgUpvnpA407g" name="Stop application server   ">
+      <bpmn2:incoming>_y6cPUbwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_02rSgbwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_02rSgbwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_lTZwELUNEeCgUpvnpA407g" targetRef="_O3x3kLUNEeCgUpvnpA407g"/>
+    <bpmn2:startEvent id="_jXdAwLUNEeCgUpvnpA407g" name="Software aiging observed  ">
+      <bpmn2:outgoing>_xktwsbUNEeCgUpvnpA407g</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:sequenceFlow id="_xktwsbUNEeCgUpvnpA407g" name="Sequence Flow" sourceRef="_jXdAwLUNEeCgUpvnpA407g" targetRef="_j_USALUNEeCgUpvnpA407g"/>
+    <bpmn2:task id="_j_USALUNEeCgUpvnpA407g" name="Stop Webserver  ">
+      <bpmn2:incoming>_xktwsbUNEeCgUpvnpA407g</bpmn2:incoming>
+      <bpmn2:outgoing>_y6cPUbwlEeCS1_z37DQacQ</bpmn2:outgoing>
+      <bpmn2:outgoing>_zZHvYLwlEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_y6cPUbwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_j_USALUNEeCgUpvnpA407g" targetRef="_lTZwELUNEeCgUpvnpA407g"/>
+    <bpmn2:sequenceFlow id="_zZHvYLwlEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_j_USALUNEeCgUpvnpA407g" targetRef="_l0BJ0LUNEeCgUpvnpA407g"/>
+    <bpmn2:task id="_dR_eYLUNEeCgUpvnpA407g" name="Start Webserver   ">
+      <bpmn2:incoming>_wtvscbUNEeCgUpvnpA407g</bpmn2:incoming>
+      <bpmn2:outgoing>_xGh_4LUNEeCgUpvnpA407g</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_xGh_4LUNEeCgUpvnpA407g" name="Sequence Flow" sourceRef="_dR_eYLUNEeCgUpvnpA407g" targetRef="_hDYsYLUNEeCgUpvnpA407g"/>
+    <bpmn2:task id="_O3x3kLUNEeCgUpvnpA407g" name="Start Database   ">
+      <bpmn2:incoming>_02rSgbwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:incoming>_1VIwIbwlEeCS1_z37DQacQ</bpmn2:incoming>
+      <bpmn2:outgoing>_yWkisLwkEeCS1_z37DQacQ</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="_yWkisLwkEeCS1_z37DQacQ" name="Sequence Flow" sourceRef="_O3x3kLUNEeCgUpvnpA407g" targetRef="_ZJDTELUNEeCgUpvnpA407g"/>
+    <bpmn2:scriptTask id="_bLtD8Lw3EeCS1_z37DQacQ" name="Script Task"/>
+    <bpmn2:userTask id="_PSgVcLxEEeCS1_z37DQacQ" name="User Task"/>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="_yu46QLUMEeCN_uC0asM98g">
+    <bpmndi:BPMNPlane id="_yu46QbUMEeCN_uC0asM98g" bpmnElement="_pXKn0LUKEeCN_uC0asM98g">
+      <bpmndi:BPMNShape id="_O30T0LUNEeCgUpvnpA407g" bpmnElement="_O3x3kLUNEeCgUpvnpA407g">
+        <dc:Bounds height="50.0" width="110.0" x="440.0" y="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_ZJG9cLUNEeCgUpvnpA407g" bpmnElement="_ZJDTELUNEeCgUpvnpA407g">
+        <dc:Bounds height="50.0" width="120.0" x="580.0" y="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_dSChsLUNEeCgUpvnpA407g" bpmnElement="_dR_eYLUNEeCgUpvnpA407g">
+        <dc:Bounds height="50.0" width="120.0" x="720.0" y="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_hDZ6gLUNEeCgUpvnpA407g" bpmnElement="_hDYsYLUNEeCgUpvnpA407g">
+        <dc:Bounds height="51.0" width="36.0" x="870.0" y="97.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_jXe18LUNEeCgUpvnpA407g" bpmnElement="_jXdAwLUNEeCgUpvnpA407g">
+        <dc:Bounds height="51.0" width="92.0" x="44.0" y="97.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_j_XVULUNEeCgUpvnpA407g" bpmnElement="_j_USALUNEeCgUpvnpA407g">
+        <dc:Bounds height="50.0" width="110.0" x="120.0" y="90.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_lTblQLUNEeCgUpvnpA407g" bpmnElement="_lTZwELUNEeCgUpvnpA407g">
+        <dc:Bounds height="50.0" width="110.0" x="280.0" y="48.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_l0E0MLUNEeCgUpvnpA407g" bpmnElement="_l0BJ0LUNEeCgUpvnpA407g">
+        <dc:Bounds height="50.0" width="110.0" x="280.0" y="139.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_A6h7YLwlEeCS1_z37DQacQ" bpmnElement="_A6gGMLwlEeCS1_z37DQacQ">
+        <dc:Bounds height="51.0" width="36.0" x="14.0" y="297.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_CSlTcLwlEeCS1_z37DQacQ" bpmnElement="_CSi3MLwlEeCS1_z37DQacQ">
+        <dc:Bounds height="50.0" width="110.0" x="90.0" y="290.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_F5FgELwlEeCS1_z37DQacQ" bpmnElement="_F5DD0LwlEeCS1_z37DQacQ">
+        <dc:Bounds height="50.0" width="110.0" x="250.0" y="250.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_GpPKoLwlEeCS1_z37DQacQ" bpmnElement="_GpMuYLwlEeCS1_z37DQacQ">
+        <dc:Bounds height="50.0" width="110.0" x="250.0" y="339.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_J0eXkLwlEeCS1_z37DQacQ" bpmnElement="_J0ciYLwlEeCS1_z37DQacQ">
+        <dc:Bounds height="50.0" width="110.0" x="401.0" y="249.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_KjmucLwlEeCS1_z37DQacQ" bpmnElement="_KjkSMLwlEeCS1_z37DQacQ">
+        <dc:Bounds height="50.0" width="110.0" x="401.0" y="339.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_LQPyALwlEeCS1_z37DQacQ" bpmnElement="_LQNVwLwlEeCS1_z37DQacQ">
+        <dc:Bounds height="50.0" width="110.0" x="555.0" y="290.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_MM5AcLwlEeCS1_z37DQacQ" bpmnElement="_MM3LQLwlEeCS1_z37DQacQ">
+        <dc:Bounds height="50.0" width="110.0" x="690.0" y="290.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_Mok24LwlEeCS1_z37DQacQ" bpmnElement="_MoiaoLwlEeCS1_z37DQacQ">
+        <dc:Bounds height="50.0" width="110.0" x="820.0" y="290.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_Ob_8ULwlEeCS1_z37DQacQ" bpmnElement="_Ob9gELwlEeCS1_z37DQacQ">
+        <dc:Bounds height="51.0" width="36.0" x="960.0" y="297.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_bLwuULw3EeCS1_z37DQacQ" bpmnElement="_bLtD8Lw3EeCS1_z37DQacQ">
+        <dc:Bounds height="30.0" width="56.0" x="174.0" y="210.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_PSiKoLxEEeCS1_z37DQacQ" bpmnElement="_PSgVcLxEEeCS1_z37DQacQ">
+        <dc:Bounds height="28.0" width="55.0" x="726.0" y="212.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="_wtwTgLUNEeCgUpvnpA407g" bpmnElement="_wtvscbUNEeCgUpvnpA407g" sourceElement="_ZJG9cLUNEeCgUpvnpA407g" targetElement="_dSChsLUNEeCgUpvnpA407g">
+        <di:waypoint xsi:type="dc:Point" x="700.0" y="115.0"/>
+        <di:waypoint xsi:type="dc:Point" x="720.0" y="115.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_xGim8LUNEeCgUpvnpA407g" bpmnElement="_xGh_4LUNEeCgUpvnpA407g" sourceElement="_dSChsLUNEeCgUpvnpA407g" targetElement="_hDZ6gLUNEeCgUpvnpA407g">
+        <di:waypoint xsi:type="dc:Point" x="840.0" y="115.0"/>
+        <di:waypoint xsi:type="dc:Point" x="870.0" y="115.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_xkuXwLUNEeCgUpvnpA407g" bpmnElement="_xktwsbUNEeCgUpvnpA407g" sourceElement="_jXe18LUNEeCgUpvnpA407g" targetElement="_j_XVULUNEeCgUpvnpA407g">
+        <di:waypoint xsi:type="dc:Point" x="80.0" y="115.0"/>
+        <di:waypoint xsi:type="dc:Point" x="120.0" y="115.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_yWlJwLwkEeCS1_z37DQacQ" bpmnElement="_yWkisLwkEeCS1_z37DQacQ" sourceElement="_O30T0LUNEeCgUpvnpA407g" targetElement="_ZJG9cLUNEeCgUpvnpA407g">
+        <di:waypoint xsi:type="dc:Point" x="550.0" y="115.0"/>
+        <di:waypoint xsi:type="dc:Point" x="580.0" y="115.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_Hz6OALwlEeCS1_z37DQacQ" bpmnElement="_Hz5m8bwlEeCS1_z37DQacQ" sourceElement="_CSlTcLwlEeCS1_z37DQacQ" targetElement="_F5FgELwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="200.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="250.0" y="275.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_IgHMsLwlEeCS1_z37DQacQ" bpmnElement="_IgGloLwlEeCS1_z37DQacQ" sourceElement="_CSlTcLwlEeCS1_z37DQacQ" targetElement="_GpPKoLwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="200.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="250.0" y="364.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_P1CL0LwlEeCS1_z37DQacQ" bpmnElement="_P1BkwbwlEeCS1_z37DQacQ" sourceElement="_F5FgELwlEeCS1_z37DQacQ" targetElement="_J0eXkLwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="360.0" y="275.0"/>
+        <di:waypoint xsi:type="dc:Point" x="401.0" y="274.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_QbqG8LwlEeCS1_z37DQacQ" bpmnElement="_Qbpf4bwlEeCS1_z37DQacQ" sourceElement="_GpPKoLwlEeCS1_z37DQacQ" targetElement="_KjmucLwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="360.0" y="364.0"/>
+        <di:waypoint xsi:type="dc:Point" x="401.0" y="364.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_RPc7YLwlEeCS1_z37DQacQ" bpmnElement="_RPcUUbwlEeCS1_z37DQacQ" sourceElement="_J0eXkLwlEeCS1_z37DQacQ" targetElement="_LQPyALwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="511.0" y="274.0"/>
+        <di:waypoint xsi:type="dc:Point" x="555.0" y="315.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_RzD-wLwlEeCS1_z37DQacQ" bpmnElement="_RzDXsLwlEeCS1_z37DQacQ" sourceElement="_KjmucLwlEeCS1_z37DQacQ" targetElement="_LQPyALwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="511.0" y="364.0"/>
+        <di:waypoint xsi:type="dc:Point" x="555.0" y="315.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_SV-ekLwlEeCS1_z37DQacQ" bpmnElement="_SV93gbwlEeCS1_z37DQacQ" sourceElement="_LQPyALwlEeCS1_z37DQacQ" targetElement="_MM5AcLwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="665.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="690.0" y="315.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_S0eYcbwlEeCS1_z37DQacQ" bpmnElement="_S0eYcLwlEeCS1_z37DQacQ" sourceElement="_MM5AcLwlEeCS1_z37DQacQ" targetElement="_Mok24LwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="800.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="820.0" y="315.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_cxmv8LwlEeCS1_z37DQacQ" bpmnElement="_cxmI4bwlEeCS1_z37DQacQ" sourceElement="_A6h7YLwlEeCS1_z37DQacQ" targetElement="_CSlTcLwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="50.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="90.0" y="315.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_vUvT8LwlEeCS1_z37DQacQ" bpmnElement="_vUus4LwlEeCS1_z37DQacQ" sourceElement="_Mok24LwlEeCS1_z37DQacQ" targetElement="_Ob_8ULwlEeCS1_z37DQacQ">
+        <di:waypoint xsi:type="dc:Point" x="930.0" y="315.0"/>
+        <di:waypoint xsi:type="dc:Point" x="960.0" y="315.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_y6c2YLwlEeCS1_z37DQacQ" bpmnElement="_y6cPUbwlEeCS1_z37DQacQ" sourceElement="_j_XVULUNEeCgUpvnpA407g" targetElement="_lTblQLUNEeCgUpvnpA407g">
+        <di:waypoint xsi:type="dc:Point" x="230.0" y="115.0"/>
+        <di:waypoint xsi:type="dc:Point" x="280.0" y="73.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_zZIWcLwlEeCS1_z37DQacQ" bpmnElement="_zZHvYLwlEeCS1_z37DQacQ" sourceElement="_j_XVULUNEeCgUpvnpA407g" targetElement="_l0E0MLUNEeCgUpvnpA407g">
+        <di:waypoint xsi:type="dc:Point" x="230.0" y="115.0"/>
+        <di:waypoint xsi:type="dc:Point" x="280.0" y="164.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_02r5kLwlEeCS1_z37DQacQ" bpmnElement="_02rSgbwlEeCS1_z37DQacQ" sourceElement="_lTblQLUNEeCgUpvnpA407g" targetElement="_O30T0LUNEeCgUpvnpA407g">
+        <di:waypoint xsi:type="dc:Point" x="390.0" y="73.0"/>
+        <di:waypoint xsi:type="dc:Point" x="440.0" y="115.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_1VIwIrwlEeCS1_z37DQacQ" bpmnElement="_1VIwIbwlEeCS1_z37DQacQ" sourceElement="_l0E0MLUNEeCgUpvnpA407g" targetElement="_O30T0LUNEeCgUpvnpA407g">
+        <di:waypoint xsi:type="dc:Point" x="390.0" y="164.0"/>
+        <di:waypoint xsi:type="dc:Point" x="440.0" y="115.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>
