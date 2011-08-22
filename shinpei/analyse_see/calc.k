@@ -1,112 +1,18 @@
+
+
 #!/usr/local/bin/konoha
 
 using konoha.math.*;
+
+include "logstream.k";
+include "logdata.k";
 
 /* ------------------------------------------- */
 /* [parameters] */
 
 CSV_MODE = true;
 CLASS_MODE = true;
-
 /* ------------------------------------------- */
-class Filter {
-	String name;
-	Func filterFunc;
-
-	Filter(String fname, Func f = null) {
-		_name = fname;
-		_filterFunc = f;
-	}
-
-	@Virtual String filter (String line) {
-		return "answer\n";
-	}
-
-}
-
-class StreamFilter extends Filter;
-
-class SamplingFilter extends Filter;
-
-class StreamAnalyzer {
-	@Virtual void analyze (String line);
-	@Virtual void doneStreamAnalyze(OutputStream ous);
-}
-
-class LogStream {
-	@Private InputStream ins;
-	@Private OutputStream ous;
-	String filename;
-	Array<Filter> filters;
-	Array<StreamAnalyzer> analyzers;
-
-	LogStream(String fn) {
-		_filename = fn;
-		_ins = new InputStream(_filename, "r");
-		_filters = null;
-		_analyzers = null;
-	}
-
-	void setOus (OutputStream o) {
-		_ous = o;
-	}
-
-	void addFilter (Filter f) {
-		_filters.add(f);
-	}
-
-	void addStreamAnalyzer (StreamAnalyzer a) {
-		_analyzers.add(a);
-	}
-
-	String nextLine () {
-		return _ins.readLine();
-
-	}
-
-	void doFilter(String filterName) {
-//		Filter f = _filters[0];
-		StreamAnalyzer a = _analyzers[0];
-		String ret, line;
-
-		if (a != null) {
-			foreach (String line in _ins) {
-				ret = a.analyze(line);
-			}
-			a.doneStreamAnalyze(_ous);
-		}
-	}
-
-	void destroy () {
-		ins.close();
-		ous.close();
-	}
-}
-
-
-class AnalyzeData;
-
-class LogRawData extends AnalyzeData {
-	String event;
-    int time;
-	int address;
-	String s_address;
-	int i_data;
-	String s_data;
-
-	LogRawData(String ev) {
-		_event = ev;
-	}
-}
-
-class FastMallocData extends LogRawData;
-class FastFreeData extends LogRawData;
-class FastReallocData extends LogRawData;
-class VallocData extends LogRawData;
-class VfreeData extends LogRawData;
-class CreateObjectData extends LogRawData;
-class DeleteObjectData extends LogRawData;
-class ClassNameData extends LogRawData;
 
 class DataMapStreamAnalyzer extends StreamAnalyzer {
 	int fastmal;
@@ -152,10 +58,13 @@ class DataMapStreamAnalyzer extends StreamAnalyzer {
 			data.s_address = a[1];
 			a  = map[2].replace(" ", "").split("=");
 			data.s_data = a[1];
+			a = map[3].replace(" ", "").split("=");
+			data.idx = (int)a[1];
 			createobj++;
 			String s = data.s_address;
 			String classname = data.s_data;
-			livetime[s] = data.time
+			int idx = data.idx;
+			livetime[s] = data.time;
 			classcount[classname] += 1;
 			return;
 		}
@@ -264,7 +173,6 @@ class DataMapStreamAnalyzer extends StreamAnalyzer {
 	}
 }
 
-
 /* calc.k */
 class MyFilter extends StreamFilter {
 	@Override String filter (String line) {
@@ -294,6 +202,7 @@ int main (String[] args)
 	if (CSV_MODE == true) {
 		suffix = ".csv";
 	}
+//	print prefix + filename + suffix;
 	ous = new OutputStream(prefix + filename + suffix, "w");
 
 //	Filter filter = new MyFilter(filter_name);
