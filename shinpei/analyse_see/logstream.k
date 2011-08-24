@@ -4,8 +4,6 @@
  *
  * ------------------------------------------- */
 
-
-
 class Filter {
 	String name;
 	Func filterFunc;
@@ -24,10 +22,13 @@ class Filter {
 class StreamFilter extends Filter;
 
 class SamplingFilter extends Filter;
-
 class StreamAnalyzer {
+	String name;
+	String description;
+
 	@Virtual void analyze (String line);
 	@Virtual void doneStreamAnalyze(OutputStream ous);
+	@Virtual String explanation();
 }
 
 class LogStream {
@@ -58,14 +59,13 @@ class LogStream {
 
 	String nextLine () {
 		return _ins.readLine();
-
 	}
 
 	void doFilter(String filterName) {
-//		Filter f = _filters[0];
 		StreamAnalyzer a = _analyzers[0];
 		String ret, line;
-
+		OUT.println("analyzer: " + a.name);
+		OUT.println("explanation: " + a.description);
 		if (a != null) {
 			foreach (String line in _ins) {
 				ret = a.analyze(line);
