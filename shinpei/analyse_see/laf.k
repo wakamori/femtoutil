@@ -33,7 +33,7 @@ int main (String[] args)
 	if (argc < 1) {
 		OUT <<< """
 warining!! you need logfile name.
- Usage : konoha calk.k [options] $logfile
+ Usage : konoha laf.k [options] $logfile
 
  Options""" <<< EOL;
 		foreach(String opt in arg_options.keys()) {
