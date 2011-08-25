@@ -10,8 +10,8 @@ include "classcount.k"
 /* [parameters] */
 
 CSV_MODE = true;
-CLASS_MODE = false;
-OBJLIVE_MODE = true;
+CLASS_MODE = true;
+OBJLIVE_MODE = false;
 
 /* ------------------------------------------- */
 /* [command optiongs] */
@@ -19,7 +19,6 @@ OBJLIVE_MODE = true;
 Map<String, String> arg_options = {
 	"-a" : "specify analyzer",
 }
-
 
 /* ------------------------------------------- */
 
@@ -32,7 +31,7 @@ int main (String[] args)
 	OUT <<< "LAF: v0.1, " <<< EOL;
 	if (argc < 1) {
 		OUT <<< """
-warining!! you need logfile name.
+ warining!! you need logfile name.
  Usage : konoha laf.k [options] $logfile
 
  Options""" <<< EOL;
@@ -75,7 +74,7 @@ warining!! you need logfile name.
 		suffix = ".csv";
 	}
 
-	prefix = a.name; // use analyze name as prefix
+	prefix = ana.name + "_"; // use analyze name as prefix
 	OutputStream ous = new OutputStream(prefix + filename + suffix, "w");
 
 //	Filter filter = new MyFilter(filter_name);
