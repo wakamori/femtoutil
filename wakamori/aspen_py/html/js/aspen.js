@@ -12,7 +12,7 @@ var Aspen = new Class({
 
 	options: {
 		url: "http://localhost/aspen/",
-		cgipath: "http://localhost/aspen/cgi-bin/aspen.k",
+		cgipath: "http://localhost/aspen/cgi-bin/aspen.cgi",
 		tabpane: null,
 		runbtn: null,
 		"newbtn": null,
@@ -42,7 +42,7 @@ var Aspen = new Class({
 		//	url: self.options.cgipath,
 		//	method: "get",
 		//	data: {
-		//		"type": "load",
+		//		"method": "load",
 		//		"time": new Date().getTime() // for IE
 		//	},
 		//	onSuccess: function(responseText) {
@@ -132,7 +132,7 @@ var Aspen = new Class({
 				url: self.options.cgipath,
 				method: "get",
 				data: {
-					"type": "open",
+					"method": "open",
 					"time": new Date().getTime() // for IE
 				},
 				onSuccess: function(data) {
@@ -155,7 +155,7 @@ var Aspen = new Class({
 				url: self.options.cgipath,
 				method: "get",
 				data: {
-					"type": "logout",
+					"method": "logout",
 					"time": new Date().getTime() // for IE
 				},
 				onSuccess: function(data) {
@@ -169,7 +169,7 @@ var Aspen = new Class({
 				url: self.options.cgipath,
 				method: "post",
 				data: {
-					"type": "save",
+					"method": "save",
 					"name": document.getElement("li.tab.active").get("text").slice(0, -1),
 					"kscript": self.options.codemirror[self.getActiveTabIndex()].getValue()
 				},
@@ -264,7 +264,7 @@ var Aspen = new Class({
 				url: self.options.cgipath,
 				method: "get",
 				data: {
-					"type": "load",
+					"method": "load",
 					"file": filename,
 					"time": new Date().getTime() // for IE
 				},
@@ -375,7 +375,7 @@ var Aspen = new Class({
 			url: self.options.cgipath,
 			method: "post",
 			data: {
-				"type": "eval",
+				"method": "eval",
 				"name": document.getElement("li.tab.active").get("text").slice(0, -1),
 				"kscript": text
 			},
@@ -384,7 +384,7 @@ var Aspen = new Class({
 					url: self.options.cgipath,
 					method: "get",
 					data: {
-						"type": "getUID"
+						"method": "getUID"
 					},
 					onSuccess: function(retUID) {
 						self.isEvalCompleted = false;
@@ -445,8 +445,8 @@ var Aspen = new Class({
 
 window.addEvent("domready", function() {
 	var aspen = new Aspen({
-		url: "http://127.0.0.1/aspen/",
-		cgipath: "http://127.0.0.1/aspen/cgi-bin/aspen.k",
+		url: "http://localhost/aspen/",
+		cgipath: "http://localhost/aspen/cgi-bin/aspen.cgi",
 		tabpane: document.id("tabpane"),
 		runbtn: document.id("eval"),
 		"newbtn": document.id("new"),
