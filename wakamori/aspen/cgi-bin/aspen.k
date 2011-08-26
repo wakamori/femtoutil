@@ -12,12 +12,12 @@ include "login.k";
 using konoha.json.*;
 using konoha.cookie.*;
 
-KONOHA_PATH = "/Users/waka/Developments/konoha";
-GIT_PATH    = "/Users/waka/Developments/femtoutil/.git";
-BASE_PATH   = "data";
-SCRIPT_DIR  = "scripts";
-BUG_DIR     = "bugs";
-TMP_DIR     = "tmp";
+KONOHA_PATH = "";
+GIT_PATH    = "";
+BASE_PATH   = "";
+SCRIPT_DIR  = "";
+BUG_DIR     = "";
+TMP_DIR     = "";
 
 class Aspen
 {

@@ -11,13 +11,13 @@ if (not defined INCLUDE_DB) {
 using konoha.liboauth.*;
 using konoha.cookie.*;
 
-REQUEST_TOKEN_URL = "https://api.twitter.com/oauth/request_token";
-ACCESS_TOKEN_URL  = "https://api.twitter.com/oauth/access_token";
-AUTHENTICATE_URL  = "https://api.twitter.com/oauth/authenticate";
-CONSUMER_KEY      = "Tcwsg8FnlUO4EPUa7TaZQ";
-CONSUMER_SECRET   = "687WmdJs77og5gt0IdQsDPAy1ycYDLDoTCuoIpH4HZg";
-BASE_URL          = "http://127.0.0.1/aspen/";
-DOC_URL           = "http://127.0.0.1/aspen/cgi-bin/doc";
+REQUEST_TOKEN_URL = "";
+ACCESS_TOKEN_URL  = "";
+AUTHENTICATE_URL  = "";
+CONSUMER_KEY      = "";
+CONSUMER_SECRET   = "";
+BASE_URL          = "";
+DOC_URL           = "";
 
 void redirectToIndex() {
 	OUT << "Location: " + BASE_URL + "\n" << EOL;

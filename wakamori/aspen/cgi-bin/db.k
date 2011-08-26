@@ -9,8 +9,8 @@ INCLUDE_DB = true;
 
 using konoha.uuid.*;
 
-DB_NAME         = "../html/db/aspen.sqlite3";
-USER_TABLE_NAME = "users";
+DB_NAME         = "";
+USER_TABLE_NAME = "";
 
 Map<string,string> parseQuery(string query)
 {
