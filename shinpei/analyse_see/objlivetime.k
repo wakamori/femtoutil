@@ -105,9 +105,15 @@ class ObjectLivetimeStreamAnalyzer extends StreamAnalyzer {
 	@Override void doneStreamAnalyze (OutputStream ous) {
 		OUT.println("cc:" + createcnt + ",dc:" + delcnt);
 		OUT.println("done analyze, start post-process...");
-		foreach (String ptr in map_objdata.keys()) {
-			ObjData d =(ObjData) map_objdata[ptr];
-			ous <<< d.oidx <<< "," <<< d.livetime <<< "," <<< classnames[d.cid] <<< EOL;
+		for (i=0; i < CID_MAX; i++) {
+			oa = a_objdata[i];
+			oa_len = |oa|;
+			if (oa_len > 0) {
+				for (j = 0; j < oa_len; j++) {
+					ObjData d = oa[j];
+					ous <<< d.oidx <<< "," <<< d.livetime <<< "," <<< classnames[d.cid] <<< EOL;
+				}
+			}
 		}
 		ous.flush();
 	}
