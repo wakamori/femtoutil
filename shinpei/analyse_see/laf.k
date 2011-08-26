@@ -10,8 +10,8 @@ include "classcount.k"
 /* [parameters] */
 
 CSV_MODE = true;
-CLASS_MODE = true;
-OBJLIVE_MODE = false;
+CLASS_MODE = false;
+OBJLIVE_MODE = true;
 
 /* ------------------------------------------- */
 /* [command optiongs] */
@@ -76,7 +76,7 @@ int main (String[] args)
 
 	prefix = ana.name + "_"; // use analyze name as prefix
 	OutputStream ous = new OutputStream(prefix + filename + suffix, "w");
-
+	print "output is " + prefix + filename + suffix;
 //	Filter filter = new MyFilter(filter_name);
 //	los.addFilter(filter);
 
