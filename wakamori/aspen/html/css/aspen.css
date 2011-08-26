@@ -1,0 +1,133 @@
+/* aspen style */
+
+header {
+	background: #304d44;
+	color: #feefa8;
+	/*text-shadow: black 2px 2px 2px;*/
+	padding: 3px;
+	/*border-top: 3px #594 solid;*/
+	border-bottom: 2px #594 solid;
+}
+
+header a {
+	color: #feefa8;
+	text-decoration: none;
+}
+
+header a:hover {
+	color: #fff0e0;
+}
+
+body {
+	margin: 0px;
+}
+
+#result {
+	margin: 10px 8px 10px 8px;
+	height: 150px;
+	/*width: 75%;*/
+	overflow: auto;
+	font-family: 'courier new';
+	border: 1px solid black;
+	/*display: none;*/
+}
+
+.stdout {
+	color: black;
+}
+
+.stderr {
+	color: red;
+}
+
+.message {
+	color: gray;
+}
+
+.menubutton {
+	display: inline;
+	padding: 2px;
+	margin: 1px;
+}
+
+#topmenu_l {
+	float: left;
+	text-align: left;
+}
+
+#topmenu_r {
+	text-align: right;
+}
+
+.userinfo {
+	display: inline;
+}
+
+.filelist {
+	list-style-type: none;
+}
+
+#filemanager {
+	text-decoration: none;
+}
+
+div.dir {
+	color: blue;
+}
+
+div.dir:hover {
+	color: navy;
+	cursor: pointer;
+}
+
+div.file {
+	color: black;
+}
+
+div.file:hover {
+	color: gray;
+	cursor: pointer;
+}
+
+#tabpane {
+	margin-left: 8px;
+	margin-right: 8px;
+}
+
+ul.tabs {
+	margin: 0px;
+	padding: 0 0 0 32px;
+}
+
+li.tab {
+	cursor: default;
+	display: inline;
+	padding: 4px 0.4em 2px 0.4em;
+	list-style: none;
+	background-color: #888;
+	border: 1px #333 solid;
+	border-radius: 4px 4px 0 0;
+}
+
+li.tab:hover {
+	opacity: 0.9;
+}
+
+li.tab.active {
+	background-color: #DDD;
+	border-bottom-color: #DDD;
+}
+
+li.tab .remove {
+	cursor: pointer;
+	color: #900;
+	margin-left: 0.4em;
+}
+
+#eval.evaluating {
+	color: #555;
+}
+
+input.tabedit {
+	background: #EEE;
+}
