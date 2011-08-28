@@ -5,7 +5,7 @@
  * (c) shinpei_NKT, utrhira, chen_ji
  */
 
-include "db.k";
+include "storage.k";
 include "login.k";
 //include "bugreporter.k"
 //import signal
@@ -124,9 +124,7 @@ void main(string[] args)
 	Map<string,string> field;
 	string method = $env.REQUEST_METHOD;
 	if (method == "POST") {
-		Bytes b = new byte[(int)$env.CONTENT_LENGTH];
-		IN.read(b, 0, b.getSize());
-		field = parseQuery(b.decode());
+		field = Cgi.parseQuery(IN.readLine());
 		switch (field["type"]) {
 		case "eval":
 			a.auth(cookie["SID"]["val"]);
@@ -141,7 +139,7 @@ void main(string[] args)
 			break;
 		}
 	} else if (method == "GET") {
-		field = parseQuery($env.QUERY_STRING);
+		field = Cgi.parseQuery($env.QUERY_STRING);
 		switch (field["type"]) {
 		case "signout":
 			a.signoutOauth();

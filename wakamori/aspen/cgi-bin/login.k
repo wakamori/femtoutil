@@ -5,11 +5,13 @@
  * (c) chen_ji
  */
 
-if (not defined INCLUDE_DB) {
-	include "db.k";
-}
 using konoha.liboauth.*;
 using konoha.cookie.*;
+using konoha.cgi.*;
+
+if (not defined INCLUDE_STORAGE) {
+	include "storage.k";
+}
 
 REQUEST_TOKEN_URL = "";
 ACCESS_TOKEN_URL  = "";
@@ -64,7 +66,7 @@ class LoginManager
 	}
 
 	Map<string,string> getAccessToken(string rtoken, string rtoken_secret) {
-		Map<string,string> field = parseQuery($env.QUERY_STRING);
+		Map<string,string> field = Cgi.parseQuery($env.QUERY_STRING);
 		if (field["denied"] != null) {
 			redirectToIndex();
 		}
@@ -90,6 +92,11 @@ void main()
 
 	string uid = m["user_id"];
 	string screen_name = m["screen_name"];
+	if (uid == null) {
+		// oauth failed
+		OUT << "Content-Type: text/plain\n" << EOL;
+		throw new Script!!("OAuth failed.");
+	}
 	Storage storage = new Storage();
 
 	if (not storage.hasUser(uid)) {

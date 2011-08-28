@@ -7,8 +7,8 @@
 
 using konoha.cookie.*;
 include "login.k";
-if (not defined INCLUDE_DB) {
-	include "db.k";
+if (not defined INCLUDE_STORAGE) {
+	include "storage.k";
 }
 
 string html = ##<!DOCTYPE html>

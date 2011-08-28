@@ -1,28 +1,16 @@
 #!/usr/local/bin/konoha
 
 /*
- * db.k : for storing user data
+ * storage.k : for storing user data
  * (c) shinpei_NKT, chen_ji
  */
 
-INCLUDE_DB = true;
+INCLUDE_STORAGE = true;
 
 using konoha.uuid.*;
 
 DB_NAME         = "";
 USER_TABLE_NAME = "";
-
-Map<string,string> parseQuery(string query)
-{
-	Map<string,string> ret = new Map<string,string>(0);
-	string[] queries = query.split("&");
-	foreach (string s in queries) {
-		//OUT << s << EOL;
-		string[] kv = s.split("=");
-		ret[kv[0]] = kv[1];
-	}
-	return ret;
-}
 
 class Storage
 {
