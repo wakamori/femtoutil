@@ -23,7 +23,7 @@ class Storage
 	}
 
 	boolean hasUser(string uid) {
-		string query = "select * from " + usr_tbl + " where uid=" + uid;
+		string query = "select * from " + usr_tbl + " where uid=\"" + uid + "\"";
 		ResultSet rs = con.query(query);
 		return rs.next();
 	}
@@ -45,7 +45,7 @@ class Storage
 
 	string renewSession(string uid) {
 		string sid = generateSid();
-		string query = "update " + usr_tbl + " set sid=\"" + sid + "\" where uid=" + uid;
+		string query = "update " + usr_tbl + " set sid=\"" + sid + "\" where uid=\"" + uid + "\"";
 		//print query;
 		//r = con.query("select sid from users where uid=" + uid);
 		//r.next();
@@ -68,12 +68,12 @@ class Storage
 
 	boolean createUserWithToken(string uid, string screen_name,
 			string access_token, string access_token_secret) {
-		string query = "insert into " + usr_tbl + " values(";
-			query += uid + ",";
-			query += ","; // sid
-			query += screen_name + ",";
-			query += access_token + ",";
-			query += access_token_secret + ")";
+		string query = "insert into " + usr_tbl + " values(\"";
+			query += uid + "\",";
+			query += "\"\",\""; // sid
+			query += screen_name + "\",\"";
+			query += access_token + "\",\"";
+			query += access_token_secret + "\")";
 		try {
 			con.exec(query);
 		} catch (Exception!! e) {

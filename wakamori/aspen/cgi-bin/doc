@@ -100,7 +100,11 @@ void main()
 			OUT << "Content-Type: text/html\n" << EOL;
 			OUT << html.replace($/%p/g, BASE_URL).replace($/%user/g, name) << EOL;
 		} else {
+			//OUT << "Content-Type: text/html\n" << EOL;
+			//print name;
+			cookie = new Cookie();
 			string past = "Thu, 01 Jan 1970 00:00:00 GMT";
+			cookie["SID"] = "dummy";
 			cookie["SID"]["expires"] = past;
 			cookie["SID"]["path"] = "/";
 			OUT << cookie.dump();

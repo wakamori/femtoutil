@@ -111,10 +111,10 @@ void main()
 
 	string past = "Thu, 01 Jan 1970 00:00:00 GMT";
 
-	cookie["request_token"] = "";
+	cookie["request_token"] = "dummy";
 	cookie["request_token"]["path"] = "/";
 	cookie["request_token"]["expires"] = past;
-	cookie["request_token_secret"] = "";
+	cookie["request_token_secret"] = "dummy";
 	cookie["request_token_secret"]["path"] = "/";
 	cookie["request_token_secret"]["expires"] = past;
 

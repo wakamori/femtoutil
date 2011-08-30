@@ -80,7 +80,7 @@ class Aspen
 	}
 
 	string getAspenVersion() {
-		string cmd = "/opt/local/bin/git --git-dir=" + git_path + " log -1 --format=\"%h\"";
+		string cmd = "git --git-dir=" + git_path + " log -1 --format=\"%h\"";
 		return exec(cmd).split("\n")[0];
 	}
 
@@ -135,7 +135,6 @@ class Aspen
 		} catch (Security!! e) {
 			// timeout
 			p.terminate();
-			OutputStream errfile = new OutputStream(errfilename, "a");
 			errfile << "KonohaScript was terminated because the program was ";
 			errfile << "running too long time (more than 3 minutes).";
 			errfile.close();
@@ -155,6 +154,7 @@ class Aspen
 				break;
 			default:
 				errfile << "Konoha exited unexpectedly with signal: " + r;
+				break;
 		}
 		errfile.close();
 
