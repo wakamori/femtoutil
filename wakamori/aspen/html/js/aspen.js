@@ -426,7 +426,8 @@ var Aspen = new Class({
 						//console.log("add result " + key + val);
 						var inputtxt = new Element("span", {
 							"class": key,
-							html: self.escapeText(val)
+							//html: self.escapeText(val)
+							html: val
 						});
 						inputtxt.inject(self.options.result);
 						var br = new Element("br");

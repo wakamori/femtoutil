@@ -90,6 +90,18 @@ class Aspen
 		return line.substring(line.indexOf("load"));
 	}
 
+	string escape(string text)
+	{
+		text = text.replace($/&/g, "&amp;");
+		text = text.replace($/</g, "&lt;");
+		text = text.replace($/>/g, "&gt;");
+		text = text.replace($/"/g, "&quot;");
+		text = text.replace($/ /g, "&nbsp;");
+		text = text.replace($/\r\n/g, "<br>");
+		text = text.replace($/(\n|\r)/g, "<br>");
+		return text;
+	}
+
 	void evalScript(string scr_name, string scr_body) {
 		storeScript(scr_name, scr_body);
 		string usr_path = base + "/" + scr_dir + "/" + uid;
@@ -158,18 +170,18 @@ class Aspen
 		}
 		errfile.close();
 
-		string msg = "time: " + ((to float)exetime / 1000) + "\\n";
-		msg += load + "\\n";
-		msg += "KonohaScript revision: " + krev + "\\n";
-		msg += "Aspen version: " + aver + "\\n";
+		string msg = "time: " + ((to float)exetime / 1000) + "<br>";
+		msg += load + "<br>";
+		msg += "KonohaScript revision: " + krev + "<br>";
+		msg += "Aspen version: " + aver + "<br>";
 		OUT << "Content-Type: application/json;charset=UTF-8\n" << EOL;
 		OUT << "{\"item\": [{\"key\": \"stderr\", \"value\": \"";
 		foreach (string s in new InputStream(errfilename, "r")) {
-			OUT << s.replace($/"/, "\\\"") + "\\n";
+			OUT << escape(s) << "<br>";
 		}
 		OUT << "\"}, {\"key\": \"stdout\", \"value\": \"";
 		foreach (string s in new InputStream(outfilename, "r")) {
-			OUT << s.replace($/"/, "\\\"") + "\\n";
+			OUT << escape(s) << "<br>";
 		}
 		OUT << "\"}, {\"key\": \"message\", \"value\": \"" + msg + "\"}]}" << EOL;
 	}
