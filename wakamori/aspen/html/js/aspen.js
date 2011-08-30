@@ -7,6 +7,20 @@
   modifed by chen_ji, shinpei_NKT
 */
 
+var resizeEditor = function(index) {
+	var height = window.getSize().y;
+	if (height >= 275) {
+		var editors = document.getElements(".CodeMirror");
+		if (index == undefined) {
+			editors.each(function(editor) {
+				editor.setStyle("height", (height - 236) + "px");
+			});
+		} else if (editors.length > index) {
+			editors[index].setStyle("height", (height - 236) + "px");
+		}
+	}
+};
+
 var Aspen = new Class({
 	Implements: Options,
 
@@ -70,6 +84,9 @@ var Aspen = new Class({
 		});
 		self.options.newbtn.addEvent("click", function() {
 			self.addTab("noname.k", "");
+			var index = self.options.tabpane.getElements("li.tab").length - 1;
+			myTabPane.showTab(index);
+			resizeEditor(index);
 		});
 		self.options.tabpane.addEvent("click:relay(.remove)", function(e) {
 			e.stop();
@@ -90,7 +107,7 @@ var Aspen = new Class({
 			//console.log("relaytab");
 			//console.log("resize");
 			var index = self.getActiveTabIndex();
-			window.fireEvent("resize", index);
+			resizeEditor(index);
 			//console.log("refresh");
 			self.options.codemirror[index].refresh();
 		});
@@ -138,7 +155,7 @@ var Aspen = new Class({
 				onSuccess: function(data) {
 					Shadowbox.init({
 						onFinish: function() {
-							self.setActions();
+							self.setActions(myTabPane);
 						}
 					});
 					Shadowbox.open({
@@ -243,12 +260,13 @@ var Aspen = new Class({
 		// myeditor.getWrapperElement().setStyle("display", "none");
 		var editordiv = document.getElements(".CodeMirror")[self.options.codemirror.length - 1];
 		editordiv.setStyle("display", "none");
+		//tabpane.showTab(tabpane.getElements("li").length - 1);
 
 		//console.log(self.options.codemirror);
 	},
 
 	// set filemanager action
-	setActions: function() {
+	setActions: function(myTabPane) {
 		var self = this;
 		document.getElements("div.dir").each(function(el) {
 			el.addEvent("click", function() {
@@ -270,6 +288,9 @@ var Aspen = new Class({
 				},
 				onSuccess: function(text) {
 					self.addTab(filename, text);
+					var index = self.options.tabpane.getElements("li.tab").length - 1;
+					myTabPane.showTab(index);
+					resizeEditor(index);
 				}
 			});
 			req.send();
@@ -455,19 +476,7 @@ window.addEvent("domready", function() {
 		result: document.id("result")
 	});
 	//console.log("resize");
-	window.fireEvent("resize", 0);
+	resizeEditor(0);
 });
 
-window.addEvent("resize", function(index) {
-	var height = window.getSize().y;
-	if (height >= 275) {
-		var editors = document.getElements(".CodeMirror");
-		if (index == undefined) {
-			editors.each(function(editor) {
-				editor.setStyle("height", (height - 236) + "px");
-			});
-		} else if (editors.length > index) {
-			editors[index].setStyle("height", (height - 236) + "px");
-		}
-	}
-});
+window.addEvent("resize", resizeEditor);
