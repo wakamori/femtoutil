@@ -389,7 +389,7 @@ var Aspen = new Class({
 					onSuccess: function(retUID) {
 						self.isEvalCompleted = false;
 						periodical = new Request({
-							url: self.options.cgipath.slice(0, -9) + "data/tmp/" + retUID + ".out",
+							url: self.options.cgipath.slice(0, -7) + "data/tmp/" + retUID + ".out",
 							method: "get",
 							initialDelay: 1000,
 							delay: 1000,
