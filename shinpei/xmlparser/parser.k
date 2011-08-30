@@ -3,7 +3,16 @@
 using konoha.xml.*;
 
 
-class BPMN2Node;
+class BPMN2Node {
+	int type;
+}
+
+/* types */
+NODETYPE_DEF = 1;
+NODETYPE_COLLABOLATION = 2;
+NODETYPE_PARTICIPANT = 3;
+NODETYPE_PROCESS = 4;
+
 class DefinitionsNode extends BPMN2Node {
 	String xsi;
 	String bpmn2;
@@ -12,6 +21,7 @@ class DefinitionsNode extends BPMN2Node {
 	String id;
 
 	DefinitionsNode () {
+		type = 
 		xsi = "";
 		bpmn2 = "";
 		dc = "";
@@ -19,6 +29,15 @@ class DefinitionsNode extends BPMN2Node {
 		id = "";
 	}
 }
+
+class CollaborationNode extends BPMN2Node {
+	String id;
+	CollaborationNode () {
+		id = "";
+	}
+}
+
+
 
 class TaskNode extends BPMN2Node;
 class ProcessNode extends BPMN2Node;
@@ -35,62 +54,78 @@ class DReader {
 	void doProcess () {
 		while(reader.read()){
 			type = reader.nodeType();
-//			OUT <<< "type=" <<< reader.constName() <<< EOL;
 			String nodeType = reader.constName();
 			BPMN2Node node;
-
+			print nodeType;
 			switch (nodeType) {
 			case "bpmn2:definitions":
-				DefinitionsNode n2 = new DefinitionsNode();
-				print reader.hasAttributes();
-				print reader.getAttributeCount();
-				print reader.moveToNextAttribute();
-				type = reader.nodeType();
-				print "depth=" + reader.depth;
-				if (type == XmlReader.TYPE_ELEMENT) {
-					print "element";
+				node = new DefinitionsNode();
+				DefinitionsNode n2 = (DefinitionsNode)node;
+				int attrCount = 0;
+				if (reader.hasAttributes()) {
+					attrCount = reader.getAttributeCount();
+				}
+				reader.moveToNextAttribute();
+				if (reader.nodeType() == XmlReader.TYPE_ATTRIBUTE) {
+					n2.xsi = reader.constValue();
+					print reader.constName();
 				} else {
-					print type;
-					print XmlReader.TYPE_ATTRIBUTE;
+					print "error!";
+					break;
 				}
 
-				print reader.hasAttributes();
-				print reader.getAttributeCount();
-				print "Name:" + reader.constName() + ",Value:" + reader.constValue();
-				n2.xsi = reader.constValue();
 				reader.moveToNextAttribute();
-				print "Name:" + reader.constName() + ",Value:" + reader.constValue();
-				n2.bpmn2 = reader.constValue();
-				reader.moveToNextAttribute();
-				n2.dc = reader.constValue();
-				n2.di = reader.constValue();
-				n2.id = reader.constValue();
+				if (reader.nodeType() == XmlReader.TYPE_ATTRIBUTE) {
+					n2.bpmn2 = reader.constValue();
+					print reader.constName();
+				} else {
+					print "error!";
+					break;
+				}
 
-				break;
-			case "bpmn2:task":
+				reader.moveToNextAttribute();
+				if (reader.nodeType() == XmlReader.TYPE_ATTRIBUTE) {
+					n2.dc = reader.constValue();
+				} else {
+					print "error!";
+					break;
+				}
+				reader.moveToNextAttribute();
+				if (reader.nodeType() == XmlReader.TYPE_ATTRIBUTE) {
+					n2.di = reader.constValue();
+				} else {
+					print "error!";
+					break;
+				}
+				reader.moveToNextAttribute();
+				if (reader.nodeType() == XmlReader.TYPE_ATTRIBUTE) {
+					n2.id = reader.constValue();
+				} else {
+					print "error!";
+					break;
+				}
+
 				break;
 			case "bpmn2:collaboration":
+				node = new CollaborationNode();
+				CollaborationNode n2 = (CollaborationNode)node;
+				int attrCount = 0;
+				if (reader.hasAttributes()) {
+					attrCount = reader.getAttributeCount();
+				}
+				reader.moveToNextAttribute();
+				if (reader.nodeType() == XmlReader.TYPE_ATTRIBUTE) {
+					n2.id = reader.constValue();
+				}
+				break;
+			case "bpmn2:participant":
+				
+				
+			case "bpmn2:task":
 				break;
 			case "bpmn2:process":
-				print "hi";
 				break;
 			}
-
-/*
-			if(reader.hasAttributes() && reader.getAttributeCount() > 0){
-				while(reader.moveToNextAttribute()){
-					OUT << reader.constName() + "=" + reader.constValue() << EOL;
-				}
-			}
-			if(type == XmlReader.TYPE_ELEMENT && reader.constName() == "title"){
-				reader.read();
-				if(reader.nodeType() == XmlReader.TYPE_TEXT){
-					OUT  << reader.constValue() << EOL;
-				}
-			} else if(type == XmlReader.TYPE_ATTRIBUTE){
-				OUT << "att:" + reader.getAttribute() << EOL;
-			}
-*/
 		}
 	}
 }
