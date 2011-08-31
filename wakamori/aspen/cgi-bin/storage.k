@@ -73,7 +73,8 @@ class Storage
 			query += "\"\",\""; // sid
 			query += screen_name + "\",\"";
 			query += access_token + "\",\"";
-			query += access_token_secret + "\")";
+			query += access_token_secret + "\", \"";
+			query += "User" + "\")";
 		try {
 			con.exec(query);
 		} catch (Exception!! e) {
