@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta charset="UTF8">
+	<title>D-Orchestra</title>
+	<link type="text/css" href="../css/d-orchestra.css" rel="Stylesheet" />
+<!--	<script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script>-->
+<!--	<script type="text/javascript" src="../js/lib/fast.js"></script>-->
+	<script src="../js/mootools-1.2.4-core-nc.js"></script>
+	<script src="../js/mootools-1.2.4.4-more.js"></script>
+	<script type="text/javascript" src="../js/lib/actor.js"></script>
+	<script type="text/javascript" src="../js/lib/rect.js"></script>
+	<script type="text/javascript" src="../js/lib/sphere.js"></script>
+	<script type="text/javascript" src="../js/lib/texture.js"></script>
+	<script type="text/javascript" src="../js/lib/text.js"></script>
+	<script type="text/javascript" src="../js/lib/notify.js"></script>
+	<script type="text/javascript" src="../js/lib/table.js"></script>
+<!--	<script type="text/javascript" src="../js/lib/glow_line.js"></script>-->
+	<script type="text/javascript" src="../js/kong.js"></script>
+	<script type="text/javascript" src="../js/ebi_propertybox.js"></script>
+	<script type="text/javascript" src="../js/ebi_graph.js"></script>
+	<script type="text/javascript" src="../js/ebi_layout.js"></script>
+	<script type="text/javascript" src="../js/ebi_node.js"></script>
+	<script type="text/javascript" src="../js/ebi_edge.js"></script>
+	<script type="text/javascript" src="../js/ebi_utility.js"></script>
+	<script type="text/javascript" src="../js/d-orchestra.js"></script>
+  </head>
+  <body topmargin='0' leftmargin='0' marginwidth="0" marginheight="0">
+	<!--
+	<h4>D-Orchestra</h4>
+	-->
+	<div id='textdiv'>status here.</div>
+	<div class="buttons toolPane">
+	  <a href="#" onclick="loadEbigram()" class="regular">LOAD</a>
+	  <a href="#" onclick="saveEbigram()" class="regular">SAVE</a>
+	  <a href="" class="regular">REFRESH</a>
+	  <a href="" class="regular">HELP</a>
+	</div>
+	<div id='mainPane' class="mainPane">
+	  <div id='ebigramPane' class="ebigramPane">
+		<!--<div id='ebigramPane'>-->
+		<canvas id="ebidiagram" width=1140 height=800></canvas>
+	  </div>
+	  <div class='propertybox' id='propertybox' style='display:none'>
+		<div class="property_bool" id='property_isActive'>
+		  <div class="property_bool_key"></div>
+		  <div class="property_bool_value" id="isActive_value" tag=""></div>
+		</div>
+		<div class="property_string" id="property_caption">
+		  <div class="property_string_key"></div>
+		  <div class="property_string_value" id="caption_value"></div>
+		</div>
+	  </div>
+	  <div id="console">
+		↑
+	  </div>
+	</div>
+  </body>
+</html>
+
