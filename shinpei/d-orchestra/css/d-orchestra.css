@@ -1,0 +1,257 @@
+div.mainPane {
+	width: 1140px;
+	height:800px;
+	margin:0px;
+	padding:0px;
+	/*background-color:black;*/
+/*	-webkit-transition: 1s ease-in-out;*/
+}
+
+
+/*
+  div.propertyboxPane {
+	width: 194px;
+	height: 400px;
+	margin:0px;
+	padding:0px;
+	display:inline-block;
+	color : white;	
+	vertical-align:top;
+}
+*/
+
+div.propertybox {
+	color : black;
+	border : solid 2px #222222;
+	padding : 5px;
+	position : absolute;
+	display : none;
+	top : 120px;
+	left : 130px;
+	background-color: #ffffff;
+	opacity : .95;
+	-moz-opacity : .95;
+	width:194px;
+	height : 200px;
+	-webkit-border-radius : 10px;
+	-webkit-transition:  1s ease-in-out;
+}
+
+div.propertybox:hover {
+	-webkit-box-shadow: 10px 3px 15px #222222;
+
+}
+div.ebigramPane {
+	width:1240px;
+	height:800px;
+	margin:0px;
+	padding:0px;
+	/*background-color:black;*/
+	display:inline-block;
+}
+
+div.toolPane {
+ margin : 3px 3px 10px 10px;	
+}
+
+div.property_bool {
+	display : block;
+}
+
+div.property_bool_key {
+	display : inline;
+	color : #a74ac7;
+	
+}
+
+div.property_bool_value {
+	display: inline;
+	background-color : black;
+	editable : true;
+	
+}
+
+input.property_boolean_editor {
+	display : inline;
+	width : 60px;
+	font-size : 12pt;
+	border : solid 1px #222222;
+	color : black;
+	background-color : #cccccc;
+	-webkit-border-radius : 5px;
+	
+}
+
+div.property_string {
+	display : block;
+	width : 200px;
+	overflow-x : visible;
+}
+
+div.property_string_key {
+	display : inline-block;
+	color : #a74ac7;
+	overflow-x : visible;
+}
+
+div.property_image_key {
+	display : inline-block;
+	color : #a74ac7;
+	overflow-x : visible;
+}
+
+div.property_image_value {
+	display : inline-block;
+	color : #a74ac7;
+	overflow-x : visible;
+}
+
+div.property_string_value {
+	display: inline-block;
+	color : black;
+	editable : true;
+	overflow-x : visible;
+}
+
+input.property_string_editor {
+	display : inline;
+	width : 100px;
+	font-size : 12pt;
+	border : solid 1px #222222;
+	color : black;
+	background-color : #cccccc;
+	-webkit-border-radius : 5px;
+}
+
+
+div.property_integer {
+	display : block;
+}
+
+div.property_integer_key {
+	display : inline;
+	color : #a74ac7;
+}
+
+div.property_integer_value {
+	display: inline;
+	background-color : white;
+	editable : true;
+}
+
+
+#console {
+	display : block;
+	background-color : black;
+	opacity : .75;
+	width : 1100px;
+	height : 10px;
+	position : absolute;
+	top : 830px;
+	left : 0px;
+	color : white;
+	padding : 10px 20px;
+	font-size : 11pt;
+	-webkit-transition:all 1.0s ease-in-out;
+	text-align : center;
+}
+
+
+
+.buttons a, .buttons button{
+    margin:0 7px 7px 0;
+    background-color:#f5f5f5;
+    border:1px solid #dedede;
+    border-top:1px solid #eee;
+    border-left:1px solid #eee;
+
+    font-family:"Lucida Grande", Tahoma, Arial, Verdana, sans-serif;
+    font-size:12px;
+    line-height:130%;
+    text-decoration:none;
+    font-weight:bold;
+    color:#565656;
+    cursor:pointer;
+    padding:5px 10px 6px 7px; /* Links */
+}
+.buttons button{
+    width:auto;
+    overflow:visible;
+    padding:4px 10px 3px 7px; /* IE6 */
+}
+.buttons button[type]{
+    padding:5px 10px 5px 7px; /* Firefox */
+    line-height:17px; /* Safari */
+}
+*:first-child+html button[type]{
+    padding:4px 10px 3px 7px; /* IE7 */
+}
+.buttons button img, .buttons a img{
+    margin:0 3px -3px 0 !important;
+    padding:0;
+    border:none;
+    width:16px;
+    height:16px;
+}
+
+/* STANDARD */
+
+
+button:hover, .buttons a:hover{
+    background-color:#dff4ff;
+    border:1px solid #c2e1ef;
+    color:#336699;
+}
+.buttons a:active{
+    background-color:#6299c5;
+    border:1px solid #6299c5;
+    color:#fff;
+}
+
+/* POSITIVE */
+
+button.positive, .buttons a.positive{
+    color:#529214;
+}
+.buttons a.positive:hover, button.positive:hover{
+    background-color:#E6EFC2;
+    border:1px solid #C6D880;
+    color:#529214;
+}
+.buttons a.positive:active{
+    background-color:#529214;
+    border:1px solid #529214;
+    color:#fff;
+}
+
+/* NEGATIVE */
+
+.buttons a.negative, button.negative{
+    color:#d12f19;
+}
+.buttons a.negative:hover, button.negative:hover{
+    background:#fbe3e4;
+    border:1px solid #fbc2c4;
+    color:#d12f19;
+}
+.buttons a.negative:active{
+    background-color:#d12f19;
+    border:1px solid #d12f19;
+    color:#fff;
+}
+
+/* REGULAR */
+
+button.regular, .buttons a.regular{
+    color:#336699;
+}
+.buttons a.regular:hover, button.regular:hover{
+    background-color:#dff4ff;
+    border:1px solid #c2e1ef;
+    color:#336699;
+}
+.buttons a.regular:active{
+    background-color:#6299c5;
+    border:1px solid #6299c5;
+    color:#fff;
+}
