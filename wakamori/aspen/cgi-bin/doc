@@ -103,7 +103,7 @@ void main()
 			OUT << "Content-Type: text/html\n" << EOL;
 			html = html.replace($/%p%/g, BASE_URL);
 			html = html.replace($/%user%/g, name);
-			if (storage.getRole(storage.getUid(cookie["SID"]["val"])) == "Administrator") {
+			if (storage.getRole(storage.getUid(cookie["SID"]["val"])).indexOf("Administrator") != -1) {
 				html = html.replace($/%admin%/g, admin.replace($/%p%/, BASE_URL));
 			} else {
 				html = html.replace($/%admin%/g, "");
