@@ -31,8 +31,8 @@ class Storage
 	string selectRecord(string record, string sid) {
 		string query = "select " + record + " from " + usr_tbl + " where sid=\"" + sid + "\"";
 		ResultSet rs = con.query(query);
-		if (!rs.next()) return "";
-		return rs[0];
+		if (!rs.next()) return null;
+		return rs.getString(0);
 	}
 
 	string getUid(string sid) {
@@ -41,6 +41,13 @@ class Storage
 
 	string getScreenName(string sid) {
 		return selectRecord("screen_name", sid);
+	}
+
+	string getRole(string uid) {
+		string query = "select role from " + usr_tbl + " where uid=\"" + uid + "\";";
+		ResultSet rs = con.query(query);
+		if (!rs.next()) return null;
+		return rs.getString(0);
 	}
 
 	string renewSession(string uid) {
@@ -57,13 +64,30 @@ class Storage
 		return sid;
 	}
 
+	void updateUserRole(string uid, string role) {
+		string query = "update " + usr_tbl + " set role=\"" + role + "\" where uid=\"" + uid + "\"";
+		con.exec(query);
+	}
+
 	string generateSid() {
 		return Uuid.getUuid4();
 	}
 
-	Tuple<String, String> getAccessToken(string sid) {
-		return (selectRecord("access_token", sid),
-				selectRecord("access_token_secret", sid));
+	//Tuple<string, string> getAccessToken(string sid) {
+	//	string query = "select access_token, access_token_secret from " + usr_tbl + " where sid=\"" + sid + "\"";
+	//	ResultSet rs = con.query(query);
+	//	if (!rs.next()) return null;
+	//	return (rs.getString(0), rs.getString(1));
+	//}
+
+	Tuple<string, string, string>[] getUserList() {
+		string query = "select uid, screen_name, role from " + usr_tbl + ";";
+		ResultSet rs = con.query(query);
+		Tuple<string, string, string>[] ret = [];
+		while (rs.next()) {
+			ret.add((rs.getString(0), rs.getString(1), rs.getString(2)));
+		}
+		return ret;
 	}
 
 	boolean createUserWithToken(string uid, string screen_name,

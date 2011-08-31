@@ -172,7 +172,7 @@ var Aspen = new Class({
 				url: self.options.cgipath,
 				method: "get",
 				data: {
-					"type": "logout",
+					"type": "signout",
 					"time": new Date().getTime() // for IE
 				},
 				onSuccess: function(data) {

@@ -23,28 +23,28 @@ string html = ##<!DOCTYPE html>
               ##		<![endif]-->
               ##
               ##		<!-- codemirror -->
-              ##		<script src="%pjs/codemirror.js"></script>
-              ##		<script src="%pjs/autocompletion.js"></script>
-              ##		<link rel="stylesheet" href="%pcss/codemirror.css">
+              ##		<script src="%p%js/codemirror.js"></script>
+              ##		<script src="%p%js/autocompletion.js"></script>
+              ##		<link rel="stylesheet" href="%p%css/codemirror.css">
               ##
               ##		<!-- syntax highlight -->
-              ##		<script src="%pjs/konoha.js"></script>
-              ##		<link rel="stylesheet" href="%pcss/konoha.css">
+              ##		<script src="%p%js/konoha.js"></script>
+              ##		<link rel="stylesheet" href="%p%css/konoha.css">
               ##
               ##		<!-- mootools -->
-              ##		<script src="%pjs/mootools-core-1.3.2-full-compat.js"></script>
-              ##		<script src="%pjs/mootools-more-1.3.2.1.js"></script>
+              ##		<script src="%p%js/mootools-core-1.3.2-full-compat.js"></script>
+              ##		<script src="%p%js/mootools-more-1.3.2.1.js"></script>
               ##
               ##		<!-- shadowbox -->
-              ##		<script src="%plib/shadowbox-3.0.3/shadowbox.js"></script>
-              ##		<link rel="stylesheet" href="%plib/shadowbox-3.0.3/shadowbox.css">
+              ##		<script src="%p%lib/shadowbox-3.0.3/shadowbox.js"></script>
+              ##		<link rel="stylesheet" href="%p%lib/shadowbox-3.0.3/shadowbox.css">
               ##
               ##		<!-- tab pane -->
-              ##		<script src="%pjs/TabPane.js"></script>
+              ##		<script src="%p%js/TabPane.js"></script>
               ##
               ##		<!-- aspen -->
-              ##		<script src="%pjs/aspen.js"></script>
-              ##		<link rel="stylesheet" href="%pcss/aspen.css">
+              ##		<script src="%p%js/aspen.js"></script>
+              ##		<link rel="stylesheet" href="%p%css/aspen.css">
               ##	</head>
               ##	<body>
               ##		<!-- header menu -->
@@ -56,9 +56,10 @@ string html = ##<!DOCTYPE html>
               ##				<div class="menubutton"><a id="eval" href="#run">Run</a></div>
               ##			</div>
               ##			<div id="topmenu_r">
-              ##				<img src="http://img.tweetimag.es/i/%user_m" alt="%user"
+              ##				<img src="http://img.tweetimag.es/i/%user%_m" alt="%user%"
               ##				align="top" />
-              ##				<div class="userinfo" id="user">%user</div>
+              ##				<div class="userinfo" id="user">%user%</div>
+              ##				%admin%
               ##				<div class="menubutton"><a id="sign_out" href="#signout">Sign
               ##				out</a></div>
               ##			</div>
@@ -76,6 +77,8 @@ string html = ##<!DOCTYPE html>
               ##		</div>
               ##	</body>
               ##</html>
+
+string admin = ##<div class="menubutton"><a id="admin" href="%p%cgi-bin/aspen.k?type=admin">Admin</a></div>
 
 void redirect()
 {
@@ -98,7 +101,15 @@ void main()
 		string name = storage.getScreenName(cookie["SID"]["val"]);
 		if (name != "") {
 			OUT << "Content-Type: text/html\n" << EOL;
-			OUT << html.replace($/%p/g, BASE_URL).replace($/%user/g, name) << EOL;
+			html = html.replace($/%p%/g, BASE_URL);
+			html = html.replace($/%user%/g, name);
+			if (storage.getRole(cookie["SID"]["val"]) == "Administrator") {
+				html = html.replace($/%admin%/g, admin.replace($/%p%/, BASE_URL));
+			} else {
+				html = html.replace($/%admin%/g, "");
+			}
+			OUT << html;
+			OUT.flush();
 		} else {
 			//OUT << "Content-Type: text/html\n" << EOL;
 			//print name;

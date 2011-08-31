@@ -19,6 +19,41 @@ SCRIPT_DIR  = "";
 BUG_DIR     = "";
 TMP_DIR     = "";
 
+string admin_menu = ##<!DOCTYPE html>
+                    ##<html lang="ja">
+                    ##<head>
+                    ##<meta charset="UTF-8">
+                    ##<title>Admin Menu - Aspen</title>
+                    ##<style>
+                    ##body { padding: 1em; margin: auto; }
+                    ##table, td, th { border: 1px black solid; border-spacing: 0px;}
+                    ##td, th { padding: 3px; }
+                    ##</style>
+                    ##</head>
+                    ##<body>
+                    ##<header>
+                    ##<h1>Admin Menu</h1>
+                    ##</header>
+                    ##<form action="aspen.k" method="POST">
+                    ##<input type="hidden" name="type" value="update">
+                    ##<table>
+                    ##<caption>
+                    ##<strong>You can modify user roles by filling the form below.</strong>
+                    ##</caption>
+                    ##<thead>
+                    ##<tr><th>User ID</th><th>Screen Name</th><th>Role</th><th>New Role</th></tr>
+                    ##</thead>
+                    ##<tbody>
+                    ##%body%
+                    ##</tbody>
+                    ##</table>
+                    ##<p><input type="submit" value="Update Roles">
+                    ##<input type="reset" value="Reset"></p>
+                    ##<p><a href="doc">Back to editor</a></p>
+                    ##</form>
+                    ##</body>
+                    ##</html>
+
 void alarm_handler(int signum) {
 	throw new Security!!("too long");
 }
@@ -110,7 +145,7 @@ class Aspen
 		string[] cmd = [];
 		cmd.add("/usr/local/bin/konoha");
 		cmd.add("-a");
-		cmd.add("--enforce-security=" + "User");//storage.getRole(uid));
+		cmd.add("--enforce-security=" + storage.getRole(uid));
 		cmd.add(usr_path + "/" + scr_name);
 
 		Subprocess p = new Subprocess(cmd);
@@ -230,6 +265,19 @@ class Aspen
 		script << scr_body;
 		script.close();
 	}
+
+	void showAdminMenu() {
+		OUT << "Content-Type: text/html\n" << EOL;
+		Tuple<string, string, string>[] userlist = storage.getUserList();
+		string tbl_body = "";
+		foreach (Tuple<string, string, string> t in userlist) {
+			tbl_body += "<tr><td>" + t[0] + "</td><td>" + t[1] + "</td><td>";
+			tbl_body += t[2] + "</td><td><input type=\"text\" name=\"";
+			tbl_body += t[0] + "\" size=\"30\"></td>\n";
+		}
+		OUT << admin_menu.replace($/%body%/, tbl_body);
+		OUT.flush();
+	}
 }
 
 void main(string[] args)
@@ -255,6 +303,16 @@ void main(string[] args)
 			a.storeScript(field["name"], field["kscript"]);
 			a.printText("Script \"" + field["name"] + "\" was saved successfully.");
 			break;
+		case "update":
+			a.auth(cookie["SID"]["val"]);
+			foreach (string key in field.keys()) {
+				string val = field[key];
+				if (key != "type" && val != "") {
+					a.getStorage().updateUserRole(key, val);
+				}
+			}
+			OUT << "Location: aspen.k?type=admin\n" << EOL;
+			break;
 		default:
 			throw new Script!!("POST does not have type " + field["type"] + ".");
 			break;
@@ -276,6 +334,10 @@ void main(string[] args)
 		case "getUID":
 			a.auth(cookie["SID"]["val"]);
 			a.printText(a.getUid());
+			break;
+		case "admin":
+			a.auth(cookie["SID"]["val"]);
+			a.showAdminMenu();
 			break;
 		default:
 			throw new Script!!("GET does not have type " + field["type"] + ".");
