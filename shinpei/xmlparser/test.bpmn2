@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="_WezgwNPBEeChSZHvp1uQMg">
+  <bpmn2:collaboration id="_WezgwdPBEeChSZHvp1uQMg">
+    <bpmn2:participant id="_WezgwtPBEeChSZHvp1uQMg" name="Internal" processRef="_WfFNkNPBEeChSZHvp1uQMg"/>
+  </bpmn2:collaboration>
+  <bpmn2:process id="_WfFNkNPBEeChSZHvp1uQMg" name="Process for Internal">
+    <bpmn2:startEvent id="event_start" name="Start">
+      <bpmn2:outgoing>_aS6rkNPBEeChSZHvp1uQMg</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:scriptTask id="stop_webserver" name="Stop Webserver">
+      <bpmn2:incoming>_aS6rkNPBEeChSZHvp1uQMg</bpmn2:incoming>
+      <bpmn2:outgoing>_atAmkNPBEeChSZHvp1uQMg</bpmn2:outgoing>
+    </bpmn2:scriptTask>
+    <bpmn2:endEvent id="event_end" name="End">
+      <bpmn2:incoming>_bdscodPBEeChSZHvp1uQMg</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:scriptTask id="stop_appserver" name="Stop Application Server">
+      <bpmn2:incoming>_atAmkNPBEeChSZHvp1uQMg</bpmn2:incoming>
+      <bpmn2:outgoing>_bHDeQdPBEeChSZHvp1uQMg</bpmn2:outgoing>
+    </bpmn2:scriptTask>
+    <bpmn2:scriptTask id="stop_dbserver" name="Stop Database">
+      <bpmn2:incoming>_bHDeQdPBEeChSZHvp1uQMg</bpmn2:incoming>
+      <bpmn2:outgoing>_bdscodPBEeChSZHvp1uQMg</bpmn2:outgoing>
+    </bpmn2:scriptTask>
+    <bpmn2:sequenceFlow id="_aS6rkNPBEeChSZHvp1uQMg" name="Sequence Flow" sourceRef="event_start" targetRef="stop_webserver"/>
+    <bpmn2:sequenceFlow id="_atAmkNPBEeChSZHvp1uQMg" name="Sequence Flow" sourceRef="stop_webserver" targetRef="stop_appserver"/>
+    <bpmn2:sequenceFlow id="_bHDeQdPBEeChSZHvp1uQMg" name="Sequence Flow" sourceRef="stop_appserver" targetRef="stop_dbserver"/>
+    <bpmn2:sequenceFlow id="_bdscodPBEeChSZHvp1uQMg" name="Sequence Flow" sourceRef="stop_dbserver" targetRef="event_end"/>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="_bnrfENPBEeChSZHvp1uQMg">
+    <bpmndi:BPMNPlane id="_bnrfEdPBEeChSZHvp1uQMg" bpmnElement="_WfFNkNPBEeChSZHvp1uQMg">
+      <bpmndi:BPMNShape id="_XeKsANPBEeChSZHvp1uQMg" bpmnElement="event_start">
+        <dc:Bounds height="51.0" width="36.0" x="200.0" y="198.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_X0kZ0NPBEeChSZHvp1uQMg" bpmnElement="event_end">
+        <dc:Bounds height="51.0" width="36.0" x="710.0" y="198.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_YIGZ0NPBEeChSZHvp1uQMg" bpmnElement="stop_webserver">
+        <dc:Bounds height="50.0" width="110.0" x="280.0" y="191.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_ZIJhkNPBEeChSZHvp1uQMg" bpmnElement="stop_appserver">
+        <dc:Bounds height="50.0" width="110.0" x="430.0" y="190.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_ZmMvgNPBEeChSZHvp1uQMg" bpmnElement="stop_dbserver">
+        <dc:Bounds height="50.0" width="110.0" x="580.0" y="191.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="_aS6rkdPBEeChSZHvp1uQMg" bpmnElement="_aS6rkNPBEeChSZHvp1uQMg" sourceElement="_XeKsANPBEeChSZHvp1uQMg" targetElement="_YIGZ0NPBEeChSZHvp1uQMg">
+        <di:waypoint xsi:type="dc:Point" x="236.0" y="216.0"/>
+        <di:waypoint xsi:type="dc:Point" x="280.0" y="216.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_atAmkdPBEeChSZHvp1uQMg" bpmnElement="_atAmkNPBEeChSZHvp1uQMg" sourceElement="_YIGZ0NPBEeChSZHvp1uQMg" targetElement="_ZIJhkNPBEeChSZHvp1uQMg">
+        <di:waypoint xsi:type="dc:Point" x="390.0" y="216.0"/>
+        <di:waypoint xsi:type="dc:Point" x="430.0" y="215.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_bHEFUNPBEeChSZHvp1uQMg" bpmnElement="_bHDeQdPBEeChSZHvp1uQMg" sourceElement="_ZIJhkNPBEeChSZHvp1uQMg" targetElement="_ZmMvgNPBEeChSZHvp1uQMg">
+        <di:waypoint xsi:type="dc:Point" x="540.0" y="215.0"/>
+        <di:waypoint xsi:type="dc:Point" x="580.0" y="216.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="_bdtDsNPBEeChSZHvp1uQMg" bpmnElement="_bdscodPBEeChSZHvp1uQMg" sourceElement="_ZmMvgNPBEeChSZHvp1uQMg" targetElement="_X0kZ0NPBEeChSZHvp1uQMg">
+        <di:waypoint xsi:type="dc:Point" x="690.0" y="216.0"/>
+        <di:waypoint xsi:type="dc:Point" x="710.0" y="216.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>
