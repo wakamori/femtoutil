@@ -7,26 +7,12 @@
   modifed by chen_ji, shinpei_NKT
 */
 
-var resizeEditor = function(index) {
-	var height = window.getSize().y;
-	if (height >= 275) {
-		var editors = document.getElements(".CodeMirror");
-		if (index == undefined) {
-			editors.each(function(editor) {
-				editor.setStyle("height", (height - 236) + "px");
-			});
-		} else if (editors.length > index) {
-			editors[index].setStyle("height", (height - 236) + "px");
-		}
-	}
-};
-
 var Aspen = new Class({
 	Implements: Options,
 
 	options: {
-		url: "http://127.0.0.1/aspen/",
-		cgipath: "http://127.0.0.1/aspen/cgi-bin/aspen.k",
+		url: "http://localhost/aspen/",
+		cgipath: "http://localhost/aspen/cgi-bin/aspen.cgi",
 		tabpane: null,
 		runbtn: null,
 		"newbtn": null,
@@ -56,7 +42,7 @@ var Aspen = new Class({
 		//	url: self.options.cgipath,
 		//	method: "get",
 		//	data: {
-		//		"type": "load",
+		//		"method": "load",
 		//		"time": new Date().getTime() // for IE
 		//	},
 		//	onSuccess: function(responseText) {
@@ -84,9 +70,6 @@ var Aspen = new Class({
 		});
 		self.options.newbtn.addEvent("click", function() {
 			self.addTab("noname.k", "");
-			var index = self.options.tabpane.getElements("li.tab").length - 1;
-			myTabPane.showTab(index);
-			resizeEditor(index);
 		});
 		self.options.tabpane.addEvent("click:relay(.remove)", function(e) {
 			e.stop();
@@ -107,7 +90,7 @@ var Aspen = new Class({
 			//console.log("relaytab");
 			//console.log("resize");
 			var index = self.getActiveTabIndex();
-			resizeEditor(index);
+			window.fireEvent("resize", index);
 			//console.log("refresh");
 			self.options.codemirror[index].refresh();
 		});
@@ -131,7 +114,7 @@ var Aspen = new Class({
 			input.addEvent("blur", function() {
 				//console.log("blurred!");
 				var val = input.get("value").trim();
-				if (!val.match(/^[a-zA-Z0-9\.\-_]*$/)) {
+				if (!val.match(/^[a-zA-Z0-9\.\-_]+$/)) {
 					alert("You cannot use '" + val + "' as filename.");
 				} else {
 					this.destroy();
@@ -149,13 +132,13 @@ var Aspen = new Class({
 				url: self.options.cgipath,
 				method: "get",
 				data: {
-					"type": "open",
+					"method": "open",
 					"time": new Date().getTime() // for IE
 				},
 				onSuccess: function(data) {
 					Shadowbox.init({
 						onFinish: function() {
-							self.setActions(myTabPane);
+							self.setActions();
 						}
 					});
 					Shadowbox.open({
@@ -172,7 +155,7 @@ var Aspen = new Class({
 				url: self.options.cgipath,
 				method: "get",
 				data: {
-					"type": "signout",
+					"method": "logout",
 					"time": new Date().getTime() // for IE
 				},
 				onSuccess: function(data) {
@@ -186,7 +169,7 @@ var Aspen = new Class({
 				url: self.options.cgipath,
 				method: "post",
 				data: {
-					"type": "save",
+					"method": "save",
 					"name": document.getElement("li.tab.active").get("text").slice(0, -1),
 					"kscript": self.options.codemirror[self.getActiveTabIndex()].getValue()
 				},
@@ -260,13 +243,12 @@ var Aspen = new Class({
 		// myeditor.getWrapperElement().setStyle("display", "none");
 		var editordiv = document.getElements(".CodeMirror")[self.options.codemirror.length - 1];
 		editordiv.setStyle("display", "none");
-		//tabpane.showTab(tabpane.getElements("li").length - 1);
 
 		//console.log(self.options.codemirror);
 	},
 
 	// set filemanager action
-	setActions: function(myTabPane) {
+	setActions: function() {
 		var self = this;
 		document.getElements("div.dir").each(function(el) {
 			el.addEvent("click", function() {
@@ -282,15 +264,12 @@ var Aspen = new Class({
 				url: self.options.cgipath,
 				method: "get",
 				data: {
-					"type": "load",
+					"method": "load",
 					"file": filename,
 					"time": new Date().getTime() // for IE
 				},
 				onSuccess: function(text) {
 					self.addTab(filename, text);
-					var index = self.options.tabpane.getElements("li.tab").length - 1;
-					myTabPane.showTab(index);
-					resizeEditor(index);
 				}
 			});
 			req.send();
@@ -396,7 +375,7 @@ var Aspen = new Class({
 			url: self.options.cgipath,
 			method: "post",
 			data: {
-				"type": "eval",
+				"method": "eval",
 				"name": document.getElement("li.tab.active").get("text").slice(0, -1),
 				"kscript": text
 			},
@@ -405,12 +384,12 @@ var Aspen = new Class({
 					url: self.options.cgipath,
 					method: "get",
 					data: {
-						"type": "getUID"
+						"method": "getUID"
 					},
 					onSuccess: function(retUID) {
 						self.isEvalCompleted = false;
 						periodical = new Request({
-							url: self.options.cgipath.slice(0, -7) + "data/tmp/" + retUID + ".out",
+							url: self.options.cgipath.slice(0, -9) + "data/tmp/" + retUID + ".out",
 							method: "get",
 							initialDelay: 1000,
 							delay: 1000,
@@ -447,8 +426,7 @@ var Aspen = new Class({
 						//console.log("add result " + key + val);
 						var inputtxt = new Element("span", {
 							"class": key,
-							//html: self.escapeText(val)
-							html: val
+							html: self.escapeText(val)
 						});
 						inputtxt.inject(self.options.result);
 						var br = new Element("br");
@@ -467,6 +445,8 @@ var Aspen = new Class({
 
 window.addEvent("domready", function() {
 	var aspen = new Aspen({
+		url: "http://localhost/aspen/",
+		cgipath: "http://localhost/aspen/cgi-bin/aspen.cgi",
 		tabpane: document.id("tabpane"),
 		runbtn: document.id("eval"),
 		"newbtn": document.id("new"),
@@ -476,7 +456,19 @@ window.addEvent("domready", function() {
 		result: document.id("result")
 	});
 	//console.log("resize");
-	resizeEditor(0);
+	window.fireEvent("resize", 0);
 });
 
-window.addEvent("resize", resizeEditor);
+window.addEvent("resize", function(index) {
+	var height = window.getSize().y;
+	if (height >= 275) {
+		var editors = document.getElements(".CodeMirror");
+		if (index == undefined) {
+			editors.each(function(editor) {
+				editor.setStyle("height", (height - 236) + "px");
+			});
+		} else if (editors.length > index) {
+			editors[index].setStyle("height", (height - 236) + "px");
+		}
+	}
+});

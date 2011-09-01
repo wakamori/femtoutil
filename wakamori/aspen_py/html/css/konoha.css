@@ -1,0 +1,29 @@
+/* konoha syntax style */
+
+span.k-keyword {
+	color: #90b;
+}
+
+span.k-number {
+	color: #291;
+}
+
+span.k-comment {
+	color: #a70;
+}
+
+span.k-string {
+	color: #a22;
+}
+
+span.k-preprocessor {
+	color: #049;
+}
+
+span.k-var {
+	color: #22b;
+}
+
+span.k-annotation {
+	color: #666;
+}
