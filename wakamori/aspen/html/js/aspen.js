@@ -444,7 +444,12 @@ var Aspen = new Class({
 				getreq.send();
 			},
 			onSuccess: function(data) {
-				self.isEvalCompleted = true;
+				if (self.periodical != null) {
+					self.periodical.stopTimer();
+					self.periodical = null;
+				} else {
+					self.isEvalCompleted = true;
+				}
 				self.options.result.set("html", "");
 				var json = JSON.decode(data)["item"];
 				json.each(function (e) {
