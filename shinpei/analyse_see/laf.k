@@ -1,17 +1,16 @@
 #!/usr/local/bin/konoha
+/* -------------------------------------------
+ * laf.k : version 0.1.1
+ *  log analysis framework
+ *  shinpei(c)2011
+ *
+ * ------------------------------------------- */
 
 using konoha.math.*;
 
 include "logstream.k";
 include "logdata.k";
-include "objlivetime.k";
-include "classcount.k"
-/* ------------------------------------------- */
-/* [parameters] */
 
-CSV_MODE = true;
-CLASS_MODE = false;
-OBJLIVE_MODE = true;
 
 /* ------------------------------------------- */
 /* [command optiongs] */
@@ -23,67 +22,67 @@ Map<String, String> arg_options = {
 /* ------------------------------------------- */
 
 
-int main (String[] args)
-{
-	String filename = "log.txt";
-	String analyzername = "";
-	int argc = |args|;
-	OUT <<< "LAF: v0.1, " <<< EOL;
-	if (argc < 1) {
-		OUT <<< """
- warining!! you need logfile name.
- Usage : konoha laf.k [options] $logfile
+class Laf {
+	String input_filename;
+	String analyzer_name;
 
- Options""" <<< EOL;
-		foreach(String opt in arg_options.keys()) {
-			OUT <<< "  " <<< opt <<< ": "  <<< arg_options[opt] <<< EOL;
-		}
-		return 0;
-	} else { 
-		if (argc % 2 == 0) {
-			OUT <<< "warining!! you need logfile name." <<< EOL;
-			return 0;
-		}
-		int i;
-		for(i=0;i<argc;i++) {
-			String arg = args[i];
-			if (arg == "-a") {
-				analyzername = args[i+1];
-				i++;
-			}
-		}
-		filename = args[argc-1];
-	}
-	OUT <<< "using file: " <<< filename <<<", start streaming..." <<< EOL;
+	String prefix;
+	String suffix;
 
-
-	LogStream los = new LogStream(filename);
 	StreamAnalyzer ana;
-	String prefix = "";
-	String suffix = ".txt";
+	LogStream los;
+	OutputStream ous;
 
-
-	if (CLASS_MODE == true) {
-		ana = new ClassCountStreamAnalyzer();
-	}
-	if (OBJLIVE_MODE == true) {
-		ana = new ObjectLivetimeStreamAnalyzer();
-	}
-
-	if (CSV_MODE == true) {
+	Laf () {
+		input_filename = "log.txt";
+		analyzer_name = "";
+		prefix = "";
 		suffix = ".csv";
 	}
 
-	prefix = ana.name + "_"; // use analyze name as prefix
-	OutputStream ous = new OutputStream(prefix + filename + suffix, "w");
-	print "output is " + prefix + filename + suffix;
-//	Filter filter = new MyFilter(filter_name);
-//	los.addFilter(filter);
+	boolean parseArguments (String[] args) {
+		int argc = |args|;
+		OUT <<< "LAF: v0.1.1, " <<< EOL;
+		if (argc < 1) {
+			OUT <<< """
+ warining!! you need logfile name.
+ Options""" <<< EOL;
+			foreach(String opt in arg_options.keys()) {
+				OUT <<< "  " <<< opt <<< ": "  <<< arg_options[opt] <<< EOL;
+			}
+			return false;
+		} else { 
+			if (argc % 2 == 0) {
+				OUT <<< "warining!! you need logfile name." <<< EOL;
+				return false;
+			}
+			int i;
+			for(i = 0; i < argc; i++) {
+				String arg = args[i];
+				if (arg == "-a") {
+					analyzer_name = args[i + 1];
+					i++;
+				}
+			}
+			input_filename = args[argc - 1];
+		}
+		OUT <<< "using file: " <<< input_filename <<<", start streaming..." <<< EOL;
+		return true;
+	}
 
-	los.addStreamAnalyzer(ana);
-	los.setOus(ous);
-	los.doFilter();
-	los.destroy();
+	void prepare (StreamAnalyzer instance) {
+		ana = instance;
+	}
 
-	return 0;
+	void start ( ) {
+		los = new LogStream(input_filename);
+		prefix = ana.name + "_"; // use analyze name as prefix
+		ous = new OutputStream(prefix + input_filename + suffix, "w");
+		OUT <<< "output is " + prefix + input_filename + suffix <<< EOL;
+		los.addStreamAnalyzer(ana);
+		los.setOus(ous);
+		los.doAnalyze();
+		los.destroy();
+	}
 }
+

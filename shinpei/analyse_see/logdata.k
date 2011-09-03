@@ -14,11 +14,3 @@ class LogRawData extends AnalyzeData {
 	}
 }
 
-class FastMallocData extends LogRawData;
-class FastFreeData extends LogRawData;
-class FastReallocData extends LogRawData;
-class VallocData extends LogRawData;
-class VfreeData extends LogRawData;
-class CreateObjectData extends LogRawData;
-class DeleteObjectData extends LogRawData;
-class ClassNameData extends LogRawData;
