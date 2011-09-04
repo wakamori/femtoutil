@@ -39,6 +39,7 @@ var Aspen = new Class({
 
 	isEventAdded: false,
 	isEvalCompleted: true,
+	periodical: null,
 
 	initialize: function(options) {
 		var self = this;
@@ -78,6 +79,8 @@ var Aspen = new Class({
 				var text = editor.getValue();
 				//console.log(text);
 				if (text.length > 0) {
+					self.options.runbtn.setProperty("disabled", true);
+					self.options.runbtn.addClass("evaluating");
 					self.postScript(text);
 				}
 			}
@@ -227,6 +230,8 @@ var Aspen = new Class({
 					//mySlide.slideIn();
 					var text = editor.getValue();
 					if (text.length > 0) {
+						self.options.runbtn.setProperty("disabled", true);
+						self.options.runbtn.addClass("evaluating");
 						self.postScript(text);
 					}
 				}
@@ -389,9 +394,6 @@ var Aspen = new Class({
 			html: "Running ..."
 		});
 		inputtxt.inject(self.options.result);
-		self.options.runbtn.setProperty("disabled", true);
-		self.options.runbtn.addClass("evaluating");
-		var periodical = null;
 		var req = new Request({
 			url: self.options.cgipath,
 			method: "post",
@@ -408,8 +410,11 @@ var Aspen = new Class({
 						"type": "getUID"
 					},
 					onSuccess: function(retUID) {
-						self.isEvalCompleted = false;
-						periodical = new Request({
+						//self.isEvalCompleted = false;
+						if (self.periodical != null) {
+							return;
+						}
+						self.periodical = new Request({
 							url: self.options.cgipath.slice(0, -7) + "data/tmp/" + retUID + ".out",
 							method: "get",
 							initialDelay: 1000,
@@ -419,8 +424,10 @@ var Aspen = new Class({
 								//console.log("complete");
 								//console.log(self.isEvalCompleted);
 								if (self.isEvalCompleted) {
+									self.isEvalCompleted = false;
 									// kill itself
 									this.stopTimer();
+									self.periodical = null;
 									return;
 								}
 								self.options.result.set("html", "");
@@ -431,13 +438,18 @@ var Aspen = new Class({
 								inputtxt.inject(self.options.result);
 							}
 						});
-						periodical.startTimer();
+						self.periodical.startTimer();
 					}
 				});
 				getreq.send();
 			},
 			onSuccess: function(data) {
-				self.isEvalCompleted = true;
+				if (self.periodical != null) {
+					self.periodical.stopTimer();
+					self.periodical = null;
+				} else {
+					self.isEvalCompleted = true;
+				}
 				self.options.result.set("html", "");
 				var json = JSON.decode(data)["item"];
 				json.each(function (e) {
