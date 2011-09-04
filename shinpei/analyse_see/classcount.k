@@ -116,35 +116,4 @@ class ClassCountStreamAnalyzer extends StreamAnalyzer {
 		OUT.println("post-process done. bye...");
 		return;
 	} 
-
-/*		if (CSV_MODE == true) {
-			ous <<< createobj <<< "," ;
-			float average_live = live_sumtime / createobj;
-			ous <<< average_live <<< ",";
-			float variance_live = 0.0;
-			for (int i = 0; i < |livelog|; i++) {
-				time = (int)livelog[i];
-				variance_live += Math.pow((time - average_live), 2.0);
-			}
-			variance_live /= (createobj - 1);
-			ous <<< variance_live <<< ",";
-			float standard_deviation = Math.sqrt(variance_live);
-			ous <<< standard_deviation <<<  EOL;
-			ous.flush();
-		} else {
-			ous <<< "Created object: " <<< createobj <<< EOL;
-			float average_live = live_sumtime / createobj;
-			ous <<< "Avarage  live-time: " <<< average_live <<< EOL;
-			for (int i = 0; i < |livelog|; i++) {
-				time = (int)livelog[i];
-				variance_live += Math.pow((time - average_live), 2.0);
-			}
-			variance_live /= (createobj - 1);
-			ous <<< "Variance: " <<< variance_live <<< EOL;
-			float standard_deviation = Math.sqrt(variance_live);
-			ous <<< "Deviation(std): " <<< standard_deviation <<< EOL;
-			ous.flush();
-		}
-	}
-*/
 }

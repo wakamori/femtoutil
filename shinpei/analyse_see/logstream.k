@@ -61,7 +61,7 @@ class LogStream {
 		return _ins.readLine();
 	}
 
-	void doFilter(String filterName) {
+	void doAnalyze(String filterName) {
 		StreamAnalyzer a = _analyzers[0];
 		String ret, line;
 		OUT.println("analyzer: " + a.name);
