@@ -44,6 +44,23 @@ boolean Actor.eval(String script) {
     s.close();
 }
 
+void Actor.startActorMyself (int port) {
+	int ch;
+	string line = '';
+	OUT <<< "starting actor mode @port: " + port <<< EOL;
+	ServerSocket ss = new ServerSocekt(port, 3);
+
+	while(true) {
+		Socket conn = ss.accept();
+		OUT << "accepted" << EOL;
+		ins = conn.getInputStream();
+		String scr = ins.readMsgPack();
+		OUT << "received script: '" << scr << "'"<< EOL;
+		System.eval(scr);
+	}
+	OUT << "connection has closed" << EOL;
+}
+
 void Actor.startActor(int port) {
 
 
