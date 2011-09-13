@@ -33,19 +33,34 @@
 
 using konoha.socket.*;
 using konoha.io.*;
+using konoha.proc.*;
+
 
 boolean Actor.eval(String script) {
-    Socket s = new Socket(this.host, this.port);
-    OutputStream ous = s.getOutputStream();
-    print ous;
-    ous.writeMsgPack(script);
-    ous.flush();
-    ous.close();
-    s.close();
+	Socket s;
+	try {
+		s = new Socket(this.host, this.port);
+		OutputStream ous = s.getOutputStream();
+		//TODO: we need \n as a termination term
+		ous.writeMsgPack(script + "\n");
+		ous.flush();
+		ous.close();
+		s.close();
+	} catch (Exception!! e) {
+		print e;
+	}
+	return true;
 }
 
 void Actor.startActorMyself (int port) {
-	int ch;
+	p = new Proc(["/usr/local/bin/konoha", "mailbox.k", (String)port]);
+	print p;
+	InputStream ins = p.getInputStream();
+	while (p.isAlive()) {
+		String msg = ins.readLine();
+		System.eval(msg);
+	}
+/*	int ch;
 	string line = '';
 	OUT <<< "starting actor mode @port: " + port <<< EOL;
 	ServerSocket ss = new ServerSocekt(port, 3);
@@ -59,9 +74,6 @@ void Actor.startActorMyself (int port) {
 		System.eval(scr);
 	}
 	OUT << "connection has closed" << EOL;
+*/
 }
 
-void Actor.startActor(int port) {
-
-
-}

@@ -124,12 +124,12 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //	memcached_st *memc = memcached_create(NULL);
 //	memcached_server_st *servers = memcached_server_list_append(NULL, host, port, &rc);
 //	if (rc != MEMCACHED_SUCCESS) {
-//		fprintf(stderr, "%s\n", memcached_strerror(memc, rc));
+//		DBG_P( "%s\n", memcached_strerror(memc, rc));
 //		return 0;
 //	}
 //	rc = memcached_server_push(memc, servers);//servers ==> memc
 //	if (rc != MEMCACHED_SUCCESS) {
-//		fprintf(stderr, "%s\n", memcached_strerror(memc, rc));
+//		DBG_P( "%s\n", memcached_strerror(memc, rc));
 //		return 0;
 //	}
 //	memcached_server_list_free(servers);
@@ -143,10 +143,10 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //	uint32_t flags;
 //	const char *val = memcached_get(memc, key, strlen(key), &val_length, &flags, &rc);
 //	if (rc != MEMCACHED_SUCCESS) {
-//		fprintf(stderr, "%s\n", memcached_strerror(memc, rc));
+//		DBG_P( "%s\n", memcached_strerror(memc, rc));
 //		return NULL;
 //	}
-//	//fprintf(stderr, "get value = [%s]\n", val);
+//	//DBG_P( "get value = [%s]\n", val);
 //	return val;
 //}
 //
@@ -154,20 +154,20 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //{
 //	memcached_return rc = memcached_set(memc, key, strlen(key), val, strlen(val), (time_t)0, (uint32_t)0);
 //	if (rc != MEMCACHED_SUCCESS) {// && rc != MEMCACHED_STORED && rc != MEMCACHED_NOTSTORED) {
-//		//fprintf(stderr, "%s\n", memcached_strerror(memc, rc));
+//		//DBG_P( "%s\n", memcached_strerror(memc, rc));
 //		return;
 //	}
-//	//fprintf(stderr, "[set] : [%s] : [%s]\n", key, val);
+//	//DBG_P( "[set] : [%s] : [%s]\n", key, val);
 //}
 
 //static void memcached_addValue(memcached_st *memc, const char *key, const char *val)
 //{
 //	memcached_return rc = memcached_add(memc, key, strlen(key), val, strlen(val), (time_t)0, (uint32_t)0);
 //	if (rc != MEMCACHED_SUCCESS) {// && rc != MEMCACHED_STORED && rc != MEMCACHED_NOTSTORED) {
-//		//fprintf(stderr, "%s\n", memcached_strerror(memc, rc));
+//		//DBG_P( "%s\n", memcached_strerror(memc, rc));
 //		return;
 //	}
-//	//fprintf(stderr, "[add] : [%s] : [%s]\n", key, val);
+//	//DBG_P( "[add] : [%s] : [%s]\n", key, val);
 //}
 
 /* ------------------------------------------------------------------------ */
@@ -239,7 +239,7 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //	if (errfunc != NULL) {
 //		LOGDATA = {sDATA("host", ip_or_host), iDATA("port", port)};
 //		LIB_Failed(errfunc, "Socket!!");
-//		//fprintf(stderr, "Socket!! %s\n", perror());
+//		//DBG_P( "Socket!! %s\n", perror());
 //		perror("socket!!");
 //		sd = IO_NULL;
 //	} else {
@@ -247,7 +247,7 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //		NOTE_OK("socket");
 //	}
 //	if (sd == IO_NULL) {
-//		fprintf(stderr, "ERROR : cannot open socket\n");
+//		DBG_P( "ERROR : cannot open socket\n");
 //	}
 //	return (knh_io_t) sd;
 //}
@@ -391,7 +391,7 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //	int i = 0;
 //	for (i = 0; i < MAX_KMETHOD_NUM; i++) {
 //		if (!strncmp(mtd_name, info[i]->mtd_name, sizeof(mtd_name))) {
-//			//fprintf(stderr, "find method!!\n");
+//			//DBG_P( "find method!!\n");
 //			BEGIN_LOCAL(ctx, lsfp, 6);
 //			KNH_SETv(ctx, lsfp[5].o, msg);
 //			KNH_SCALL(ctx, lsfp, 0, info[i]->mtd, 2);
@@ -429,7 +429,7 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //	memcached_setValue(memc, "port", port_str);
 //	char buf[MAX_BUF_SIZE] = {0};
 //	if (sizeof(path) + 6 > MAX_BUF_SIZE) {
-//		fprintf(stderr, "ERROR: too long name\n");
+//		DBG_P( "ERROR: too long name\n");
 //	}
 //	snprintf(buf, MAX_BUF_SIZE, "%s:%s", path, port_str);
 //	memcached_setValue(memc, actor_name, buf);
@@ -452,7 +452,7 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //	int i = 0;
 //	while (methods[i] != NULL) {
 //		const char *mn_name = knh_getmnname(ctx, methods[i]->mn);
-//		//fprintf(stderr, "mn_name = [%s]\n", mn_name);
+//		//DBG_P( "mn_name = [%s]\n", mn_name);
 //		(*info)->mtd_name = mn_name;
 //		(*info)->mtd = methods[i];
 //		info++;
@@ -462,14 +462,14 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 
 //static void knh_Actor_readMessage(CTX ctx, knh_Actor_t *a, knh_Object_t *o)
 //{
-//	//fprintf(stderr, "readMessage\n");
+//	//DBG_P( "readMessage\n");
 //	knh_Object_t **v = ((knh_ObjectField_t *)o)->fields;
 //	knh_String_t *s = (knh_String_t *)v[0];
 //	const char *mtd_name = S_totext(s);
-//	//fprintf(stderr, "mtd_name = %s\n", mtd_name);
+//	//DBG_P( "mtd_name = %s\n", mtd_name);
 //	knh_Object_t *msg = v[1];
-//	//fprintf(stderr, "msg = %p\n", msg);
-//	//fprintf(stderr, "sname = %s\n", S_totext(msg->h.cTBL->sname));
+//	//DBG_P( "msg = %p\n", msg);
+//	//DBG_P( "sname = %s\n", S_totext(msg->h.cTBL->sname));
 //	knh_Actor_invokeMethod(ctx, a, mtd_name, msg);
 //}
 
@@ -478,35 +478,35 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //	const char *name = DP(a)->actor_name;
 //	const char *path = DP(a)->path;
 //	int port = DP(a)->port;
-//	fprintf(stderr, "======== <<< Actor Information >>> ========\n");
-//	fprintf(stderr, "name : %s\n", name);
-//	fprintf(stderr, "path : %s\n", path);
-//	fprintf(stderr, "port : %d\n", port);
-//	fprintf(stderr, "===========================================\n");
+//	DBG_P( "======== <<< Actor Information >>> ========\n");
+//	DBG_P( "name : %s\n", name);
+//	DBG_P( "path : %s\n", path);
+//	DBG_P( "port : %d\n", port);
+//	DBG_P( "===========================================\n");
 //	//int prev_pid = 0;
 //	int status;
 //	knh_io_t fd = knh_ServerSocket_open(ctx, sfp, port, 3);
 //	while (true) {
 //		knh_io_t sd = knh_ServerSocket_accept(ctx, sfp, fd);
 //		int pid = fork();
-//		//fprintf(stderr, "==================\n");
-//		//fprintf(stderr, "pid = [%d]\n", pid);
+//		//DBG_P( "==================\n");
+//		//DBG_P( "pid = [%d]\n", pid);
 //		if (pid == 0) {
 //			//child
-//			//fprintf(stderr, "child\n");
+//			//DBG_P( "child\n");
 //			knh_InputStream_t *ins = knh_Socket_getInputStream(ctx, sd);
 //			knh_class_t cid = knh_getcid(ctx, new_bytes("ConnectionObject"));
 //			const knh_ClassTBL_t *ct = ClassTBL(cid);
 //			knh_Object_t *o = (knh_Object_t *)knh_InputStream_readObject(ctx, ins, ct);
-//			//fprintf(stderr, "mtd_name = %s\n", c->mtd_name);
+//			//DBG_P( "mtd_name = %s\n", c->mtd_name);
 //			//knh_Object_t *msg = c->msg;
 //			knh_Actor_readMessage(ctx, a, o);
 //			knh_InputStream_close(ctx, ins);
 //			exit(0);
 //		} else if (pid < 0) {
-//			fprintf(stderr, "fork error\n");
+//			DBG_P( "fork error\n");
 //		} else {
-//			//fprintf(stderr, "PARENT: pid = [%d]\n", pid);
+//			//DBG_P( "PARENT: pid = [%d]\n", pid);
 //			waitpid(pid, &status, 0);
 //			//prev_pid = pid;
 //		}
@@ -591,7 +591,7 @@ static knh_Actor_t *knh_Actor_new(CTX ctx, knh_bytes_t name, knh_bytes_t host, i
 //		knh_Actor_addIndent(src_buf, src);
 //		int wcount = snprintf(scr, MAX_SCRIPT_SIZE - strlen(scr), "\nvoid %s(%s %s)\n{\n%s}\n", mtd_name, type_name, arg_name, src_buf);
 //		if (wcount < 0) {
-//			fprintf(stderr, "ERROR: too large script size");
+//			DBG_P( "ERROR: too large script size");
 //		}
 //		scr += wcount;
 //		memset(src_buf, '\0', MAX_SCRIPT_SIZE);
@@ -635,9 +635,9 @@ KMETHOD Actor_opLINK(CTX ctx, knh_sfp_t *sfp _RIX)
 		RETURN_(sfp[0].o);
 	}
 	knh_Actor_t *actor = knh_Actor_new(ctx, STEXT(""), host, port);
-	fprintf(stderr, "[actor] name=%s\n", S_totext(actor->name));
-	fprintf(stderr, "[actor] host=%s\n", S_totext(actor->host));
-	fprintf(stderr, "[actor] port=%d\n", actor->port);
+	DBG_P( "[actor] name=%s", S_totext(actor->name));
+	DBG_P( "[actor] host=%s", S_totext(actor->host));
+	DBG_P( "[actor] port=%d", actor->port);
 	RETURN_(actor);
 }
 
@@ -702,9 +702,9 @@ KMETHOD StoreActor_new(CTX ctx, knh_sfp_t *sfp _RIX)
 		KNH_SETv(ctx, actor->host, sfp[2].s);
 	}
 	actor->port = Int_to(int, sfp[3]);
-	fprintf(stderr, "[actor] name=%s\n", S_totext(actor->name));
-	fprintf(stderr, "[actor] host=%s\n", S_totext(actor->host));
-	fprintf(stderr, "[actor] port=%d\n", actor->port);
+	DBG_P( "[actor] name=%s", S_totext(actor->name));
+	DBG_P( "[actor] host=%s", S_totext(actor->host));
+	DBG_P( "[actor] port=%d", actor->port);
 	RETURN_(actor);
 }
 
@@ -725,7 +725,7 @@ KMETHOD StoreActor_new(CTX ctx, knh_sfp_t *sfp _RIX)
 //	const char *mtd_name = String_to(const char *, sfp[2]);
 //	knh_Object_t *msg = sfp[3].o;
 //	const char *path = knh_Actor_getActorPathFromMemcached(target_name);
-//	//fprintf(stderr, "path = [%s]\n", path);
+//	//DBG_P( "path = [%s]\n", path);
 //	int size = strlen(path) + 1;
 //	int i = 0;
 //	for (i = 0; i < size; i++) {
@@ -733,7 +733,7 @@ KMETHOD StoreActor_new(CTX ctx, knh_sfp_t *sfp _RIX)
 //			break;
 //		}
 //	}
-//	//fprintf(stderr, "port = %s\n", path + i + 1);
+//	//DBG_P( "port = %s\n", path + i + 1);
 //	int port = atoi(path + i + 1);
 //	knh_io_t sd = knh_Socket_open(ctx, sfp, "127.0.0.1", port);
 //	knh_OutputStream_t *ous = knh_Socket_getOutputStream(ctx, sd);
@@ -765,19 +765,19 @@ KMETHOD StoreActor_new(CTX ctx, knh_sfp_t *sfp _RIX)
 //		system(cmd);
 //	}
 //	if (!knh_Actor_changeToWorkingDir(dir)) {
-//		fprintf(stderr, "ERROR: cannnot change directory\n");
+//		DBG_P( "ERROR: cannnot change directory\n");
 //	}
 //	int actor_name_size = strlen(actor_name) + 1;
 //	char script_name[actor_name_size + 2];
 //	snprintf(script_name, actor_name_size + 2, "%s.k", actor_name);
-//	//fprintf(stderr, "script_name = [%s]\n", script_name);
+//	//DBG_P( "script_name = [%s]\n", script_name);
 //	FILE *fp;
 //	if ((fp = fopen(script_name, "w+")) == NULL) {
-//		fprintf(stderr, "ERROR: cannot write to file\n");
+//		DBG_P( "ERROR: cannot write to file\n");
 //		exit(EXIT_FAILURE);
 //	}
 //	const char *script = knh_Actor_getOriginalScript(ctx, func_list, actor_name);
-//	//fprintf(stderr, "script = [%s]\n", script);
+//	//DBG_P( "script = [%s]\n", script);
 //	fwrite(script, 1, strlen(script), fp);
 //	fclose(fp);
 //	knh_Actor_activateActor(dir, script_name);
@@ -799,19 +799,19 @@ KMETHOD StoreActor_new(CTX ctx, knh_sfp_t *sfp _RIX)
 //	int result = JNI_CreateJavaVM(&javavm, (void **)&jnienv, &vm_args);
 //
 //	if (result != 0) {
-//		fprintf(stderr, "ERROR : [%d] cannot create JavaVM.\n", result);
+//		DBG_P( "ERROR : [%d] cannot create JavaVM.\n", result);
 //	}
 //
-//	fprintf(stderr, "search Class\n");
+//	DBG_P( "search Class\n");
 //	jclass cls = jnienv->FindClass("ScalaActor");
 //	if (cls == 0) {
-//		fprintf(stderr, "cannot find ScalaActor\n");
+//		DBG_P( "cannot find ScalaActor\n");
 //	}
-//	fprintf(stderr, "get Method from Hoge\n");
+//	DBG_P( "get Method from Hoge\n");
 //	//jmethodID mid = jnienv->GetStaticMethodID(cls, "sendInt", "(Ljava/lang/String;Ljava/lang/String;II)V");
 //	jmethodID mid = jnienv->GetStaticMethodID(cls, "sendInt", "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)V");
 //	if (mid == 0) {
-//		fprintf(stderr, "cannot find sendInt()\n");
+//		DBG_P( "cannot find sendInt()\n");
 //	}
 //	printf("call Method.\n");
 //	const char *actor_name = String_to(const char *, sfp[1]);
@@ -826,21 +826,21 @@ KMETHOD StoreActor_new(CTX ctx, knh_sfp_t *sfp _RIX)
 //	//jobject objResult = jnienv->CallStaticObjectMethod(cls, mid);
 //	jthrowable throwResult = jnienv->ExceptionOccurred();
 //	if (throwResult != NULL) {
-//		fprintf(stderr, "Exception!!\n");
+//		DBG_P( "Exception!!\n");
 //		jnienv->ExceptionDescribe();
 //		jnienv->ExceptionClear();
 //	}
 //
 //	//if (objResult == NULL) {
-//	//fprintf(stderr, "ERROR : objResult == NULL\n");
+//	//DBG_P( "ERROR : objResult == NULL\n");
 //	//} else {
 //	//jstring strResult = (jstring)objResult;
-//	//fprintf(stderr, "[%s]\n", jnienv->GetStringUTFChars(strResult, NULL));
+//	//DBG_P( "[%s]\n", jnienv->GetStringUTFChars(strResult, NULL));
 //	//}
-//	fprintf(stderr, "delete JavaVM\n");
+//	DBG_P( "delete JavaVM\n");
 //	result = javavm->DestroyJavaVM();
 //	if (result != 0) {
-//		fprintf(stderr, "ERROR [%d] : cannot delte JavaVM\n", result);
+//		DBG_P( "ERROR [%d] : cannot delte JavaVM\n", result);
 //	}
 //	RETURNvoid_();
 //}
