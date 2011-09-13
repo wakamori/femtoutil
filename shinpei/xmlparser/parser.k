@@ -1,134 +1,14 @@
 #!/usr/local/bin/konoha
+/* -------------------------------------------
+ * parser.k : 
+ *  bpmn2 parser
+ *  shinpei(c)2011
+ *
+ * ------------------------------------------- */
 
 using konoha.xml.*;
 
-include "dtaskloader.k";
-
-class BPMN2Node {
-	Map<String, String> attributes;
-
-	void printKeys () {
-		String[] keys = attributes.keys();
-		foreach(String key in keys) {
-			OUT <<< key <<< "," <<<  attributes[key] <<< EOL;
-		}
-	}
-}
-
-/* BPMN2Node */
-class DefinitionsNode extends BPMN2Node {
-	DefinitionsNode () {
-		attributes = {};
-	}
-}
-
-class ParticipantNode extends BPMN2Node {
-	ParticipantNode() {
-		attributes = {};
-	}
-}
-
-class CollaborationNode extends BPMN2Node {
-	CollaborationNode () {
-		attributes = {};
-	}
-}
-
-class ProcessNode extends BPMN2Node {
-	ProcessNode () {
-		attributes = {};
-	} 
-}
-
-class StartEventNode extends BPMN2Node {
-	StartEventNode () {
-		attributes = {};
-	}
-}
-
-class EndEventNode extends BPMN2Node {
-	EndEventNode () {
-		attributes = {};
-	}
-}
-
-class ScriptTaskNode extends BPMN2Node {
-	ScriptTaskNode () {
-		attributes = {};
-	}
-}
-
-class TaskNode extends BPMN2Node {
-	Array<TaskNode> referenceFrom;
-	Array<TaskNode> referenceTo;
-	String taskname;
-	TaskNode () {
-		attributes = {};
-		referenceFrom = [];
-		referenceTo = [];
-	}
-}
-
-class SequenceFlowNode extends BPMN2Node {
-	TaskNode source;
-	TaskNode target;
-	// TODO;
-
-	SequenceFlowNode () {
-		attributes = {};
-	}
-}
-
-class BPMN2Edge {
-	String id;
-}
-
-class IncomoingEdge extends BPMN2Edge {
-	IncomoingEdge () {
-		id = "";
-	}
-}
-
-class OutgoingEdge extends BPMN2Edge {
-	OutgoingEdge () {
-		id = "";
-	}
-}
-
-/* BPMNDiagramNode */
-
-class BPMNDiagramNode {
-	Map<String, String> attributes;
-}
-
-class DCElement {
-	Map<String, String> attributes;
-}
-
-class BoundsElement extends DCElement {
-	BoundsElement () {
-		attributes = {};
-	}
-}
-
-class DiagramNode extends BPMNDiagramNode {
-	DiagramNode () {
-		attributes = {};
-	}
-}
-
-class PlaneNode extends BPMNDiagramNode {
-	PlaneNode () {
-		attributes = {};
-	}
-}
-
-class ShapeNode extends BPMNDiagramNode {
-	ShapeNode () {
-		attributes = {};
-	}
-}
-
+include "bpmn2.k";
 class BPMNFlow {
 	TaskNode startevent;
 	TaskNode endevent; // must be Array<TaskNode>
@@ -145,7 +25,6 @@ class BPMNFlow {
 		int fnum = |flows|;
 		int tnum = |tasks|;
 		if (fnum == 0  || tnum == 0) return "";
-		print fnum, tnum;
 		
 		// task parse
 		Map <String, TaskNode> map_task = {};
@@ -177,7 +56,7 @@ class BPMNFlow {
 		TaskNode toNode;
 		DTaskLoader dtl = new DtaskLoader("dtask");
 		script = "";
-		while (1) {
+		while (true) {
 			if (t == endevent) break;
 			toNode = map_fromTo[t.taskname];
 			script += dtl.fetch(toNode.taskname);
@@ -188,7 +67,7 @@ class BPMNFlow {
 int main(String[] args) {
 """;
 		t = startevent;
-		while (1) {
+		while (true) {
 			toNode = map_fromTo[t.taskname];
 			t = toNode;
 			if (t == endevent) break;
@@ -216,7 +95,6 @@ class BPMNParser {
 		reader = new XmlReader(filename);
 		allNodes = [];
 		dhead = [];
-		
 	}
 
 	void processNode (BPMN2Node node) {
@@ -239,76 +117,7 @@ class BPMNParser {
 		}
 	}
 
-/*	void doProcess () {
-		while(reader.read()){
-			int type = reader.nodeType();
-			String nodeType = reader.constName();
-			BPMN2Node node = null;
-			BPMNDiagramNode dnode;
-			Boolean isEdge = false;
-			if (nodeType.startsWith("bpmn2") == true) {
-				switch (nodeType) {
-				case "bpmn2:definitions":
-					node = new DefinitionsNode();
-					break;
-				case "bpmn2:collaboration":
-					node = new CollaborationNode();
-					break;
-				case "bpmn2:participant":
-					node = new ParticipantNode();
-					break;
-				case "bpmn2:process":
-					node = new ProcessNode();
-					break;
-				case "bpmn2:task": case "bpmn2:scriptTask":
-				case "bpmn2:userTask":
-					node = new TaskNode();
-					break;
-				case "bpmn2:incoming":
-					isEdge = true;
-					break;
-				case "bpmn2:outgoing":
-					isEdge = true;
-					break;
-				case "bpmn2:sequenceFlow":
-					node = new SequenceFlowNode();
-					break;
-				case "bpmn2:startEvent":
-					node = new StartEventNode();
-					break;
-				case "bpmn2:endEvent":
-					node = new EndEventNode();
-					break;
-				default:
-					print nodeType;
-				}
-				if (isEdge != true && node != null) {
-					processNode(node);
-					allNodes.add(node);
-				}
-			} else {
-				switch (nodeType) {
-				case "bpmndi:BPMNEdge":
-					break;
-				case "di:waypoint":
-					break;
-				case "bpmndi:BPMNPlane":
-					break;
-				case "bpmndi:BPMNDiagram":
-					break;
-				case "bpmndi:BPMNShape":
-					break;
-				case "dc:Bounds":
-					break;
-				default:
-//					print nodeType;
-				}
-
-			}
-		}
-	} */
-
-	BPMNFlow getFlow () {
+	void parse () {
 		BPMNFlow bflow = new BPMNFlow();
 		int type;
 		String nodeType;
@@ -416,6 +225,8 @@ int main(String[] args)
 	print args[0];
 	String filename = args[0];
 	bparser = new BPMNParser(filename);
+	bparser.parse();
+	
 	BPMNFlow bpmn_flow = bparser.getFlow();
 	ous = new OutputStream("code.k", "w");
 	ous <<< bpmn_flow.generateCode() <<< EOL;
