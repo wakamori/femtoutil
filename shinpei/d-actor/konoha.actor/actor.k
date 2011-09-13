@@ -39,7 +39,7 @@ include "lib:gluelink";
 
 @Native @Hidden Actor Actor.opLINK(String path, NameSpace _);
 @Native boolean Actor.setStore(StoreActor store);
-@Native boolean Actor.sendMethod(Func<dynamic=>dynamic> method);
+//@Native boolean Actor.sendMethod(Func<dynamic=>dynamic> method);
 
 @Native String Actor.getName();
 @Native String Actor.getHost();

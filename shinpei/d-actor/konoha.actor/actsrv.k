@@ -1,7 +1,6 @@
 #!/usr/local/bin/konoha
 
-using konoha.socket.*;
-using konoha.io.*;
+using konoha.proc.*;
 
 //DEBUG_MODE = true;
 DEBUG_MODE = false;
@@ -13,10 +12,26 @@ int main (String[] args)
 	if (argc > 0) {
 		port = (int)args[0];
 	}
+
+	p = new Proc(["/usr/local/bin/konoha", "mailbox.k", (String)port]);
+	print p;
+	InputStream ins = p.getInputStream();
+	String recvmsg = "";
+	while (p.isAlive()) {
+		String line = ins.readLine();
+		if (line == "" && recvmsg != "") {
+//			OUT << "received msg: '" << recvmsg << "'"<< EOL;
+			System.eval(recvmsg);
+			recvmsg = "";
+		} else if (line != "") {
+			recvmsg += line;
+		}
+	}
+/*
 	int ch;
 	string line = '';
 	OUT <<< "port: " + port <<< EOL;
-	ServerSocket ss = new ServerSocekt(port, 3);
+	ServerSocket ss = new ServerSocket(port, 3);
 
 	while(true) {
 		Socket conn = ss.accept();
@@ -29,4 +44,5 @@ int main (String[] args)
 
 	}
 	OUT << "connection has closed" << EOL;
+*/
 }

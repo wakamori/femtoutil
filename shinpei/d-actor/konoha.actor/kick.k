@@ -6,7 +6,15 @@ void process_done() {
 }
 
 int main (String[] args) {
-	a1 = actor:192.168.0.4:2000;
+
+	a = actor:localhost:2000;
+	a.eval("""
+void f() {
+    OUT <<< "hello world" <<< EOL;
+}""");
+	a.eval("f()");
+
+/*	a1 = actor:192.168.0.4:2000;
 	a2 = actor:192.168.0.6:2000;
 
 	a1.eval("""
@@ -41,5 +49,6 @@ void process_b (int i) {
 
 	a1.eval("process_a()");
 	Actor.startActorMyself(2000);
+*/
+	return 0;
 }
-
