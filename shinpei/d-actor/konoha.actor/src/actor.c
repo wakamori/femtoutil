@@ -663,11 +663,11 @@ KMETHOD Actor_getPort(CTX ctx, knh_sfp_t *sfp _RIX)
 	RETURNi_(actor->port);
 }
 
-//## boolean Actor.setStore(StoreActor store);
-KMETHOD Actor_setStore(CTX ctx, knh_sfp_t *sfp _RIX)
-{
-//	KNH_TODO("Actor.setStore");
-}
+////## boolean Actor.setStore(StoreActor store);
+//KMETHOD Actor_setStore(CTX ctx, knh_sfp_t *sfp _RIX)
+//{
+////	KNH_TODO("Actor.setStore");
+//}
 
 //## boolean Actor.sendMethod(Func<dynamic=>dynamic> method);
 /* KMETHOD Actor_sendMethod(CTX ctx, knh_sfp_t *sfp _RIX) */
@@ -687,26 +687,26 @@ KMETHOD Actor_setStore(CTX ctx, knh_sfp_t *sfp _RIX)
 /* 	KNH_TODO("startActor"); */
 /* } */
 
-//# StoreActor StoreActor.new(String name, String host, int port);
-KMETHOD StoreActor_new(CTX ctx, knh_sfp_t *sfp _RIX)
-{
-	knh_Actor_t *actor = (knh_Actor_t *)sfp[0].o;
-	if (actor->name == NULL) {
-		KNH_INITv(actor->name, sfp[1].s);
-	} else {
-		KNH_SETv(ctx, actor->name, sfp[1].s);
-	}
-	if (actor->host == NULL) {
-		KNH_INITv(actor->host, sfp[2].s);
-	} else {
-		KNH_SETv(ctx, actor->host, sfp[2].s);
-	}
-	actor->port = Int_to(int, sfp[3]);
-	DBG_P( "[actor] name=%s", S_totext(actor->name));
-	DBG_P( "[actor] host=%s", S_totext(actor->host));
-	DBG_P( "[actor] port=%d", actor->port);
-	RETURN_(actor);
-}
+////# StoreActor StoreActor.new(String name, String host, int port);
+//KMETHOD StoreActor_new(CTX ctx, knh_sfp_t *sfp _RIX)
+//{
+//	knh_Actor_t *actor = (knh_Actor_t *)sfp[0].o;
+//	if (actor->name == NULL) {
+//		KNH_INITv(actor->name, sfp[1].s);
+//	} else {
+//		KNH_SETv(ctx, actor->name, sfp[1].s);
+//	}
+//	if (actor->host == NULL) {
+//		KNH_INITv(actor->host, sfp[2].s);
+//	} else {
+//		KNH_SETv(ctx, actor->host, sfp[2].s);
+//	}
+//	actor->port = Int_to(int, sfp[3]);
+//	DBG_P( "[actor] name=%s", S_totext(actor->name));
+//	DBG_P( "[actor] host=%s", S_totext(actor->host));
+//	DBG_P( "[actor] port=%d", actor->port);
+//	RETURN_(actor);
+//}
 
 
 //KMETHOD Actor_act(CTX ctx, knh_sfp_t *sfp _RIX)
@@ -856,12 +856,12 @@ DEFAPI(void) defActor(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
 	knh_NameSpace_setLinkClass(ctx, ctx->share->rootns, STEXT("actor"), ClassTBL(knh_getcid(ctx, STEXT("Actor"))));
 }
 
-DEFAPI(void) defStoreActor(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
-{
-	cdef->name = "StoreActor";
-	cdef->init = Actor_init;
-	cdef->free = Actor_free;
-}
+//DEFAPI(void) defStoreActor(CTX ctx, knh_class_t cid, knh_ClassDef_t *cdef)
+//{
+//	cdef->name = "StoreActor";
+//	cdef->init = Actor_init;
+//	cdef->free = Actor_free;
+//}
 
 #ifdef _SETUP
 DEFAPI(const knh_PackageDef_t*) init(CTX ctx, knh_LoaderAPI_t *kapi)

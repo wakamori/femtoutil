@@ -32,10 +32,38 @@
 //  chen_ji - Takuma Wakamori, Yokohama National University, Japan
 // **************************************************************************
 
+using konoha.memcached.*;
+using konoha.io.*;
+
 include "lib:gluelink";
 
 @Native class Actor;
-@Native class StoreActor extends Actor;
+class StoreActor {
+	Map m;
+	String name;
+
+	StoreActor(String name, String host, int port) {
+		m = Map.open("memcached:" + host + ":" + (to String)port);
+		if (m == null) throw new CannotCreateException!!();
+		_name = name;
+	}
+
+	dynamic get(String key) {
+		if (m[key] == null) return null;
+		Bytes b;
+		if (m[key] <: String)
+			b = (to Bytes)(to String)m[key];
+		else
+			b = m[key];
+		return b.readMsgPack(0, |b|);
+	}
+
+	void set(String key, Object data) {
+		Bytes b = new Bytes();
+		b.writeMsgPack(data);
+		m[key] = b;
+	}
+}
 
 @Native @Hidden Actor Actor.opLINK(String path, NameSpace _);
 @Native boolean Actor.setStore(StoreActor store);
@@ -50,7 +78,7 @@ include "./actor_script.k";
 //@Native boolean Actor.eval(String script);
 //@Native void startActor(int port);
 
-@Native StoreActor StoreActor.new(String name, String host, int port);
+//@Native StoreActor StoreActor.new(String name, String host, int port);
 
 //class ConnectionObject {
 //	String mtd_name;
