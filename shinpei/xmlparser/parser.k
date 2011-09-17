@@ -28,7 +28,6 @@ class BPMNFlow {
 		
 		// task parse
 		Map <String, TaskNode> map_task = {};
-
 		foreach (TaskNode t in tasks) {
 			t.taskname = t.attributes['id'];
 			if (t.taskname != null) {
@@ -73,15 +72,12 @@ int main(String[] args) {
 			if (t == endevent) break;
 			script += "\t" + t.taskname + "();\n";
 		}
-		
 		script += """
 } /* end of main */
-
 """
 		return script;
 	}
 }
-
 
 class BPMNParser {
 	XmlReader reader;
@@ -197,7 +193,6 @@ class BPMNParser {
 				default:
 //					print nodeType;
 				}
-
 			}
 		} /* while */
 		return bflow;

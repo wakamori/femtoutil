@@ -73,12 +73,9 @@ class Association extends ConnectionObject {
 	Association () { attributes = {}; }
 }
 
-
 //class DataObject extends BPMN2Object;
 //class Group extends BPMN2Object;
 //class Annotation extends BPMN2Object;
-
-
 
 class BPMNWorkflow {
 	@Private Event startEvent;
@@ -137,17 +134,9 @@ class CodeGenerator {
 		
 		// task parse
 		Map <String, Activity> activity_map = {};
-
-		
-
 		return code;
-
 	}
-	
 }
-
-
-
 
 // XML object
 class BPMN2Node {
@@ -218,7 +207,6 @@ class SequenceFlowNode extends BPMN2Node {
 	TaskNode source;
 	TaskNode target;
 	// TODO;
-
 	SequenceFlowNode () {
 		attributes = {};
 	}

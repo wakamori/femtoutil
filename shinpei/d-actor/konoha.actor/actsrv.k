@@ -20,7 +20,6 @@ int main (String[] args)
 	while (p.isAlive()) {
 		String line = ins.readLine();
 		if (line == "" && recvmsg != "") {
-//			OUT << "received msg: '" << recvmsg << "'"<< EOL;
 			System.eval(recvmsg);
 			recvmsg = "";
 		} else if (line != "") {
