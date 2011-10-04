@@ -32,13 +32,16 @@
 //  chen_ji - Takuma Wakamori, Yokohama National University, Japan
 // **************************************************************************
 
-using konoha.memcached.*;
+//using konoha.memcached.*;
 using konoha.io.*;
+using konoha.socket.*;
+using konoha.proc.*;
 
 include "lib:gluelink";
 
 @Native class Actor;
-class StoreActor {
+
+/*class StoreActor {
 	Map m;
 	String name;
 
@@ -63,20 +66,15 @@ class StoreActor {
 		b.writeMsgPack(data);
 		m[key] = b;
 	}
-}
+	}*/
 
 @Native @Hidden Actor Actor.opLINK(String path, NameSpace _);
-@Native boolean Actor.setStore(StoreActor store);
+//@Native boolean Actor.setStore(StoreActor store);
 //@Native boolean Actor.sendMethod(Func<dynamic=>dynamic> method);
 
 @Native String Actor.getName();
 @Native String Actor.getHost();
 @Native int Actor.getPort();
-
-include "./actor_script.k";
-
-//@Native boolean Actor.eval(String script);
-//@Native void startActor(int port);
 
 //@Native StoreActor StoreActor.new(String name, String host, int port);
 
@@ -88,6 +86,51 @@ include "./actor_script.k";
 //void Actor.act(String actor_name);
 //void Actor.send(String target_name, String mtd_name, dynamic msg);
 //void Actor.spawn(String actor_name, Array<Func<dynamic>> func_list);
+
+
+
+boolean Actor.eval(String script) {
+	Socket s;
+	try {
+		s = new Socket(this.host, this.port);
+		OutputStream ous = s.getOutputStream();
+		//TODO: we need \n as a termination term
+		ous.writeMsgPack(script + "\n");
+		ous.flush();
+		ous.close();
+		s.close();
+	} catch (Exception!! e) {
+		print e;
+	}
+	return true;
+}
+
+void Actor.startActorMyself (int port) {
+	p = new Proc(["/usr/local/bin/konoha", "mailbox.k", (String)port]);
+	print p;
+	InputStream ins = p.getInputStream();
+	while (p.isAlive()) {
+		String msg = ins.readLine();
+		System.eval(msg);
+	}
+/*	int ch;
+	string line = '';
+	OUT <<< "starting actor mode @port: " + port <<< EOL;
+	ServerSocket ss = new ServerSocekt(port, 3);
+
+	while(true) {
+		Socket conn = ss.accept();
+		OUT << "accepted" << EOL;
+		ins = conn.getInputStream();
+		String scr = ins.readMsgPack();
+		OUT << "received script: '" << scr << "'"<< EOL;
+		System.eval(scr);
+	}
+	OUT << "connection has closed" << EOL;
+*/
+}
+
+
 
 //class Person {
 //	String name;

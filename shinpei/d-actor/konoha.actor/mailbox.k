@@ -5,6 +5,7 @@ using konoha.socket.*;
 String[] inbox;
 // we only suppose 
 // mailbox.k $(port)
+
 void main (String[] args)
 {
 	int argc = |args|;
@@ -12,7 +13,6 @@ void main (String[] args)
 	if (argc > 0) {
 		port = (int)args[0];
 	}
-
 	ServerSocket ss = new ServerSocket(port, 3);
 	while (true) {
 		Socket conn = ss.accept();

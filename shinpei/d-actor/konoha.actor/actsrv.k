@@ -14,13 +14,11 @@ int main (String[] args)
 	}
 
 	p = new Proc(["/usr/local/bin/konoha", "mailbox.k", (String)port]);
-	print p;
 	InputStream ins = p.getInputStream();
 	String recvmsg = "";
 	while (p.isAlive()) {
 		String line = ins.readLine();
 		if (line == "" && recvmsg != "") {
-//			OUT << "received msg: '" << recvmsg << "'"<< EOL;
 			System.eval(recvmsg);
 			recvmsg = "";
 		} else if (line != "") {

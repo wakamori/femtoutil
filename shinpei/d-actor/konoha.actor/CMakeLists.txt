@@ -11,7 +11,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 project(actor)
 set(PACKAGE_SOURCE_CODE src/actor.c)
-set(PACKAGE_SCRIPT_CODE actor.k actor_script.k)
+set(PACKAGE_SCRIPT_CODE actor.k)
 
 set(PACKAGE_NAME    ${PROJECT_NAME})
 set(PACKAGE_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
