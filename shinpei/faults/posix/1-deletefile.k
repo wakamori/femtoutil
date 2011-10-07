@@ -4,7 +4,21 @@
  */
 
 include "faultinjector.k";
-using konoha.posix.*;
+include "faultsetup.k";
+
+class DeleteFileFaultSetup extends FaultSetup {
+
+	DeleteFileFaultSetup () {
+
+	}
+
+	@Override boolean setup(String[] args) {
+		String input_file = args[0];
+		this.createFile (input_file, 1024);
+		return true;
+	}
+}
+
 
 class DeleteFileFault extends FaultInstance {
 	String filename;
@@ -14,7 +28,6 @@ class DeleteFileFault extends FaultInstance {
 	}
 
 	@Override boolean inject (void) {
-		print filename;
 		if (filename != "") {
 			return System.unlink(filename);
 		}

@@ -1,14 +1,13 @@
 /*
- * 1. deletefile
+ * faultsetup.k
  * Shinpei Nakata (c) 2011
  */
 
+using konoha.posix.*;
+
 class FaultSetup {
 	String filename;
-
-	FaultSetup () {
-		filename = "";
-	}
+	@Virtual boolean setup(String[] args);
 
 	void createFile (String fname, int size) {
 		filename = fname;
@@ -19,5 +18,13 @@ class FaultSetup {
 			wrote_bytes++;
 		}
 		ous.close();
+	}
+
+	void createFileWithPermission(String fname, int mode) {
+		filename = fname;
+		OutputStream ous = new OutputStream(filename, "w");
+		int size = 1024
+		createFile(fname, size);
+		System.chmod(file:: fname, mode);
 	}
 }

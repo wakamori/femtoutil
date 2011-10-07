@@ -1,27 +1,26 @@
 /*
- * 1. deletefile
+ * 2. file permission
  * Shinpei Nakata (c) 2011
  */
 
 using konoha.proc.*;
-include "1-deletefile.k"
+include "2-filepermission.k"
 
-boolean isFaultInject = false;
+boolean isFaultInject = true;
 
 int main (String[] args)
 {
-	DeleteFileFaultSetup fs = new DeleteFileFaultSetup();
+	FilePermissionFaultSetup fs = new FilePermissionFaultSetup();
 	String input_file = "hoge.txt";
 	fs.setup([input_file]);
  	FaultInjector fi = new FaultInjector();
-	DeleteFileFault fdFault = new DeleteFileFault(input_file);
-	fi.addFaultInstance(fdFault);
+	FilePermissionFault fpFault = new FilePermissionFault(input_file);
+	fi.addFaultInstance(fpFault);
 	
 	if (isFaultInject) {
 		print "injecting...";
 		fi.loadToLocalTarget();
 	}
-
 	Proc p = new Proc(["/usr/local/bin/konoha", "-a", "sample-posix.k", input_file]);
 	ins = p.getInputStream();
 	while (p.isAlive()) {
