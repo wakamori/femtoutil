@@ -4,7 +4,6 @@
  */
 
 include "faultinjector.k";
-
 using konoha.posix.*;
 
 class DeleteFileFault extends FaultInstance {
@@ -22,4 +21,3 @@ class DeleteFileFault extends FaultInstance {
 		return false;
 	}
 }
-
