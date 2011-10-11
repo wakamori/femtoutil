@@ -6,7 +6,7 @@
 using konoha.proc.*;
 include "1-deletefile.k"
 
-boolean isFaultInject = false;
+boolean isFaultInject = true;
 
 int main (String[] args)
 {
@@ -29,5 +29,6 @@ int main (String[] args)
 			OUT << line;
 		}
 	}
+	fs.wrapup();
 	return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * 2. deletefile
+ * 2. file permission
  * Shinpei Nakata (c) 2011
  */
 
@@ -7,17 +7,22 @@ include "faultinjector.k";
 include "faultsetup.k";
 
 class FilePermissionFaultSetup extends FaultSetup {
+	String input_file;
 	FilePermissionFaultSetup () {
-
+		input_file = "";
 	}
 
 	@Override boolean setup (String[] args) {
-		String input_file = args[0];
+		input_file = args[0];
 		this.createFile(input_file, 1024);
 		return true;
 	}
 
 
+	@Override boolean wrapup() {
+		System.chmod(file:: input_file, 0755);
+		return System.unlink(file:: input_file);
+	}
 }
 
 

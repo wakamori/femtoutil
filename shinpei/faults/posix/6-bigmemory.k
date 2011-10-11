@@ -20,4 +20,3 @@ class OpenDirectoryFaultSetup extends FaultSetup {
 	}
 }
 
-clsas 

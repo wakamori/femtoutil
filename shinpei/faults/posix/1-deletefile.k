@@ -8,14 +8,19 @@ include "faultsetup.k";
 
 class DeleteFileFaultSetup extends FaultSetup {
 
+	String input_file;
 	DeleteFileFaultSetup () {
-
+		input_file = "";
 	}
 
 	@Override boolean setup(String[] args) {
-		String input_file = args[0];
+		input_file = args[0];
 		this.createFile (input_file, 1024);
 		return true;
+	}
+
+	@Override boolean wrapup() {
+		return System.unlink(file:: input_file);
 	}
 }
 
