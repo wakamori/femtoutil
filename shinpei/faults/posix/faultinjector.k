@@ -36,6 +36,7 @@ class FaultInjector {
 		Array<boolean> results = [];
 
 		foreach (FaultInstance f in farray) {
+			OUT << "injecting... " << f.faultName << EOL;
 			results.add(f.inject());
 		}
 		print results;

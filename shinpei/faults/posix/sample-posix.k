@@ -12,7 +12,6 @@ int main (String[] args) {
 		filename = args[0];
 		fpth = file::filename;
 	}
-	OUT <<< "filename" <<< EOL;
 	DFile f = System.fopen(fpth, "r");
 	int bufsiz = 128;
 	Bytes buf = new byte[bufsiz];

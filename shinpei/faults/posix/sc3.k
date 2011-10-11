@@ -11,7 +11,7 @@ boolean isFaultInject = true;
 int main (String[] args)
 {
 	ItsSymlinkFaultSetup fs = new ItsSymlinkFaultSetup();
-	String linked_file = "hoge_base.txt";
+	String linked_file = "hoge_linked.txt";
 	String link_file = "hoge_link.txt";
 	fs.setup([linked_file, link_file]);
 
@@ -29,5 +29,7 @@ int main (String[] args)
 			OUT << line;
 		}
 	}
+	OUT << "wrapup_status: " <<  fs.wrapup() << EOL;
 	return 0;
 }
+	
