@@ -28,5 +28,6 @@ int main (String[] args)
 			OUT << line;
 		}
 	}
+	fs.wrapup();
 	return 0;
 }
