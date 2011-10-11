@@ -18,6 +18,16 @@ int main (String[] args)
  	FaultInjector fi = new FaultInjector();
 	ItsSymlinkFault fpFault = new ItsSymlinkFault(linked_file);
 	fi.addFaultInstance(fpFault);
-
-
+	if (isFaultInject) {
+		print "injecting...";
+		fi.loadToLocalTarget();
+	}
+	Proc p = new Proc(["/usr/local/bin/konoha", "-a", "sample-posix.k", link_file]);
+	ins = p.getInputStream();
+	while (p.isAlive()) {
+		while ((line = ins.readLine()) != null) {
+			OUT << line;
+		}
+	}
+	return 0;
 }
