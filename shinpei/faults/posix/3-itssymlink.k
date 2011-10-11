@@ -12,7 +12,7 @@ class ItsSymlinkFaultSetup extends FaultSetup {
 		String linked_file = args[0];
 		String link_file = args[1];
 		this.createFile(linked_file, 1024);
-		System.link(file:: linked_file, file:: linked_file);
+		System.symlink(file:: linked_file, file:: link_file);
 		return true;
 	}
 }

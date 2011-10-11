@@ -4,6 +4,7 @@
  */
 
 using konoha.posix.*;
+include "libfi.k";
 
 int main (String[] args) {
 	Path fpth = null;
@@ -12,8 +13,9 @@ int main (String[] args) {
 		filename = args[0];
 		fpth = file::filename;
 	}
-	OUT <<< "filename" <<< EOL;
+	faultinjection(12);
 	DFile f = System.fopen(fpth, "r");
+	faultremove();
 	int bufsiz = 128;
 	Bytes buf = new byte[bufsiz];
 	int total_readsize = 0;

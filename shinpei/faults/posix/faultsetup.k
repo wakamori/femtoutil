@@ -8,7 +8,7 @@ using konoha.posix.*;
 class FaultSetup {
 	String filename;
 	@Virtual boolean setup(String[] args);
-
+	@Virtual boolean wrapup();
 	void createFile (String fname, int size) {
 		filename = fname;
 		OutputStream ous = new OutputStream(filename,"w");
