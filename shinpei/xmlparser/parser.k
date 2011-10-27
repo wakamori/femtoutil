@@ -49,6 +49,8 @@ class BPMNFlow {
 			map_fromTo[sr] = map_task[tr];
 		}
 		
+
+		// script generating
 		// begin from start event
 		String startEventName = startevent.attributes["id"];
 		TaskNode t = startevent;
@@ -113,7 +115,8 @@ class BPMNParser {
 		}
 	}
 
-	void parse () {
+//	void parse () {
+	BPMNFlow genFlow () {
 		BPMNFlow bflow = new BPMNFlow();
 		int type;
 		String nodeType;
@@ -220,9 +223,9 @@ int main(String[] args)
 	print args[0];
 	String filename = args[0];
 	bparser = new BPMNParser(filename);
-	bparser.parse();
+//	bparser.parse();
 	
-	BPMNFlow bpmn_flow = bparser.getFlow();
+	BPMNFlow bpmn_flow = bparser.genFlow();
 	ous = new OutputStream("code.k", "w");
 	ous <<< bpmn_flow.generateCode() <<< EOL;
 	ous.close();
