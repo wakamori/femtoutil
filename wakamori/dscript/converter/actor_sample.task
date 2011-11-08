@@ -1,0 +1,8 @@
+using konoha.actor.*;
+
+a = actor:localhost:2000;
+
+a->task "taskname" {
+	print "hello";
+	print "hi";
+}

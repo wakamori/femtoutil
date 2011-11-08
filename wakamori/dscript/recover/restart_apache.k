@@ -5,7 +5,8 @@
 
 using konoha.proc.*;
 
-CONF_FILE="./conf";
+//CONF_FILE="/etc/apache2/apache2.conf";
+CONF_FILE="apache2.conf";
 
 class ApacheConf
 {
@@ -38,8 +39,34 @@ class ApacheConf
 		return replaced;
 	}
 
+	boolean setMaxClients(String module, int max) {
+		boolean replaced = false;
+		boolean insidetag = false;
+		ins = new InputStream(path, "r");
+		String[] buf = [];
+		foreach (String line in ins) {
+			if (line.trim().startsWith("MaxClients") && insidetag && !replaced) {
+				line = line.replace($/\d+/, (to String)max);
+				replaced = true;
+				insidetag = false;
+			}
+			else if (|line.match(module)| > 0) {
+				insidetag = true;
+			}
+			buf.add(line);
+		}
+		ins.close();
+		ous = new OutputStream(path, "w");
+		foreach (String line in buf) {
+			ous << line << EOL;
+		}
+		ous.flush();
+		ous.close();
+		return replaced;
+	}
+
 	boolean setMaxConnection(String from_host, int from_ip, int max) {
-		Function<String=>boolean> f = function(String line) {
+		Func<String=>boolean> f = function(String line) {
 			return line.trim().startsWith("MaxConnection");
 		};
 		from_host = (from_host == "") ? "all" : from_host;
@@ -69,8 +96,11 @@ boolean restart() {
 
 void main(String[] args) {
 	ApacheConf aconf = new ApacheConf(CONF_FILE);
-	if (aconf.setMaxConnection("hoge", 0, 20)) {
-		print "Apache MaxConnection configured successfully";
+	//if (aconf.setMaxConnection("hoge", 0, 20)) {
+	//	print "Apache MaxConnection configured successfully";
+	//}
+	if (aconf.setMaxClients("mpm_worker_module", 12345)) {
+		print "Apache MaxClients configured successfully";
 	}
 	if (restart()) {
 		print "Apache restarted successfully";
