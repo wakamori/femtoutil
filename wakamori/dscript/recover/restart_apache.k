@@ -76,7 +76,9 @@ class ApacheConf
 	}
 }
 
-boolean restart() {
+class Apache;
+
+@Static boolean Apache.restart() {
 	Proc p = new Proc(["/usr/sbin/apache2ctl", "restart"]);
 	InputStream out = p.getInputStream();
 	boolean successed = true;
@@ -92,17 +94,4 @@ boolean restart() {
 	}
 	p.wait();
 	return successed;
-}
-
-void main(String[] args) {
-	ApacheConf aconf = new ApacheConf(CONF_FILE);
-	//if (aconf.setMaxConnection("hoge", 0, 20)) {
-	//	print "Apache MaxConnection configured successfully";
-	//}
-	if (aconf.setMaxClients("mpm_worker_module", 12345)) {
-		print "Apache MaxClients configured successfully";
-	}
-	if (restart()) {
-		print "Apache restarted successfully";
-	}
 }

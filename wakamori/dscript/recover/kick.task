@@ -1,0 +1,18 @@
+using konoha.actor.*;
+
+web_recovery_actor = actor:192.168.0.201:50000;
+
+web_recovery_actor.evalFile("restart_apache.k");
+
+web_recovery_actor->task "restart_apache" {
+	ApacheConf aconf = new ApacheConf(CONF_FILE);
+	//if (aconf.setMaxConnection("hoge", 0, 20)) {
+	//	print "Apache MaxConnection configured successfully";
+	//}
+	if (aconf.setMaxClients("mpm_worker_module", 12345)) {
+		print "Apache MaxClients configured successfully";
+	}
+	if (Apache.restart()) {
+		print "Apache restarted successfully";
+	}
+}
