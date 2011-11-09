@@ -1,3 +1,5 @@
+#!/usr/local/bin/konoha
+
 void main(String[] args)
 {
 	assert |args| == 1;
