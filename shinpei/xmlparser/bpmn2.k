@@ -77,6 +77,8 @@ class Association extends ConnectionObject {
 //class Group extends BPMN2Object;
 //class Annotation extends BPMN2Object;
 
+// alternative class of BPMNFlow
+
 class BPMNWorkflow {
 	@Private Event startEvent;
 	@Private Event endEvent;
@@ -89,6 +91,8 @@ class BPMNWorkflow {
 	FlowObject seekPointer;
 
 	BPMNWorkflow () {
+		startEvent = null;
+		endevent = null;
 		flowobjects = [];
 		connobjects = [];
 		flowNum = 0;
@@ -96,8 +100,20 @@ class BPMNWorkflow {
 		seekPointer = startEvent;
 	}
 
+	@Public void setupStartEvent(Event ev) {
+		startEvent = ev;
+	}
+
+	@Public void setupEndEvent (Event ev) {
+		endEvent = ev;
+	}
+
 	@Public Event fetchStartEvent () {
 		return startEvent;
+	}
+
+	@Public Event fetchEndEvent () {
+		return endEvent;
 	}
 
 	@Public void addFlow (FlowObject fo) {
@@ -131,9 +147,12 @@ class CodeGenerator {
 	String generate (BPMNWorkflow workflow) {
 		String code = '';
 		if (workflow.flowNum == 0 || workflow.connNum == 0) return "";
-		
+		Activity[] act = workflow.flowObject;
 		// task parse
 		Map <String, Activity> activity_map = {};
+		foreach (Activity act in workflow.flowObjects) {
+			activity_map[act["id"]] = act;
+		}
 		return code;
 	}
 }
