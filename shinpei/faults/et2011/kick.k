@@ -2,7 +2,7 @@ using konoha.actor.*;
 
 int main(String[] args)
 {
-	a1 = actor:192.168.0.5:50010;
+	a1 = actor:192.168.0.203:50010;
 	ins = new InputStream("proc.k");
 	buf = "";
 	foreach (String line in ins) {
@@ -10,7 +10,6 @@ int main(String[] args)
 		buf = buf + line + EOL;
 	}
 	a1.eval(buf);
-	//OUT << buf << EOL;
 
 	ins = new InputStream("apache_search.k");
 	buf = "";
@@ -19,11 +18,8 @@ int main(String[] args)
 		buf = buf + line + EOL;
 	}
 	a1.eval(buf);
-	//OUT << buf << EOL;
 	a1.eval("apache_search();");
-
-	
-	a2 = actor:192.168.0.5:50011;
+	a2 = actor:192.168.0.203:50011;
 	ins = new InputStream("memstress.k");
 	buf = "";
 	foreach (String line in ins) {
