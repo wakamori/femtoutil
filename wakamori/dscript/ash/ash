@@ -1,0 +1,214 @@
+#!/usr/local/bin/konoha
+
+using konoha.actor.*;
+
+ActorInfo = Tuple<String,String,int>;
+
+DIAG = "diag.localhost";
+WEB = "web.localhost";
+DB = "db.localhost";
+
+ActorInfo[] actorlist = [
+	//("test"                , "localhost"    ,  2000),
+	("recovery_diag"         , DIAG, 50001),
+	("stop_db"               , DB  , 50002),
+	("restart_db"            , DB  , 50003),
+	("recovery_web"          , WEB , 50010),
+	("stop_web"              , WEB , 50011),
+	("reconfigure_web"       , WEB , 50012),
+	("storagestress"         , WEB , 50013),
+	("swapstress"            , WEB , 50014),
+	("monitor_cpu_usage"     , WEB , 50020),
+	("monitor_mem_usage"     , WEB , 50021),
+	("monitor_net_usage"     , WEB , 50022),
+	("monitor_web_access"    , WEB , 50030),
+	("monitor_web_perfm"     , WEB , 50031),
+	("monitor_oom_killer"    , WEB , 50032),
+	("monitor_db_access"     , WEB , 50033),
+	("start_service"         , WEB , 50050),
+	("stop_service"          , WEB , 50051),
+	("restart_web"           , WEB , 50052)
+]
+
+class Task {
+	String name;
+	String script;
+	Actor actor;
+
+	Task(String name, String script) {
+		_name = name;
+		_script = script;
+		_actor = null;
+	}
+
+	void exec() {
+		if (actor == null) return;
+		actor.startTask(name);
+		actor.eval(script);
+		actor.endTask();
+	}
+}
+
+Task[] tasklist = [];
+
+void showStats() {
+	foreach (ActorInfo a in actorlist) {
+		OUT << a[0].format("%-21s") << " : " << a[1].format("%-14s") << " : " << a[2].format("%5d") << " : ";
+		try {
+			Actor a = new Actor(a[0], a[1].split(".")[1], a[2]);
+			OUT << "live" << EOL;
+		} catch (Script!! e) {
+			OUT << "dead" << EOL;
+		}
+	}
+}
+
+void defineTask(String task_name) {
+	String script = "";
+	int n = 1;
+	while (true) {
+		String line = System.readLine("(" + task_name + ":" + n++ + ") ");
+		if (line == null) {
+			break;
+		}
+		script += line + EOL;
+	}
+	OUT << EOL;
+	tasklist.add(new Task(task_name, script));
+}
+
+void bindTaskOnActor(String task_name, String actor_name) {
+	Actor a;
+	foreach (ActorInfo ar in actorlist) {
+		if (ar[0] == actor_name) {
+			try {
+				a = new Actor(actor_name, ar[1].split(".")[1], ar[2]);
+			} catch (Script!! e) {
+				ERR << e << EOL;
+				return;
+			}
+			break;
+		}
+	}
+	if (a == null) {
+		OUT << "actor \"" << actor_name << "\" does not exists!!" << EOL;
+		return;
+	}
+	foreach (Task t in tasklist) {
+		if (t.name == task_name) {
+			t.actor = a;
+			return;
+		}
+	}
+	OUT << "task \"" << task_name << "\" does not exists!!" << EOL;
+}
+
+void showCmds() {
+	OUT << "bind  : bind a task on actor" << EOL;
+	OUT << "exec  : execute a task      " << EOL;
+	OUT << "exit  : exit                " << EOL;
+	OUT << "help  : show commands       " << EOL;
+	OUT << "list  : show task list      " << EOL;
+	OUT << "stats : show actor status   " << EOL;
+	OUT << "task  : define a task       " << EOL;
+}
+
+void showList() {
+	foreach (Task t in tasklist) {
+		OUT << t.name;
+		//if (t.actor != null) {
+		//	OUT << "->" << t.actor.name;
+		//}
+		OUT << EOL;
+	}
+}
+
+void execTask(String task_name) {
+	foreach (Task t in tasklist) {
+		//if (t.name == task_name) {
+		//	if (t.actor == null) {
+		//		ERR << "please bind task \"" << task_name << "\" on actor" << EOL;
+		//		return;
+		//	}
+			t.exec();
+		//	break;
+		//}
+	}
+}
+
+void initTasklist() {
+	String[] filelist = System.exec("ls task").split(EOL);
+	foreach(String filename in filelist) {
+		if (filename == "") continue;
+		InputStream ins = new InputStream("./task/" + filename);
+		String script = "";
+		foreach (String line in ins) {
+			script += line + EOL;
+		}
+		String taskname = filename.split(".")[0];
+		tasklist.add(new Task(taskname, script));
+		bindTaskOnActor(taskname, "recovery_web");
+	}
+}
+
+void showDscript() {
+	foreach (Task t in tasklist) {
+		int index = t.name.indexOf(t.name.split("_")[1]);
+		OUT << t.name.split("_")[0] << " " << t.name[index to] << EOL;
+	}
+}
+
+void main(String[] args)
+{
+	initTasklist();
+	OUT << "== welcome to D-Actor shell ==" << EOL;
+	while (true) {
+		String line = System.readLine(">>> ");
+		if (line == null) {
+			OUT << EOL;
+			continue;
+		}
+		String[] cmds = line.split($/\s+/);
+		switch (cmds[0]) {
+		case "help":
+			showCmds();
+			break;
+		//case "list":
+		//	showList();
+		//	break;
+		case "dscript":
+			showDscript();
+			break;
+		case "stats":
+			showStats();
+			break;
+		//case "bind":
+		//	if (|cmds| != 3) {
+		//		ERR << "bad arguments: " << line << EOL;
+		//		break;
+		//	}
+		//	bindTaskOnActor(cmds[1], cmds[2]);
+		//	break;
+		case "task":
+			if (|cmds| != 2) {
+				ERR << "bad arguments: " << line << EOL;
+				break;
+			}
+			defineTask(cmds[1]);
+			break;
+		case "exec":
+			if (|cmds| != 2) {
+				ERR << "bad arguments: " << line << EOL;
+				break;
+			}
+			execTask(cmds[1]);
+			break;
+		case "quit":
+		case "exit":
+			return;
+		default:
+			ERR << "undefined command: " << line << EOL;
+			break;
+		}
+	}
+}
