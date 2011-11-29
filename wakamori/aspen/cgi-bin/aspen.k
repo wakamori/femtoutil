@@ -19,40 +19,41 @@ SCRIPT_DIR  = "";
 BUG_DIR     = "";
 TMP_DIR     = "";
 
-string admin_menu = ##<!DOCTYPE html>
-                    ##<html lang="ja">
-                    ##<head>
-                    ##<meta charset="UTF-8">
-                    ##<title>Admin Menu - Aspen</title>
-                    ##<style>
-                    ##body { padding: 1em; margin: auto; }
-                    ##table, td, th { border: 1px black solid; border-spacing: 0px;}
-                    ##td, th { padding: 3px; }
-                    ##</style>
-                    ##</head>
-                    ##<body>
-                    ##<header>
-                    ##<h1>Admin Menu</h1>
-                    ##</header>
-                    ##<form action="aspen.k" method="POST">
-                    ##<input type="hidden" name="type" value="update">
-                    ##<table>
-                    ##<caption>
-                    ##<strong>You can modify user roles by filling the form below.</strong>
-                    ##</caption>
-                    ##<thead>
-                    ##<tr><th>User ID</th><th>Screen Name</th><th>Role</th><th>New Role</th></tr>
-                    ##</thead>
-                    ##<tbody>
-                    ##%body%
-                    ##</tbody>
-                    ##</table>
-                    ##<p><input type="submit" value="Update Roles">
-                    ##<input type="reset" value="Reset"></p>
-                    ##<p><a href="doc">Back to editor</a></p>
-                    ##</form>
-                    ##</body>
-                    ##</html>
+string admin_menu = """
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<title>Admin Menu - Aspen</title>
+	<style>
+	body { padding: 1em; margin: auto; }
+	table, td, th { border: 1px black solid; border-spacing: 0px;}
+	td, th { padding: 3px; }
+	</style>
+</head>
+<body>
+	<header>
+		<h1>Admin Menu</h1>
+	</header>
+	<form action="aspen.k" method="POST">
+		<input type="hidden" name="type" value="update">
+		<table>
+			<caption>
+				<strong>You can modify user roles by filling the form below.</strong>
+			</caption>
+			<thead>
+				<tr><th>User ID</th><th>Screen Name</th><th>Role</th><th>New Role</th></tr>
+			</thead>
+			<tbody>
+				%body%
+			</tbody>
+		</table>
+		<p><input type="submit" value="Update Roles">
+		<input type="reset" value="Reset"></p>
+		<p><a href="doc">Back to editor</a></p>
+	</form>
+</body>
+</html>"""
 
 void alarm_handler(int signum) {
 	throw new Security!!("too long");
