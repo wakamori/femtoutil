@@ -1,0 +1,18 @@
+import os
+
+libs = [''];
+cpppath = ["-I../include"];
+
+if os.name == 'posix':
+   libs.append('dl');
+   libs.append('m');
+
+srcdir = "../src/";
+SharedLibrary('libnlog',
+[
+srcdir + "nlog.c"
+
+],
+CFLAGS=["-g3", "-O0"],
+CPPPATH=cpppath,
+LIBS=libs)
