@@ -10,9 +10,19 @@ if os.name == 'posix':
 srcdir = "../src/";
 SharedLibrary('libnlog',
 [
-srcdir + "nlog.c"
-
+srcdir + "nlog.c",
+srcdir + "malloc.c"
 ],
 CFLAGS=["-g3", "-O0"],
 CPPPATH=cpppath,
 LIBS=libs)
+
+nlog_lib = File('./libnlog.so');
+sample_dir = '../sample/';
+Program('sample',
+		[
+		sample_dir + "sample.c"
+		],
+		CFLAGS=["-g3", "-O0"],
+		CPPPATH=['-I../include', '-L.']
+		)
