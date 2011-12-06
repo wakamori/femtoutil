@@ -1,9 +1,9 @@
 using konoha.proc.*;
 
 void apache_search() {
-    p = new Proc(["/bin/pidof", "apache2"]);
-    ins = p.getInputStream();
-    while (p.isAlive()) {
+	p = new Proc(["/bin/pidof", "apache2"]);
+	ins = p.getInputStream();
+	while (p.isAlive()) {
 		str = ins.readLine();
 		OUT << str << EOL;
 		if (|str| > 0) {
