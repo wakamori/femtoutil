@@ -5,8 +5,8 @@
 
 using konoha.proc.*;
 
-//CONF_FILE="/etc/apache2/apache2.conf";
-CONF_FILE="apache2.conf";
+CONF_FILE="/etc/apache2/apache2.conf";
+//CONF_FILE="apache2.conf";
 
 class ApacheConf
 {
