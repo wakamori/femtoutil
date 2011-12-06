@@ -1,3 +1,7 @@
+2011-12-06  Shinpei Nakata  <shinpei.nakata@gmail.com>
+
+	* src/malloc.c: added malloc wrapper, and json-like logging
+
 2011-12-03  Shinpei Nakata  <shinpei.nakata@gmail.com>
 
 	* README: first commit to libnlog. log and replay library

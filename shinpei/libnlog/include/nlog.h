@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <string.h>
 
 #define _GNU_SOURCE
 #include <dlfcn.h>
@@ -41,5 +42,7 @@ typedef struct nlog2_t {
   const char *value;
 } nlog2_t;
 
+
+#include <time.h>
 
 #endif

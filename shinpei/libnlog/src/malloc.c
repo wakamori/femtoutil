@@ -29,13 +29,3 @@ void *nlog_malloc (size_t size, const void *caller)
   install_malloc();
   return ptr;
 }
-
-__attribute__((constructor))
-void
- __nlog_initialize(void)
-{
-  if (malloc_orig == NULL) {
-	malloc_orig = __malloc_hook;
-	__malloc_hook = nlog_malloc;
-  }
-}
